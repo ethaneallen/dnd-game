@@ -4602,8 +4602,14 @@ class Game {
         
         // Update action buttons state
         const actionsPanel = document.getElementById("actionsPanel");
+        const isUnconsciousOrInCombat = this.dm.inCombat || this.character.hp <= 0;
         actionsPanel.querySelectorAll("button").forEach(btn => {
-            btn.disabled = this.dm.inCombat;
+            // Only Rest button should be enabled when unconscious
+            if (this.character.hp <= 0) {
+                btn.disabled = !btn.textContent.includes("Rest");
+            } else {
+                btn.disabled = this.dm.inCombat;
+            }
         });
     }
 
@@ -4649,6 +4655,12 @@ class Game {
 
     async explore() {
         if (this.dm.inCombat) return;
+        
+        // Cannot explore while unconscious
+        if (this.character.hp <= 0) {
+            this.log("You're unconscious and need medical attention! Rest to recover.", "danger");
+            return;
+        }
         
         this.dm.turn++;
         const locType = this.dm.currentLocation.type;
@@ -5672,8 +5684,13 @@ class Game {
         if (char.deathSaves.successes >= 3) {
             char.deathSaves.stable = true;
             this.log("🛡️ You stabilize! You're unconscious but no longer dying.", "success");
+            this.log("⚕️ A companion tends to your wounds. You must rest to recover.", "dm");
             // End combat if stabilized
             this.endCombat(false);
+            // Show recovery prompt
+            setTimeout(() => {
+                this.log("You need to rest to regain consciousness. Click 'Rest' to recover.", "danger");
+            }, 500);
             return;
         }
         
@@ -7188,6 +7205,12 @@ class Game {
     }
     
     openShop(shopType = "general") {
+        // Cannot shop while unconscious
+        if (this.character.hp <= 0) {
+            this.log("You're unconscious and need medical attention! Rest to recover.", "danger");
+            return;
+        }
+        
         // Generate shop inventory based on type and location
         let shopInventory = [];
         const prices = GAME_DATA.shopPrices;
@@ -8475,6 +8498,12 @@ class Game {
             return;
         }
         
+        // Cannot use items while unconscious
+        if (this.character.hp <= 0) {
+            this.log("You're unconscious! You need to rest to recover.", "danger");
+            return;
+        }
+        
         // Remove item from inventory
         const removeItem = () => {
             const index = this.character.inventory.indexOf(item);
@@ -8733,6 +8762,12 @@ class Game {
     travel(locationIndex) {
         this.closeTravelModal();
         
+        // Cannot travel while unconscious
+        if (this.character.hp <= 0) {
+            this.log("You're unconscious and need medical attention! Rest to recover.", "danger");
+            return;
+        }
+        
         const newLocation = this.dm.campaign.locations[locationIndex];
         const oldLocation = this.dm.currentLocation;
         this.dm.currentLocation = newLocation;
@@ -8958,6 +8993,12 @@ class Game {
     async rest() {
         if (this.dm.inCombat) return;
         
+        // If at 0 HP and stable, force immediate recovery
+        if (this.character.hp <= 0) {
+            this.forceRecoveryRest();
+            return;
+        }
+        
         // Show rest options modal
         this.showRestModal();
     }
@@ -9006,6 +9047,21 @@ class Game {
             </div>
         `;
         modal.classList.add("active");
+    }
+
+    forceRecoveryRest() {
+        this.log("⚕️ Your companions tend to your wounds while you're unconscious...", "dm");
+        this.dm.advanceTime(1);
+        
+        // Heal to 1 HP minimum (stabilized recovery)
+        const healAmount = Math.max(1, Math.floor(this.character.maxHp * 0.25));
+        this.character.heal(healAmount);
+        
+        this.log(`💚 You regain consciousness with ${healAmount} HP!`, "success");
+        this.log(`${this.dm.getTimeIcon()} Time: ${this.formatTime()}`, "dm");
+        this.log("You can continue your adventure, but consider resting more to fully recover.", "dm");
+        
+        this.updateUI();
     }
 
     closeRestModal() {
@@ -11044,7 +11100,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Add version and credits info
-console.log('%c⚔️ D&D: Realms of Adventure v2.0 ⚔️', 'color: #d4af37; font-size: 20px; font-weight: bold;');
+console.log('%c⚔️ D&D: Realms of Adventure v2.3 ⚔️', 'color: #d4af37; font-size: 20px; font-weight: bold;');
 console.log('%cA professional D&D 5th Edition web experience', 'color: #c9a227; font-size: 12px;');
 console.log('%c📜 Features: Multiple campaigns, character creation, achievements, companions, crafting, and more!', 'color: #888;');
 console.log('%c💾 Auto-save enabled | 🎮 Keyboard shortcuts available | 🎲 Authentic D&D rules', 'color: #888;');
