@@ -528,11 +528,109 @@ class MusicManager {
         this.currentTrack = null;
         this.isPlaying = false;
         this.oscillators = [];
+        
+        // Ambient soundscapes
+        this.ambientAudio = null;
+        this.ambientEnabled = false;
+        this.ambientVolume = 0.3;
+        this.loadAmbientSettings();
     }
 
     init() {
         if (!this.audioContext) {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+    
+    loadAmbientSettings() {
+        const settings = localStorage.getItem('ambientSettings');
+        if (settings) {
+            const parsed = JSON.parse(settings);
+            this.ambientEnabled = parsed.enabled ?? false;
+            this.ambientVolume = parsed.volume ?? 0.3;
+        }
+    }
+    
+    saveAmbientSettings() {
+        localStorage.setItem('ambientSettings', JSON.stringify({
+            enabled: this.ambientEnabled,
+            volume: this.ambientVolume
+        }));
+    }
+    
+    setAmbientEnabled(enabled) {
+        this.ambientEnabled = enabled;
+        this.saveAmbientSettings();
+        if (!enabled) {
+            this.stopAmbient();
+        }
+    }
+    
+    setAmbientVolume(volume) {
+        this.ambientVolume = Math.max(0, Math.min(1, volume));
+        if (this.ambientAudio) {
+            this.ambientAudio.volume = this.ambientVolume;
+        }
+        this.saveAmbientSettings();
+    }
+    
+    playAmbientForLocation(location) {
+        if (!this.ambientEnabled) return;
+        
+        const locationName = location.name.toLowerCase();
+        const locationType = location.type ? location.type.toLowerCase() : '';
+        let soundFile = null;
+        
+        // Check location name first for specific matches
+        if (locationName.includes('tavern') || locationName.includes('inn')) {
+            soundFile = 'public/sounds/tavern-fire.mp3';
+        } else if (locationName.includes('cave') || locationName.includes('crypt') || locationName.includes('cavern')) {
+            soundFile = 'public/sounds/cave-ambience.mp3';
+        } else if (locationName.includes('forest') || locationName.includes('jungle') || locationName.includes('wood')) {
+            soundFile = 'public/sounds/forest-wind.mp3';
+        } else if (locationName.includes('dungeon') || locationName.includes('lair')) {
+            soundFile = 'public/sounds/dungeon-drips.mp3';
+        } else if (locationName.includes('town') || locationName.includes('village') || locationName.includes('city')) {
+            soundFile = 'public/sounds/town-square.mp3';
+        }
+        
+        // If no name match, check location type
+        if (!soundFile) {
+            const soundscapeMap = {
+                'town': 'public/sounds/town-square.mp3',
+                'dungeon': 'public/sounds/dungeon-drips.mp3',
+                'wilderness': 'public/sounds/forest-wind.mp3'
+            };
+            soundFile = soundscapeMap[locationType];
+        }
+        
+        // Default to town square if nothing matched
+        if (!soundFile) {
+            soundFile = 'public/sounds/town-square.mp3';
+        }
+        
+        console.log(`🎵 Playing ambient sound for "${location.name}" (type: ${locationType}): ${soundFile.split('/').pop()}`);
+        
+        // Check if we're already playing this sound
+        if (this.ambientAudio && this.ambientAudio.src.includes(soundFile.split('/').pop())) {
+            return; // Already playing the right sound
+        }
+        
+        this.stopAmbient();
+        
+        this.ambientAudio = new Audio(soundFile);
+        this.ambientAudio.loop = true;
+        this.ambientAudio.volume = this.ambientVolume;
+        this.ambientAudio.play().catch(err => {
+            console.warn('Ambient audio playback failed:', err);
+        });
+    }
+    
+    stopAmbient() {
+        if (this.ambientAudio) {
+            this.ambientAudio.pause();
+            this.ambientAudio.currentTime = 0;
+            this.ambientAudio = null;
         }
     }
 
@@ -542,6 +640,7 @@ class MusicManager {
         });
         this.oscillators = [];
         this.isPlaying = false;
+        this.stopAmbient();
     }
 
     // Ambient music using procedural generation
@@ -3416,6 +3515,7 @@ class Game {
         this.combatTactics = 'normal'; // normal, defensive, aggressive
         this.playerStatusEffects = [];
         this.enemyStatusEffects = [];
+        this.processingCombatAction = false; // Prevent combat action spam exploit
         
         // Statistics for achievements
         this.stats = {
@@ -3829,6 +3929,23 @@ class Game {
                     <button class="setting-btn ${soundManager.enabled ? 'active' : ''}" onclick="soundManager.enabled = !soundManager.enabled; game.openSettings();">🔊 Sound: ${soundManager.enabled ? 'ON' : 'OFF'}</button>
                     <button class="setting-btn ${musicManager.enabled ? 'active' : ''}" onclick="musicManager.toggle(); game.openSettings();">🎵 Music: ${musicManager.enabled ? 'ON' : 'OFF'}</button>
                 </div>
+                
+                <h4 style="margin-top: 15px;">🌲 Ambient Soundscapes</h4>
+                <div class="settings-buttons">
+                    <button class="setting-btn ${musicManager.ambientEnabled ? 'active' : ''}" 
+                        onclick="musicManager.setAmbientEnabled(!musicManager.ambientEnabled); game.openSettings();">
+                        🌊 Ambient: ${musicManager.ambientEnabled ? 'ON' : 'OFF'}
+                    </button>
+                </div>
+                ${musicManager.ambientEnabled ? `
+                    <div class="volume-control" style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                        <label style="display: block; margin-bottom: 5px;">Volume</label>
+                        <input type="range" min="0" max="100" value="${musicManager.ambientVolume * 100}" 
+                            oninput="musicManager.setAmbientVolume(this.value / 100); this.nextElementSibling.textContent = this.value + '%';"
+                            style="width: 100%;">
+                        <span style="display: block; text-align: center; margin-top: 5px;">${Math.round(musicManager.ambientVolume * 100)}%</span>
+                    </div>
+                ` : ''}
             </div>
             
             <div class="settings-section">
@@ -5386,6 +5503,10 @@ class Game {
     async combatAction(action) {
         if (!this.dm.inCombat) return;
         
+        // Prevent multiple actions while processing (fixes XP spam exploit)
+        if (this.processingCombatAction) return;
+        this.processingCombatAction = true;
+        
         const monster = this.dm.currentEnemy;
         const char = this.character;
         const campaignId = this.dm.campaignId;
@@ -5397,6 +5518,7 @@ class Game {
             } else {
                 this.log("You're unconscious! Roll a death saving throw.", "danger");
             }
+            this.processingCombatAction = false;
             return;
         }
 
@@ -5405,6 +5527,7 @@ class Game {
             this.log("You can't act while paralyzed/stunned!", "danger");
             char.removeCondition("stunned"); // Stunned lasts 1 turn
             this.monsterTurn();
+            this.processingCombatAction = false;
             return;
         }
 
@@ -5544,6 +5667,7 @@ class Game {
             if (check.success) {
                 this.log(`🏃 You successfully flee from combat! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 12)`, "success");
                 this.endCombat(false);
+                this.processingCombatAction = false;
                 return;
             } else {
                 this.log(`❌ You fail to escape! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 12)`, "danger");
@@ -5552,6 +5676,7 @@ class Game {
         } else if (action === "spell") {
             // Open spell casting UI
             this.showSpellMenu();
+            this.processingCombatAction = false;
             return; // Don't proceed to monster turn yet
         }
         
@@ -5561,6 +5686,7 @@ class Game {
         // Check if enemy is dead
         if (monster.hp <= 0) {
             this.handleMonsterDeath(monster);
+            this.processingCombatAction = false;
             return;
         }
         
@@ -5570,11 +5696,15 @@ class Game {
         // Check again if enemy died from companion attacks
         if (monster.hp <= 0) {
             this.handleMonsterDeath(monster);
+            this.processingCombatAction = false;
             return;
         }
         
         // Monster's turn
         this.monsterTurn();
+        
+        // Reset processing flag at the end
+        this.processingCombatAction = false;
     }
     
     async companionCombatRound(monster) {
@@ -8772,6 +8902,9 @@ class Game {
         const oldLocation = this.dm.currentLocation;
         this.dm.currentLocation = newLocation;
         
+        // Play ambient soundscape for location
+        musicManager.playAmbientForLocation(newLocation);
+        
         this.log(`You travel to ${newLocation.name}...`, "dm");
         if (newLocation.description) {
             this.log(`<em>${newLocation.description}</em>`, "dm");
@@ -11100,7 +11233,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Add version and credits info
-console.log('%c⚔️ D&D: Realms of Adventure v2.3 ⚔️', 'color: #d4af37; font-size: 20px; font-weight: bold;');
+console.log('%c⚔️ D&D: Realms of Adventure v2.4 ⚔️', 'color: #d4af37; font-size: 20px; font-weight: bold;');
 console.log('%cA professional D&D 5th Edition web experience', 'color: #c9a227; font-size: 12px;');
 console.log('%c📜 Features: Multiple campaigns, character creation, achievements, companions, crafting, and more!', 'color: #888;');
 console.log('%c💾 Auto-save enabled | 🎮 Keyboard shortcuts available | 🎲 Authentic D&D rules', 'color: #888;');

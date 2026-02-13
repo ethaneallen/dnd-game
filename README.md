@@ -2,7 +2,7 @@
 
 ### *An Epic D&D 5th Edition Web RPG Experience*
 
-![Version](https://img.shields.io/badge/version-2.3-gold)
+![Version](https://img.shields.io/badge/version-2.4-gold)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![D&D](https://img.shields.io/badge/D%26D-5e-red)
 
@@ -46,6 +46,7 @@
 - 🎲 **3D Dice Animations** - Spinning dice for ALL rolls with immersive sound effects
 - 🎯 **Landing Page** - Clean, responsive hero interface with optimized spacing
 - 🏅 **Combat Toast Notifications** - Quick victory summaries that auto-dismiss, expandable for full details
+- 🌲 **Ambient Soundscapes** - Immersive background audio that changes based on your location
 
 ---
 
@@ -98,6 +99,19 @@ Every dice roll in the game features immersive 3D animations with 100% coverage:
 - **Trap Damage** - Even triggering traps displays the damage roll animation
 - **Exploration Events** - Town events, gambits, and checks all feature dice rolls
 - **Sound Effects** - Unique spinning/wobbling sound effect during each roll
+
+### **🔊 Ambient Soundscapes**
+The game includes immersive background audio that dynamically changes based on your location:
+- **Toggle On/Off** - Enable or disable ambient soundscapes in Settings
+- **Volume Control** - Adjust ambient volume independently from other sounds
+- **Location-Aware** - Soundscapes automatically change as you travel:
+  - 🔥 **Tavern Fire** - Crackling flames when visiting inns and taverns
+  - 🌲 **Forest Wind** - Wind through trees in wilderness and forest areas
+  - 🕳️ **Cave Ambience** - Echoing drips in caves and crypts
+  - 🏘️ **Town Square** - Bustling activity in towns and settlements
+  - 💀 **Dungeon Drips** - Eerie sounds in dungeons and dark places
+- **Seamless Loops** - Continuous ambient audio that doesn't interrupt gameplay
+- **Persistent Settings** - Your preferences are saved between sessions
 - **Visual Feedback** - Golden glow for critical hits (natural 20), dark grey for fumbles (natural 1)
 - **Advantage/Disadvantage** - Dual dice animations for advantage and disadvantage rolls
 
