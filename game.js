@@ -3857,17 +3857,38 @@ class Game {
     }
     
     openSideQuests() {
-        let html = '<h2>📋 Side Quests</h2>';
+        let html = '<h2>📋 Quests</h2>';
         
-        const active = this.sideQuests.filter(q => !q.completed);
-        const completed = this.sideQuests.filter(q => q.completed);
+        // Show main campaign quests from journal
+        const journalActive = this.character.journal.quests.filter(q => !q.completed);
+        const journalCompleted = this.character.journal.quests.filter(q => q.completed);
         
-        if (active.length === 0 && completed.length === 0) {
+        // Show side quests
+        const sideActive = this.sideQuests.filter(q => !q.completed);
+        const sideCompleted = this.sideQuests.filter(q => q.completed);
+        
+        const hasAnyQuests = journalActive.length > 0 || journalCompleted.length > 0 || sideActive.length > 0 || sideCompleted.length > 0;
+        
+        if (!hasAnyQuests) {
             html += '<p style="text-align:center;color:#888;">No quests yet. Explore to find opportunities!</p>';
         } else {
-            if (active.length > 0) {
-                html += '<h3 style="color:#c9a227;">Active Quests</h3>';
-                active.forEach(q => {
+            // Main Campaign Quests
+            if (journalActive.length > 0) {
+                html += '<h3 style="color:#c9a227;">📜 Main Quests</h3>';
+                journalActive.forEach(q => {
+                    html += `
+                        <div class="quest-card">
+                            <div class="quest-title">${q.name}</div>
+                            <div class="quest-desc">${q.description}</div>
+                        </div>
+                    `;
+                });
+            }
+            
+            // Side Quests
+            if (sideActive.length > 0) {
+                html += '<h3 style="color:#c9a227;">⭐ Side Quests</h3>';
+                sideActive.forEach(q => {
                     html += `
                         <div class="quest-card">
                             <div class="quest-title">${q.title}</div>
@@ -3879,9 +3900,13 @@ class Game {
                 });
             }
             
-            if (completed.length > 0) {
-                html += '<h3 style="color:#4CAF50;">Completed</h3>';
-                completed.forEach(q => {
+            // Completed Quests
+            if (journalCompleted.length > 0 || sideCompleted.length > 0) {
+                html += '<h3 style="color:#4CAF50;">✅ Completed</h3>';
+                journalCompleted.forEach(q => {
+                    html += `<div class="quest-card completed"><div class="quest-title">✓ ${q.name}</div></div>`;
+                });
+                sideCompleted.forEach(q => {
                     html += `<div class="quest-card completed"><div class="quest-title">✓ ${q.title}</div></div>`;
                 });
             }
@@ -7870,6 +7895,161 @@ class Game {
         if (modal) modal.classList.remove("active");
     }
     
+    // ==================== NPC TALK SYSTEM ====================
+    getAvailableNPCs() {
+        const currentLoc = this.dm.currentLocation;
+        const campaignNPCs = this.dm.campaign.npcs || {};
+        const available = [];
+        
+        // Get NPCs based on their availability
+        for (const [npcId, npc] of Object.entries(campaignNPCs)) {
+            if (this.isNPCAvailable(npcId, currentLoc)) {
+                available.push({ id: npcId, ...npc });
+            }
+        }
+        
+        return available;
+    }
+    
+    isNPCAvailable(npcId, currentLoc) {
+        const flags = this.dm.questFlags;
+        const chapter = this.dm.currentChapter;
+        const campaignId = this.dm.campaignId;
+        const locName = currentLoc.name.toLowerCase();
+        
+        if (campaignId === "keep_on_borderlands") {
+            if (npcId === "Castellan" && locName.includes("inner bailey")) return true;
+            if (npcId === "Priest" && locName.includes("chapel")) return true;
+            if (npcId === "Merchant" && locName.includes("bailey")) return true;
+            if (npcId === "Innkeeper" && locName.includes("tavern")) return true;
+        }
+        
+        if (campaignId === "nights_dark_terror") {
+            if (npcId === "Stephan" && chapter === 0) return true;
+            if (npcId === "Pyotr" && flags.reachedSukiskyn && locName.includes("sukiskyn")) return true;
+            if (npcId === "Taras" && flags.rescuedTaras) return true;
+        }
+        
+        if (campaignId === "curse_of_strahd") {
+            if (npcId === "Ismark" && locName.includes("barovia") && !locName.includes("castle")) return true;
+            if (npcId === "Ireena" && flags.metIreena && locName.includes("barovia")) return true;
+            if (npcId === "MadamEva" && locName.includes("tser pool")) return true;
+            if (npcId === "Bildrath" && locName.includes("mercantile")) return true;
+        }
+        
+        if (campaignId === "tomb_of_annihilation") {
+            if (npcId === "Syndra" && chapter === 0) return true;
+            if (npcId === "Azaka" && locName.includes("port nyanzaru") && flags.arrivedPort) return true;
+            if (npcId === "Merchant" && locName.includes("port nyanzaru")) return true;
+        }
+        
+        return false;
+    }
+    
+    openTalkMenu() {
+        const npcs = this.getAvailableNPCs();
+        
+        if (npcs.length === 0) {
+            this.log("There's no one here to talk to.", "dm");
+            return;
+        }
+        
+        let modal = document.getElementById("talkModal");
+        if (!modal) {
+            modal = document.createElement("div");
+            modal.id = "talkModal";
+            modal.className = "modal";
+            document.body.appendChild(modal);
+        }
+        
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 500px;">
+                <h2>💬 Talk to...</h2>
+                <div class="npc-list" style="max-height: 400px; overflow-y: auto;">
+                    ${npcs.map(npc => `
+                        <div class="npc-option" onclick="game.talkToNPC('${npc.id}')" style="padding: 15px; margin: 10px 0; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer; border: 2px solid #c9a227; transition: all 0.3s;" onmouseover="this.style.background='rgba(201,162,39,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                            <div class="npc-name" style="font-size: 18px; font-weight: bold; color: #c9a227; margin-bottom: 5px;">👤 ${npc.name || npc.id}</div>
+                            <div class="npc-role" style="font-size: 14px; color: #aaa; margin-bottom: 5px;">${npc.role || ''}</div>
+                            <div class="npc-desc" style="font-size: 13px; color: #999;">${npc.description || ''}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <button class="close-modal" onclick="game.closeTalkMenu()">Close</button>
+            </div>
+        `;
+        
+        modal.classList.add("active");
+    }
+    
+    talkToNPC(npcId) {
+        const npc = this.dm.campaign.npcs[npcId];
+        if (!npc) return;
+        
+        this.closeTalkMenu();
+        
+        // Add NPC to journal if not already there
+        if (!this.character.journal.npcs.find(n => n.name === npc.name)) {
+            this.character.addJournalEntry('npc', {
+                name: npc.name,
+                notes: npc.description || npc.role || "Met in " + this.dm.currentLocation.name
+            });
+        }
+        
+        // Show dialogue
+        this.log(`💬 You approach ${npc.name}...`, "dm");
+        
+        if (npc.dialogue && npc.dialogue.length > 0) {
+            const dialogue = Array.isArray(npc.dialogue) ? npc.dialogue[0] : npc.dialogue;
+            this.log(`<em>"${dialogue}"</em>`, "dm");
+        }
+        
+        // Trigger any quest-related events
+        this.checkNPCQuestTriggers(npcId);
+        
+        this.updateUI();
+    }
+    
+    checkNPCQuestTriggers(npcId) {
+        const flags = this.dm.questFlags;
+        const campaignId = this.dm.campaignId;
+        
+        // Handle quest-giving NPCs
+        if (campaignId === "keep_on_borderlands") {
+            if (npcId === "Castellan" && !flags.metCastellan) {
+                this.triggerStoryEvent("meetCastellan");
+            }
+        }
+        
+        if (campaignId === "curse_of_strahd") {
+            if (npcId === "Ismark" && !flags.metIsmark) {
+                this.triggerStoryEvent("meetIsmark");
+            }
+            if (npcId === "MadamEva" && !flags.visitedMadamEva) {
+                this.triggerStoryEvent("visitMadamEva");
+            }
+        }
+        
+        if (campaignId === "tomb_of_annihilation") {
+            if (npcId === "Syndra" && !flags.metSyndra) {
+                this.triggerStoryEvent("intro_toa");
+            }
+            if (npcId === "Azaka" && !flags.hiredGuide) {
+                this.triggerStoryEvent("meetGuide");
+            }
+        }
+        
+        if (campaignId === "nights_dark_terror") {
+            if (npcId === "Stephan" && !flags.intro) {
+                this.triggerStoryEvent("intro");
+            }
+        }
+    }
+    
+    closeTalkMenu() {
+        const modal = document.getElementById("talkModal");
+        if (modal) modal.classList.remove("active");
+    }
+    
     // ==================== CRAFTING SYSTEM ====================
     openCrafting() {
         let modal = document.getElementById("craftingModal");
@@ -8790,8 +8970,12 @@ class Game {
                 }
             }
             
+            // Get NPCs available at this location
+            const availableNPCs = this.getAvailableNPCs();
+            
             shopBtnContainer.innerHTML = `
                 <button class="shop-btn" onclick="game.openShop('general')">🛒 Visit Shop</button>
+                ${availableNPCs.length > 0 ? `<button class="shop-btn" onclick="game.openTalkMenu()" style="background: linear-gradient(135deg, #9c27b0, #6a1b9a); margin-left: 5px;">💬 Talk</button>` : ''}
             `;
             shopBtnContainer.style.display = "block";
         } else if (shopBtnContainer) {
@@ -9757,21 +9941,34 @@ class Game {
                     `"Greetings, traveler! I am Stephan Sukiskyn, a horse trader. I need capable warriors to escort me to my family's homestead. The roads have become dangerous - goblins raid with impunity. I can pay 50 gold pieces, and my family will provide food and shelter. What say you?"`,
                     [{ text: "Accept the job" }, { text: "Ask for more information" }]
                 ).then(choice => {
+                    // Add NPC to journal
+                    this.character.addJournalEntry('npc', { 
+                        name: "Stephan Sukiskyn", 
+                        notes: "Horse trader who hired us to escort him to his family homestead." 
+                    });
+                    
                     if (choice === 0) {
                         this.dm.questFlags.metStephan = true;
                         this.character.gold += 25;
                         this.log("You accept Stephan's offer. He pays you 25 gold upfront.", "success");
                         this.log(`<em>"Excellent! We leave at dawn. Meet me at Misha's Ferry."</em>`, "dm");
-                        this.log("📜 <strong>QUEST STARTED:</strong> Journey to Sukiskyn", "loot");
-                        this.updateChapterDisplay();
                     } else {
                         this.log(`<em>"My family breeds the finest white horses in Karameikos. But I haven't heard from them in weeks. I fear the worst. Please, I need your help!"</em>`, "dm");
                         this.dm.questFlags.metStephan = true;
                         this.character.gold += 25;
                         this.log("Moved by his plea, you accept. He pays you 25 gold upfront.", "success");
-                        this.log("📜 <strong>QUEST STARTED:</strong> Journey to Sukiskyn", "loot");
-                        this.updateChapterDisplay();
                     }
+                    
+                    // Add quest to journal
+                    this.character.addJournalEntry('quest', {
+                        id: 'journey_to_sukiskyn',
+                        name: 'Journey to Sukiskyn',
+                        description: 'Escort Stephan safely to his family homestead.',
+                        completed: false
+                    });
+                    
+                    this.log("📜 <strong>QUEST STARTED:</strong> Journey to Sukiskyn", "loot");
+                    this.updateChapterDisplay();
                     this.updateUI();
                 });
                 break;
@@ -9891,6 +10088,13 @@ class Game {
                 this.dm.questFlags.metIsmark = true;
                 this.dm.currentChapter = 1;
                 this.character.experience += 100;
+                
+                // Add NPC to journal
+                this.character.addJournalEntry('npc', { 
+                    name: "Ismark Kolyanovich", 
+                    notes: "Seeking help to protect his sister Ireena from the vampire lord Strahd." 
+                });
+                
                 this.log("👤 <strong>CHAPTER 1: VILLAGE OF BAROVIA</strong>", "danger");
                 await this.showChoice(
                     "👤 Ismark Kolyanovich",
@@ -9900,6 +10104,16 @@ class Game {
                     if (choice === 1) {
                         this.log(`<em>"Strahd von Zarovich is the lord of this land - a vampire who has ruled for centuries. He has become obsessed with my sister. She bears bite marks on her neck... Please, we must act quickly!"</em>`, "dm");
                     }
+                    
+                    // Add quest to journal
+                    this.character.addJournalEntry('quest', {
+                        id: 'escape_barovia',
+                        name: 'Escape the Land of Barovia',
+                        description: 'Help Ismark and Ireena escape to Vallaki. Confront Strahd von Zarovich.',
+                        completed: false
+                    });
+                    
+                    this.log("📜 <strong>QUEST STARTED:</strong> Escape the land of Barovia", "loot");
                     this.log("You agree to help Ismark protect his sister.", "success");
                     this.log("📜 <strong>OBJECTIVE:</strong> Meet Ireena and escort her to safety!", "loot");
                     this.log("👥 <strong>NEW COMPANION AVAILABLE:</strong> Ismark Kolyanovich can now join your party! Click 'Party' to recruit him.", "success");
@@ -9911,6 +10125,13 @@ class Game {
             case "meetIreena":
                 this.dm.questFlags.metIreena = true;
                 this.character.experience += 100;
+                
+                // Add NPC to journal
+                this.character.addJournalEntry('npc', { 
+                    name: "Ireena Kolyana", 
+                    notes: "Ismark's sister. Bears the bite marks of Strahd. The vampire lord is obsessed with her." 
+                });
+                
                 this.log("👩 You meet Ireena Kolyana.", "success");
                 this.log(`<em>A beautiful young woman with auburn hair regards you with both hope and fear. Two faint puncture marks are visible on her neck.</em>`, "dm");
                 this.log(`"I will not be a prisoner in my own home. If you are traveling to Vallaki, I will come with you. But first, my father must be buried properly."`, "dm");
@@ -9921,6 +10142,13 @@ class Game {
                 this.dm.questFlags.visitedMadamEva = true;
                 this.dm.currentChapter = 2;
                 this.character.experience += 200;
+                
+                // Add NPC to journal
+                this.character.addJournalEntry('npc', { 
+                    name: "Madam Eva", 
+                    notes: "Ancient Vistani fortune teller. Read our fate in the tarokka cards and foretold of treasures needed to defeat Strahd." 
+                });
+                
                 this.log("🎪 <strong>CHAPTER 2: THE FORTUNE TELLER</strong>", "danger");
                 this.log(`The ancient Vistani woman spreads her tarokka cards before you. Her eyes seem to see beyond the physical world.`, "dm");
                 this.log(`<em>"Your fate is written in the cards. Listen well, for they will guide you to salvation... or doom."</em>`, "dm");
@@ -10001,6 +10229,21 @@ class Game {
                     }
                     this.dm.questFlags.metSyndra = true;
                     this.character.gold += 50;
+                    
+                    // Add NPC to journal
+                    this.character.addJournalEntry('npc', { 
+                        name: "Syndra Silvane", 
+                        notes: "Dying archmage afflicted by the Death Curse. She hired us to find and destroy the Soulmonger in Chult." 
+                    });
+                    
+                    // Add quest to journal
+                    this.character.addJournalEntry('quest', {
+                        id: 'end_death_curse',
+                        name: 'End the Death Curse',
+                        description: 'Travel to Chult and find the Soulmonger. Destroy it to end the Death Curse.',
+                        completed: false
+                    });
+                    
                     this.log("You accept Syndra's quest. She provides 50 gold for passage to Chult.", "success");
                     this.log("📜 <strong>QUEST STARTED:</strong> End the Death Curse", "loot");
                     this.updateChapterDisplay();
@@ -10153,6 +10396,13 @@ class Game {
                 this.dm.questFlags.metCastellan = true;
                 this.dm.currentChapter = 2;
                 this.character.experience += 100;
+                
+                // Add NPC to journal
+                this.character.addJournalEntry('npc', { 
+                    name: "The Castellan", 
+                    notes: "Lord of the Keep. Tasked us with clearing the Caves of Chaos." 
+                });
+                
                 this.log("🏰 <strong>CHAPTER 2: THE WILDERNESS</strong>", "danger");
                 await this.showChoice(
                     "🏰 The Castellan",
@@ -10162,6 +10412,15 @@ class Game {
                     if (choice === 1) {
                         this.log(`<em>"The Caves are a day's travel through the wilderness. Multiple monster tribes lair there - kobolds, goblins, orcs, and worse. They've formed an unnatural alliance. Someone or something is organizing them."</em>`, "dm");
                     }
+                    
+                    // Add quest to journal
+                    this.character.addJournalEntry('quest', {
+                        id: 'clear_caves_of_chaos',
+                        name: 'Clear the Caves of Chaos',
+                        description: 'Defeat the monsters in the Caves of Chaos and bring proof to the Castellan. Reward: 100 gold.',
+                        completed: false
+                    });
+                    
                     this.log("📜 <strong>QUEST STARTED:</strong> Clear the Caves of Chaos!", "loot");
                     this.log("📜 <strong>OBJECTIVE:</strong> Navigate the wilderness and find the Caves!", "loot");
                     this.log("👥 <strong>NEW COMPANION AVAILABLE:</strong> Marcus the Guard can now join your party! Click 'Party' to recruit him.", "success");
