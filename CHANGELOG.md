@@ -8,7 +8,7 @@ All notable changes to the D&D: Realms of Adventure web game.
 
 ### 🎉 MAJOR RELEASE - Complete Professional Overhaul
 
-This version transforms the game into a premium, marketable product with professional polish throughout.
+This version transforms the game into a polished, professional product with comprehensive content and visual improvements.
 
 ### ✨ Added
 
@@ -46,7 +46,6 @@ This version transforms the game into a premium, marketable product with profess
 #### **Documentation**
 - Professional README.md with badges and complete feature list
 - Detailed PRESS_KIT.md for marketing and media
-- Sales page (sales.html) with pricing and testimonials
 - Comprehensive changelog (this file)
 
 #### **User Experience**
@@ -95,9 +94,8 @@ This version transforms the game into a premium, marketable product with profess
 ```
 Added:
   - styles.css (professional CSS stylesheet)
-  - README.md (marketing documentation)
+  - README.md (documentation)
   - PRESS_KIT.md (media kit)
-  - sales.html (sales page)
   - CHANGELOG.md (this file)
 
 Modified:
@@ -105,13 +103,12 @@ Modified:
   - game.js (added landing page functions, demo mode)
 ```
 
-### 🎯 Marketing Ready Features
+### 🎯 Content & Feature Updates
 - Professional landing page that showcases features
-- Demo mode for potential buyers
-- Complete documentation for press/media
-- Sales page with pricing and testimonials
+- Demo mode for trying out gameplay
+- Complete documentation
 - SEO-optimized meta tags
-- Social media ready copy
+- Social media ready descriptions
 
 ### 💡 Technical Improvements
 - Better performance with CSS transitions
