@@ -4,6 +4,114 @@ All notable changes to the D&D: Realms of Adventure web game.
 
 ---
 
+## [3.0.0] - 2026-02-25 - "Underworld Economy" ⚔️
+
+### 🎉 MAJOR RELEASE - Full Economy, Black Market & Combat Depth
+
+This release transforms the game engine into a living economy with meaningful survival mechanics, high-risk black market trading, deep boss encounters, and campaign-specific loot systems.
+
+### ✨ Added
+
+#### **Full Economy & Lifestyle System**
+- 5 Lifestyle tiers: Squalid, Poor, Modest, Comfortable, Wealthy — each with mechanical effects
+- Starvation system with 6-level exhaustion scale and CON saves
+- Foraging system with Help action (Advantage when exhausted — death spiral prevention)
+- Armor Degradation on critical hits and acid/fire damage
+- Material Components with Component Pouch (15g)
+- Combat Loot tables scaled by CR
+
+#### **Shop & Barter Economy**
+- Full shop with buy/sell interface, campaign-adjusted prices
+- Barter-for-lodging system (trade items for rest when broke)
+- Odd Jobs (once-per-visit, reputation-gated) with campaign payout scaling
+- Bounty Board with CR-appropriate targets
+- Trinket-for-essentials trade system for harsh-economy campaigns
+
+#### **Black Market System** (NEW)
+- Sell cursed/forbidden items to shady fences that normal shops refuse
+- Illicit value multiplier: cursed items sell for 1.5× base value
+- CHA-based haggle mechanic: ≥18 → price ×1.3; ≤5 → critical failure
+- Critical failure triggers guard encounter (fight / flee DEX DC 14 / surrender)
+- Bounty system tracks criminal notoriety; scales guard patrol chance in towns
+- Thieves' Guild encounters in low-reputation towns (rep ≤ -2)
+- Surrender option shows gold/cost before choosing; insufficient gold forces combat
+
+#### **Artifact & Favor System**
+- Legendary items marked PRICELESS (value = -1), cannot be sold for gold
+- Artifact-for-Favor trading: each legendary has 2 curated favors with mechanical effects
+- **Favor charge counters** (NEW): "Advantage on next 3 encounters" now uses `favor_advantage_encounters` that properly decrements per combat instead of a dead inventory string
+- **NPC Ally charges** (NEW): `favor_ally_encounters` counter — ally deals 1d6 bonus damage per round, decrements per combat
+- Favors grant real effects: exhaustion removal, stat boosts, 500-1000g, ally tokens, trap bypass
+
+#### **Campaign-Specific Magic Items**
+- `CAMPAIGN_MAGIC_ITEMS` with legendary/unique/common tiers per campaign
+- Strahd: Sunsword, Holy Symbol of Ravenkind, Icon of Ravenloft
+- ToA: Eye of Zaltec, Ring of Winter, Skull Chalice of Ch'gakare
+- Borderlands: Blade of the Keep Commander, Chaos Shard
+- Dark Terror: Yellow-Fang Fang-Dagger, Night Terror Cloak
+- Standard: Flame Tongue Longsword, Staff of Defense
+- 40% common-campaign, 30% unique, 5% legendary blend in loot rolls
+
+#### **5 Campaign Settings**
+- **Keep on the Borderlands** ★ Recommended Start — balanced economy
+- **Standard** — default D&D experience
+- **Curse of Strahd** — scarce resources, Gothic horror
+- **Tomb of Annihilation** — brutal survival, highest price multiplier
+- **Dark Terror** — savage frontier, barter economy
+- Each setting has `price_mult`, `loot_mult`, `foraging_dc_mod`, `exhaustion_strict`, `special` fields
+
+#### **Boss Encounter Depth**
+- Legendary Resistance Cost Model
+- Enhanced Phase Narration with phase transitions
+- Objective Incentives (secondary objectives in boss fights)
+- Last Stand mechanic (3 rounds of forced Advantage + bonus damage at 0 HP)
+- Heroic Sacrifice system with Legacy bonuses for next character
+- Fail-Forward: rescue events prevent unfair wipes
+- Soft Enrage Timer for prolonged fights
+
+#### **Combat Enhancements**
+- Full action economy: Action, Bonus Action, Reaction, Movement
+- Conditions system: Prone, Stunned, Poisoned, Blessed, etc.
+- Battlefield events and telegraphing
+- Shove / Help actions
+- Natural 20 / Natural 1 narration
+- Standing Up from Prone (half movement)
+- Spellcasting with V/S components
+- R/V/I damage types (Resistance / Vulnerability / Immunity)
+- Passive Perception & Surprise checks
+- Tactical Positioning: flanking, high ground, cover, difficult terrain
+- Ready Action (set trigger + response)
+- Social Combat: Persuade, Intimidate, Deceive in battle
+- Environmental Synergy: terrain, lighting, weather
+- Death Saving Throws with full 5e rules
+
+#### **Survival & Exhaustion**
+- 6-level exhaustion scale (level 6 = death)
+- Strict exhaustion DC tied to campaign settings
+- Exhaustion HUD display
+- Tier-gated exhaustion removal (rest type required varies by level)
+- Starvation → Exhaustion with CON save progression
+
+### 🔧 Changed
+- Borderlands moved to top of campaign list as ★ Recommended Start
+- Default campaign changed from "standard" to "borderlands"
+- Unique item barter values scaled up 3-5× (e.g., +2 Sword: 250 → 1000g)
+- Treasure Hoard d100 table with campaign loot modifiers
+- Armor Decay restricted to critical hit / acid / fire only
+- Odd Jobs once-per-visit with reputation gating
+- Component Pouch standardized to 15g
+- `_get_barter_value()` unified lookup across all item sources
+- `_is_artifact()` helper for priceless-item detection
+
+### 🐛 Fixed
+- Death spiral prevention: Help on Forage grants Advantage when exhausted
+- Barter economy scaling for harsh campaigns (trinket-for-essentials fallback)
+- Favor tokens now properly decrement instead of sitting as dead inventory strings
+- Surrender path in guard encounter handles 0-gold edge case (forces combat)
+- NPC Ally Token now deals actual combat damage instead of being cosmetic
+
+---
+
 ## [2.0.0] - 2026-02-02 - "Professional Edition" 🎨
 
 ### 🎉 MAJOR RELEASE - Complete Professional Overhaul
@@ -197,20 +305,25 @@ Modified:
 
 ## 📊 Version Comparison
 
-| Feature | v1.0 | v1.5 | v2.0 |
-|---------|------|------|------|
-| Core D&D Mechanics | ✅ | ✅ | ✅ |
-| Campaigns | 4 | 4 | 4 |
-| Character Options | Basic | Advanced | Advanced |
-| Achievements | ❌ | ✅ | ✅ |
-| Crafting | ❌ | ✅ | ✅ |
-| Companions | ❌ | ✅ | ✅ |
-| Professional UI | ❌ | ⚠️ | ✅ |
-| Landing Page | ❌ | ❌ | ✅ |
-| Marketing Docs | ❌ | ❌ | ✅ |
-| External CSS | ❌ | ❌ | ✅ |
-| Demo Mode | ❌ | ❌ | ✅ |
-| Lines of Code | ~6,000 | ~9,000 | ~11,000 |
+| Feature | v1.0 | v1.5 | v2.0 | v3.0 |
+|---------|------|------|------|------|
+| Core D&D Mechanics | ✅ | ✅ | ✅ | ✅ |
+| Campaigns | 4 | 4 | 4 | 5 settings |
+| Character Options | Basic | Advanced | Advanced | Advanced |
+| Achievements | ❌ | ✅ | ✅ | ✅ |
+| Crafting | ❌ | ✅ | ✅ | ✅ |
+| Companions | ❌ | ✅ | ✅ | ✅ |
+| Professional UI | ❌ | ⚠️ | ✅ | ✅ |
+| Landing Page | ❌ | ❌ | ✅ | ✅ |
+| Full Economy System | ❌ | ❌ | ❌ | ✅ |
+| Black Market | ❌ | ❌ | ❌ | ✅ |
+| Artifact Favors | ❌ | ❌ | ❌ | ✅ |
+| Boss Depth (LR/LS) | ❌ | ❌ | ❌ | ✅ |
+| Exhaustion System | ❌ | ❌ | ❌ | ✅ |
+| Campaign Magic Items | ❌ | ❌ | ❌ | ✅ |
+| Bounty/Guard System | ❌ | ❌ | ❌ | ✅ |
+| Lines of Code (py) | — | — | — | ~6,850 |
+| Lines of Code (js) | ~6,000 | ~9,000 | ~11,000 | ~11,000 |
 
 ---
 
@@ -277,5 +390,5 @@ The version number is displayed in:
 
 ---
 
-**Last Updated:** February 2, 2026  
-**Current Stable Version:** 2.0.0
+**Last Updated:** February 25, 2026  
+**Current Stable Version:** 3.0.0

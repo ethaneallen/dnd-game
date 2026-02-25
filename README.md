@@ -2,7 +2,7 @@
 
 ### *An Epic D&D 5th Edition Web RPG Experience*
 
-![Version](https://img.shields.io/badge/version-2.4-gold)
+![Version](https://img.shields.io/badge/version-3.0-gold)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![D&D](https://img.shields.io/badge/D%26D-5e-red)
 
@@ -19,22 +19,33 @@
 - ✅ **Status Effects** - Poisoned, burning, stunned, blessed, and more
 
 ### **Epic Campaign Content**
+- � **Keep on the Borderlands** ★ Recommended Start — Defend against chaos (Levels 1-3)
 - 🌙 **Night's Dark Terror** - Classic goblin raid adventure (Levels 1-3)
 - 🧛 **Curse of Strahd** - Gothic horror in Barovia (Levels 1-10)
 - ☠️ **Tomb of Annihilation** - Death curse in Chult (Levels 1-11)
-- 🏰 **Keep on the Borderlands** - Defend against chaos (Levels 1-3)
+- 🗡️ **Dark Terror** - Savage frontier survival
 
 ### **Advanced Game Features**
 - 👥 **Companion System** - Recruit NPCs, build loyalty, manage your party
 - 🏆 **18+ Achievements** - Track your legendary deeds
 - 🔨 **Crafting System** - Create magical items and equipment
 - 📜 **Quest System** - Main story and side quests
-- 💰 **Economy** - Gold, shops, trading
+- 💰 **Full Economy** - 5 Lifestyle tiers, shops, barter, odd jobs, bounty board
+- 🏴 **Black Market** - Sell cursed goods to shady fences, haggle (CHA check), risk guard encounters
+- 🎭 **Artifact Trading** - Trade priceless relics for Major Favors with lasting mechanical effects
+- ⚔️ **Boss Encounters** - Legendary Resistances, phase transitions, Last Stand, Heroic Sacrifice, Fail-Forward
+- 🗺️ **5 Campaign Settings** - Each with unique economy, loot tables, and magic items
 - 🎒 **Inventory Management** - Equipment, consumables, quest items
 - 📖 **Journal System** - Track your adventure history
 - ⚔️ **Combat Tactics** - Defensive, balanced, or aggressive strategies
 - 💾 **Save Manager** - View, load, and delete saved games with detailed metadata
-- 🎯 **Death Saves** - Roll to survive when knocked unconscious at 0 HP
+- 🎯 **Death Saves** - Roll to survive at 0 HP with D&D 5e death saving throws
+- 🛡️ **Action Economy** - Action, Bonus Action, Reaction, Movement per turn
+- 🤼 **Social Combat** - Persuade, Intimidate, or Deceive enemies mid-fight
+- 🌿 **Environmental Synergy** - Terrain, lighting, and weather affect combat
+- 📏 **Tactical Positioning** - Flanking, high ground, cover, difficult terrain
+- 😴 **Exhaustion System** - 6-level scale with CON saves, tier-gated removal
+- 🔫 **Multi-Classing & Progression** - Level up with meaningful choices
 
 ### **Professional Polish**
 - 🎨 **Modern UI/UX** - Beautiful gradient designs, smooth animations
@@ -189,30 +200,36 @@ Unlock 18+ achievements including:
 ```
 dnd-game/
 ├── index.html          # Main game file
-├── game.js            # Game logic (10,000+ lines)
+├── game.js            # Web frontend (10,900+ lines)
+├── game.py            # Text adventure engine (6,850+ lines)
 ├── styles.css         # Professional styling
 ├── README.md          # This file
+├── CHANGELOG.md       # Full version history
+├── QUICK_START.md     # Quick-start guide
+├── LICENSE.txt        # MIT License
+├── PRESS_KIT.md       # Media kit
 ├── readme.txt         # Detailed player's guide
 └── images/            # Campaign artwork
-    ├── curse_of_strahd.jpg
-    ├── tomb_of_annihilation.jpg
-    ├── nights_dark_terror.jpg
-    └── keep_on_borderlands.jpg
 ```
 
 ---
 
 ## 🎯 Game Statistics
 
-- **10,900+ lines of code** - Including comprehensive dice animation system
+- **6,850+ lines of Python** - Comprehensive text adventure engine (`game.py`)
+- **10,900+ lines of JavaScript** - Full web game frontend (`game.js`)
 - **7 playable races** with unique abilities
 - **6 playable classes** with distinct mechanics
-- **4 epic campaigns** with multiple chapters
+- **5 campaign settings** with unique economies, loot, and magic-item tables
 - **50+ unique enemies** from D&D lore
 - **100+ items** including weapons, armor, and consumables
 - **30+ spells** across multiple spell levels
 - **20+ locations** to explore
 - **18+ achievements** to unlock
+- **Full action economy** - Action, Bonus Action, Reaction, Movement
+- **6-level exhaustion system** tied to starvation, foraging, and lifestyle
+- **Black market economy** with haggle mechanics, guard encounters, and bounty tracking
+- **Artifact favor system** with decrementing encounter-based charges
 - **100% Dice Animation Coverage** - Every single roll features 3D spinning effects
 - **Immersive Sound System** - Procedurally generated sound effects for all actions
 - **Endless replayability**
@@ -232,6 +249,7 @@ The game supports various settings:
 ## 📝 Development
 
 ### **Version History**
+- **v3.0** - "Underworld Economy" — Full economy/lifestyle system, black market with haggle & guard encounters, artifact favor charges, 5 campaign settings with unique loot, boss encounter depth, exhaustion system, death spiral prevention, tactical combat enhancements
 - **v2.3** - Professional save manager modal, compact combat toast notifications (auto-dismiss + expandable), death save button fix for unconscious combat, UI refinements
 - **v2.2** - Complete dice animation coverage (trap damage, disarming), landing page visibility fixes, UI polish
 - **v2.1** - 3D Dice Animations, enhanced UI polish, responsive landing page improvements

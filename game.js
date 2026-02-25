@@ -832,6 +832,13 @@ class DiceAnimator {
             }, 50);
         });
     }
+
+    hide() {
+        if (this.container) {
+            this.container.classList.remove('active');
+            this.container.innerHTML = '';
+        }
+    }
 }
 
 const diceAnimator = new DiceAnimator();
@@ -921,6 +928,118 @@ function generateSaveKey() {
 }
 
 const CAMPAIGNS = {
+    "keep_on_borderlands": {
+        id: "keep_on_borderlands",
+        name: "Keep on the Borderlands",
+        icon: "🏰",
+        coverArt: "images/keep_on_borderlands.jpg",
+        description: "★ Recommended Start! A classic beginner adventure! Defend the Keep on the Borderlands and explore the infamous Caves of Chaos. Perfect for new adventurers learning the ways of dungeon delving.",
+        setting: "The Borderlands",
+        level: "1-3",
+        chapters: [
+            { id: 0, name: "Prologue: Arrival at the Keep", description: "You are a fledgling adventurer seeking fame and fortune. The Keep on the Borderlands offers shelter and opportunity for those brave enough to face the wilderness beyond.", objective: "Arrive at the Keep and find lodging" },
+            { id: 1, name: "Chapter 1: The Keep", description: "The Keep is a bastion of civilization on the edge of the wild. Meet the inhabitants, gather supplies, and learn of the dangers lurking in the Caves of Chaos.", objective: "Explore the Keep and gather information" },
+            { id: 2, name: "Chapter 2: The Wilderness", description: "Between the Keep and the Caves of Chaos lies dangerous wilderness. Bandits, wild beasts, and worse prey on the unwary.", objective: "Navigate the wilderness and find the Caves" },
+            { id: 3, name: "Chapter 3: Caves of Chaos - Outer Caves", description: "The Caves of Chaos are a ravine filled with monster lairs. Goblins, orcs, and kobolds vie for territory in the outer caves.", objective: "Clear the outer caves of monsters" },
+            { id: 4, name: "Chapter 4: Caves of Chaos - Inner Caves", description: "Deeper in the ravine, more dangerous creatures lurk. Hobgoblins, gnolls, and bugbears have made their homes here.", objective: "Venture deeper into the caves" },
+            { id: 5, name: "Chapter 5: The Temple of Evil Chaos", description: "At the heart of the ravine lies a hidden temple where evil priests conduct dark rituals. They are the true masterminds behind the monster alliance!", objective: "Destroy the Temple of Evil Chaos" },
+            { id: 6, name: "Epilogue: Heroes of the Borderlands", description: "With the Temple destroyed and the Caves cleared, peace returns to the Borderlands. You are celebrated as heroes!", objective: "Return to the Keep as heroes" }
+        ],
+        npcs: {
+            "Castellan": { name: "The Castellan", role: "Keep Commander", description: "The lord of the Keep, a stern but fair knight dedicated to protecting the frontier.", dialogue: ["Welcome to the Keep, traveler. We can always use brave souls to defend the Borderlands.", "The Caves of Chaos have grown more dangerous. The monsters there grow bolder each day.", "Clear those caves, and you'll earn the gratitude of everyone in the Keep - and a fair reward."] },
+            "Corporal": { name: "Corporal of the Watch", role: "Guard Captain", description: "The leader of the Keep's guards, a veteran soldier with many scars.", dialogue: ["Keep your weapons sheathed inside the walls. We don't tolerate troublemakers.", "If you're heading to the Caves, travel in daylight. The roads aren't safe after dark.", "Report any monster sightings to me. We track their movements."] },
+            "Priest": { name: "Abercrombie the Priest", role: "Temple Curate", description: "The kindly priest who tends the small chapel in the Keep.", dialogue: ["Blessings upon you, child. May the light guide your path.", "I can heal your wounds, though a small donation to the temple is customary.", "Beware the darkness in those caves. I sense a great evil lurking within."] },
+            "Merchant": { name: "Olaf the Trader", role: "General Store Owner", description: "A jovial merchant who sells adventuring supplies at 'reasonable' prices.", dialogue: ["Welcome, welcome! Olaf has everything an adventurer needs!", "Torches, rope, iron spikes - don't enter those caves without proper supplies!", "I'll buy any treasures you bring back. Fair prices for fair goods, I always say!"] },
+            "Innkeeper": { name: "Wilf the Innkeeper", role: "Tavern Owner", description: "The portly owner of the Green Man Inn, always eager for news and gossip.", dialogue: ["A room and hot meal? Five silver pieces a night, adventurer.", "The regulars have been talking about strange lights in the caves at night.", "Watch out for that mad hermit in the wilderness. He's not right in the head."] },
+            "EvilPriest": { name: "The High Priest of Chaos", role: "Cult Leader", description: "The sinister leader of the Temple of Evil Chaos, he commands the monsters through dark pacts.", dialogue: ["Fools! You dare intrude upon the Temple of Chaos?", "The dark gods will feast upon your souls!", "The alliance of evil cannot be stopped! Even if I fall, others will rise!"], boss: true }
+        },
+        locations: [
+            { name: "Road to the Keep", type: "wilderness", danger: 1, icon: "🛤️", chapter: 0, description: "The dusty road leading to the Keep. Relatively safe, but stay alert." },
+            { name: "Keep Gates", type: "town", danger: 0, icon: "🚪", chapter: 0, description: "The main entrance to the Keep, guarded day and night." },
+            { name: "Keep - Outer Bailey", type: "town", danger: 0, icon: "🏢️", chapter: 1, description: "The common area of the Keep with shops, tavern, and chapel." },
+            { name: "Green Man Inn", type: "town", danger: 0, icon: "🍺", chapter: 1, description: "The Keep's only tavern. Good food, warm beds, and plenty of rumors." },
+            { name: "Trader's Shop", type: "town", danger: 0, icon: "🏺", chapter: 1, description: "Olaf's general store, selling everything an adventurer might need." },
+            { name: "Chapel of Light", type: "town", danger: 0, icon: "⛪", chapter: 1, description: "A small chapel where weary adventurers can find healing." },
+            { name: "Keep - Inner Bailey", type: "town", danger: 0, icon: "🏰", chapter: 1, description: "The fortified heart of the Keep where the Castellan resides." },
+            { name: "Bank & Jeweler", type: "town", danger: 0, icon: "💎", chapter: 1, description: "A secure place to store valuables and exchange gems for gold." },
+            { name: "The Wilderness", type: "wilderness", danger: 2, icon: "🌲", chapter: 2, description: "Dense forest and rocky terrain between the Keep and the Caves." },
+            { name: "Hermit's Cave", type: "wilderness", danger: 2, icon: "🏐️", chapter: 2, description: "A cave where a mad hermit dwells. Is he friend or foe?" },
+            { name: "Spider Woods", type: "wilderness", danger: 2, icon: "🕷️", chapter: 2, description: "A stretch of forest infested with giant spiders." },
+            { name: "Lizardfolk Lair", type: "wilderness", danger: 2, icon: "🦎", chapter: 2, description: "A swampy area near a stream where lizardfolk make their home." },
+            { name: "Caves of Chaos - Entrance", type: "wilderness", danger: 2, icon: "🏔️", chapter: 3, description: "The ravine opens before you, dark cave mouths dotting the cliffs." },
+            { name: "Kobold Caves", type: "dungeon", danger: 1, icon: "🐀", chapter: 3, description: "Small caves inhabited by cunning kobolds. Watch for traps!" },
+            { name: "Goblin Caves", type: "dungeon", danger: 2, icon: "👺", chapter: 3, description: "A network of caves where goblins and their chief reside." },
+            { name: "Orc Caves", type: "dungeon", danger: 2, icon: "👹", chapter: 3, description: "Two orc tribes lair here, constantly feuding with each other." },
+            { name: "Hobgoblin Caves", type: "dungeon", danger: 3, icon: "⚔️", chapter: 4, description: "Well-organized caves inhabited by disciplined hobgoblin warriors." },
+            { name: "Gnoll Caves", type: "dungeon", danger: 3, icon: "🐺", chapter: 4, description: "The caves of savage hyena-headed gnolls." },
+            { name: "Bugbear Caves", type: "dungeon", danger: 3, icon: "🐻", chapter: 4, description: "Large caves where brutish bugbears lurk in the shadows." },
+            { name: "Minotaur Lair", type: "dungeon", danger: 4, icon: "🐂", chapter: 4, description: "A twisting maze of tunnels where a fearsome minotaur dwells." },
+            { name: "Temple of Evil Chaos", type: "dungeon", danger: 4, icon: "💀", chapter: 5, description: "The hidden temple where evil priests orchestrate the monster alliance." },
+            { name: "Inner Sanctum", type: "dungeon", danger: 5, icon: "🔮", chapter: 5, description: "The heart of the temple where the High Priest conducts dark rituals." }
+        ],
+        monsters: {
+            1: [
+                { name: "Kobold", hp: 5, ac: 12, damage: "1d4", xp: 25, description: "A small, reptilian humanoid. Weak alone, dangerous in groups." },
+                { name: "Giant Rat", hp: 7, ac: 12, damage: "1d4", xp: 25, description: "An oversized rodent with diseased fangs." },
+                { name: "Goblin", hp: 7, ac: 13, damage: "1d6", xp: 50, description: "A small, malicious humanoid with a wicked grin." },
+                { name: "Stirge", hp: 2, ac: 14, damage: "1d4", xp: 25, description: "A bat-like creature that drinks blood!" }
+            ],
+            2: [
+                { name: "Orc", hp: 15, ac: 13, damage: "1d8", xp: 100, description: "A brutish humanoid with a thirst for battle." },
+                { name: "Hobgoblin", hp: 11, ac: 16, damage: "1d8", xp: 100, description: "A disciplined goblinoid warrior in chain mail." },
+                { name: "Giant Spider", hp: 18, ac: 13, damage: "1d8", xp: 200, description: "A horse-sized spider with venomous fangs!" },
+                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, description: "A shambling undead animated by dark magic." },
+                { name: "Skeleton", hp: 13, ac: 13, damage: "1d6", xp: 50, description: "The animated bones of the dead, armed with rusty weapons." }
+            ],
+            3: [
+                { name: "Gnoll", hp: 22, ac: 14, damage: "1d8", xp: 100, description: "A savage hyena-headed humanoid that cackles as it fights." },
+                { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, description: "A massive, hairy goblinoid that strikes from ambush." },
+                { name: "Ogre", hp: 32, ac: 11, damage: "2d8", xp: 450, description: "A towering brute with a very small brain and very big club." },
+                { name: "Orc Chieftain", hp: 30, ac: 15, damage: "1d10", xp: 200, description: "The leader of an orc tribe, stronger than his followers." },
+                { name: "Acolyte of Chaos", hp: 20, ac: 12, damage: "1d8", xp: 150, description: "A lesser priest of the evil temple with dark magic." }
+            ],
+            4: [
+                { name: "Minotaur", hp: 45, ac: 14, damage: "2d10", xp: 700, description: "A bull-headed monster that charges with its horns!", boss: true },
+                { name: "Owlbear", hp: 38, ac: 13, damage: "2d8", xp: 700, description: "A terrifying hybrid of owl and bear with a vicious beak." },
+                { name: "Troll", hp: 52, ac: 15, damage: "2d6", xp: 1800, description: "A regenerating horror. Fire and acid stop its healing!" },
+                { name: "Hobgoblin Captain", hp: 35, ac: 17, damage: "2d8", xp: 450, description: "A veteran hobgoblin leader in gleaming armor." }
+            ],
+            5: [
+                { name: "High Priest of Chaos", hp: 55, ac: 14, damage: "2d10", xp: 1100, description: "The leader of the evil cult, wielding dark divine magic!", boss: true },
+                { name: "Temple Guardian", hp: 40, ac: 18, damage: "2d8", xp: 700, description: "An undead warrior bound to protect the temple." },
+                { name: "Shadow Demon", hp: 38, ac: 13, damage: "2d6", xp: 1100, description: "A demon of pure darkness summoned by the priests." }
+            ]
+        },
+        events: {
+            dungeon: [
+                "Crude drawings on the cave walls show monsters fighting adventurers. The monsters are winning.",
+                "You find gnawed bones scattered on the floor. Some look disturbingly human.",
+                "The stench of unwashed monsters fills the air. You're not alone down here.",
+                "Torchlight flickers ahead - another adventuring party, or something else?",
+                "You discover a cache of supplies - some previous adventurer wasn't so lucky.",
+                "Strange chanting echoes from somewhere deep within the caves.",
+                "A crude alarm - bones hanging from strings - blocks the passage ahead."
+            ],
+            wilderness: [
+                "You find merchant wagon tracks that veer suddenly off the road. Signs of a struggle.",
+                "A raven caws from a dead tree. Local superstition says ravens guide the lost.",
+                "You discover a shallow grave with a broken sword planted as a marker.",
+                "Smoke rises in the distance - a campfire or a burning homestead?",
+                "Animal tracks cross your path, but something larger has been following them.",
+                "The forest grows quiet. Too quiet. Something has frightened the wildlife.",
+                "You find a trail marker carved into a tree - other adventurers have been this way."
+            ],
+            town: [
+                "Guards eye you suspiciously as you enter. 'No trouble, adventurer.'",
+                "A merchant offers you a 'genuine treasure map' for only 50 gold pieces.",
+                "You overhear travelers discussing the Caves of Chaos in hushed, fearful tones.",
+                "A farmer seeks adventurers to deal with goblins raiding his homestead.",
+                "The innkeeper warns you: 'Many go to those caves. Few return.'",
+                "A veteran adventurer nursing his wounds advises: 'Bring more torches than you think you'll need.'",
+                "Children gather around, asking if you're going to slay the monsters in the caves."
+            ]
+        }
+    },
     "nights_dark_terror": {
         id: "nights_dark_terror",
         name: "Night's Dark Terror",
@@ -1159,7 +1278,7 @@ const CAMPAIGNS = {
         },
         locations: [
             { name: "Port Nyanzaru - Harbor", type: "town", danger: 0, icon: "⚓", chapter: 0, description: "The bustling harbor of Chult's greatest city. Ships from across Faerûn dock here." },
-            { name: "Port Nyanzaru - Market", type: "town", danger: 0, icon: "🏪", chapter: 1, description: "A vibrant market selling everything from dinosaur mounts to jungle supplies." },
+            { name: "Port Nyanzaru - Market", type: "town", danger: 0, icon: "🏺", chapter: 1, description: "A vibrant market selling everything from dinosaur mounts to jungle supplies." },
             { name: "Port Nyanzaru - Coliseum", type: "town", danger: 1, icon: "🏟️", chapter: 1, description: "The famous dinosaur racing arena. Fortunes are won and lost here daily." },
             { name: "Merchant Prince Palace", type: "town", danger: 0, icon: "🏛️", chapter: 1, description: "The meeting place of the seven merchant princes who rule Port Nyanzaru." },
             { name: "Aldani Basin", type: "wilderness", danger: 2, icon: "🌿", chapter: 2, description: "A swampy region inhabited by the mysterious lobsterfolk called aldani." },
@@ -1238,118 +1357,6 @@ const CAMPAIGNS = {
                 "Wanted posters show Artus Cimber. The Zhentarim pay well for information."
             ]
         }
-    },
-    "keep_on_borderlands": {
-        id: "keep_on_borderlands",
-        name: "Keep on the Borderlands",
-        icon: "🏰",
-        coverArt: "images/keep_on_borderlands.jpg",
-        description: "A classic beginner adventure! Defend the Keep on the Borderlands and explore the infamous Caves of Chaos. Perfect for new adventurers learning the ways of dungeon delving.",
-        setting: "The Borderlands",
-        level: "1-3",
-        chapters: [
-            { id: 0, name: "Prologue: Arrival at the Keep", description: "You are a fledgling adventurer seeking fame and fortune. The Keep on the Borderlands offers shelter and opportunity for those brave enough to face the wilderness beyond.", objective: "Arrive at the Keep and find lodging" },
-            { id: 1, name: "Chapter 1: The Keep", description: "The Keep is a bastion of civilization on the edge of the wild. Meet the inhabitants, gather supplies, and learn of the dangers lurking in the Caves of Chaos.", objective: "Explore the Keep and gather information" },
-            { id: 2, name: "Chapter 2: The Wilderness", description: "Between the Keep and the Caves of Chaos lies dangerous wilderness. Bandits, wild beasts, and worse prey on the unwary.", objective: "Navigate the wilderness and find the Caves" },
-            { id: 3, name: "Chapter 3: Caves of Chaos - Outer Caves", description: "The Caves of Chaos are a ravine filled with monster lairs. Goblins, orcs, and kobolds vie for territory in the outer caves.", objective: "Clear the outer caves of monsters" },
-            { id: 4, name: "Chapter 4: Caves of Chaos - Inner Caves", description: "Deeper in the ravine, more dangerous creatures lurk. Hobgoblins, gnolls, and bugbears have made their homes here.", objective: "Venture deeper into the caves" },
-            { id: 5, name: "Chapter 5: The Temple of Evil Chaos", description: "At the heart of the ravine lies a hidden temple where evil priests conduct dark rituals. They are the true masterminds behind the monster alliance!", objective: "Destroy the Temple of Evil Chaos" },
-            { id: 6, name: "Epilogue: Heroes of the Borderlands", description: "With the Temple destroyed and the Caves cleared, peace returns to the Borderlands. You are celebrated as heroes!", objective: "Return to the Keep as heroes" }
-        ],
-        npcs: {
-            "Castellan": { name: "The Castellan", role: "Keep Commander", description: "The lord of the Keep, a stern but fair knight dedicated to protecting the frontier.", dialogue: ["Welcome to the Keep, traveler. We can always use brave souls to defend the Borderlands.", "The Caves of Chaos have grown more dangerous. The monsters there grow bolder each day.", "Clear those caves, and you'll earn the gratitude of everyone in the Keep - and a fair reward."] },
-            "Corporal": { name: "Corporal of the Watch", role: "Guard Captain", description: "The leader of the Keep's guards, a veteran soldier with many scars.", dialogue: ["Keep your weapons sheathed inside the walls. We don't tolerate troublemakers.", "If you're heading to the Caves, travel in daylight. The roads aren't safe after dark.", "Report any monster sightings to me. We track their movements."] },
-            "Priest": { name: "Abercrombie the Priest", role: "Temple Curate", description: "The kindly priest who tends the small chapel in the Keep.", dialogue: ["Blessings upon you, child. May the light guide your path.", "I can heal your wounds, though a small donation to the temple is customary.", "Beware the darkness in those caves. I sense a great evil lurking within."] },
-            "Merchant": { name: "Olaf the Trader", role: "General Store Owner", description: "A jovial merchant who sells adventuring supplies at 'reasonable' prices.", dialogue: ["Welcome, welcome! Olaf has everything an adventurer needs!", "Torches, rope, iron spikes - don't enter those caves without proper supplies!", "I'll buy any treasures you bring back. Fair prices for fair goods, I always say!"] },
-            "Innkeeper": { name: "Wilf the Innkeeper", role: "Tavern Owner", description: "The portly owner of the Green Man Inn, always eager for news and gossip.", dialogue: ["A room and hot meal? Five silver pieces a night, adventurer.", "The regulars have been talking about strange lights in the caves at night.", "Watch out for that mad hermit in the wilderness. He's not right in the head."] },
-            "EvilPriest": { name: "The High Priest of Chaos", role: "Cult Leader", description: "The sinister leader of the Temple of Evil Chaos, he commands the monsters through dark pacts.", dialogue: ["Fools! You dare intrude upon the Temple of Chaos?", "The dark gods will feast upon your souls!", "The alliance of evil cannot be stopped! Even if I fall, others will rise!"], boss: true }
-        },
-        locations: [
-            { name: "Road to the Keep", type: "wilderness", danger: 1, icon: "🛤️", chapter: 0, description: "The dusty road leading to the Keep. Relatively safe, but stay alert." },
-            { name: "Keep Gates", type: "town", danger: 0, icon: "🚪", chapter: 0, description: "The main entrance to the Keep, guarded day and night." },
-            { name: "Keep - Outer Bailey", type: "town", danger: 0, icon: "🏘️", chapter: 1, description: "The common area of the Keep with shops, tavern, and chapel." },
-            { name: "Green Man Inn", type: "town", danger: 0, icon: "🍺", chapter: 1, description: "The Keep's only tavern. Good food, warm beds, and plenty of rumors." },
-            { name: "Trader's Shop", type: "town", danger: 0, icon: "🏪", chapter: 1, description: "Olaf's general store, selling everything an adventurer might need." },
-            { name: "Chapel of Light", type: "town", danger: 0, icon: "⛪", chapter: 1, description: "A small chapel where weary adventurers can find healing." },
-            { name: "Keep - Inner Bailey", type: "town", danger: 0, icon: "🏰", chapter: 1, description: "The fortified heart of the Keep where the Castellan resides." },
-            { name: "Bank & Jeweler", type: "town", danger: 0, icon: "💎", chapter: 1, description: "A secure place to store valuables and exchange gems for gold." },
-            { name: "The Wilderness", type: "wilderness", danger: 2, icon: "🌲", chapter: 2, description: "Dense forest and rocky terrain between the Keep and the Caves." },
-            { name: "Hermit's Cave", type: "wilderness", danger: 2, icon: "🏚️", chapter: 2, description: "A cave where a mad hermit dwells. Is he friend or foe?" },
-            { name: "Spider Woods", type: "wilderness", danger: 2, icon: "🕷️", chapter: 2, description: "A stretch of forest infested with giant spiders." },
-            { name: "Lizardfolk Lair", type: "wilderness", danger: 2, icon: "🦎", chapter: 2, description: "A swampy area near a stream where lizardfolk make their home." },
-            { name: "Caves of Chaos - Entrance", type: "wilderness", danger: 2, icon: "🏔️", chapter: 3, description: "The ravine opens before you, dark cave mouths dotting the cliffs." },
-            { name: "Kobold Caves", type: "dungeon", danger: 1, icon: "🐀", chapter: 3, description: "Small caves inhabited by cunning kobolds. Watch for traps!" },
-            { name: "Goblin Caves", type: "dungeon", danger: 2, icon: "👺", chapter: 3, description: "A network of caves where goblins and their chief reside." },
-            { name: "Orc Caves", type: "dungeon", danger: 2, icon: "👹", chapter: 3, description: "Two orc tribes lair here, constantly feuding with each other." },
-            { name: "Hobgoblin Caves", type: "dungeon", danger: 3, icon: "⚔️", chapter: 4, description: "Well-organized caves inhabited by disciplined hobgoblin warriors." },
-            { name: "Gnoll Caves", type: "dungeon", danger: 3, icon: "🐺", chapter: 4, description: "The caves of savage hyena-headed gnolls." },
-            { name: "Bugbear Caves", type: "dungeon", danger: 3, icon: "🐻", chapter: 4, description: "Large caves where brutish bugbears lurk in the shadows." },
-            { name: "Minotaur Lair", type: "dungeon", danger: 4, icon: "🐂", chapter: 4, description: "A twisting maze of tunnels where a fearsome minotaur dwells." },
-            { name: "Temple of Evil Chaos", type: "dungeon", danger: 4, icon: "💀", chapter: 5, description: "The hidden temple where evil priests orchestrate the monster alliance." },
-            { name: "Inner Sanctum", type: "dungeon", danger: 5, icon: "🔮", chapter: 5, description: "The heart of the temple where the High Priest conducts dark rituals." }
-        ],
-        monsters: {
-            1: [
-                { name: "Kobold", hp: 5, ac: 12, damage: "1d4", xp: 25, description: "A small, reptilian humanoid. Weak alone, dangerous in groups." },
-                { name: "Giant Rat", hp: 7, ac: 12, damage: "1d4", xp: 25, description: "An oversized rodent with diseased fangs." },
-                { name: "Goblin", hp: 7, ac: 13, damage: "1d6", xp: 50, description: "A small, malicious humanoid with a wicked grin." },
-                { name: "Stirge", hp: 2, ac: 14, damage: "1d4", xp: 25, description: "A bat-like creature that drinks blood!" }
-            ],
-            2: [
-                { name: "Orc", hp: 15, ac: 13, damage: "1d8", xp: 100, description: "A brutish humanoid with a thirst for battle." },
-                { name: "Hobgoblin", hp: 11, ac: 16, damage: "1d8", xp: 100, description: "A disciplined goblinoid warrior in chain mail." },
-                { name: "Giant Spider", hp: 18, ac: 13, damage: "1d8", xp: 200, description: "A horse-sized spider with venomous fangs!" },
-                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, description: "A shambling undead animated by dark magic." },
-                { name: "Skeleton", hp: 13, ac: 13, damage: "1d6", xp: 50, description: "The animated bones of the dead, armed with rusty weapons." }
-            ],
-            3: [
-                { name: "Gnoll", hp: 22, ac: 14, damage: "1d8", xp: 100, description: "A savage hyena-headed humanoid that cackles as it fights." },
-                { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, description: "A massive, hairy goblinoid that strikes from ambush." },
-                { name: "Ogre", hp: 32, ac: 11, damage: "2d8", xp: 450, description: "A towering brute with a very small brain and very big club." },
-                { name: "Orc Chieftain", hp: 30, ac: 15, damage: "1d10", xp: 200, description: "The leader of an orc tribe, stronger than his followers." },
-                { name: "Acolyte of Chaos", hp: 20, ac: 12, damage: "1d8", xp: 150, description: "A lesser priest of the evil temple with dark magic." }
-            ],
-            4: [
-                { name: "Minotaur", hp: 45, ac: 14, damage: "2d10", xp: 700, description: "A bull-headed monster that charges with its horns!", boss: true },
-                { name: "Owlbear", hp: 38, ac: 13, damage: "2d8", xp: 700, description: "A terrifying hybrid of owl and bear with a vicious beak." },
-                { name: "Troll", hp: 52, ac: 15, damage: "2d6", xp: 1800, description: "A regenerating horror. Fire and acid stop its healing!" },
-                { name: "Hobgoblin Captain", hp: 35, ac: 17, damage: "2d8", xp: 450, description: "A veteran hobgoblin leader in gleaming armor." }
-            ],
-            5: [
-                { name: "High Priest of Chaos", hp: 55, ac: 14, damage: "2d10", xp: 1100, description: "The leader of the evil cult, wielding dark divine magic!", boss: true },
-                { name: "Temple Guardian", hp: 40, ac: 18, damage: "2d8", xp: 700, description: "An undead warrior bound to protect the temple." },
-                { name: "Shadow Demon", hp: 38, ac: 13, damage: "2d6", xp: 1100, description: "A demon of pure darkness summoned by the priests." }
-            ]
-        },
-        events: {
-            dungeon: [
-                "Crude drawings on the cave walls show monsters fighting adventurers. The monsters are winning.",
-                "You find gnawed bones scattered on the floor. Some look disturbingly human.",
-                "The stench of unwashed monsters fills the air. You're not alone down here.",
-                "Torchlight flickers ahead - another adventuring party, or something else?",
-                "You discover a cache of supplies - some previous adventurer wasn't so lucky.",
-                "Strange chanting echoes from somewhere deep within the caves.",
-                "A crude alarm - bones hanging from strings - blocks the passage ahead."
-            ],
-            wilderness: [
-                "You find merchant wagon tracks that veer suddenly off the road. Signs of a struggle.",
-                "A raven caws from a dead tree. Local superstition says ravens guide the lost.",
-                "You discover a shallow grave with a broken sword planted as a marker.",
-                "Smoke rises in the distance - a campfire or a burning homestead?",
-                "Animal tracks cross your path, but something larger has been following them.",
-                "The forest grows quiet. Too quiet. Something has frightened the wildlife.",
-                "You find a trail marker carved into a tree - other adventurers have been this way."
-            ],
-            town: [
-                "Guards eye you suspiciously as you enter. 'No trouble, adventurer.'",
-                "A merchant offers you a 'genuine treasure map' for only 50 gold pieces.",
-                "You overhear travelers discussing the Caves of Chaos in hushed, fearful tones.",
-                "A farmer seeks adventurers to deal with goblins raiding his homestead.",
-                "The innkeeper warns you: 'Many go to those caves. Few return.'",
-                "A veteran adventurer nursing his wounds advises: 'Bring more torches than you think you'll need.'",
-                "Children gather around, asking if you're going to slay the monsters in the caves."
-            ]
-        }
     }
 };
 
@@ -1367,11 +1374,58 @@ const GAME_DATA = {
     },
     classes: {
         "Fighter": { hitDie: 10, primary: "str", saves: ["str", "con"], skills: ["Athletics", "Intimidation"], equipment: ["Longsword", "Shield", "Chain Mail"], spellcaster: false },
-        "Wizard": { hitDie: 6, primary: "int", saves: ["int", "wis"], skills: ["Arcana", "History"], equipment: ["Quarterstaff", "Spellbook", "Robes"], spellcaster: true, spellStat: "int", spellSlots: { 1: 2, 2: 3, 3: 4, 4: 4, 5: 4 }, cantrips: 3 },
+        "Wizard": { hitDie: 6, primary: "int", saves: ["int", "wis"], skills: ["Arcana", "History"], equipment: ["Quarterstaff", "Spellbook", "Robes"], spellcaster: true, spellStat: "int", casterType: "full", cantrips: 3 },
         "Rogue": { hitDie: 8, primary: "dex", saves: ["dex", "int"], skills: ["Stealth", "Thieves' Tools"], equipment: ["Shortsword", "Dagger", "Leather Armor"], spellcaster: false },
-        "Cleric": { hitDie: 8, primary: "wis", saves: ["wis", "cha"], skills: ["Medicine", "Religion"], equipment: ["Mace", "Shield", "Scale Mail"], spellcaster: true, spellStat: "wis", spellSlots: { 1: 2, 2: 3, 3: 4, 4: 4, 5: 4 }, cantrips: 3 },
-        "Ranger": { hitDie: 10, primary: "dex", saves: ["str", "dex"], skills: ["Survival", "Nature"], equipment: ["Longbow", "Shortsword", "Leather Armor"], spellcaster: true, spellStat: "wis", spellSlots: { 1: 0, 2: 2, 3: 3, 4: 3, 5: 4 }, cantrips: 0 },
+        "Cleric": { hitDie: 8, primary: "wis", saves: ["wis", "cha"], skills: ["Medicine", "Religion"], equipment: ["Mace", "Shield", "Scale Mail"], spellcaster: true, spellStat: "wis", casterType: "full", cantrips: 3 },
+        "Ranger": { hitDie: 10, primary: "dex", saves: ["str", "dex"], skills: ["Survival", "Nature"], equipment: ["Longbow", "Shortsword", "Leather Armor"], spellcaster: true, spellStat: "wis", casterType: "half", cantrips: 0 },
         "Barbarian": { hitDie: 12, primary: "str", saves: ["str", "con"], skills: ["Athletics", "Survival"], equipment: ["Greataxe", "Handaxes", "Hide Armor"], spellcaster: false }
+    },
+    // D&D 5e Spell Slot Tables
+    // Full Caster table (Wizard, Cleric): slots by [characterLevel][spellLevel]
+    fullCasterSlots: {
+        1:  {1:2},
+        2:  {1:3},
+        3:  {1:4, 2:2},
+        4:  {1:4, 2:3},
+        5:  {1:4, 2:3, 3:2},
+        6:  {1:4, 2:3, 3:3},
+        7:  {1:4, 2:3, 3:3, 4:1},
+        8:  {1:4, 2:3, 3:3, 4:2},
+        9:  {1:4, 2:3, 3:3, 4:3, 5:1},
+        10: {1:4, 2:3, 3:3, 4:3, 5:2},
+        11: {1:4, 2:3, 3:3, 4:3, 5:2, 6:1},
+        12: {1:4, 2:3, 3:3, 4:3, 5:2, 6:1},
+        13: {1:4, 2:3, 3:3, 4:3, 5:2, 6:1, 7:1},
+        14: {1:4, 2:3, 3:3, 4:3, 5:2, 6:1, 7:1},
+        15: {1:4, 2:3, 3:3, 4:3, 5:2, 6:1, 7:1, 8:1},
+        16: {1:4, 2:3, 3:3, 4:3, 5:2, 6:1, 7:1, 8:1},
+        17: {1:4, 2:3, 3:3, 4:3, 5:2, 6:1, 7:1, 8:1, 9:1},
+        18: {1:4, 2:3, 3:3, 4:3, 5:3, 6:1, 7:1, 8:1, 9:1},
+        19: {1:4, 2:3, 3:3, 4:3, 5:3, 6:2, 7:1, 8:1, 9:1},
+        20: {1:4, 2:3, 3:3, 4:3, 5:3, 6:2, 7:2, 8:1, 9:1}
+    },
+    // Half Caster table (Ranger): gets spellcasting at level 2
+    halfCasterSlots: {
+        1:  {},
+        2:  {1:2},
+        3:  {1:3},
+        4:  {1:3},
+        5:  {1:4, 2:2},
+        6:  {1:4, 2:2},
+        7:  {1:4, 2:3},
+        8:  {1:4, 2:3},
+        9:  {1:4, 2:3, 3:2},
+        10: {1:4, 2:3, 3:2},
+        11: {1:4, 2:3, 3:3},
+        12: {1:4, 2:3, 3:3},
+        13: {1:4, 2:3, 3:3, 4:1},
+        14: {1:4, 2:3, 3:3, 4:1},
+        15: {1:4, 2:3, 3:3, 4:2},
+        16: {1:4, 2:3, 3:3, 4:2},
+        17: {1:4, 2:3, 3:3, 4:3, 5:1},
+        18: {1:4, 2:3, 3:3, 4:3, 5:1},
+        19: {1:4, 2:3, 3:3, 4:3, 5:2},
+        20: {1:4, 2:3, 3:3, 4:3, 5:2}
     },
     // Spell definitions
     spells: {
@@ -1403,7 +1457,32 @@ const GAME_DATA = {
         "Hold Person": { level: 2, school: "Enchantment", classes: ["Wizard", "Cleric"], save: "wis", description: "A humanoid must WIS save or be paralyzed for 1 minute. Repeat save at end of each turn." },
         "Spiritual Weapon": { level: 2, school: "Evocation", classes: ["Cleric"], damage: "1d8", damageType: "force", range: 60, bonus: true, description: "Create a floating weapon. Bonus action to attack with it each turn. Lasts 1 minute." },
         "Prayer of Healing": { level: 2, school: "Evocation", classes: ["Cleric"], healing: "2d8", outOfCombat: true, description: "Up to 6 creatures regain 2d8 + modifier HP. Takes 10 minutes to cast." },
-        "Lesser Restoration": { level: 2, school: "Abjuration", classes: ["Cleric", "Ranger"], utility: true, description: "Touch a creature. End one disease, or blinded, deafened, paralyzed, or poisoned condition." }
+        "Lesser Restoration": { level: 2, school: "Abjuration", classes: ["Cleric", "Ranger"], utility: true, description: "Touch a creature. End one disease, or blinded, deafened, paralyzed, or poisoned condition." },
+        
+        // Level 3 Spells
+        "Fireball": { level: 3, school: "Evocation", classes: ["Wizard"], damage: "8d6", damageType: "fire", range: 150, aoe: "20ft sphere", save: "dex", description: "A bright streak explodes into a 20ft sphere of flame. DEX save for half damage." },
+        "Lightning Bolt": { level: 3, school: "Evocation", classes: ["Wizard"], damage: "8d6", damageType: "lightning", range: 100, aoe: "100ft line", save: "dex", description: "A stroke of lightning 100ft long and 5ft wide blasts out. DEX save for half." },
+        "Counterspell": { level: 3, school: "Abjuration", classes: ["Wizard"], utility: true, description: "Reaction: Attempt to interrupt a creature casting a spell. Automatically counters spells of 3rd level or lower." },
+        "Spirit Guardians": { level: 3, school: "Conjuration", classes: ["Cleric"], damage: "3d8", damageType: "radiant", range: 0, aoe: "15ft radius", save: "wis", description: "Spirits swirl around you in a 15ft radius. Hostile creatures take 3d8 radiant damage (WIS save for half). Lasts 10 minutes (concentration)." },
+        "Revivify": { level: 3, school: "Necromancy", classes: ["Cleric"], healing: true, range: 5, description: "Touch a creature that has died within the last minute. It returns to life with 1 HP. Requires 300 gp worth of diamonds." },
+        "Dispel Magic": { level: 3, school: "Abjuration", classes: ["Cleric", "Wizard"], utility: true, description: "End one spell on a creature, object, or area. Spells of 3rd level or lower end automatically; higher ones require a check." },
+        "Conjure Barrage": { level: 3, school: "Conjuration", classes: ["Ranger"], damage: "3d8", damageType: "slashing", range: 60, aoe: "60ft cone", save: "dex", description: "Throw a weapon or fire a piece of ammo that multiplies into a barrage. DEX save for half damage." },
+        "Lightning Arrow": { level: 3, school: "Transmutation", classes: ["Ranger"], damage: "4d8", damageType: "lightning", range: 120, description: "Your next ranged attack transforms into a bolt of lightning. On hit, deal 4d8 lightning damage. Nearby creatures take 2d8 (DEX save for half)." },
+        
+        // Level 4 Spells
+        "Greater Invisibility": { level: 4, school: "Illusion", classes: ["Wizard"], buff: true, description: "You or a creature you touch becomes invisible for 1 minute (concentration). Attacking does not break it!" },
+        "Wall of Fire": { level: 4, school: "Evocation", classes: ["Wizard"], damage: "5d8", damageType: "fire", range: 120, save: "dex", description: "Create a wall of fire up to 60ft long. One side deals 5d8 fire damage to creatures within 10ft (DEX save for half)." },
+        "Ice Storm": { level: 4, school: "Evocation", classes: ["Wizard"], damage: "2d8+4d6", damageType: "cold", range: 300, aoe: "20ft cylinder", save: "dex", description: "Hail pounds a 20ft radius. Deals 2d8 bludgeoning + 4d6 cold (DEX save for half). Ground becomes difficult terrain." },
+        "Guardian of Faith": { level: 4, school: "Conjuration", classes: ["Cleric"], damage: "20", damageType: "radiant", range: 30, description: "A Large spectral guardian appears. Hostile creatures within 10ft take 20 radiant damage (DEX save for half). Disappears after dealing 60 total damage." },
+        "Death Ward": { level: 4, school: "Abjuration", classes: ["Cleric"], buff: true, range: 5, description: "Touch a creature. The first time it would drop to 0 HP, it drops to 1 HP instead. Lasts 8 hours." },
+        "Freedom of Movement": { level: 4, school: "Abjuration", classes: ["Cleric", "Ranger"], buff: true, range: 5, description: "Touch a willing creature. Its movement is unaffected by difficult terrain, paralysis, or restraint. Lasts 1 hour." },
+        
+        // Level 5 Spells
+        "Cone of Cold": { level: 5, school: "Evocation", classes: ["Wizard"], damage: "8d8", damageType: "cold", range: 60, aoe: "60ft cone", save: "con", description: "A blast of cold air erupts in a 60ft cone. CON save for half damage." },
+        "Telekinesis": { level: 5, school: "Transmutation", classes: ["Wizard"], utility: true, description: "Gain the ability to move creatures or objects with your mind. Lasts 10 minutes (concentration)." },
+        "Mass Cure Wounds": { level: 5, school: "Evocation", classes: ["Cleric"], healing: "3d8", range: 60, description: "A wave of healing energy washes out. Up to 6 creatures within 30ft regain 3d8 + modifier HP." },
+        "Flame Strike": { level: 5, school: "Evocation", classes: ["Cleric"], damage: "4d6+4d6", damageType: "fire", range: 60, aoe: "10ft cylinder", save: "dex", description: "A vertical column of divine fire roars down. Deals 4d6 fire + 4d6 radiant damage. DEX save for half." },
+        "Swift Quiver": { level: 5, school: "Transmutation", classes: ["Ranger"], buff: true, description: "Your quiver produces an endless supply of ammunition. Bonus action: make two ranged weapon attacks. Lasts 1 minute (concentration)." }
     },
     backgrounds: {
         "Soldier": { skills: ["Athletics", "Intimidation"], feature: "Military Rank" },
@@ -1443,7 +1522,26 @@ const GAME_DATA = {
         "Morningstar": { damage: "1d8", type: "piercing", properties: [], stat: "str" },
         "Glaive": { damage: "1d10", type: "slashing", properties: ["two-handed", "reach", "heavy"], stat: "str" },
         "Halberd": { damage: "1d10", type: "slashing", properties: ["two-handed", "reach", "heavy"], stat: "str" },
-        "Unarmed": { damage: "1d1", type: "bludgeoning", properties: [], stat: "str" }
+        "Unarmed": { damage: "1d1", type: "bludgeoning", properties: [], stat: "str" },
+        // +1 Magic Weapons
+        "+1 Longsword": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 1 },
+        "+1 Shortsword": { damage: "1d6", type: "piercing", properties: ["finesse", "light"], stat: "dex", magicBonus: 1 },
+        "+1 Greatsword": { damage: "2d6", type: "slashing", properties: ["two-handed", "heavy"], stat: "str", magicBonus: 1 },
+        "+1 Rapier": { damage: "1d8", type: "piercing", properties: ["finesse"], stat: "dex", magicBonus: 1 },
+        "+1 Battleaxe": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 1 },
+        "+1 Longbow": { damage: "1d8", type: "piercing", properties: ["two-handed", "ranged"], stat: "dex", range: 150, magicBonus: 1 },
+        "+1 Warhammer": { damage: "1d8", type: "bludgeoning", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 1 },
+        "+1 Mace": { damage: "1d6", type: "bludgeoning", properties: [], stat: "str", magicBonus: 1 },
+        // +2 Magic Weapons
+        "+2 Longsword": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 2 },
+        "+2 Greatsword": { damage: "2d6", type: "slashing", properties: ["two-handed", "heavy"], stat: "str", magicBonus: 2 },
+        "+2 Rapier": { damage: "1d8", type: "piercing", properties: ["finesse"], stat: "dex", magicBonus: 2 },
+        "+2 Battleaxe": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 2 },
+        "+2 Longbow": { damage: "1d8", type: "piercing", properties: ["two-handed", "ranged"], stat: "dex", range: 150, magicBonus: 2 },
+        // +3 Magic Weapons
+        "+3 Longsword": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 3 },
+        "+3 Greatsword": { damage: "2d6", type: "slashing", properties: ["two-handed", "heavy"], stat: "str", magicBonus: 3 },
+        "+3 Rapier": { damage: "1d8", type: "piercing", properties: ["finesse"], stat: "dex", magicBonus: 3 }
     },
     armor: {
         "Robes": { ac: 10, type: "none", maxDex: 99, stealthDisadvantage: false },
@@ -1469,10 +1567,10 @@ const GAME_DATA = {
         "nights_dark_terror": {
             weapons: {
                 "Karameikan Saber": { damage: "1d8", type: "slashing", properties: ["finesse"], stat: "dex", description: "A curved cavalry saber favored by Karameikan nobles." },
-                "Goblin Cleaver": { damage: "1d8", type: "slashing", properties: ["light"], stat: "str", description: "A jagged blade designed for fighting goblins. +1 damage vs goblinoids." },
+                "Goblin Cleaver": { damage: "1d8", type: "slashing", properties: ["light"], stat: "str", magicBonus: 1, bonusDamageVs: "goblinoid", bonusDamage: 1, description: "A jagged blade designed for fighting goblins. +1 weapon, +1 extra damage vs goblinoids." },
                 "Wolf Fang Dagger": { damage: "1d4", type: "piercing", properties: ["finesse", "light", "thrown"], stat: "dex", description: "A dagger made from a dire wolf's fang." },
                 "Iron Ring Whip": { damage: "1d4", type: "slashing", properties: ["finesse", "reach"], stat: "dex", description: "A cruel weapon used by Iron Ring slavers." },
-                "Hutaakan Khopesh": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str", description: "An ancient curved blade from the Hutaakan ruins." }
+                "Hutaakan Khopesh": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 1, description: "An ancient curved blade from the Hutaakan ruins. A +1 magical weapon." }
             },
             armor: {
                 "Karameikan Scale": { ac: 15, type: "medium", maxDex: 2, stealthDisadvantage: true, description: "Scale armor decorated with the Karameikan eagle." },
@@ -1493,11 +1591,11 @@ const GAME_DATA = {
         },
         "curse_of_strahd": {
             weapons: {
-                "Silver Blade": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str", description: "A silvered longsword. Full damage against undead and lycanthropes." },
+                "Silver Blade": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 1, description: "A silvered longsword. +1 weapon. Full damage against undead and lycanthropes." },
                 "Vampire Hunter's Stake": { damage: "1d4", type: "piercing", properties: ["finesse", "light"], stat: "dex", description: "A wooden stake blessed by the Morning Lord. Critical hits vs vampires are instant kills." },
                 "Barovian Crossbow": { damage: "1d10", type: "piercing", properties: ["two-handed", "ranged", "loading"], stat: "dex", range: 100, description: "A heavy crossbow designed for hunting monsters." },
-                "Sunsword Replica": { damage: "1d10", type: "radiant", properties: ["versatile"], versatileDamage: "1d12", stat: "str", description: "A blade that glows with faint sunlight. +1d6 radiant vs undead." },
-                "Ravenloft Mace": { damage: "1d8", type: "bludgeoning", properties: [], stat: "str", description: "A mace bearing the symbol of the Morning Lord." }
+                "Sunsword Replica": { damage: "1d10", type: "radiant", properties: ["versatile"], versatileDamage: "1d12", stat: "str", magicBonus: 2, bonusDamageVs: "undead", bonusDamageDice: "1d6", description: "A blade that glows with faint sunlight. +2 weapon, +1d6 radiant vs undead." },
+                "Ravenloft Mace": { damage: "1d8", type: "bludgeoning", properties: [], stat: "str", magicBonus: 1, description: "A mace bearing the symbol of the Morning Lord. A +1 magical weapon." }
             },
             armor: {
                 "Vistani Leathers": { ac: 12, type: "light", maxDex: 99, stealthDisadvantage: false, description: "Supple leather armor worn by Vistani travelers." },
@@ -1525,8 +1623,8 @@ const GAME_DATA = {
                 "Dinosaur Bone Club": { damage: "1d8", type: "bludgeoning", properties: ["versatile"], versatileDamage: "1d10", stat: "str", description: "A massive club made from a T-Rex femur." },
                 "Yklwa": { damage: "1d8", type: "piercing", properties: ["thrown"], stat: "str", range: 30, description: "A traditional Chultan short spear." },
                 "Pterafolk Wing Blade": { damage: "1d6", type: "slashing", properties: ["finesse", "light"], stat: "dex", description: "A curved blade made from pterafolk wing bones." },
-                "Trickster God Blade": { damage: "1d10", type: "necrotic", properties: ["versatile"], versatileDamage: "1d12", stat: "str", description: "A blade touched by the Nine Gods. Unpredictable magic." },
-                "Yuan-ti Fang Sword": { damage: "1d8", type: "piercing", properties: ["finesse"], stat: "dex", description: "A serpentine blade coated with poison. Extra 1d4 poison damage." }
+                "Trickster God Blade": { damage: "1d10", type: "necrotic", properties: ["versatile"], versatileDamage: "1d12", stat: "str", magicBonus: 2, description: "A blade touched by the Nine Gods. +2 weapon. Unpredictable magic." },
+                "Yuan-ti Fang Sword": { damage: "1d8", type: "piercing", properties: ["finesse"], stat: "dex", magicBonus: 1, bonusDamageDice: "1d4", bonusDamageType: "poison", description: "A serpentine blade coated with poison. +1 weapon, extra 1d4 poison damage on hit." }
             },
             armor: {
                 "Jungle Explorer's Gear": { ac: 11, type: "light", maxDex: 99, stealthDisadvantage: false, description: "Light armor designed for jungle travel. Resists humidity." },
@@ -1575,6 +1673,25 @@ const GAME_DATA = {
         "Halberd": 20,
         "Greatsword": 50,
         "Greataxe": 30,
+        // +1 Magic Weapons (uncommon - ~500gp per DMG)
+        "+1 Longsword": 500,
+        "+1 Shortsword": 500,
+        "+1 Greatsword": 500,
+        "+1 Rapier": 500,
+        "+1 Battleaxe": 500,
+        "+1 Longbow": 500,
+        "+1 Warhammer": 500,
+        "+1 Mace": 500,
+        // +2 Magic Weapons (rare - ~2000gp per DMG)
+        "+2 Longsword": 2000,
+        "+2 Greatsword": 2000,
+        "+2 Rapier": 2000,
+        "+2 Battleaxe": 2000,
+        "+2 Longbow": 2000,
+        // +3 Magic Weapons (very rare - ~10000gp per DMG)
+        "+3 Longsword": 10000,
+        "+3 Greatsword": 10000,
+        "+3 Rapier": 10000,
         // Armor
         "Padded Armor": 5,
         "Leather Armor": 10,
@@ -1671,6 +1788,31 @@ const GAME_DATA = {
         "Halberd": "An axe-blade on a pole with a spike. Versatile polearm.",
         "Greatsword": "A massive two-handed sword. Devastating damage potential.",
         "Greataxe": "An enormous axe requiring two hands. Maximum damage per swing.",
+        // Magic Weapons
+        "Longsword +1": "A magically enhanced longsword. +1 to attack and damage rolls.",
+        "Longsword +2": "A finely enchanted longsword. +2 to attack and damage rolls.",
+        "Longsword +3": "A legendary longsword crackling with power. +3 to attack and damage rolls.",
+        "Shortsword +1": "A magically sharp shortsword. +1 to attack and damage rolls.",
+        "Shortsword +2": "A finely enchanted shortsword. +2 to attack and damage rolls.",
+        "Shortsword +3": "A legendary shortsword of incredible sharpness. +3 to attack and damage rolls.",
+        "Greatsword +1": "A magically enhanced greatsword. +1 to attack and damage rolls.",
+        "Greatsword +2": "A finely enchanted greatsword. +2 to attack and damage rolls.",
+        "Greatsword +3": "A legendary greatsword of devastating power. +3 to attack and damage rolls.",
+        "Rapier +1": "A magically keen rapier. +1 to attack and damage rolls.",
+        "Rapier +2": "A finely enchanted rapier. +2 to attack and damage rolls.",
+        "Rapier +3": "A legendary rapier of perfect balance. +3 to attack and damage rolls.",
+        "Battleaxe +1": "A magically enhanced battleaxe. +1 to attack and damage rolls.",
+        "Battleaxe +2": "A finely enchanted battleaxe. +2 to attack and damage rolls.",
+        "Battleaxe +3": "A legendary battleaxe of cleaving might. +3 to attack and damage rolls.",
+        "Longbow +1": "A magically enhanced longbow. +1 to attack and damage rolls.",
+        "Longbow +2": "A finely enchanted longbow. +2 to attack and damage rolls.",
+        "Longbow +3": "A legendary longbow of unerring aim. +3 to attack and damage rolls.",
+        "Warhammer +1": "A magically enhanced warhammer. +1 to attack and damage rolls.",
+        "Warhammer +2": "A finely enchanted warhammer. +2 to attack and damage rolls.",
+        "Warhammer +3": "A legendary warhammer of crushing force. +3 to attack and damage rolls.",
+        "Mace +1": "A magically enhanced mace. +1 to attack and damage rolls.",
+        "Mace +2": "A finely enchanted mace. +2 to attack and damage rolls.",
+        "Mace +3": "A legendary mace of divine might. +3 to attack and damage rolls.",
         // Armor
         "Padded Armor": "Quilted layers of cloth. Better than nothing.",
         "Leather Armor": "Cured leather protection. Light and flexible.",
@@ -1758,7 +1900,7 @@ const GAME_DATA = {
         },
         // Danger 3 enemies (dangerous)
         3: {
-            weapons: ["Longsword", "Rapier", "Battleaxe", "Warhammer", "Longbow", "Morningstar", "Flail"],
+            weapons: ["Longsword", "Rapier", "Battleaxe", "Warhammer", "Longbow", "Morningstar", "Flail", "+1 Longsword", "+1 Shortsword"],
             armor: ["Scale Mail", "Chain Shirt", "Breastplate", "Chain Mail", "Ring Mail"],
             shields: ["Shield", "Tower Shield"],
             goldRange: [10, 50],
@@ -1766,7 +1908,7 @@ const GAME_DATA = {
         },
         // Danger 4 enemies (very dangerous)
         4: {
-            weapons: ["Greatsword", "Greataxe", "Glaive", "Halberd", "Longbow", "Hand Crossbow"],
+            weapons: ["Greatsword", "Greataxe", "Glaive", "Halberd", "Longbow", "Hand Crossbow", "+1 Greatsword", "+1 Rapier", "+1 Battleaxe", "+1 Longbow"],
             armor: ["Breastplate", "Half Plate", "Chain Mail", "Splint Armor"],
             shields: ["Shield", "Tower Shield"],
             goldRange: [25, 100],
@@ -1774,7 +1916,7 @@ const GAME_DATA = {
         },
         // Danger 5 enemies (bosses)
         5: {
-            weapons: ["Greatsword", "Greataxe", "Glaive", "Halberd"],
+            weapons: ["Greatsword", "Greataxe", "Glaive", "Halberd", "+2 Longsword", "+2 Greatsword", "+2 Rapier", "+2 Battleaxe"],
             armor: ["Half Plate", "Splint Armor", "Plate Armor"],
             shields: ["Tower Shield"],
             goldRange: [50, 200],
@@ -1828,8 +1970,8 @@ class Character {
         this.spells = {
             cantrips: [],
             known: [],
-            slots: { 1: 0, 2: 0 },
-            slotsUsed: { 1: 0, 2: 0 }
+            slots: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
+            slotsUsed: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 }
         };
         // Combat buffs
         this.buffs = {
@@ -1867,6 +2009,12 @@ class Character {
             npcs: [],
             lore: []
         };
+        // Extra Attack tracking
+        this.extraAttack = false;
+        this.extraAttackCount = 1; // Number of extra attacks (Fighter gets more)
+        // Rage tracking (Barbarian)
+        this.raging = false;
+        this.ragesRemaining = 0;
         // Inspiration system
         this.inspiration = false;
         // Exhaustion system (0-6 levels)
@@ -1918,6 +2066,36 @@ class Character {
 
     getModifier(stat) {
         return Math.floor((this.stats[stat] - 10) / 2);
+    }
+
+    getProficiencyBonus() {
+        // D&D 5e proficiency bonus: +2 at L1-4, +3 at L5-8, +4 at L9-12, +5 at L13-16, +6 at L17-20
+        return Math.floor((this.level - 1) / 4) + 2;
+    }
+
+    getSneakAttackDice() {
+        // Rogue Sneak Attack: 1d6 at L1, +1d6 every 2 odd levels
+        if (this.charClass !== "Rogue") return 0;
+        return Math.ceil(this.level / 2);
+    }
+
+    getRageDamage() {
+        // Barbarian Rage bonus damage: +2 at L1, +3 at L9, +4 at L16
+        if (this.charClass !== "Barbarian") return 0;
+        if (this.level >= 16) return 4;
+        if (this.level >= 9) return 3;
+        return 2;
+    }
+
+    getExtraAttackCount() {
+        // Fighter: 2 attacks at L5, 3 at L11, 4 at L20
+        // Barbarian/Ranger: 2 attacks at L5
+        if (!this.extraAttack) return 1;
+        if (this.charClass === "Fighter") {
+            if (this.level >= 20) return 4;
+            if (this.level >= 11) return 3;
+        }
+        return 2;
     }
 
     calculateHp() {
@@ -2065,7 +2243,7 @@ class Character {
         if (weapon.properties && weapon.properties.includes("versatile") && !this.equipped.shield) {
             damage = weapon.versatileDamage;
         }
-        return { damage: damage, stat: weapon.stat, type: weapon.type, name: this.equipped.weapon, properties: weapon.properties || [] };
+        return { damage: damage, stat: weapon.stat, type: weapon.type, name: this.equipped.weapon, properties: weapon.properties || [], magicBonus: weapon.magicBonus || 0 };
     }
 
     setupClass() {
@@ -2092,6 +2270,11 @@ class Character {
             this.setupSpells();
         }
         
+        // Setup Barbarian Rage
+        if (this.charClass === "Barbarian") {
+            this.ragesRemaining = 2; // 2 rages at level 1
+        }
+        
         this.calculateHp();
         this.calculateAc();
     }
@@ -2100,10 +2283,18 @@ class Character {
         const classInfo = GAME_DATA.classes[this.charClass];
         if (!classInfo.spellcaster) return;
         
-        // Get spell slots for level 1
-        const baseSlots = classInfo.spellSlots || { 1: 2 };
-        this.spells.slots = { 1: baseSlots[1] || 0, 2: 0 };
-        this.spells.slotsUsed = { 1: 0, 2: 0 };
+        // Get spell slot table based on caster type
+        const slotTable = classInfo.casterType === 'half' ? GAME_DATA.halfCasterSlots : GAME_DATA.fullCasterSlots;
+        const levelSlots = slotTable[this.level] || {};
+        
+        // Initialize all 9 spell levels
+        this.spells.slots = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
+        this.spells.slotsUsed = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
+        
+        // Set slots from the table
+        for (let lvl in levelSlots) {
+            this.spells.slots[lvl] = levelSlots[lvl];
+        }
         
         // Assign starting cantrips and spells based on class
         const allSpells = GAME_DATA.spells;
@@ -2130,11 +2321,11 @@ class Character {
     }
     
     getSpellSaveDC() {
-        return 8 + 2 + this.getSpellcastingMod(); // 8 + proficiency (assumed 2) + mod
+        return 8 + this.getProficiencyBonus() + this.getSpellcastingMod();
     }
     
     getSpellAttackBonus() {
-        return 2 + this.getSpellcastingMod(); // proficiency + mod
+        return this.getProficiencyBonus() + this.getSpellcastingMod();
     }
     
     canCastSpell(spellName) {
@@ -2340,7 +2531,13 @@ class Character {
         Object.assign(char, data);
         // Ensure all properties exist for older saves
         if (!char.spells) {
-            char.spells = { cantrips: [], known: [], slots: { 1: 0, 2: 0 }, slotsUsed: { 1: 0, 2: 0 } };
+            char.spells = { cantrips: [], known: [], slots: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 }, slotsUsed: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 } };
+        } else {
+            // Ensure all 9 spell levels exist for older saves
+            for (let i = 1; i <= 9; i++) {
+                if (char.spells.slots[i] === undefined) char.spells.slots[i] = 0;
+                if (char.spells.slotsUsed[i] === undefined) char.spells.slotsUsed[i] = 0;
+            }
         }
         if (!char.buffs) {
             char.buffs = { shieldActive: false, blessActive: false, huntersMark: false, guidingBolt: false };
@@ -2494,12 +2691,20 @@ class DungeonMaster {
 
     rollDice(notation) {
         if (!notation.includes("d")) return parseInt(notation);
-        const [num, sides] = notation.split("d").map(n => parseInt(n) || 1);
+        // Handle notation like "3d4+3" or "2d6-1"
+        let bonus = 0;
+        let diceStr = notation;
+        const plusMatch = notation.match(/([^+\-]+)([+\-]\d+)$/);
+        if (plusMatch) {
+            diceStr = plusMatch[1];
+            bonus = parseInt(plusMatch[2]);
+        }
+        const [num, sides] = diceStr.split("d").map(n => parseInt(n) || 1);
         let total = 0;
         for (let i = 0; i < num; i++) {
             total += Math.floor(Math.random() * sides) + 1;
         }
-        return total;
+        return total + bonus;
     }
 
     skillCheck(stat, dc, advantage = false, disadvantage = false) {
@@ -2520,13 +2725,9 @@ class DungeonMaster {
         const modifier = this.character.getModifier(stat);
         const total = roll + modifier;
         const success = total >= dc;
+        const critical = (roll === 20 || roll === 1); // Critical for narrative, but not auto-success/fail
 
-        if (roll === 20) {
-            return { success: true, critical: true, roll, roll1, roll2, modifier, total, dc, advType };
-        } else if (roll === 1) {
-            return { success: false, critical: true, roll, roll1, roll2, modifier, total, dc, advType };
-        }
-        return { success, critical: false, roll, roll1, roll2, modifier, total, dc, advType };
+        return { success, critical, roll, roll1, roll2, modifier, total, dc, advType };
     }
 
     async skillCheckAnimated(stat, dc, advantage = false, disadvantage = false) {
@@ -2547,6 +2748,7 @@ class DungeonMaster {
         const modifier = this.character.getModifier(stat);
         const total = roll + modifier;
         const success = total >= dc;
+        const critical = (roll === 20 || roll === 1); // Critical for narrative, but not auto-success/fail
 
         // Show animation based on advantage/disadvantage
         if (advType) {
@@ -2555,12 +2757,7 @@ class DungeonMaster {
             await diceAnimator.rollD20(roll + modifier, `${stat.toUpperCase()} Check`);
         }
 
-        if (roll === 20) {
-            return { success: true, critical: true, roll, roll1, roll2, modifier, total, dc, advType };
-        } else if (roll === 1) {
-            return { success: false, critical: true, roll, roll1, roll2, modifier, total, dc, advType };
-        }
-        return { success, critical: false, roll, roll1, roll2, modifier, total, dc, advType };
+        return { success, critical, roll, roll1, roll2, modifier, total, dc, advType };
     }
     
     // Roll attack with advantage/disadvantage support
@@ -2777,7 +2974,8 @@ class DungeonMaster {
         const statMod = companion.stats[companion.weapon.stat] ? 
             Math.floor((companion.stats[companion.weapon.stat] - 10) / 2) : 2;
         const attackRoll = Math.floor(Math.random() * 20) + 1;
-        const totalAttack = attackRoll + statMod + Math.floor(companion.level / 4) + 2; // proficiency
+        const profBonus = Math.floor((companion.level - 1) / 4) + 2; // Proper proficiency scaling
+        const totalAttack = attackRoll + statMod + profBonus;
         
         if (attackRoll === 1) {
             return { hit: false, critical: false, fumble: true, roll: attackRoll, message: `${companion.name} fumbles their attack!` };
@@ -3495,6 +3693,21 @@ const DOWNTIME_ACTIVITIES = {
     }
 };
 
+// Standard 5e item weights (lbs) for export enrichment
+const EXPORT_ITEM_WEIGHTS = {
+    "Dagger": 1, "Handaxes": 4, "Javelin": 2, "Mace": 4, "Quarterstaff": 4,
+    "Spear": 3, "Light Crossbow": 5, "Shortbow": 2, "Shortsword": 2,
+    "Scimitar": 3, "Rapier": 2, "Longsword": 3, "Battleaxe": 4, "Flail": 2,
+    "Morningstar": 4, "Warhammer": 2, "Longbow": 2, "Hand Crossbow": 3,
+    "Glaive": 6, "Halberd": 6, "Greatsword": 6, "Greataxe": 7,
+    "Robes": 4, "Padded Armor": 8, "Leather Armor": 10, "Studded Leather": 13,
+    "Hide Armor": 12, "Chain Shirt": 20, "Scale Mail": 45, "Breastplate": 20,
+    "Half Plate": 40, "Ring Mail": 40, "Chain Mail": 55, "Splint Armor": 60,
+    "Plate Armor": 65, "Shield": 6, "Tower Shield": 12,
+    "Healing Potion": 0.5, "Greater Healing Potion": 0.5, "Antidote": 0.5,
+    "Torch": 1, "Rope (50 ft)": 10, "Rations (1 day)": 2
+};
+
 class Game {
     constructor() {
         this.character = null;
@@ -3919,68 +4132,72 @@ class Game {
     // Settings Panel
     openSettings() {
         const html = `
-            <h2>⚙️ Settings</h2>
-            
-            <div class="settings-section">
-                <h3>Difficulty</h3>
-                <div class="settings-buttons">
-                    <button class="setting-btn ${this.difficulty === 'easy' ? 'active' : ''}" onclick="game.setDifficulty('easy'); game.openSettings();">Easy</button>
-                    <button class="setting-btn ${this.difficulty === 'normal' ? 'active' : ''}" onclick="game.setDifficulty('normal'); game.openSettings();">Normal</button>
-                    <button class="setting-btn ${this.difficulty === 'hard' ? 'active' : ''}" onclick="game.setDifficulty('hard'); game.openSettings();">Hard</button>
-                </div>
-                <p class="setting-desc">${DIFFICULTY_SETTINGS[this.difficulty].description}</p>
-            </div>
-            
-            <div class="settings-section">
-                <h3>Theme</h3>
-                <div class="settings-buttons">
-                    <button class="setting-btn ${this.theme === 'dark' ? 'active' : ''}" onclick="game.theme='dark'; game.applyTheme(); game.saveSettings(); game.openSettings();">🌙 Dark</button>
-                    <button class="setting-btn ${this.theme === 'light' ? 'active' : ''}" onclick="game.theme='light'; game.applyTheme(); game.saveSettings(); game.openSettings();">☀️ Light</button>
-                </div>
-            </div>
-            
-            <div class="settings-section">
-                <h3>Font Size</h3>
-                <div class="settings-buttons">
-                    <button class="setting-btn ${this.fontSize === 'small' ? 'active' : ''}" onclick="game.setFontSize('small'); game.openSettings();">Small</button>
-                    <button class="setting-btn ${this.fontSize === 'medium' ? 'active' : ''}" onclick="game.setFontSize('medium'); game.openSettings();">Medium</button>
-                    <button class="setting-btn ${this.fontSize === 'large' ? 'active' : ''}" onclick="game.setFontSize('large'); game.openSettings();">Large</button>
-                </div>
-            </div>
-            
-            <div class="settings-section">
-                <h3>Audio</h3>
-                <div class="settings-buttons">
-                    <button class="setting-btn ${soundManager.enabled ? 'active' : ''}" onclick="soundManager.enabled = !soundManager.enabled; game.openSettings();">🔊 Sound: ${soundManager.enabled ? 'ON' : 'OFF'}</button>
-                    <button class="setting-btn ${musicManager.enabled ? 'active' : ''}" onclick="musicManager.toggle(); game.openSettings();">🎵 Music: ${musicManager.enabled ? 'ON' : 'OFF'}</button>
+            <div class="settings-modal">
+                <h2>⚙️ Settings</h2>
+                
+                <div class="settings-grid">
+                    <div class="settings-section">
+                        <h3>Difficulty</h3>
+                        <div class="settings-buttons">
+                            <button class="setting-btn ${this.difficulty === 'easy' ? 'active' : ''}" onclick="game.setDifficulty('easy'); game.openSettings();">Easy</button>
+                            <button class="setting-btn ${this.difficulty === 'normal' ? 'active' : ''}" onclick="game.setDifficulty('normal'); game.openSettings();">Normal</button>
+                            <button class="setting-btn ${this.difficulty === 'hard' ? 'active' : ''}" onclick="game.setDifficulty('hard'); game.openSettings();">Hard</button>
+                        </div>
+                        <p class="setting-desc">${DIFFICULTY_SETTINGS[this.difficulty].description}</p>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>Theme</h3>
+                        <div class="settings-buttons">
+                            <button class="setting-btn ${this.theme === 'dark' ? 'active' : ''}" onclick="game.theme='dark'; game.applyTheme(); game.saveSettings(); game.openSettings();">🌙 Dark</button>
+                            <button class="setting-btn ${this.theme === 'light' ? 'active' : ''}" onclick="game.theme='light'; game.applyTheme(); game.saveSettings(); game.openSettings();">☀️ Light</button>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>Font Size</h3>
+                        <div class="settings-buttons">
+                            <button class="setting-btn ${this.fontSize === 'small' ? 'active' : ''}" onclick="game.setFontSize('small'); game.openSettings();">Small</button>
+                            <button class="setting-btn ${this.fontSize === 'medium' ? 'active' : ''}" onclick="game.setFontSize('medium'); game.openSettings();">Medium</button>
+                            <button class="setting-btn ${this.fontSize === 'large' ? 'active' : ''}" onclick="game.setFontSize('large'); game.openSettings();">Large</button>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>Audio</h3>
+                        <div class="settings-buttons">
+                            <button class="setting-btn ${soundManager.enabled ? 'active' : ''}" onclick="soundManager.enabled = !soundManager.enabled; game.openSettings();">🔊 Sound: ${soundManager.enabled ? 'ON' : 'OFF'}</button>
+                            <button class="setting-btn ${musicManager.enabled ? 'active' : ''}" onclick="musicManager.toggle(); game.openSettings();">🎵 Music: ${musicManager.enabled ? 'ON' : 'OFF'}</button>
+                        </div>
+                        
+                        <h4 style="margin-top: 15px;">🌲 Ambient Soundscapes</h4>
+                        <div class="settings-buttons">
+                            <button class="setting-btn ${musicManager.ambientEnabled ? 'active' : ''}" 
+                                onclick="musicManager.setAmbientEnabled(!musicManager.ambientEnabled); game.openSettings();">
+                                🌊 Ambient: ${musicManager.ambientEnabled ? 'ON' : 'OFF'}
+                            </button>
+                        </div>
+                        ${musicManager.ambientEnabled ? `
+                            <div class="volume-control" style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                                <label style="display: block; margin-bottom: 5px;">Volume</label>
+                                <input type="range" min="0" max="100" value="${musicManager.ambientVolume * 100}" 
+                                    oninput="musicManager.setAmbientVolume(this.value / 100); this.nextElementSibling.textContent = this.value + '%';"
+                                    style="width: 100%;">
+                                <span style="display: block; text-align: center; margin-top: 5px;">${Math.round(musicManager.ambientVolume * 100)}%</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>Auto-Save</h3>
+                        <div class="settings-buttons">
+                            <button class="setting-btn ${this.autoSave ? 'active' : ''}" onclick="game.autoSave = !game.autoSave; game.openSettings();">Auto-Save: ${this.autoSave ? 'ON' : 'OFF'}</button>
+                        </div>
+                    </div>
                 </div>
                 
-                <h4 style="margin-top: 15px;">🌲 Ambient Soundscapes</h4>
-                <div class="settings-buttons">
-                    <button class="setting-btn ${musicManager.ambientEnabled ? 'active' : ''}" 
-                        onclick="musicManager.setAmbientEnabled(!musicManager.ambientEnabled); game.openSettings();">
-                        🌊 Ambient: ${musicManager.ambientEnabled ? 'ON' : 'OFF'}
-                    </button>
-                </div>
-                ${musicManager.ambientEnabled ? `
-                    <div class="volume-control" style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">
-                        <label style="display: block; margin-bottom: 5px;">Volume</label>
-                        <input type="range" min="0" max="100" value="${musicManager.ambientVolume * 100}" 
-                            oninput="musicManager.setAmbientVolume(this.value / 100); this.nextElementSibling.textContent = this.value + '%';"
-                            style="width: 100%;">
-                        <span style="display: block; text-align: center; margin-top: 5px;">${Math.round(musicManager.ambientVolume * 100)}%</span>
-                    </div>
-                ` : ''}
+                <button class="close-modal" onclick="this.parentElement.parentElement.remove()">Close</button>
             </div>
-            
-            <div class="settings-section">
-                <h3>Auto-Save</h3>
-                <div class="settings-buttons">
-                    <button class="setting-btn ${this.autoSave ? 'active' : ''}" onclick="game.autoSave = !game.autoSave; game.openSettings();">Auto-Save: ${this.autoSave ? 'ON' : 'OFF'}</button>
-                </div>
-            </div>
-            
-            <button class="close-modal" onclick="this.parentElement.parentElement.remove()">Close</button>
         `;
         
         // Remove any existing modal first
@@ -4386,7 +4603,10 @@ class Game {
         document.getElementById("gameScreen").classList.remove("hidden");
         document.getElementById("characterPanel").classList.remove("hidden");
         
-        this.updateChapterBanner();
+        // Update chapter banner with campaign info
+        const campaign = this.dm.campaign;
+        document.querySelector(".chapter-banner .chapter-title").textContent = `${campaign.icon} ${campaign.name.toUpperCase()} ${campaign.icon}`;
+        
         this.updateUI();
         
         this.log(`⚡ <strong>Quick Start!</strong> Welcome, ${this.character.name}!`, "success");
@@ -4940,7 +5160,7 @@ class Game {
                     title: "📚 Ancient Text",
                     description: "You notice a rare manuscript in a merchant's pile of goods.",
                     outcomes: [
-                        { text: "Examine it (Intelligence DC 12)", effect: () => {
+                        { text: "Examine it", skill: "int", dc: 12, effect: () => {
                             const check = this.dm.skillCheck("int", 12);
                             if (check.success) {
                                 this.log("The text reveals ancient knowledge! +50 XP", "success");
@@ -4983,7 +5203,7 @@ class Game {
                     title: "🐾 Animal Tracks",
                     description: "Your keen eyes spot unusual tracks. Your wilderness instincts kick in.",
                     outcomes: [
-                        { text: "Follow them (Survival DC 10)", effect: () => {
+                        { text: "Follow them", skill: "wis", dc: 10, effect: () => {
                             const check = this.dm.skillCheck("wis", 10);
                             if (check.success) {
                                 const items = ["Healing Herbs", "Hide", "Meat"];
@@ -5027,9 +5247,26 @@ class Game {
                 <h2>${event.title}</h2>
                 <p style="margin-bottom: 20px;">${event.description}</p>
                 <div class="choice-options">
-                    ${event.outcomes.map((o, i) => `
-                        <button class="choice-btn" onclick="game.resolveBackstoryChoice(${i})">${o.text}</button>
-                    `).join('')}
+                    ${event.outcomes.map((o, i) => {
+                        // Extract DC info if present (e.g., "Examine it (Intelligence DC 12)")
+                        let displayText = o.text;
+                        let dcHint = "";
+                        
+                        // Check if this outcome has DC requirements
+                        if (o.skill && o.dc) {
+                            const charMod = this.character.getModifier(o.skill);
+                            const hasAdv = this.checkForAdvantage(o.skill);
+                            dcHint = `<span class="dc-hint">(DC ${o.dc}, you have +${charMod}${hasAdv ? ' 📈' : ''})</span>`;
+                            // Remove the old inline DC format if present
+                            displayText = o.text.replace(/\s*\(.*DC\s*\d+\)/i, '');
+                        }
+                        
+                        return `
+                            <button class="choice-btn skill-option" onclick="game.resolveBackstoryChoice(${i})">
+                                <span>${displayText}</span>${dcHint}
+                            </button>
+                        `;
+                    }).join('')}
                 </div>
             </div>
         `;
@@ -5394,6 +5631,39 @@ class Game {
             modal.classList.add("active");
         });
     }
+
+    showChoiceWithDC(title, description, choices) {
+        return new Promise(resolve => {
+            const modal = document.getElementById("choiceModal");
+            document.getElementById("choiceTitle").textContent = title;
+            document.getElementById("choiceDescription").textContent = description;
+            
+            const optionsContainer = document.getElementById("choiceOptions");
+            optionsContainer.innerHTML = "";
+            
+            choices.forEach((choice, index) => {
+                const btn = document.createElement("div");
+                btn.className = "travel-option skill-option";
+                
+                // Show DC hint for skill checks
+                let dcHint = "";
+                if (choice.skill) {
+                    const charMod = this.character.getModifier(choice.skill);
+                    const hasAdv = this.checkForAdvantage(choice.skill);
+                    dcHint = `<span class="dc-hint">(DC ${choice.dc}, you have +${charMod}${hasAdv ? ' 📈' : ''})</span>`;
+                }
+                
+                btn.innerHTML = `<span>${choice.text}</span>${dcHint}`;
+                btn.onclick = () => {
+                    modal.classList.remove("active");
+                    resolve(index);
+                };
+                optionsContainer.appendChild(btn);
+            });
+            
+            modal.classList.add("active");
+        });
+    }
     
     async triggerAmbushCheck(forced = false) {
         const danger = this.dm.currentLocation.danger;
@@ -5493,6 +5763,20 @@ class Game {
             }
         }
         
+        // Show/hide rage button for Barbarians
+        const rageBtn = document.getElementById("rageCombatBtn");
+        if (rageBtn) {
+            if (this.character.charClass === "Barbarian" && this.character.ragesRemaining > 0) {
+                rageBtn.classList.remove("hidden");
+                if (this.character.raging) {
+                    rageBtn.textContent = "💢 Raging!";
+                    rageBtn.disabled = true;
+                }
+            } else {
+                rageBtn.classList.add("hidden");
+            }
+        }
+        
         this.log(`⚔️ A ${monster.name} appears!`, "combat");
         this.log(`📊 Initiative: You (${init.player}) vs ${monster.name} (${init.enemy})`, "dm");
         
@@ -5559,6 +5843,8 @@ class Game {
         if (action === "attack") {
             // Get weapon info for attack
             const weaponInfo = char.getWeaponDamage(campaignId);
+            const profBonus = char.getProficiencyBonus();
+            const magicBonus = weaponInfo.magicBonus || 0;
             
             // Check for advantage/disadvantage from various sources
             let hasAdvantage = char.buffs.guidingBolt || false;
@@ -5573,6 +5859,14 @@ class Game {
             // Monster conditions giving advantage
             if (monster.conditions?.paralyzed || monster.conditions?.stunned) hasAdvantage = true;
             if (monster.conditions?.restrained || monster.conditions?.prone) hasAdvantage = true;
+            
+            // Barbarian Rage grants advantage on STR attacks (Reckless Attack)
+            if (char.raging && char.charClass === "Barbarian") hasAdvantage = true;
+            
+            // Rogue gets advantage if monster has a condition (simplified Sneak Attack condition)
+            if (char.charClass === "Rogue" && (monster.conditions?.restrained || monster.conditions?.stunned || monster.conditions?.paralyzed || monster.conditions?.prone)) {
+                hasAdvantage = true;
+            }
             
             // Weather affects ranged attacks
             const weatherEffects = this.dm.getWeatherEffects();
@@ -5592,15 +5886,71 @@ class Game {
             }
             const attackMod = char.getModifier(attackStat);
             
-            // Roll attack with advantage/disadvantage support - with animation
-            const attackResult = await this.dm.rollAttackAnimated(attackMod, hasAdvantage, hasDisadvantage);
+            // Total attack modifier: ability mod + proficiency bonus + magic weapon bonus
+            const totalAttackMod = attackMod + profBonus + magicBonus;
             
-            // Calculate Hunter's Mark bonus damage
+            // Roll attack with advantage/disadvantage support - with animation
+            const attackResult = await this.dm.rollAttackAnimated(totalAttackMod, hasAdvantage, hasDisadvantage);
+            
+            // Calculate bonus damage from various sources
             let bonusDamage = 0;
             let bonusDamageText = "";
+            
+            // Hunter's Mark bonus
             if (char.buffs.huntersMark) {
-                bonusDamage = this.dm.rollDice("1d6");
-                bonusDamageText = ` +${bonusDamage} Hunter's Mark`;
+                const hmDmg = this.dm.rollDice("1d6");
+                bonusDamage += hmDmg;
+                bonusDamageText += ` +${hmDmg} Hunter's Mark`;
+            }
+            
+            // Barbarian Rage bonus damage
+            if (char.raging && char.charClass === "Barbarian") {
+                const rageDmg = char.getRageDamage();
+                bonusDamage += rageDmg;
+                bonusDamageText += ` +${rageDmg} Rage`;
+            }
+            
+            // Weapon-specific bonus damage (e.g., Yuan-ti Fang Sword poison, Goblin Cleaver vs goblinoids)
+            const weaponData = char.getWeaponData(char.equipped.weapon, campaignId);
+            if (weaponData) {
+                const monsterType = (monster.type || monster.name || "").toLowerCase();
+                
+                // Always-on bonus dice (e.g., Yuan-ti Fang Sword: +1d4 poison on every hit)
+                if (weaponData.bonusDamageDice && !weaponData.bonusDamageVs) {
+                    const wpnBonusDmg = this.dm.rollDice(weaponData.bonusDamageDice);
+                    bonusDamage += wpnBonusDmg;
+                    bonusDamageText += ` +${wpnBonusDmg} ${weaponData.bonusDamageType || 'special'}`;
+                }
+                
+                // Helper to check if monster matches a creature type
+                const matchesType = (bonusVs) => {
+                    if (monsterType.includes(bonusVs)) return true;
+                    if (bonusVs === "goblinoid" && (monsterType.includes("goblin") || monsterType.includes("hobgoblin") || monsterType.includes("bugbear"))) return true;
+                    if (bonusVs === "undead" && (monsterType.includes("undead") || monsterType.includes("zombie") || monsterType.includes("skeleton") || monsterType.includes("vampire") || monsterType.includes("ghost") || monsterType.includes("wight") || monsterType.includes("ghoul"))) return true;
+                    return false;
+                };
+                
+                // Flat bonus vs creature type (e.g., Goblin Cleaver: +1 vs goblinoids)
+                if (weaponData.bonusDamageVs && weaponData.bonusDamage && matchesType(weaponData.bonusDamageVs.toLowerCase())) {
+                    bonusDamage += weaponData.bonusDamage;
+                    bonusDamageText += ` +${weaponData.bonusDamage} vs ${weaponData.bonusDamageVs}`;
+                }
+                
+                // Bonus dice vs creature type (e.g., Sunsword: +1d6 radiant vs undead)
+                if (weaponData.bonusDamageVs && weaponData.bonusDamageDice && matchesType(weaponData.bonusDamageVs.toLowerCase())) {
+                    const vsBonusDmg = this.dm.rollDice(weaponData.bonusDamageDice);
+                    bonusDamage += vsBonusDmg;
+                    bonusDamageText += ` +${vsBonusDmg} ${weaponData.bonusDamageType || 'radiant'} vs ${weaponData.bonusDamageVs}`;
+                }
+            }
+            
+            // Rogue Sneak Attack (applies once per turn when has advantage or ally adjacent)
+            let sneakAttackDamage = 0;
+            if (char.charClass === "Rogue" && char.getSneakAttackDice() > 0) {
+                // Sneak Attack triggers with advantage or in simplified conditions (always in party play)
+                const sneakDice = char.getSneakAttackDice();
+                sneakAttackDamage = this.dm.rollDice(`${sneakDice}d6`);
+                bonusDamageText += ` +${sneakAttackDamage} Sneak Attack (${sneakDice}d6)`;
             }
             
             // Build roll message
@@ -5611,7 +5961,8 @@ class Game {
             } else {
                 rollMsg = `${attackResult.roll}`;
             }
-            rollMsg += `+${attackMod}=${attackResult.total}`;
+            rollMsg += `+${totalAttackMod}=${attackResult.total}`;
+            if (magicBonus > 0) rollMsg += ` (includes +${magicBonus} magic)`;
             
             if (attackResult.isFumble) {
                 // FUMBLE! Roll on fumble table
@@ -5620,9 +5971,15 @@ class Game {
                 soundManager.playMiss();
                 this.applyFumbleEffect(fumble);
             } else if (attackResult.isCrit) {
-                // CRITICAL HIT! Roll on crit table
+                // CRITICAL HIT! Double the weapon dice + ability mod + magic bonus + bonus damage
                 const critEffect = CRITICAL_HIT_EFFECTS[Math.floor(Math.random() * CRITICAL_HIT_EFFECTS.length)];
-                let critDamage = this.dm.rollDice(weaponInfo.damage) * 2 + attackMod + bonusDamage;
+                // Crit: roll weapon dice twice (per 5e RAW) + mods
+                let critDamage = this.dm.rollDice(weaponInfo.damage) + this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus + bonusDamage;
+                // Sneak Attack dice also double on crit
+                if (sneakAttackDamage > 0) {
+                    const sneakDice = char.getSneakAttackDice();
+                    critDamage += sneakAttackDamage + this.dm.rollDice(`${sneakDice}d6`); // Original + extra dice
+                }
                 
                 // Apply crit effect
                 if (critEffect.bonusDamage) {
@@ -5644,16 +6001,16 @@ class Game {
                 // Check for bonus attack
                 if (critEffect.special === "bonusAttack") {
                     this.log("⚔️ You gain a bonus attack!", "success");
-                    // Quick bonus attack with animation
-                    const bonusAttack = await this.dm.rollAttackAnimated(attackMod, false, false);
+                    const bonusAttack = await this.dm.rollAttackAnimated(totalAttackMod, false, false);
                     if (bonusAttack.total >= monster.ac) {
-                        const bonusDmg = this.dm.rollDice(weaponInfo.damage) + attackMod;
+                        const bonusDmg = this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus;
                         monster.hp -= bonusDmg;
                         this.log(`⚔️ Bonus attack hits for ${bonusDmg} damage!`, "combat");
                     }
                 }
             } else if (attackResult.total >= monster.ac) {
-                const damage = this.dm.rollDice(weaponInfo.damage) + attackMod + bonusDamage;
+                // Normal hit: weapon die + ability mod + magic bonus + bonus damage
+                const damage = this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus + bonusDamage + sneakAttackDamage;
                 monster.hp -= damage;
                 soundManager.playHit();
                 this.log(`⚔️ You hit with ${weaponInfo.name}! (Roll: ${rollMsg} vs AC ${monster.ac}) Damage: ${damage} ${weaponInfo.type}${bonusDamageText}`, "combat");
@@ -5662,20 +6019,39 @@ class Game {
                 this.log(`❌ You miss with ${weaponInfo.name}! (Roll: ${rollMsg} vs AC ${monster.ac})`, "combat");
             }
             
-            // EXTRA ATTACK (Fighters level 5+)
-            if (char.extraAttack && monster.hp > 0) {
-                this.log("⚔️ Extra Attack!", "combat");
-                const extraAttack = await this.dm.rollAttackAnimated(attackMod, false, false);
-                let extraRollMsg = `${extraAttack.roll}+${attackMod}=${extraAttack.total}`;
+            // EXTRA ATTACKS (martial classes level 5+, Fighter gets more at 11/20)
+            const totalAttacks = char.getExtraAttackCount();
+            for (let extraNum = 1; extraNum < totalAttacks && monster.hp > 0; extraNum++) {
+                this.log(`⚔️ Extra Attack ${extraNum}!`, "combat");
+                const extraAttack = await this.dm.rollAttackAnimated(totalAttackMod, hasAdvantage, hasDisadvantage);
+                let extraRollMsg = `${extraAttack.roll}+${totalAttackMod}=${extraAttack.total}`;
                 
-                if (extraAttack.isCrit) {
-                    const extraCritDmg = this.dm.rollDice(weaponInfo.damage) * 2 + attackMod;
+                // Calculate extra attack bonus damage (Hunter's Mark applies to each attack, Sneak Attack does NOT)
+                let extraBonusDmg = 0;
+                let extraBonusText = "";
+                if (char.buffs.huntersMark) {
+                    const hmExtra = this.dm.rollDice("1d6");
+                    extraBonusDmg += hmExtra;
+                    extraBonusText += ` +${hmExtra} Hunter's Mark`;
+                }
+                if (char.raging && char.charClass === "Barbarian") {
+                    const rageDmg = char.getRageDamage();
+                    extraBonusDmg += rageDmg;
+                    extraBonusText += ` +${rageDmg} Rage`;
+                }
+                
+                if (extraAttack.isFumble) {
+                    const fumble = FUMBLE_EFFECTS[Math.floor(Math.random() * FUMBLE_EFFECTS.length)];
+                    this.log(`💀 Extra attack FUMBLE! ${fumble.effect}`, "danger");
+                    this.applyFumbleEffect(fumble);
+                } else if (extraAttack.isCrit) {
+                    const extraCritDmg = this.dm.rollDice(weaponInfo.damage) + this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus + extraBonusDmg;
                     monster.hp -= extraCritDmg;
-                    this.log(`🎯 CRITICAL! Extra attack deals ${extraCritDmg} damage!`, "success");
+                    this.log(`🎯 CRITICAL! Extra attack deals ${extraCritDmg} damage!${extraBonusText}`, "success");
                 } else if (extraAttack.total >= monster.ac) {
-                    const extraDmg = this.dm.rollDice(weaponInfo.damage) + attackMod;
+                    const extraDmg = this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus + extraBonusDmg;
                     monster.hp -= extraDmg;
-                    this.log(`⚔️ Extra attack hits! (${extraRollMsg} vs AC ${monster.ac}) ${extraDmg} damage!`, "combat");
+                    this.log(`⚔️ Extra attack hits! (${extraRollMsg} vs AC ${monster.ac}) ${extraDmg} damage!${extraBonusText}`, "combat");
                 } else {
                     this.log(`❌ Extra attack misses! (${extraRollMsg} vs AC ${monster.ac})`, "combat");
                 }
@@ -5703,6 +6079,26 @@ class Game {
             this.showSpellMenu();
             this.processingCombatAction = false;
             return; // Don't proceed to monster turn yet
+        } else if (action === "rage") {
+            // Barbarian Rage - bonus action, then still get to attack
+            if (char.charClass === "Barbarian" && char.ragesRemaining > 0 && !char.raging) {
+                char.raging = true;
+                char.ragesRemaining--;
+                this.log(`💢 RAGE! You enter a furious rage! (+${char.getRageDamage()} melee damage, resistance to physical damage, advantage on STR attacks)`, "success");
+                this.log(`Rages remaining: ${char.ragesRemaining}`, "dm");
+                // Update the rage button
+                const rageBtn = document.getElementById("rageCombatBtn");
+                if (rageBtn) {
+                    rageBtn.innerHTML = '<span class="icon">💢</span> Raging!';
+                    rageBtn.disabled = true;
+                }
+                // Rage is a bonus action — proceed to attack automatically
+                this.processingCombatAction = false;
+                await this.combatAction("attack");
+                return;
+            }
+            this.processingCombatAction = false;
+            return;
         }
         
         // Update enemy HP display
@@ -5784,6 +6180,7 @@ class Game {
         if (fumble.selfDamage) {
             const damage = this.dm.rollDice(fumble.selfDamage);
             char.takeDamage(damage);
+            this.stats.damageThisCombat += damage;
             this.log(`You hurt yourself for ${damage} damage!`, "danger");
         }
         
@@ -5943,6 +6340,12 @@ class Game {
                 this.log(`💥 The ${monster.name} hits you for ${damage} damage!`, "danger");
             }
             
+            // Barbarian Rage: resistance to bludgeoning, piercing, and slashing damage
+            if (char.raging && char.charClass === "Barbarian") {
+                damage = Math.floor(damage / 2);
+                this.log(`💢 Rage reduces damage to ${damage}!`, "success");
+            }
+            
             // Taking damage while at 0 HP = automatic death save failure
             if (char.hp === 0) {
                 char.deathSaves.failures++;
@@ -5956,9 +6359,13 @@ class Game {
                 }
             } else if (!char.takeDamage(damage)) {
                 // Dropped to 0 HP
+                this.stats.damageThisCombat += damage;
                 soundManager.playDeath();
                 this.log("💀 You fall unconscious! Roll death saves to survive!", "danger");
                 this.showDeathSaveButton();
+            } else {
+                // Still conscious, track damage
+                this.stats.damageThisCombat += damage;
             }
         } else {
             soundManager.playMiss();
@@ -6077,6 +6484,9 @@ class Game {
         this.dm.currentEnemy = null;
         document.getElementById("combatPanel").classList.add("hidden");
         
+        // Clear dice animation overlay
+        diceAnimator.hide();
+        
         // Stop combat music
         musicManager.stop();
         
@@ -6085,6 +6495,14 @@ class Game {
         this.character.buffs.guidingBolt = false;
         // Hunter's Mark persists
         // Bless persists until rest
+        // End Rage on combat end
+        this.character.raging = false;
+        // Reset rage button
+        const rageBtn = document.getElementById("rageCombatBtn");
+        if (rageBtn) {
+            rageBtn.innerHTML = '<span class="icon">💢</span> Rage';
+            rageBtn.disabled = false;
+        }
         
         this.updateUI();
         
@@ -6121,16 +6539,20 @@ class Game {
             document.body.appendChild(modal);
         }
         
-        // Update spell slot display
+        // Update spell slot display - dynamically show all levels with slots
         const slotInfo = document.getElementById("spellSlotInfo");
-        const slots1 = char.spells.slots[1] - char.spells.slotsUsed[1];
-        const slots2 = char.spells.slots[2] - char.spells.slotsUsed[2];
-        slotInfo.innerHTML = `
-            <div class="slot-display">
-                <span>Level 1 Slots: ${'🔮'.repeat(slots1)}${'⚫'.repeat(char.spells.slotsUsed[1])}</span>
-                ${char.spells.slots[2] > 0 ? `<span>Level 2 Slots: ${'🔮'.repeat(slots2)}${'⚫'.repeat(char.spells.slotsUsed[2])}</span>` : ''}
-            </div>
-        `;
+        let slotHtml = '<div class="slot-display">';
+        for (let lvl = 1; lvl <= 9; lvl++) {
+            const totalSlots = char.spells.slots[lvl] || 0;
+            if (totalSlots > 0) {
+                const usedSlots = char.spells.slotsUsed[lvl] || 0;
+                const availableSlots = totalSlots - usedSlots;
+                const ordinal = lvl === 1 ? '1st' : lvl === 2 ? '2nd' : lvl === 3 ? '3rd' : `${lvl}th`;
+                slotHtml += `<span>${ordinal} Level: ${'🔮'.repeat(availableSlots)}${'⚫'.repeat(usedSlots)}</span>`;
+            }
+        }
+        slotHtml += '</div>';
+        slotInfo.innerHTML = slotHtml;
         
         // Build spell list
         const spellList = document.getElementById("spellList");
@@ -6147,16 +6569,27 @@ class Game {
             });
         }
         
-        // Add leveled spells section
+        // Add leveled spells section, grouped by spell level
         if (char.spells.known.length > 0) {
-            spellList.innerHTML += `<div class="spell-section-header">Spells</div>`;
+            const spellsByLevel = {};
             char.spells.known.forEach(spellName => {
                 const spell = GAME_DATA.spells[spellName];
                 if (spell) {
-                    const canCast = char.canCastSpell(spellName);
-                    spellList.innerHTML += this.createSpellButton(spellName, spell, canCast);
+                    if (!spellsByLevel[spell.level]) spellsByLevel[spell.level] = [];
+                    spellsByLevel[spell.level].push({ name: spellName, spell });
                 }
             });
+            for (let lvl = 1; lvl <= 9; lvl++) {
+                if (spellsByLevel[lvl] && spellsByLevel[lvl].length > 0) {
+                    const ordinal = lvl === 1 ? '1st' : lvl === 2 ? '2nd' : lvl === 3 ? '3rd' : `${lvl}th`;
+                    const slotsLeft = (char.spells.slots[lvl] || 0) - (char.spells.slotsUsed[lvl] || 0);
+                    spellList.innerHTML += `<div class="spell-section-header">${ordinal} Level Spells (${slotsLeft} slots)</div>`;
+                    spellsByLevel[lvl].forEach(({ name, spell }) => {
+                        const canCast = char.canCastSpell(name);
+                        spellList.innerHTML += this.createSpellButton(name, spell, canCast);
+                    });
+                }
+            }
         }
         
         modal.classList.add("active");
@@ -6167,7 +6600,9 @@ class Game {
         let effectText = "";
         
         if (spell.damage) {
-            effectText = `${spell.damage} ${spell.damageType}`;
+            // Show scaled damage for cantrips
+            const displayDamage = (spell.level === 0 && spell.scaling) ? this.getScaledSpellDamage(spell) : spell.damage;
+            effectText = `${displayDamage} ${spell.damageType}`;
         } else if (spell.healing) {
             effectText = `Heal ${spell.healing}+${char.getSpellcastingMod()}`;
         } else if (spell.defensive) {
@@ -6256,21 +6691,46 @@ class Game {
         this.updateUI();
     }
     
+    // Get cantrip damage scaled by character level (5e: extra die at L5, L11, L17)
+    getScaledSpellDamage(spell) {
+        if (!spell.damage) return spell.damage;
+        const char = this.character;
+        // Only scale cantrips (level 0)
+        if (spell.level !== 0 || !spell.scaling) return spell.damage;
+        
+        // Parse base damage dice (e.g., "1d10" -> num=1, sides=10)
+        const match = spell.damage.match(/(\d+)d(\d+)/);
+        if (!match) return spell.damage;
+        
+        let numDice = parseInt(match[1]);
+        const sides = match[2];
+        
+        // Cantrip scaling: extra die at levels 5, 11, 17
+        if (char.level >= 17) numDice = 4;
+        else if (char.level >= 11) numDice = 3;
+        else if (char.level >= 5) numDice = 2;
+        
+        return `${numDice}d${sides}`;
+    }
+
     async handleDamageSpell(spellName, spell, monster, spellAttack, spellDC, spellMod) {
+        // Get scaled damage for cantrips
+        const spellDamage = this.getScaledSpellDamage(spell);
+        
         if (spell.autoHit) {
-            // Magic Missile - auto hit
+            // Magic Missile - auto hit (not a cantrip, uses spell.damage directly)
             const damage = this.dm.rollDice(spell.damage);
             monster.hp -= damage;
             this.log(`🎯 ${spellName} automatically hits for ${damage} ${spell.damageType} damage!`, "combat");
         } else if (spell.save) {
-            // Saving throw spell
+            // Saving throw spell  
             const monsterSave = Math.floor(Math.random() * 20) + 1 + 2; // Monster has +2 save
             if (monsterSave >= spellDC) {
-                const halfDamage = Math.floor(this.dm.rollDice(spell.damage) / 2);
+                const halfDamage = Math.floor(this.dm.rollDice(spellDamage) / 2);
                 monster.hp -= halfDamage;
                 this.log(`🎲 Enemy ${spell.save.toUpperCase()} save: ${monsterSave} vs DC ${spellDC} - Saved! Half damage: ${halfDamage}`, "combat");
             } else {
-                const damage = this.dm.rollDice(spell.damage);
+                const damage = this.dm.rollDice(spellDamage);
                 monster.hp -= damage;
                 this.log(`🎲 Enemy ${spell.save.toUpperCase()} save: ${monsterSave} vs DC ${spellDC} - Failed! ${damage} ${spell.damageType} damage!`, "combat");
             }
@@ -6279,11 +6739,11 @@ class Game {
             const attackResult = await this.dm.rollAttackAnimated(spellAttack, false, false);
             
             if (attackResult.isCrit) {
-                const damage = this.dm.rollDice(spell.damage) + this.dm.rollDice(spell.damage);
+                const damage = this.dm.rollDice(spellDamage) + this.dm.rollDice(spellDamage);
                 monster.hp -= damage;
                 this.log(`🎯 CRITICAL! Spell attack: ${attackResult.roll}+${spellAttack}=${attackResult.total} vs AC ${monster.ac}. ${damage} ${spell.damageType} damage!`, "success");
             } else if (attackResult.total >= monster.ac) {
-                const damage = this.dm.rollDice(spell.damage);
+                const damage = this.dm.rollDice(spellDamage);
                 monster.hp -= damage;
                 this.log(`✨ Spell attack: ${attackResult.roll}+${spellAttack}=${attackResult.total} vs AC ${monster.ac}. ${damage} ${spell.damageType} damage!`, "combat");
                 
@@ -7119,7 +7579,14 @@ class Game {
         this.log(`🎊 LEVEL UP! You are now level ${char.level}!`, "success");
         this.log(`HP increased by ${hpGain}! (New max: ${char.maxHp})`, "success");
         
-        // Class-specific level bonuses
+        // Show proficiency bonus if it increased
+        const profBonus = char.getProficiencyBonus();
+        const prevProfBonus = Math.floor((char.level - 2) / 4) + 2;
+        if (profBonus > prevProfBonus) {
+            this.log(`📈 Proficiency Bonus increased to +${profBonus}!`, "success");
+        }
+        
+        // Extra Attack at level 5 for martial classes
         if (char.level === 5) {
             if (char.charClass === "Fighter" || char.charClass === "Barbarian" || char.charClass === "Ranger") {
                 char.extraAttack = true;
@@ -7127,26 +7594,127 @@ class Game {
             }
         }
         
-        // Spellcaster level 3: gain 2nd level spell slots
-        if (char.level === 3 && char.isSpellcaster()) {
-            char.spells.slots[2] = 2;
-            this.log(`✨ You gain 2nd level spell slots!`, "success");
-            // Add a 2nd level spell
+        // Fighter Extra Attack (2) at level 11
+        if (char.level === 11 && char.charClass === "Fighter") {
+            this.log(`⚔️ Extra Attack (2)! You can now attack THREE times per turn!`, "success");
+        }
+        
+        // Fighter Extra Attack (3) at level 20
+        if (char.level === 20 && char.charClass === "Fighter") {
+            this.log(`⚔️ Extra Attack (3)! You can now attack FOUR times per turn!`, "success");
+        }
+        
+        // Barbarian Rage progression
+        if (char.charClass === "Barbarian") {
+            // Rages per long rest by level
+            const ragesPerLevel = { 1: 2, 2: 2, 3: 3, 4: 3, 5: 3, 6: 4, 7: 4, 8: 4, 9: 4, 10: 4, 11: 4, 12: 5, 13: 5, 14: 5, 15: 5, 16: 5, 17: 6, 18: 6, 19: 6, 20: 99 };
+            char.ragesRemaining = ragesPerLevel[char.level] || 2;
+            if (char.level === 1 || char.level === 3 || char.level === 6 || char.level === 12 || char.level === 17 || char.level === 20) {
+                this.log(`💢 Rages per long rest: ${char.ragesRemaining === 99 ? 'Unlimited' : char.ragesRemaining}`, "success");
+            }
+            if (char.level === 9) {
+                this.log(`💢 Rage damage bonus increased to +3!`, "success");
+            }
+            if (char.level === 16) {
+                this.log(`💢 Rage damage bonus increased to +4!`, "success");
+            }
+        }
+        
+        // Rogue Sneak Attack progression
+        if (char.charClass === "Rogue" && char.level % 2 === 1) {
+            const sneakDice = char.getSneakAttackDice();
+            this.log(`🗡️ Sneak Attack increased to ${sneakDice}d6!`, "success");
+        }
+        
+        // ASI at levels 4, 8, 12, 16, 19 (Fighters also at 6, 14; Rogues also at 10)
+        const asiLevels = [4, 8, 12, 16, 19];
+        const fighterExtraAsi = [6, 14];
+        const rogueExtraAsi = [10];
+        if (asiLevels.includes(char.level) || (char.charClass === "Fighter" && fighterExtraAsi.includes(char.level)) || (char.charClass === "Rogue" && rogueExtraAsi.includes(char.level))) {
+            // Auto-assign ASI: increase primary stat by 2 (or 1 to two stats if capped at 20)
+            const primaryStat = GAME_DATA.classes[char.charClass].primary;
+            if (char.stats[primaryStat] < 20) {
+                const increase = Math.min(2, 20 - char.stats[primaryStat]);
+                char.stats[primaryStat] += increase;
+                this.log(`📊 Ability Score Improvement! ${primaryStat.toUpperCase()} increased by ${increase} to ${char.stats[primaryStat]}!`, "success");
+                // If only +1 was added (at 19), put the other +1 in CON
+                if (increase === 1 && char.stats.con < 20) {
+                    char.stats.con += 1;
+                    this.log(`📊 CON also increased by 1 to ${char.stats.con}!`, "success");
+                }
+            } else {
+                // Primary stat already 20, increase CON or secondary
+                const secondaryStat = char.charClass === "Rogue" ? "con" : char.charClass === "Wizard" ? "con" : "con";
+                if (char.stats[secondaryStat] < 20) {
+                    const increase = Math.min(2, 20 - char.stats[secondaryStat]);
+                    char.stats[secondaryStat] += increase;
+                    this.log(`📊 Ability Score Improvement! ${secondaryStat.toUpperCase()} increased by ${increase} to ${char.stats[secondaryStat]}!`, "success");
+                }
+            }
+            // Recalculate HP (CON may have changed) and AC (DEX may have changed)
+            const conMod = char.getModifier("con");
+            char.maxHp = GAME_DATA.classes[char.charClass].hitDie + conMod;
+            for (let lvl = 2; lvl <= char.level; lvl++) {
+                char.maxHp += Math.max(1, Math.floor(GAME_DATA.classes[char.charClass].hitDie / 2) + 1 + conMod);
+            }
+            char.hp = char.maxHp;
+            char.calculateAc(this.dm?.campaignId);
+        }
+        
+        // Spellcaster spell slot progression (uses D&D 5e tables)
+        if (char.isSpellcaster() || (char.charClass === "Ranger" && char.level >= 2)) {
             const classInfo = GAME_DATA.classes[char.charClass];
-            const level2Spells = Object.keys(GAME_DATA.spells).filter(s => 
-                GAME_DATA.spells[s].level === 2 && GAME_DATA.spells[s].classes.includes(char.charClass)
-            );
-            if (level2Spells.length > 0) {
-                const newSpell = level2Spells[0];
-                char.spells.known.push(newSpell);
-                this.log(`📖 You learn: ${newSpell}!`, "success");
+            const slotTable = classInfo.casterType === 'half' ? GAME_DATA.halfCasterSlots : GAME_DATA.fullCasterSlots;
+            const prevSlotTable = slotTable[char.level - 1] || {};
+            const newSlotTable = slotTable[char.level] || {};
+            
+            // Update all spell slot levels from the table
+            for (let spellLvl = 1; spellLvl <= 9; spellLvl++) {
+                char.spells.slots[spellLvl] = newSlotTable[spellLvl] || 0;
+            }
+            
+            // Detect newly gained spell levels and auto-learn spells
+            for (let spellLvl = 1; spellLvl <= 9; spellLvl++) {
+                const prevSlots = prevSlotTable[spellLvl] || 0;
+                const newSlots = newSlotTable[spellLvl] || 0;
+                
+                if (newSlots > 0 && prevSlots === 0) {
+                    // Gained access to a new spell level!
+                    const ordinal = spellLvl === 1 ? '1st' : spellLvl === 2 ? '2nd' : spellLvl === 3 ? '3rd' : `${spellLvl}th`;
+                    this.log(`✨ You gain ${ordinal} level spell slots!`, "success");
+                    
+                    // Auto-learn a spell of the new level
+                    const newLevelSpells = Object.keys(GAME_DATA.spells).filter(s => 
+                        GAME_DATA.spells[s].level === spellLvl && 
+                        GAME_DATA.spells[s].classes.includes(char.charClass) && 
+                        !char.spells.known.includes(s)
+                    );
+                    if (newLevelSpells.length > 0) {
+                        char.spells.known.push(newLevelSpells[0]);
+                        this.log(`📖 You learn: ${newLevelSpells[0]}!`, "success");
+                        // Learn a second spell if available
+                        if (newLevelSpells.length > 1) {
+                            char.spells.known.push(newLevelSpells[1]);
+                            this.log(`📖 You learn: ${newLevelSpells[1]}!`, "success");
+                        }
+                    }
+                } else if (newSlots > prevSlots && prevSlots > 0) {
+                    // Existing spell level got more slots
+                    const ordinal = spellLvl === 1 ? '1st' : spellLvl === 2 ? '2nd' : spellLvl === 3 ? '3rd' : `${spellLvl}th`;
+                    this.log(`✨ ${ordinal} level spell slots increased to ${newSlots}!`, "success");
+                }
+            }
+            
+            // Cantrip damage scaling: at level 5, 11, 17 cantrips get extra dice
+            if (char.level === 5 || char.level === 11 || char.level === 17) {
+                this.log(`✨ Cantrip damage increased! Your cantrips now deal more damage.`, "success");
             }
         }
         
         // Add journal entry for level up
         this.character.addJournalEntry('lore', { 
             title: `Reached Level ${char.level}`, 
-            text: `Grew stronger on Day ${this.dm.day}.` 
+            text: `Grew stronger on Day ${this.dm.day}. Proficiency bonus: +${profBonus}.` 
         });
     }
 
@@ -7433,10 +8001,10 @@ class Game {
             shopModal.className = "modal";
             shopModal.innerHTML = `
                 <div class="modal-content shop-modal-content">
-                    <h2 id="shopTitle">🛒 Shop</h2>
+                    <h2 id="shopTitle">🏺 Shop</h2>
                     <p id="shopGold" style="color: gold; margin-bottom: 15px;"></p>
                     <div id="shopModeTabs" class="shop-mode-tabs">
-                        <button class="shop-mode-tab active" onclick="game.switchShopMode('buy')">🛒 Buy</button>
+                        <button class="shop-mode-tab active" onclick="game.switchShopMode('buy')">🪙 Buy</button>
                         <button class="shop-mode-tab" onclick="game.switchShopMode('sell')">💰 Sell</button>
                     </div>
                     <div id="shopTabs" class="shop-tabs"></div>
@@ -7449,12 +8017,12 @@ class Game {
         
         // Set title based on shop type
         const titles = {
-            "traveling": "🛒 Traveling Merchant",
-            "weapons": "⚔️ Weapons Shop",
-            "armor": "🛡️ Armorer",
-            "general": "🏪 General Store"
+            "traveling": "🏺 Traveling Merchant",
+            "weapons": "⚒️ Smith",
+            "armor": "🛡️ Blacksmith's Forge",
+            "general": "🏺 General Store"
         };
-        document.getElementById("shopTitle").textContent = titles[shopType] || "🛒 Shop";
+        document.getElementById("shopTitle").textContent = titles[shopType] || "🏺 Shop";
         document.getElementById("shopGold").textContent = `Your Gold: ${this.character.gold} gp`;
         
         // Create category tabs for general store
@@ -7537,9 +8105,9 @@ class Game {
         const descriptions = GAME_DATA.itemDescriptions;
         
         // Get sellable items from inventory (exclude equipped items)
-        const equippedWeapon = this.character.weapon;
-        const equippedArmor = this.character.armor;
-        const equippedShield = this.character.shield;
+        const equippedWeapon = this.character.equipped.weapon;
+        const equippedArmor = this.character.equipped.armor;
+        const equippedShield = this.character.equipped.shield;
         
         // Count items in inventory
         const itemCounts = {};
@@ -7547,10 +8115,13 @@ class Game {
             itemCounts[item] = (itemCounts[item] || 0) + 1;
         });
         
-        // Create sell items list (unique items)
+        // Create sell items list (unique items), excluding equipped items entirely
         const sellableItems = [...new Set(this.character.inventory)].filter(item => {
             const price = prices[item];
-            return price && price > 0; // Can only sell items with a price
+            if (!price || price <= 0) return false; // Can only sell items with a price
+            // Exclude equipped items from sell list
+            if (item === equippedWeapon || item === equippedArmor || item === equippedShield) return false;
+            return true;
         });
         
         sellableItems.forEach(item => {
@@ -7571,25 +8142,19 @@ class Game {
                 if (category === "Items" && !isItem) return;
             }
             
-            // Check if equipped
-            const isEquipped = item === equippedWeapon || item === equippedArmor || item === equippedShield;
-            
             // Get detailed description
             const detailedDesc = descriptions[item] || this.getItemStats(item, campaignItems);
             
             const itemDiv = document.createElement("div");
-            itemDiv.className = `shop-item sell-item ${isEquipped ? "equipped-item" : ""}`;
+            itemDiv.className = `shop-item sell-item`;
             itemDiv.innerHTML = `
                 <div class="shop-item-info">
-                    <span class="shop-item-name">${item} ${count > 1 ? `(x${count})` : ''} ${isEquipped ? '⚔️ Equipped' : ''}</span>
+                    <span class="shop-item-name">${item} ${count > 1 ? `(x${count})` : ''}</span>
                     <span class="shop-item-desc">${detailedDesc}</span>
                 </div>
                 <div class="shop-item-price">
                     <span class="sell-price">+${sellPrice} gp</span>
-                    ${isEquipped 
-                        ? '<span class="equipped-badge">Unequip first</span>'
-                        : `<button class="sell-btn" onclick="game.sellItem('${item.replace(/'/g, "\\'")}', ${sellPrice})">Sell</button>`
-                    }
+                    <button class="sell-btn" onclick="game.sellItem('${item.replace(/'/g, "\\'")}', ${sellPrice})">Sell</button>
                 </div>
             `;
             itemsContainer.appendChild(itemDiv);
@@ -7602,9 +8167,9 @@ class Game {
     
     sellItem(item, sellPrice) {
         // Check if item is equipped - prevent selling equipped items
-        const isEquipped = item === this.character.weapon || 
-                          item === this.character.armor || 
-                          item === this.character.shield;
+        const isEquipped = item === this.character.equipped.weapon || 
+                          item === this.character.equipped.armor || 
+                          item === this.character.equipped.shield;
         
         if (isEquipped) {
             this.log(`⚠️ Cannot sell ${item} - it is currently equipped! Unequip it first.`, "warning");
@@ -7755,7 +8320,7 @@ class Game {
         if (this.character.gold >= price) {
             this.character.gold -= price;
             this.character.inventory.push(item);
-            this.log(`🛒 Purchased ${item} for ${price} gold!`, "success");
+            this.log(`🪙 Purchased ${item} for ${price} gold!`, "success");
             soundManager.playGold();
             
             // Refresh shop display
@@ -8558,6 +9123,7 @@ class Game {
     async treasureChestEvent() {
         // Determine chest rarity based on location danger
         const danger = this.dm.currentLocation.danger || 1;
+        const trapDC = 10 + danger * 2;
         let rarity = "common";
         if (danger >= 4) rarity = "epic";
         else if (danger >= 3) rarity = "rare";
@@ -8568,13 +9134,14 @@ class Game {
         
         this.log("✨ You discover a treasure chest!", "dm");
         
-        const choice = await this.showChoice(
+        // Show chest with DC hints for trap detection
+        const choice = await this.showChoiceWithDC(
             "📦 Treasure Chest",
             `You've found a ${rarity} treasure chest! It looks ${danger >= 3 ? "heavily locked" : "old but intact"}.`,
             [
-                { text: "Open it" },
-                { text: "Check for traps first" },
-                { text: "Leave it alone" }
+                { text: "Open it", skill: null },
+                { text: "Check for traps first", skill: "dex", dc: trapDC },
+                { text: "Leave it alone", skill: null }
             ]
         );
         
@@ -8592,11 +9159,11 @@ class Game {
             }
         } else if (choice === 1) {
             // Check for traps - DEX check
-            const check = await this.dm.skillCheckAnimated("dex", 10 + danger * 2);
+            const check = await this.dm.skillCheckAnimated("dex", trapDC);
             if (check.success) {
-                this.log(`🔍 You carefully examine the chest and disarm a hidden trap! (Roll: ${check.total} vs DC ${10 + danger * 2})`, "success");
+                this.log(`🔍 You carefully examine the chest and disarm a hidden trap! (Roll: ${check.total} vs DC ${trapDC})`, "success");
             } else {
-                this.log(`🔍 You fail to notice the trap! (Roll: ${check.total} vs DC ${10 + danger * 2})`, "danger");
+                this.log(`🔍 You fail to notice the trap! (Roll: ${check.total} vs DC ${trapDC})`, "danger");
                 trapTriggered = true;
             }
         }
@@ -8693,12 +9260,12 @@ class Game {
     async mysteriousStrangerEvent() {
         this.log("A hooded figure beckons you closer...", "dm");
         
-        const choice = await this.showChoice(
+        const choice = await this.showChoiceWithDC(
             "🕵️ Mysterious Stranger",
             "A hooded figure beckons you from the shadows...",
             [
-                { text: "Approach" },
-                { text: "Ignore" }
+                { text: "Approach", skill: null },
+                { text: "Ignore", skill: null }
             ]
         );
         
@@ -8727,14 +9294,15 @@ class Game {
 
     async trappedChestEvent() {
         this.log("You discover an old chest covered in dust.", "dm");
+        const trapDC = 12;
         
-        const choice = await this.showChoice(
+        const choice = await this.showChoiceWithDC(
             "📦 Mysterious Chest",
             "You discover an old chest covered in dust...",
             [
-                { text: "Open it" },
-                { text: "Check for traps first" },
-                { text: "Leave it" }
+                { text: "Open it", skill: null },
+                { text: "Check for traps first", skill: "int", dc: trapDC },
+                { text: "Leave it", skill: null }
             ]
         );
         
@@ -8754,14 +9322,14 @@ class Game {
                 this.log(`Inside you find ${gold} gold!`, "loot");
             }
         } else if (choice === 1) {
-            const check = await this.dm.skillCheckAnimated("int", 12);
+            const check = await this.dm.skillCheckAnimated("int", trapDC);
             if (check.success) {
-                this.log(`You disarm the trap! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 12)`, "success");
+                this.log(`You disarm the trap! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC ${trapDC})`, "success");
                 const gold = Math.floor(Math.random() * 41) + 20;
                 this.character.gold += gold;
                 this.log(`You find ${gold} gold!`, "loot");
             } else {
-                this.log(`You trigger the trap! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 12)`, "danger");
+                this.log(`You trigger the trap! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC ${trapDC})`, "danger");
                 const damage = Math.floor(Math.random() * 7) + 2;
                 this.character.takeDamage(damage);
                 this.log(`You take ${damage} damage!`, "danger");
@@ -8782,12 +9350,12 @@ class Game {
         this.log("You discover a natural spring with crystal-clear water.", "dm");
         this.log("The water glows with a faint magical aura.", "dm");
         
-        const choice = await this.showChoice(
+        const choice = await this.showChoiceWithDC(
             "✨ Healing Spring",
             "The water glows with a faint magical aura...",
             [
-                { text: "Drink from the spring" },
-                { text: "Leave it alone" }
+                { text: "Drink from the spring", skill: null },
+                { text: "Leave it alone", skill: null }
             ]
         );
         
@@ -8974,7 +9542,7 @@ class Game {
             const availableNPCs = this.getAvailableNPCs();
             
             shopBtnContainer.innerHTML = `
-                <button class="shop-btn" onclick="game.openShop('general')">🛒 Visit Shop</button>
+                <button class="shop-btn" onclick="game.openShop('general')">🏺 Visit Shop</button>
                 ${availableNPCs.length > 0 ? `<button class="shop-btn" onclick="game.openTalkMenu()" style="background: linear-gradient(135deg, #9c27b0, #6a1b9a); margin-left: 5px;">💬 Talk</button>` : ''}
             `;
             shopBtnContainer.style.display = "block";
@@ -9003,21 +9571,32 @@ class Game {
             const shield = this.character.equipped.shield;
             
             let weaponInfo = "None (Unarmed)";
-            if (weapon && GAME_DATA.weapons[weapon]) {
-                const w = GAME_DATA.weapons[weapon];
-                const damage = (w.properties.includes("versatile") && !shield) ? w.versatileDamage : w.damage;
-                weaponInfo = `${weapon} (${damage} ${w.type})`;
+            if (weapon) {
+                const campaignId = this.dm?.campaignId;
+                const w = this.character.getWeaponData(weapon, campaignId);
+                if (w) {
+                    const damage = (w.properties && w.properties.includes("versatile") && !shield) ? w.versatileDamage : w.damage;
+                    const magicTag = w.magicBonus ? ` [+${w.magicBonus}]` : '';
+                    weaponInfo = `${weapon}${magicTag} (${damage} ${w.type})`;
+                }
             }
             
             let armorInfo = "None (AC 10 + DEX)";
-            if (armor && GAME_DATA.armor[armor]) {
-                const a = GAME_DATA.armor[armor];
-                armorInfo = `${armor} (AC ${a.ac})`;
+            if (armor) {
+                const campaignId = this.dm?.campaignId;
+                const a = this.character.getArmorData(armor, campaignId);
+                if (a) {
+                    armorInfo = `${armor} (AC ${a.ac})`;
+                }
             }
             
             let shieldInfo = "None";
-            if (shield && GAME_DATA.shields[shield]) {
-                shieldInfo = `${shield} (+${GAME_DATA.shields[shield].acBonus} AC)`;
+            if (shield) {
+                const campaignId = this.dm?.campaignId;
+                const s = this.character.getShieldData(shield, campaignId);
+                if (s) {
+                    shieldInfo = `${shield} (+${s.acBonus} AC)`;
+                }
             }
             
             equipPanel.innerHTML = `
@@ -9666,41 +10245,233 @@ class Game {
     }
 
     // ==================== CHARACTER EXPORT/IMPORT SYSTEM ====================
-    
+    // Export format designed for cross-platform compatibility with Foundry VTT, Roll20, D&D Beyond importers
+
+    _toSlug(str) {
+        return str.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+    }
+
+    _getAbilityModifier(score) {
+        return Math.floor((score - 10) / 2);
+    }
+
+    _buildAbilities(stats) {
+        const abilityMap = { str: "strength", dex: "dexterity", con: "constitution", int: "intelligence", wis: "wisdom", cha: "charisma" };
+        const profBonus = this.character.getProficiencyBonus();
+        const saveProficiencies = GAME_DATA.classes[this.character.charClass]?.saves || [];
+        const abilities = {};
+        for (const [abbr, fullName] of Object.entries(abilityMap)) {
+            const score = stats[abbr];
+            const mod = this._getAbilityModifier(score);
+            const saveProf = saveProficiencies.includes(abbr);
+            abilities[fullName] = {
+                slug: abbr,
+                score: score,
+                modifier: mod,
+                save: saveProf ? mod + profBonus : mod,
+                saveProficiency: saveProf
+            };
+        }
+        return abilities;
+    }
+
+    _buildInventoryItem(itemName) {
+        const campaignId = this.dm ? this.dm.campaignId : null;
+        const slug = this._toSlug(itemName);
+        const item = { name: itemName, slug: slug, quantity: 1 };
+
+        // Weight
+        const weight = EXPORT_ITEM_WEIGHTS[itemName];
+        if (weight !== undefined) item.weight = weight;
+
+        // Price
+        const price = GAME_DATA.shopPrices[itemName];
+        if (price !== undefined) item.value = price;
+
+        // Weapon data
+        const weaponData = this.character.getWeaponData(itemName, campaignId);
+        if (weaponData) {
+            item.type = "weapon";
+            item.damage = weaponData.damage;
+            item.damageType = weaponData.type;
+            item.properties = weaponData.properties || [];
+            item.attackAbility = weaponData.stat;
+            if (weaponData.magicBonus) item.magicBonus = weaponData.magicBonus;
+            if (weaponData.versatileDamage) item.versatileDamage = weaponData.versatileDamage;
+            if (weaponData.range) item.range = weaponData.range;
+            if (weaponData.description) item.description = weaponData.description;
+            if (weaponData.bonusDamageVs) item.bonusDamageVs = weaponData.bonusDamageVs;
+            if (weaponData.bonusDamage) item.bonusDamage = weaponData.bonusDamage;
+            if (weaponData.bonusDamageDice) item.bonusDamageDice = weaponData.bonusDamageDice;
+            item.equipped = (this.character.equipped.weapon === itemName);
+            return item;
+        }
+
+        // Armor data
+        const armorData = this.character.getArmorData(itemName, campaignId);
+        if (armorData) {
+            item.type = "armor";
+            item.armorClass = armorData.ac;
+            item.armorType = armorData.type;
+            item.maxDexBonus = armorData.maxDex === 99 ? null : armorData.maxDex;
+            item.stealthDisadvantage = armorData.stealthDisadvantage || false;
+            if (armorData.description) item.description = armorData.description;
+            item.equipped = (this.character.equipped.armor === itemName);
+            return item;
+        }
+
+        // Shield data
+        const shieldData = this.character.getShieldData(itemName, campaignId);
+        if (shieldData) {
+            item.type = "shield";
+            item.acBonus = shieldData.acBonus;
+            if (shieldData.stealthDisadvantage) item.stealthDisadvantage = true;
+            if (shieldData.description) item.description = shieldData.description;
+            item.equipped = (this.character.equipped.shield === itemName);
+            return item;
+        }
+
+        // Consumable data — check campaign consumables
+        if (campaignId && GAME_DATA.campaignItems[campaignId]?.consumables?.[itemName]) {
+            const cons = GAME_DATA.campaignItems[campaignId].consumables[itemName];
+            item.type = "consumable";
+            if (cons.effect) item.effect = cons.effect;
+            if (cons.healAmount) item.healAmount = cons.healAmount;
+            if (cons.description) item.description = cons.description;
+            return item;
+        }
+
+        // Generic consumable check
+        const genericDesc = GAME_DATA.itemDescriptions?.[itemName];
+        if (genericDesc) item.description = genericDesc;
+        item.type = "gear";
+        return item;
+    }
+
+    _buildSkills(skillsList) {
+        return (skillsList || []).map(skill => ({
+            name: skill,
+            slug: this._toSlug(skill),
+            proficient: true
+        }));
+    }
+
+    _buildSpells(spellNames) {
+        return (spellNames || []).map(name => {
+            const data = GAME_DATA.spells[name];
+            if (!data) return { name: name, slug: this._toSlug(name) };
+            const spell = {
+                name: name,
+                slug: this._toSlug(name),
+                level: data.level,
+                school: data.school ? data.school.toLowerCase() : undefined
+            };
+            if (data.damage) spell.damage = data.damage;
+            if (data.damageType) spell.damageType = data.damageType;
+            if (data.healing) spell.healing = data.healing;
+            if (data.range !== undefined) spell.range = data.range;
+            if (data.description) spell.description = data.description;
+            return spell;
+        });
+    }
+
     exportCharacter() {
         if (!this.character) {
             alert("No character to export!");
             return;
         }
-        
+
+        const char = this.character;
+        const campaignId = this.dm ? this.dm.campaignId : null;
+        const classData = GAME_DATA.classes[char.charClass] || {};
+
         const exportData = {
-            version: "1.7",
+            formatVersion: "3.0",
             exportType: "dnd-character",
+            system: "dnd5e",
+            generator: "dnd-text-adventure",
             exportDate: new Date().toISOString(),
+
             character: {
-                name: this.character.name,
-                race: this.character.race,
-                characterClass: this.character.characterClass,
-                background: this.character.background,
-                level: this.character.level,
-                experience: this.character.experience,
-                stats: { ...this.character.stats },
-                maxHp: this.character.maxHp,
-                hp: this.character.hp,
-                gold: this.character.gold,
-                inventory: [...this.character.inventory],
-                equippedWeapon: this.character.equippedWeapon,
-                equippedArmor: this.character.equippedArmor,
-                equippedShield: this.character.equippedShield,
-                spellSlots: this.character.spellSlots ? { ...this.character.spellSlots } : null,
-                maxSpellSlots: this.character.maxSpellSlots ? { ...this.character.maxSpellSlots } : null,
-                knownSpells: this.character.knownSpells ? [...this.character.knownSpells] : [],
-                preparedSpells: this.character.preparedSpells ? [...this.character.preparedSpells] : [],
-                skills: this.character.skills ? [...this.character.skills] : [],
-                proficiencies: this.character.proficiencies ? [...this.character.proficiencies] : [],
-                traits: this.character.traits ? { ...this.character.traits } : null,
-                inspiration: this.character.inspiration || 0,
-                exhaustion: this.character.exhaustion || 0
+                name: char.name,
+
+                race: {
+                    name: char.race,
+                    slug: this._toSlug(char.race),
+                    traits: char.traits ? [...char.traits] : []
+                },
+
+                class: {
+                    name: char.charClass,
+                    slug: this._toSlug(char.charClass),
+                    hitDie: classData.hitDie || 8,
+                    primaryAbility: classData.primary || null,
+                    spellcaster: classData.spellcaster || false,
+                    spellcastingAbility: classData.spellStat || null,
+                    subclass: null
+                },
+
+                background: {
+                    name: char.background,
+                    slug: this._toSlug(char.background),
+                    feature: GAME_DATA.backgrounds[char.background]?.feature || null
+                },
+
+                level: char.level,
+                experience: char.experience,
+                proficiencyBonus: char.getProficiencyBonus(),
+                inspiration: char.inspiration || 0,
+                exhaustion: char.exhaustion || 0,
+
+                abilities: this._buildAbilities(char.stats),
+
+                hitPoints: {
+                    current: char.hp,
+                    maximum: char.maxHp,
+                    temporary: 0,
+                    hitDice: {
+                        die: `d${classData.hitDie || 8}`,
+                        current: char.hitDice?.current ?? char.level,
+                        maximum: char.level
+                    }
+                },
+
+                armorClass: char.ac || 10,
+                speed: 30,
+                currency: {
+                    gp: char.gold,
+                    sp: 0,
+                    cp: 0,
+                    ep: 0,
+                    pp: 0
+                },
+
+                skills: this._buildSkills(char.skills),
+                proficiencies: (char.proficiencies || []).map(p => ({
+                    name: p,
+                    slug: this._toSlug(p)
+                })),
+
+                inventory: char.inventory.map(item => this._buildInventoryItem(item)),
+
+                equipment: {
+                    weapon: char.equipped.weapon || null,
+                    armor: char.equipped.armor || null,
+                    shield: char.equipped.shield || null
+                },
+
+                spellcasting: classData.spellcaster ? {
+                    ability: classData.spellStat,
+                    spellSlots: char.spellSlots ? { ...char.spellSlots } : {},
+                    maxSpellSlots: char.maxSpellSlots ? { ...char.maxSpellSlots } : {},
+                    knownSpells: this._buildSpells(char.knownSpells),
+                    preparedSpells: this._buildSpells(char.preparedSpells)
+                } : null,
+
+                campaign: campaignId ? {
+                    id: campaignId,
+                    name: this.dm.campaign?.name || campaignId
+                } : null
             }
         };
         
@@ -9709,8 +10480,8 @@ class Game {
         // Copy to clipboard
         navigator.clipboard.writeText(jsonString).then(() => {
             this.log("📤 <strong>CHARACTER EXPORTED!</strong>", "success");
-            this.log(`${this.character.name} (Level ${this.character.level} ${this.character.race} ${this.character.characterClass}) copied to clipboard!`, "dm");
-            this.log("You can now paste this into a text file to save, or import into another campaign.", "dm");
+            this.log(`${char.name} (Level ${char.level} ${char.race} ${char.charClass}) copied to clipboard & downloaded!`, "dm");
+            this.log("Compatible with Foundry VTT, Roll20, and other D&D 5e tools.", "dm");
             
             // Also offer download
             this.downloadCharacter(jsonString);
@@ -9727,7 +10498,7 @@ class Game {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${this.character.name.replace(/[^a-z0-9]/gi, '_')}_Level${this.character.level}.dnd`;
+        a.download = `${this.character.name.replace(/[^a-z0-9]/gi, '_')}_Level${this.character.level}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -9800,8 +10571,47 @@ class Game {
                 return;
             }
             
-            // Store imported character for use in creation
-            this.importedCharacter = importData.character;
+            // Normalize to internal format (handles both v3.0 and legacy v2.x)
+            const raw = importData.character;
+            const isV3 = importData.formatVersion >= "3.0";
+            
+            if (isV3) {
+                // v3.0 format — extract flat values from nested objects
+                this.importedCharacter = {
+                    name: raw.name,
+                    race: raw.race?.name || raw.race,
+                    characterClass: raw.class?.name || raw.characterClass,
+                    background: raw.background?.name || raw.background,
+                    level: raw.level,
+                    experience: raw.experience,
+                    stats: raw.abilities ? (() => {
+                        const s = {};
+                        for (const [, data] of Object.entries(raw.abilities)) {
+                            s[data.slug] = data.score;
+                        }
+                        return s;
+                    })() : raw.stats || {},
+                    maxHp: raw.hitPoints?.maximum || raw.maxHp,
+                    hp: raw.hitPoints?.current || raw.hp,
+                    gold: raw.currency?.gp ?? raw.gold ?? 0,
+                    inventory: (raw.inventory || []).map(item => typeof item === 'string' ? item : item.name),
+                    equippedWeapon: raw.equipment?.weapon || null,
+                    equippedArmor: raw.equipment?.armor || null,
+                    equippedShield: raw.equipment?.shield || null,
+                    spellSlots: raw.spellcasting?.spellSlots || null,
+                    maxSpellSlots: raw.spellcasting?.maxSpellSlots || null,
+                    knownSpells: (raw.spellcasting?.knownSpells || []).map(s => typeof s === 'string' ? s : s.name),
+                    preparedSpells: (raw.spellcasting?.preparedSpells || []).map(s => typeof s === 'string' ? s : s.name),
+                    skills: (raw.skills || []).map(s => typeof s === 'string' ? s : s.name),
+                    proficiencies: (raw.proficiencies || []).map(p => typeof p === 'string' ? p : p.name),
+                    traits: raw.race?.traits || null,
+                    inspiration: raw.inspiration || 0,
+                    exhaustion: raw.exhaustion || 0
+                };
+            } else {
+                // Legacy v2.x format — use directly
+                this.importedCharacter = raw;
+            }
             
             // Close modal
             document.getElementById('importModal').remove();
@@ -9877,26 +10687,34 @@ class Game {
         this.character.maxHp = char.maxHp;
         this.character.hp = char.hp;
         this.character.stats = { ...char.stats };
-        this.character.inventory = [...char.inventory];
-        this.character.equippedWeapon = char.equippedWeapon;
-        this.character.equippedArmor = char.equippedArmor;
-        this.character.equippedShield = char.equippedShield;
+        // Inventory — ensure plain string names (handles both v3 objects and legacy strings)
+        this.character.inventory = (char.inventory || []).map(item => typeof item === 'string' ? item : item.name);
+        // Equipment slots
+        if (char.equippedWeapon) this.character.equipped.weapon = char.equippedWeapon;
+        if (char.equippedArmor) this.character.equipped.armor = char.equippedArmor;
+        if (char.equippedShield) this.character.equipped.shield = char.equippedShield;
         
         if (char.spellSlots) this.character.spellSlots = { ...char.spellSlots };
         if (char.maxSpellSlots) this.character.maxSpellSlots = { ...char.maxSpellSlots };
-        if (char.knownSpells) this.character.knownSpells = [...char.knownSpells];
-        if (char.preparedSpells) this.character.preparedSpells = [...char.preparedSpells];
-        if (char.skills) this.character.skills = [...char.skills];
-        if (char.proficiencies) this.character.proficiencies = [...char.proficiencies];
-        if (char.traits) this.character.traits = { ...char.traits };
+        if (char.knownSpells) this.character.knownSpells = (char.knownSpells || []).map(s => typeof s === 'string' ? s : s.name);
+        if (char.preparedSpells) this.character.preparedSpells = (char.preparedSpells || []).map(s => typeof s === 'string' ? s : s.name);
+        if (char.skills) this.character.skills = (char.skills || []).map(s => typeof s === 'string' ? s : s.name);
+        if (char.proficiencies) this.character.proficiencies = (char.proficiencies || []).map(p => typeof p === 'string' ? p : p.name);
+        if (char.traits) {
+            this.character.traits = Array.isArray(char.traits) ? [...char.traits] : 
+                                   typeof char.traits === 'object' ? Object.values(char.traits) : [];
+        }
         if (char.inspiration) this.character.inspiration = char.inspiration;
         if (char.exhaustion) this.character.exhaustion = char.exhaustion;
         
-        // Recalculate HP if needed
-        this.character.calculateMaxHp();
-        if (this.character.hp > this.character.maxHp) {
-            this.character.hp = this.character.maxHp;
+        // Recalculate HP cap based on class/level, then restore imported HP
+        const importedHp = char.hp;
+        this.character.calculateHp();
+        // Override maxHp if the import had a higher value (e.g. from leveling in another campaign)
+        if (char.maxHp && char.maxHp > 0) {
+            this.character.maxHp = Math.max(char.maxHp, this.character.maxHp);
         }
+        this.character.hp = Math.min(importedHp || this.character.maxHp, this.character.maxHp);
         
         // Clear imported character reference
         this.importedCharacter = null;
@@ -10852,7 +11670,9 @@ document.addEventListener("DOMContentLoaded", () => {
         .shop-modal-content {
             max-width: 650px;
             max-height: 80vh;
-            overflow-y: auto;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         .shop-mode-tabs {
             display: flex;
@@ -10860,6 +11680,7 @@ document.addEventListener("DOMContentLoaded", () => {
             margin-bottom: 10px;
             padding-bottom: 10px;
             border-bottom: 2px solid rgba(255,255,255,0.2);
+            flex-shrink: 0;
         }
         .shop-mode-tab {
             background: rgba(255,255,255,0.1);
@@ -10884,6 +11705,7 @@ document.addEventListener("DOMContentLoaded", () => {
             gap: 5px;
             margin-bottom: 15px;
             flex-wrap: wrap;
+            flex-shrink: 0;
         }
         .shop-tab {
             background: rgba(255,255,255,0.1);
@@ -10904,7 +11726,8 @@ document.addEventListener("DOMContentLoaded", () => {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            max-height: 400px;
+            flex: 1;
+            min-height: 0;
             overflow-y: auto;
             padding-right: 10px;
         }
@@ -11021,6 +11844,7 @@ document.addEventListener("DOMContentLoaded", () => {
             border-radius: 4px;
             cursor: pointer;
             width: 100%;
+            flex-shrink: 0;
         }
         .close-btn:hover {
             background: #777;
@@ -11492,7 +12316,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Add version and credits info
-console.log('%c⚔️ D&D: Realms of Adventure v2.4 ⚔️', 'color: #d4af37; font-size: 20px; font-weight: bold;');
+console.log('%c⚔️ D&D: Realms of Adventure v2.5 ⚔️', 'color: #d4af37; font-size: 20px; font-weight: bold;');
 console.log('%cA professional D&D 5th Edition web experience', 'color: #c9a227; font-size: 12px;');
 console.log('%c📜 Features: Multiple campaigns, character creation, achievements, companions, crafting, and more!', 'color: #888;');
 console.log('%c💾 Auto-save enabled | 🎮 Keyboard shortcuts available | 🎲 Authentic D&D rules', 'color: #888;');
