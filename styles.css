@@ -116,7 +116,7 @@ body::before {
 
 .landing-logo {
     font-family: 'Cinzel', serif;
-    font-size: 3.2rem;
+    font-size: 2.8rem;
     font-weight: 700;
     color: var(--primary-gold);
     text-shadow: 
@@ -185,7 +185,7 @@ body::before {
 }
 
 .feature-icon {
-    font-size: 2.5rem;
+    font-size: 2rem;
     margin-bottom: var(--spacing-sm);
     display: block;
 }
@@ -209,8 +209,8 @@ body::before {
     background: linear-gradient(135deg, var(--deep-red), var(--royal-purple));
     color: white;
     border: 2px solid var(--primary-gold);
-    padding: 0.9rem 2.5rem;
-    font-size: 1.1rem;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
     font-family: 'Cinzel', serif;
     font-weight: 600;
     border-radius: 50px;
