@@ -4,6 +4,144 @@ All notable changes to the D&D: Realms of Adventure web game.
 
 ---
 
+## [3.2.0] - 2026-02-26 - "Realism & Depth" 🎯
+
+### 🎉 MAJOR UPDATE - 8 D&D 5e Realism Systems, Half-Orc Race & UI Overhaul
+
+This release adds eight interconnected D&D 5e mechanical systems that bring authentic tabletop depth to every aspect of gameplay — from skill checks and equipment proficiency to racial abilities with real mechanical effects.
+
+### ✨ Added
+
+#### **Proper Skill System** (NEW)
+- Complete 18-skill D&D 5e skill system with ability score mapping (Athletics→STR, Perception→WIS, etc.)
+- `SKILL_ABILITY_MAP` constant mapping all 18 skills to their governing ability scores
+- `CLASS_SKILL_CHOICES` defining available skill proficiencies per class with choice counts
+- Skill proficiency tracking via `skillProficiencies` map on Character
+- Expertise support (double proficiency bonus) via `expertise` map
+- New Character methods: `isSkillProficient()`, `hasExpertise()`, `getSkillModifier()`, `addSkillProficiency()`
+- `skillCheck()` and `skillCheckAnimated()` now accept optional `skillName` parameter and apply proficiency bonus
+- Skills auto-assigned from class and background during character creation
+- Human "Extra Skill" trait grants a random bonus skill proficiency
+- Collapsible Skills Panel in character sidebar showing all 18 skills with ○/●/◆ proficiency markers
+
+#### **Opportunity Attacks & Reactions** (NEW)
+- Fleeing combat without Disengage now provokes an opportunity attack from the monster
+- Monster makes a full attack roll vs player AC; on hit, deals weapon damage
+- Rogue "Cunning Disengage" class feature prevents opportunity attacks
+- Flee check reworked to use Acrobatics skill with proficiency bonus
+- DC reduced to 5 when Disengaged, remains DC 12 otherwise
+- Half-Orc Relentless Endurance triggers if opportunity attack drops player to 0 HP
+
+#### **Passive Perception** (NEW)
+- Three passive scores: Passive Perception, Passive Insight, Passive Investigation
+- Calculated as 10 + skill modifier (includes proficiency if proficient)
+- Ambush detection (`triggerAmbushCheck()`) rewritten: passive perception auto-detects if score ≥ DC
+- Trap detection (treasure chests, trapped chest events) uses passive perception for auto-detect
+- Disadvantage applies -5 to passive scores (darkness without darkvision)
+- Advantage applies +5 to passive scores
+- Passive score badges displayed in character panel (👁️ PP, 🧠 PI, 🔍 Inv)
+
+#### **Ritual Casting** (NEW)
+- 6 ritual spells added: Detect Magic, Identify, Comprehend Languages, Find Familiar, Speak with Animals, Water Breathing
+- All marked with `ritual: true` in spell data
+- `canCastRitual()` method checks class eligibility (Wizard, Cleric, Druid, Bard)
+- `castSpellAsRitual()` casts without expending spell slots, advances time by 10 minutes
+- Detect Magic reveals magic items in inventory; Identify shows item properties
+- Ritual tag (🕯️) displayed on spell buttons; ritual cast option appears when out of spell slots
+- Spell menu shows ritual availability for eligible spells out of combat
+
+#### **Equipment Proficiency** (NEW)
+- `CLASS_ARMOR_PROFICIENCY` table: per-class proficiency in light/medium/heavy armor and shields
+- `CLASS_WEAPON_PROFICIENCY` table: per-class proficiency in simple/martial weapons and specific weapons
+- All 50+ weapons tagged with `category: "simple"` or `category: "martial"`
+- `isProficientWithWeapon()`, `isProficientWithArmor()`, `isProficientWithShield()` methods
+- Non-proficient weapon attacks no longer add proficiency bonus to attack rolls
+- Non-proficient armor/shield causes disadvantage on attack rolls
+- Warning messages displayed when equipping non-proficient gear
+- Magic weapon prefix stripping for proficiency checks ("+1 Longsword" → "Longsword")
+
+#### **Attunement System** (NEW)
+- 3-item attunement limit per D&D 5e rules
+- All magic weapons (+1/+2/+3) marked with `requiresAttunement: true`
+- `canAttune()`, `attuneItem()`, `unattuneItem()`, `isAttuned()`, `getItemRequiresAttunement()` methods
+- Auto-attunement on equipping magic weapons (if slots available)
+- Block equipping if attunement slots full with clear error message
+- Attunement display in character panel showing count (X/3) and attuned item names
+- Attunement state saved/loaded with character data
+
+#### **Darkvision Mechanics** (NEW)
+- `darkvisionRange` property on Character (60ft for applicable races)
+- `hasDarkvision()` method for mechanical checks
+- Ambush checks: nighttime without darkvision = disadvantage on perception
+- Nighttime with darkvision = still disadvantage (dim light per RAW, not bright)
+- Trap detection: darkness without darkvision = disadvantage on Investigation checks
+- Darkvision indicator displayed in character panel traits row (🌙 Darkvision 60ft)
+- Races with Darkvision: Elf, Dwarf, Half-Orc, Tiefling, Dragonborn
+
+#### **Racial Abilities with Mechanical Effect** (NEW)
+- `RACIAL_ABILITIES` constant with detailed ability data for all 7 races
+- **Halfling Lucky**: Natural 1s on d20 rolls are rerolled (implemented in skillCheck/skillCheckAnimated)
+- **Halfling Brave**: Advantage on saving throws against being frightened
+- **Elf Fey Ancestry**: Advantage on saving throws against being charmed
+- **Dwarf Dwarven Resilience**: Advantage on saving throws against poison
+- **Dragonborn Breath Weapon**: Bonus action 15ft cone/30ft line attack, CON-save DC, scales 2d6→5d6 by level, recharges on short rest
+- **Dragonborn Fire Resistance**: Half damage from fire attacks
+- **Tiefling Fire Resistance**: Half damage from fire attacks
+- **Dwarf Poison Resistance**: Half damage from poison attacks
+- **Half-Orc Relentless Endurance**: Drop to 1 HP instead of 0 once per long rest
+- **Half-Orc Savage Attacks**: Extra damage die on critical hits (trait tracked)
+- `takeDamage()` now accepts `damageType` parameter for racial resistance checks
+- `applyMonsterDamageToPlayer()` passes monster damage type through to resistance system
+- Racial resistance notifications displayed during combat
+- Racial ability status indicators in character panel (used/available)
+
+#### **Half-Orc Race** (NEW)
+- Added to `GAME_DATA.races` with +2 STR, +1 CON ability bonuses
+- Traits: Darkvision, Relentless Endurance, Savage Attacks
+- Race icon (🪓) added to character creation screen
+- Full mechanical integration: darkvision, damage resistance, Relentless Endurance
+
+#### **Character Panel UI Enhancements** (NEW)
+- Passive score badges (PP, PI, Inv) with tooltips explaining calculation
+- Racial traits row showing Darkvision range, ability status (Breath Weapon used/available, Relentless used/available), Lucky, Fey Ancestry, Dwarven Resilience, Fire Resistance
+- Attunement display showing attuned item count and names
+- Collapsible 18-skill panel with proficiency markers (○ untrained, ● proficient, ◆ expertise), ability abbreviations, and signed modifiers
+- CSS styles for all new panel elements (passive badges, trait tags, skill rows, attunement display, equipment panel)
+
+### 🔧 Changed
+- `skillCheck()` / `skillCheckAnimated()` signature expanded with `skillName` parameter (backward compatible)
+- `takeDamage()` signature expanded with `damageType` parameter (backward compatible)
+- `applyMonsterDamageToPlayer()` signature expanded with `damageType` parameter
+- `checkForAdvantage()` updated to use `isSkillProficient()` and racial advantage checks
+- `triggerAmbushCheck()` completely rewritten for passive perception + darkvision integration
+- `combatAction("flee")` completely rewritten with opportunity attack system
+- `equipItem()` now checks attunement limits and equipment proficiency
+- Attack roll calculation now conditionally adds proficiency based on weapon proficiency
+- `performLongRest()` restores racial abilities (Breath Weapon, Relentless Endurance)
+- `shortRest()` restores Dragonborn Breath Weapon
+- `setupClass()` now initializes skill proficiencies from class data
+- `setupBackground()` now adds background skill proficiencies
+- `applyRacialBonus()` now sets darkvision range and initializes racial ability tracking
+- `toJSON()` / `fromJSON()` updated with 5 new serialized properties (backward compatible)
+- Trapped chest events use passive perception and Investigation skill
+- Treasure chest events use passive perception for trap auto-detection
+- `getAvailableBonusActions()` includes Dragonborn Breath Weapon
+- `createSpellButton()` displays ritual and concentration tags
+- `showSpellMenu()` shows ritual casting availability
+- Save format version bumped to 3.2 (backward compatible with 3.1)
+
+### 📊 Statistics
+- game.js: ~15,700 lines (+700 from v3.1)
+- 8 new interconnected D&D 5e mechanical systems
+- 6 new ritual spells
+- 1 new playable race (Half-Orc)
+- 18 skills fully mapped and tracked
+- 50+ weapons categorized (simple/martial)
+- ~25 new Character methods
+- Full backward compatibility with v3.0/v3.1 saves
+
+---
+
 ## [3.1.0] - 2026-02-25 - "Combat Gates" ⚔️
 
 ### 🎉 MAJOR UPDATE - New Campaign, Combat-Gated Progression & Full Campaign Audit

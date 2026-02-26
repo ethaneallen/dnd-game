@@ -444,7 +444,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 0px 20px 20px 20px;
+            padding: 0px 20px 12px 20px;
+            max-height: 100vh;
+            overflow-y: auto;
         }
 
         .creation-screen.hidden {
@@ -683,84 +685,140 @@
 
         .creation-screen h2 {
             color: #c9a227;
-            margin-bottom: 5px;
-            font-size: 1.5rem;
+            margin-bottom: 3px;
+            font-size: 1.3rem;
         }
 
         .creation-sections {
-            display: flex;
-            flex-direction: row;
-            gap: 15px;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: 200px 1fr 200px;
+            gap: 12px;
             width: 100%;
-            margin-bottom: 10px;
+            max-width: 1100px;
+            margin-bottom: 8px;
+            align-items: start;
         }
 
         .creation-section {
             display: flex;
             flex-direction: column;
-            min-width: 250px;
-            max-width: 320px;
         }
 
         .creation-section h3 {
             color: #c9a227;
-            margin-bottom: 10px;
-            font-size: 1.1rem;
+            margin-bottom: 6px;
+            font-size: 0.95rem;
             flex-shrink: 0;
+            text-align: center;
         }
 
         .creation-options {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
+        }
+
+        /* Class section gets a 2-column grid */
+        .creation-section.class-section .creation-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
+
+        .creation-section.class-section .class-group-label {
+            grid-column: 1 / -1;
+            color: #888;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 3px 0 1px 4px;
+            border-bottom: 1px solid rgba(74, 74, 106, 0.5);
+            margin-top: 2px;
+        }
+
+        .creation-section.class-section .class-group-label:first-child {
+            margin-top: 0;
         }
 
         .option-card {
             background: rgba(0, 0, 0, 0.3);
-            border: 2px solid #4a4a6a;
-            border-radius: 8px;
-            padding: 8px 12px;
+            border: 1px solid #4a4a6a;
+            border-radius: 6px;
+            padding: 5px 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            flex-direction: row;
+            align-items: center;
+            gap: 6px;
+            min-height: 0;
         }
 
         .option-card:hover {
             border-color: #c9a227;
-            transform: scale(1.02);
+            background: rgba(201, 162, 39, 0.05);
         }
 
         .option-card.selected {
             border-color: #c9a227;
-            background: rgba(201, 162, 39, 0.1);
+            background: rgba(201, 162, 39, 0.12);
+            box-shadow: 0 0 8px rgba(201, 162, 39, 0.2);
         }
 
-        .option-card h3 {
+        .option-card .option-icon {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            width: 22px;
+            text-align: center;
+        }
+
+        .option-card .option-info {
+            flex: 1;
+            min-width: 0;
+            text-align: left;
+        }
+
+        .option-card .option-info h3 {
             color: #c9a227;
-            margin-bottom: 2px;
-            font-size: 1rem;
+            margin: 0;
+            font-size: 0.85rem;
+            line-height: 1.2;
         }
 
-        .option-card p {
-            font-size: 0.8rem;
-            color: #aaa;
-            line-height: 1.3;
+        .option-card .option-info p {
+            font-size: 0.65rem;
+            color: #888;
+            line-height: 1.2;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Legacy support for old option-card h3/p without wrappers */
+        .option-card > h3 {
+            color: #c9a227;
+            margin-bottom: 0px;
+            font-size: 0.85rem;
+        }
+
+        .option-card > p {
+            font-size: 0.65rem;
+            color: #888;
+            line-height: 1.2;
         }
 
         .name-input {
             background: rgba(0, 0, 0, 0.3);
             border: 2px solid #4a4a6a;
             border-radius: 8px;
-            padding: 12px;
+            padding: 8px;
             color: #fff;
-            font-size: 1rem;
+            font-size: 0.95rem;
             width: 100%;
-            max-width: 450px;
+            max-width: 350px;
             text-align: center;
-            margin: 10px auto;
+            margin: 6px auto;
             display: block;
             flex-shrink: 0;
         }
@@ -774,9 +832,9 @@
             background: linear-gradient(135deg, #c9a227 0%, #8b7355 100%);
             border: none;
             color: #1a1a2e;
-            padding: 12px 40px;
+            padding: 10px 36px;
             border-radius: 8px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
             margin-top: 8px;
@@ -936,6 +994,15 @@
             .character-panel {
                 position: relative;
                 top: 0;
+            }
+            
+            .creation-sections {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .creation-section.class-section .creation-options {
+                grid-template-columns: 1fr 1fr;
             }
         }
 
@@ -2695,6 +2762,131 @@
             color: #aaa;
             font-size: 0.9rem;
         }
+
+        /* Character Panel - New D&D 5e System Panels */
+        .char-passives {
+            display: flex;
+            gap: 8px;
+            margin: 8px 0;
+            flex-wrap: wrap;
+        }
+        .passive-badge {
+            background: rgba(100, 100, 180, 0.2);
+            border: 1px solid rgba(100, 100, 180, 0.4);
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-size: 0.75rem;
+            color: #a0a0d0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .passive-badge .passive-val {
+            color: #fff;
+            font-weight: bold;
+        }
+        .char-traits-row {
+            display: flex;
+            gap: 6px;
+            margin: 6px 0;
+            flex-wrap: wrap;
+        }
+        .trait-tag {
+            background: rgba(80, 60, 120, 0.3);
+            border: 1px solid rgba(120, 90, 180, 0.4);
+            border-radius: 4px;
+            padding: 2px 7px;
+            font-size: 0.7rem;
+            color: #c0a0e0;
+        }
+        .attunement-display {
+            margin: 6px 0;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+        .attunement-display .attune-count {
+            color: #e0c060;
+            font-weight: bold;
+        }
+        .attunement-display .attune-item {
+            color: #c9a227;
+            font-size: 0.75rem;
+        }
+        .skills-panel {
+            margin: 8px 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .skills-panel.expanded {
+            max-height: 500px;
+        }
+        .skills-toggle {
+            cursor: pointer;
+            color: #c9a227;
+            font-size: 0.85rem;
+            user-select: none;
+            margin: 6px 0;
+            display: block;
+        }
+        .skills-toggle:hover {
+            color: #e0d080;
+        }
+        .skill-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1px 4px;
+            font-size: 0.72rem;
+            color: #999;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .skill-row.proficient {
+            color: #c9a227;
+        }
+        .skill-row.proficient .skill-mod {
+            color: #e0d080;
+            font-weight: bold;
+        }
+        .skill-prof-marker {
+            width: 8px;
+            display: inline-block;
+            text-align: center;
+        }
+        .equipment-panel {
+            margin: 8px 0;
+        }
+        .equipment-panel h4 {
+            color: #c9a227;
+            font-size: 0.9rem;
+            margin: 0 0 6px 0;
+        }
+        .equip-slot {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 0;
+            font-size: 0.8rem;
+        }
+        .slot-label {
+            color: #888;
+            min-width: 60px;
+        }
+        .slot-item {
+            color: #ddd;
+            flex: 1;
+        }
+        .unequip-btn {
+            background: rgba(180, 60, 60, 0.3);
+            border: 1px solid rgba(180, 60, 60, 0.5);
+            color: #e08080;
+            border-radius: 3px;
+            cursor: pointer;
+            padding: 1px 5px;
+            font-size: 0.7rem;
+        }
+        .unequip-btn:hover {
+            background: rgba(180, 60, 60, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -2781,6 +2973,19 @@
             
             <p><span class="label">AC:</span> <span class="value" id="charAC">10</span> | 
                <span class="label">Gold:</span> <span class="value" id="charGold">0</span></p>
+            
+            <!-- Passive Scores -->
+            <div class="char-passives" id="charPassives"></div>
+            
+            <!-- Traits & Darkvision -->
+            <div class="char-traits-row" id="charTraits"></div>
+            
+            <!-- Attunement -->
+            <div class="attunement-display" id="charAttunement"></div>
+            
+            <!-- Skills (collapsible) -->
+            <span class="skills-toggle" id="skillsToggle" onclick="document.getElementById('skillsPanel').classList.toggle('expanded'); this.textContent = this.textContent.includes('▶') ? '▼ Skills' : '▶ Skills'">▶ Skills</span>
+            <div class="skills-panel" id="skillsPanel"></div>
             
             <h3 style="color: #c9a227; margin-top: 15px; font-size: 1rem;">🎒 Inventory</h3>
             <div class="inventory-list" id="inventoryList">
@@ -2879,30 +3084,30 @@
 
             <!-- Character Creation Screen -->
             <div id="creationScreen" class="creation-screen hidden">
-                <h2>Create Your Character</h2>
-                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 5px;">
-                    <button class="back-btn" onclick="game.backToCampaignSelect()">← Back to Campaign Selection</button>
-                    <button class="back-btn" onclick="game.showImportCharacterDialog()" style="background: rgba(201, 162, 39, 0.2); border-color: #c9a227; color: #c9a227;">📥 Import Character</button>
+                <div style="display: flex; align-items: center; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 4px;">
+                    <button class="back-btn" onclick="game.backToCampaignSelect()" style="margin:0;">← Back</button>
+                    <h2 style="margin:0;">Create Your Character</h2>
+                    <button class="back-btn" onclick="game.showImportCharacterDialog()" style="margin:0; background: rgba(201, 162, 39, 0.2); border-color: #c9a227; color: #c9a227;">📥 Import</button>
                 </div>
                 
                 <input type="text" class="name-input" id="nameInput" placeholder="Enter your name..." maxlength="20">
                 
                 <div class="creation-sections">
-                    <div class="creation-section">
+                    <div class="creation-section race-section">
                         <h3>Choose Your Race</h3>
                         <div class="creation-options" id="raceOptions">
                             <!-- Populated by JS -->
                         </div>
                     </div>
                     
-                    <div class="creation-section">
+                    <div class="creation-section class-section">
                         <h3>Choose Your Class</h3>
                         <div class="creation-options" id="classOptions">
                             <!-- Populated by JS -->
                         </div>
                     </div>
                     
-                    <div class="creation-section">
+                    <div class="creation-section bg-section">
                         <h3>Choose Your Background</h3>
                         <div class="creation-options" id="backgroundOptions">
                             <!-- Populated by JS -->
@@ -2962,6 +3167,10 @@
                         <button class="action-btn rage-btn hidden" id="rageCombatBtn" onclick="game.combatAction('rage')">
                             <span class="icon">💢</span>
                             Rage
+                        </button>
+                        <button class="action-btn hidden" id="bonusActionBtn" onclick="game.showBonusActionMenu()" style="background: linear-gradient(135deg, #7b2d8e, #4a148c);">
+                            <span class="icon">⚡</span>
+                            Bonus <span class="shortcut-hint">[B]</span>
                         </button>
                         <button class="action-btn" onclick="game.combatAction('defend')">
                             <span class="icon">🛡️</span>
@@ -3094,7 +3303,7 @@
 
     <!-- Version Badge -->
     <div class="version-badge">
-        v3.1 | <a href="#" onclick="game.showTutorial(); return false;">Help</a> | <a href="#" onclick="game.openSettings(); return false;">Settings</a>
+        v3.2 | <a href="#" onclick="game.showTutorial(); return false;">Help</a> | <a href="#" onclick="game.openSettings(); return false;">Settings</a>
     </div>
 
     <script src="game.js"></script>

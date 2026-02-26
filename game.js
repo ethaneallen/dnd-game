@@ -150,7 +150,8 @@ const BOSS_ENEMIES = {
         icon: "👺",
         abilities: ["multiattack", "rally_goblins"],
         loot: ["Crown of the Goblin King", 150],
-        description: "A massive goblin wearing a crude iron crown"
+        description: "A massive goblin wearing a crude iron crown",
+        legendaryResistances: 1
     },
     vampire_lord: {
         name: "Count Vasilis",
@@ -162,7 +163,8 @@ const BOSS_ENEMIES = {
         icon: "🧛",
         abilities: ["life_drain", "charm", "mist_form"],
         loot: ["Vampiric Blade", 200],
-        description: "An ancient vampire lord with piercing red eyes"
+        description: "An ancient vampire lord with piercing red eyes",
+        legendaryResistances: 2
     },
     ancient_dragon: {
         name: "Scoratharax",
@@ -174,7 +176,8 @@ const BOSS_ENEMIES = {
         icon: "🐉",
         abilities: ["breath_weapon", "frightful_presence", "tail_attack"],
         loot: ["Dragon Scale Armor", 500],
-        description: "A massive red dragon with scales like burning coals"
+        description: "A massive red dragon with scales like burning coals",
+        legendaryResistances: 3
     },
     lich: {
         name: "Acererak the Eternal",
@@ -186,7 +189,8 @@ const BOSS_ENEMIES = {
         icon: "💀",
         abilities: ["power_word_kill", "paralyzing_touch", "summon_undead"],
         loot: ["Staff of the Lich", 350],
-        description: "A skeletal mage crackling with necrotic energy"
+        description: "A skeletal mage crackling with necrotic energy",
+        legendaryResistances: 3
     },
     beholder: {
         name: "Xanathar",
@@ -198,7 +202,466 @@ const BOSS_ENEMIES = {
         icon: "👁️",
         abilities: ["eye_rays", "antimagic_cone", "death_ray"],
         loot: ["Beholder Eye", 300],
-        description: "A floating orb covered in eyestalks"
+        description: "A floating orb covered in eyestalks",
+        legendaryResistances: 3
+    }
+};
+
+// ==================== FEATS DATA ====================
+const FEATS_DATA = {
+    "Great Weapon Master": {
+        description: "Before you make a melee attack with a heavy weapon, you can take a -5 penalty to the attack roll. If it hits, +10 damage.",
+        prerequisite: null,
+        effect: { heavyWeaponPowerAttack: true },
+        onApply: (char) => { char.feats.push("Great Weapon Master"); }
+    },
+    "Sharpshooter": {
+        description: "Before you make a ranged attack, you can take a -5 penalty to the attack roll. If it hits, +10 damage. Ignore half and three-quarters cover.",
+        prerequisite: null,
+        effect: { rangedPowerAttack: true },
+        onApply: (char) => { char.feats.push("Sharpshooter"); }
+    },
+    "Lucky": {
+        description: "You have 3 luck points. Spend one to reroll an attack, ability check, or saving throw. Regain all on long rest.",
+        prerequisite: null,
+        effect: { luckyPoints: 3 },
+        onApply: (char) => { char.feats.push("Lucky"); char.featData.luckyPoints = 3; }
+    },
+    "Sentinel": {
+        description: "Creatures you hit with opportunity attacks have their speed reduced to 0. When a creature within 5ft attacks a target other than you, you can use your reaction to make a melee attack.",
+        prerequisite: null,
+        effect: { sentinel: true },
+        onApply: (char) => { char.feats.push("Sentinel"); }
+    },
+    "Tough": {
+        description: "Your hit point maximum increases by an amount equal to twice your level. Each time you gain a level, your HP max increases by 2 more.",
+        prerequisite: null,
+        effect: { toughHpBonus: true },
+        onApply: (char) => { char.feats.push("Tough"); char.maxHp += char.level * 2; char.hp += char.level * 2; }
+    },
+    "War Caster": {
+        description: "Advantage on CON saves to maintain concentration. Can perform somatic components with hands full. Cast a spell as an opportunity attack.",
+        prerequisite: "spellcaster",
+        effect: { warCaster: true },
+        onApply: (char) => { char.feats.push("War Caster"); }
+    },
+    "Resilient (CON)": {
+        description: "Increase CON by 1 (max 20). Gain proficiency in CON saving throws.",
+        prerequisite: null,
+        effect: { resilientCon: true },
+        onApply: (char) => { char.feats.push("Resilient (CON)"); char.stats.con = Math.min(20, char.stats.con + 1); }
+    },
+    "Alert": {
+        description: "+5 to initiative. You can't be surprised. Other creatures don't gain advantage on attack rolls against you from being unseen.",
+        prerequisite: null,
+        effect: { alertInitiativeBonus: 5 },
+        onApply: (char) => { char.feats.push("Alert"); }
+    },
+    "Mobile": {
+        description: "Your speed increases by 10 feet. When you use the Dash action, difficult terrain doesn't cost extra movement. No opportunity attacks from creatures you melee.",
+        prerequisite: null,
+        effect: { mobile: true },
+        onApply: (char) => { char.feats.push("Mobile"); }
+    },
+    "Polearm Master": {
+        description: "When you take the Attack action with a glaive, halberd, quarterstaff, or spear, you can make a bonus attack with the other end (1d4 bludgeoning).",
+        prerequisite: null,
+        effect: { polearmMaster: true },
+        onApply: (char) => { char.feats.push("Polearm Master"); }
+    },
+    "Crossbow Expert": {
+        description: "Ignore the loading property of crossbows. No disadvantage on ranged attacks within 5 feet. Bonus attack with hand crossbow after one-handed attack.",
+        prerequisite: null,
+        effect: { crossbowExpert: true },
+        onApply: (char) => { char.feats.push("Crossbow Expert"); }
+    },
+    "Shield Master": {
+        description: "Bonus action: shove a creature 5ft with your shield. Add your shield's AC bonus to DEX saves. Use your reaction to take no damage on successful DEX saves (Evasion).",
+        prerequisite: null,
+        effect: { shieldMaster: true },
+        onApply: (char) => { char.feats.push("Shield Master"); }
+    },
+    "Magic Initiate": {
+        description: "Learn 2 cantrips and 1 first-level spell from any class's spell list. Cast the 1st-level spell once per long rest without a spell slot.",
+        prerequisite: null,
+        effect: { magicInitiate: true },
+        onApply: (char) => {
+            char.feats.push("Magic Initiate");
+            if (!char.spells.cantrips.includes("Fire Bolt")) {
+                char.spells.cantrips.push("Fire Bolt");
+            }
+            if (!char.spells.known.includes("Shield") && !char.isSpellcaster()) {
+                char.spells.known.push("Shield");
+            }
+        }
+    },
+    "Savage Attacker": {
+        description: "Once per turn when you roll damage for a melee weapon attack, you can reroll the damage dice and use either total.",
+        prerequisite: null,
+        effect: { savageAttacker: true },
+        onApply: (char) => { char.feats.push("Savage Attacker"); }
+    }
+};
+
+// ==================== SUBCLASS DATA ====================
+// Each class gets 2-3 subclasses, chosen at level 3 (D&D 5e standard)
+const SUBCLASS_DATA = {
+    Fighter: {
+        name: "Martial Archetype",
+        level: 3,
+        options: {
+            Champion: {
+                name: "Champion",
+                description: "A master of raw physical power. Improved criticals and athletic prowess.",
+                features: {
+                    3: { name: "Improved Critical", description: "Your weapon attacks score a critical hit on a roll of 19 or 20.", type: "passive" },
+                    7: { name: "Remarkable Athlete", description: "+2 bonus to STR, DEX, and CON checks.", type: "passive" },
+                    15: { name: "Superior Critical", description: "Your weapon attacks score a critical hit on a roll of 18-20.", type: "passive" }
+                }
+            },
+            BattleMaster: {
+                name: "Battle Master",
+                description: "A tactical genius who uses superiority dice to perform combat maneuvers.",
+                features: {
+                    3: { name: "Combat Superiority", description: "You gain 4 superiority dice (d8). Spend them on maneuvers for bonus damage and effects.", type: "resource", dice: 4, dieSize: 8 },
+                    7: { name: "Additional Superiority Die", description: "You gain a 5th superiority die.", type: "resource_upgrade", dice: 5 },
+                    15: { name: "Relentless", description: "If you have no superiority dice at the start of combat, you regain one.", type: "passive" }
+                }
+            },
+            EldritchKnight: {
+                name: "Eldritch Knight",
+                description: "A fighter who supplements martial prowess with arcane magic.",
+                features: {
+                    3: { name: "Spellcasting", description: "You learn 2 wizard cantrips and 3 wizard spells (1st level). Use INT for spellcasting.", type: "spellcasting", cantrips: 2, spellsKnown: 3 },
+                    7: { name: "War Magic", description: "When you cast a cantrip, you can make one weapon attack as a bonus action.", type: "passive" },
+                    15: { name: "Arcane Charge", description: "When you use Action Surge, you can teleport up to 30ft.", type: "passive" }
+                }
+            }
+        }
+    },
+    Wizard: {
+        name: "Arcane Tradition",
+        level: 2, // Wizards choose at level 2 in 5e, but we use 3 for consistency
+        options: {
+            Evocation: {
+                name: "School of Evocation",
+                description: "Masters of destructive magical energy — fireballs and lightning bolts.",
+                features: {
+                    3: { name: "Sculpt Spells", description: "Allies automatically succeed on saves against your evocation spells.", type: "passive" },
+                    7: { name: "Potent Cantrip", description: "Your damaging cantrips deal half damage even when the target succeeds on a saving throw.", type: "passive" },
+                    14: { name: "Empowered Evocation", description: "Add your INT modifier to one damage roll of any evocation spell.", type: "passive" }
+                }
+            },
+            Abjuration: {
+                name: "School of Abjuration",
+                description: "Specialists in protective magic — wards, shields, and counterspells.",
+                features: {
+                    3: { name: "Arcane Ward", description: "When you cast an abjuration spell, you gain a magical ward with HP equal to twice your wizard level + INT modifier.", type: "resource" },
+                    7: { name: "Projected Ward", description: "Your Arcane Ward can absorb damage dealt to nearby allies.", type: "passive" },
+                    14: { name: "Spell Resistance", description: "You have advantage on saving throws against spells.", type: "passive" }
+                }
+            },
+            Necromancy: {
+                name: "School of Necromancy",
+                description: "Masters of the dark arts who drain life force and command the undead.",
+                features: {
+                    3: { name: "Grim Harvest", description: "When you kill a creature with a spell, you regain HP equal to twice the spell's level (3x for necromancy).", type: "passive" },
+                    7: { name: "Undead Thralls", description: "Undead you raise have extra HP equal to your wizard level and deal bonus damage.", type: "passive" },
+                    14: { name: "Inured to Undeath", description: "You have resistance to necrotic damage and your HP maximum can't be reduced.", type: "passive" }
+                }
+            }
+        }
+    },
+    Rogue: {
+        name: "Roguish Archetype",
+        level: 3,
+        options: {
+            Thief: {
+                name: "Thief",
+                description: "A master burglar and treasure hunter with unmatched agility.",
+                features: {
+                    3: { name: "Fast Hands", description: "You can use your bonus action to pick locks, disarm traps, or use items. +2 to DEX checks.", type: "passive" },
+                    7: { name: "Second-Story Work", description: "Climbing costs no extra movement. Running jump distance increases by your DEX modifier in feet.", type: "passive" },
+                    13: { name: "Supreme Sneak", description: "You have advantage on Stealth checks if you move no more than half your speed.", type: "passive" }
+                }
+            },
+            Assassin: {
+                name: "Assassin",
+                description: "A deadly killer who strikes from the shadows with lethal precision.",
+                features: {
+                    3: { name: "Assassinate", description: "You have advantage on attack rolls against creatures that haven't taken a turn. Any hit against a surprised creature is a critical hit.", type: "passive" },
+                    7: { name: "Evasion", description: "When subjected to a DEX save for half damage, you take no damage on success and half on failure.", type: "passive" },
+                    13: { name: "Death Strike", description: "When you hit a surprised creature, it must make a CON save or take double damage.", type: "passive" }
+                }
+            },
+            ArcaneTrickster: {
+                name: "Arcane Trickster",
+                description: "A rogue who uses illusions and enchantments to confuse and outwit foes.",
+                features: {
+                    3: { name: "Spellcasting", description: "You learn Mage Hand plus 2 cantrips and 3 wizard spells. Use INT for spellcasting.", type: "spellcasting", cantrips: 3, spellsKnown: 3 },
+                    7: { name: "Magical Ambush", description: "If you are hidden when you cast a spell, the target has disadvantage on its saving throw.", type: "passive" },
+                    13: { name: "Versatile Trickster", description: "Use Mage Hand to distract a creature, giving you advantage on attacks against it.", type: "passive" }
+                }
+            }
+        }
+    },
+    Cleric: {
+        name: "Divine Domain",
+        level: 1, // Clerics choose at level 1 in 5e, but we use 3 for consistency
+        options: {
+            Life: {
+                name: "Life Domain",
+                description: "Masters of healing magic who channel divine energy to restore the wounded.",
+                features: {
+                    3: { name: "Disciple of Life", description: "Your healing spells are empowered: whenever you use a spell to restore HP, the target regains an additional 2 + spell level HP.", type: "passive" },
+                    7: { name: "Blessed Healer", description: "When you cast a healing spell on another creature, you also regain HP equal to 2 + spell level.", type: "passive" },
+                    14: { name: "Supreme Healing", description: "Your healing spells always restore the maximum possible HP (no rolling).", type: "passive" }
+                }
+            },
+            War: {
+                name: "War Domain",
+                description: "Holy warriors who channel divine wrath into devastating attacks.",
+                features: {
+                    3: { name: "War Priest", description: "When you take the Attack action, you can make one weapon attack as a bonus action (WIS modifier times per long rest).", type: "resource" },
+                    7: { name: "Guided Strike", description: "You can add +10 to an attack roll after seeing the roll (once per short rest).", type: "resource" },
+                    14: { name: "Avatar of Battle", description: "You have resistance to bludgeoning, piercing, and slashing damage from nonmagical attacks.", type: "passive" }
+                }
+            },
+            Light: {
+                name: "Light Domain",
+                description: "Champions of radiance who wield fire and light against the darkness.",
+                features: {
+                    3: { name: "Radiance of the Dawn", description: "As an action, dispel magical darkness within 30ft and deal 2d10 + cleric level radiant damage to hostile creatures (CON save for half).", type: "active" },
+                    7: { name: "Improved Flare", description: "When an enemy attacks you or an ally within 30ft, impose disadvantage on the attack roll (reaction).", type: "passive" },
+                    14: { name: "Corona of Light", description: "Your damaging spells deal an extra 1d8 radiant damage.", type: "passive" }
+                }
+            }
+        }
+    },
+    Ranger: {
+        name: "Ranger Archetype",
+        level: 3,
+        options: {
+            Hunter: {
+                name: "Hunter",
+                description: "A relentless tracker who studies and exploits the weaknesses of prey.",
+                features: {
+                    3: { name: "Colossus Slayer", description: "Once per turn, deal an extra 1d8 damage to a creature below its HP maximum.", type: "passive" },
+                    7: { name: "Escape the Horde", description: "Opportunity attacks against you are made with disadvantage.", type: "passive" },
+                    11: { name: "Multiattack", description: "You can make two ranged attacks against different creatures within 10ft of each other.", type: "passive" }
+                }
+            },
+            BeastMaster: {
+                name: "Beast Master",
+                description: "A ranger who fights alongside a loyal animal companion.",
+                features: {
+                    3: { name: "Animal Companion", description: "You gain a beast companion (wolf) that fights alongside you. It has HP equal to 4x your ranger level.", type: "companion", companionHp: 4 },
+                    7: { name: "Exceptional Training", description: "Your companion can Dash, Dodge, or Disengage as a bonus action on its turn.", type: "passive" },
+                    11: { name: "Bestial Fury", description: "Your companion can make two attacks when you command it to attack.", type: "passive" }
+                }
+            }
+        }
+    },
+    Barbarian: {
+        name: "Primal Path",
+        level: 3,
+        options: {
+            Berserker: {
+                name: "Path of the Berserker",
+                description: "A barbarian consumed by the thrill of combat, entering a mindless frenzy.",
+                features: {
+                    3: { name: "Frenzy", description: "While raging, you can make a single melee weapon attack as a bonus action on each turn. Gain 1 level of exhaustion when rage ends.", type: "passive" },
+                    7: { name: "Mindless Rage", description: "You can't be charmed or frightened while raging.", type: "passive" },
+                    14: { name: "Retaliation", description: "When you take damage from a creature within 5ft, you can use your reaction to make a melee attack against it.", type: "passive" }
+                }
+            },
+            TotemWarrior: {
+                name: "Path of the Totem Warrior",
+                description: "A spiritual warrior who draws power from animal totems.",
+                features: {
+                    3: { name: "Totem Spirit (Bear)", description: "While raging, you have resistance to all damage except psychic damage.", type: "passive" },
+                    7: { name: "Spirit Walker", description: "You can cast Commune with Nature as a ritual. +2 bonus to Perception and Survival checks.", type: "passive" },
+                    14: { name: "Totemic Attunement", description: "While raging, hostile creatures within 5ft have disadvantage on attacks against targets other than you.", type: "passive" }
+                }
+            }
+        }
+    },
+    Paladin: {
+        name: "Sacred Oath",
+        level: 3,
+        options: {
+            Devotion: {
+                name: "Oath of Devotion",
+                description: "The quintessential paladin, dedicated to justice and righteousness.",
+                features: {
+                    3: { name: "Sacred Weapon", description: "Channel Divinity: Add CHA modifier to attack rolls for 1 minute." },
+                    7: { name: "Aura of Devotion", description: "You and allies within 10ft can't be charmed." },
+                    15: { name: "Purity of Spirit", description: "You are permanently under the effect of Protection from Evil and Good." }
+                }
+            },
+            Vengeance: {
+                name: "Oath of Vengeance",
+                description: "A paladin driven by punishing those who commit grievous sins.",
+                features: {
+                    3: { name: "Vow of Enmity", description: "Channel Divinity: Gain advantage on attacks against one creature for 1 minute." },
+                    7: { name: "Relentless Avenger", description: "When you hit with an opportunity attack, move up to half your speed immediately." },
+                    15: { name: "Soul of Vengeance", description: "When your Vow of Enmity target attacks, you can use your reaction to make a melee attack." }
+                }
+            },
+            Ancients: {
+                name: "Oath of the Ancients",
+                description: "An oath to preserve the light of the world against darkness.",
+                features: {
+                    3: { name: "Nature's Wrath", description: "Channel Divinity: Spectral vines restrain a creature (STR/DEX save)." },
+                    7: { name: "Aura of Warding", description: "You and allies within 10ft have resistance to spell damage." },
+                    15: { name: "Undying Sentinel", description: "When reduced to 0 HP, drop to 1 HP instead (once per long rest)." }
+                }
+            }
+        }
+    },
+    Monk: {
+        name: "Monastic Tradition",
+        level: 3,
+        options: {
+            OpenHand: {
+                name: "Way of the Open Hand",
+                description: "Masters of unarmed combat and martial arts techniques.",
+                features: {
+                    3: { name: "Open Hand Technique", description: "When you hit with Flurry of Blows, impose STR save (prone), DEX save (push 15ft), or no reactions until end of your next turn." },
+                    7: { name: "Wholeness of Body", description: "As an action, regain HP equal to 3× your monk level. Once per long rest." },
+                    15: { name: "Quivering Palm", description: "Set up vibrations in a creature's body. Can spend 3 ki to reduce it to 0 HP or deal 10d10 necrotic (CON save)." }
+                }
+            },
+            Shadow: {
+                name: "Way of Shadow",
+                description: "Monks who follow this tradition are ninja — stealthy assassins of the night.",
+                features: {
+                    3: { name: "Shadow Arts", description: "Spend 2 ki to cast Darkness, Darkvision, Pass Without Trace, or Silence." },
+                    7: { name: "Shadow Step", description: "Teleport 60ft from one shadow to another as a bonus action, gaining advantage on your next attack." },
+                    15: { name: "Opportunist", description: "When a creature within 5ft is hit by another creature, you can use your reaction to make a melee attack." }
+                }
+            }
+        }
+    },
+    Warlock: {
+        name: "Otherworldly Patron",
+        level: 3,
+        options: {
+            Fiend: {
+                name: "The Fiend",
+                description: "You have made a pact with a fiend from the lower planes of existence.",
+                features: {
+                    3: { name: "Dark One's Blessing", description: "When you reduce a hostile creature to 0 HP, gain temp HP equal to CHA mod + warlock level." },
+                    7: { name: "Dark One's Own Luck", description: "Add 1d10 to an ability check or saving throw. Once per short rest." },
+                    15: { name: "Hurl Through Hell", description: "When you hit, banish the creature through the lower planes. It takes 10d10 psychic damage." }
+                }
+            },
+            GreatOldOne: {
+                name: "The Great Old One",
+                description: "Your patron is a mysterious entity from beyond the stars.",
+                features: {
+                    3: { name: "Awakened Mind", description: "Communicate telepathically with any creature within 30ft that you can see." },
+                    7: { name: "Entropic Ward", description: "When attacked, impose disadvantage. If the attack misses, gain advantage on your next attack." },
+                    15: { name: "Create Thrall", description: "Touch an incapacitated humanoid to charm it permanently until Remove Curse is cast." }
+                }
+            }
+        }
+    },
+    Bard: {
+        name: "Bard College",
+        level: 3,
+        options: {
+            Lore: {
+                name: "College of Lore",
+                description: "Bards who know something about most things, collecting knowledge from every source.",
+                features: {
+                    3: { name: "Cutting Words", description: "Use Bardic Inspiration to subtract from an enemy's attack roll, ability check, or damage roll." },
+                    7: { name: "Additional Magical Secrets", description: "Learn two spells from any class." },
+                    15: { name: "Peerless Skill", description: "Expend a Bardic Inspiration die to add it to your own ability checks." }
+                }
+            },
+            Valor: {
+                name: "College of Valor",
+                description: "Bards who are bold skalds whose tales keep alive the memory of great heroes.",
+                features: {
+                    3: { name: "Combat Inspiration", description: "Bardic Inspiration die can be added to weapon damage or AC when hit." },
+                    7: { name: "Extra Attack", description: "You can attack twice when you take the Attack action." },
+                    15: { name: "Battle Magic", description: "When you cast a spell, make one weapon attack as a bonus action." }
+                }
+            }
+        }
+    },
+    Sorcerer: {
+        name: "Sorcerous Origin",
+        level: 3,
+        options: {
+            Draconic: {
+                name: "Draconic Bloodline",
+                description: "Your innate magic comes from draconic ancestry mixed with your bloodline.",
+                features: {
+                    3: { name: "Draconic Resilience", description: "+1 HP per sorcerer level. When unarmored, AC = 13 + DEX modifier." },
+                    7: { name: "Elemental Affinity", description: "Add CHA modifier to damage of spells matching your draconic ancestry element." },
+                    15: { name: "Dragon Wings", description: "Sprout spectral dragon wings, gaining a flying speed equal to your walking speed." }
+                }
+            },
+            Wild: {
+                name: "Wild Magic",
+                description: "Your innate magic comes from the wild forces of chaos underlying creation.",
+                features: {
+                    3: { name: "Wild Magic Surge", description: "After casting a spell, roll d20. On a 1, roll on the Wild Magic Surge table for a random effect." },
+                    7: { name: "Bend Luck", description: "Spend 2 sorcery points to add or subtract 1d4 from another creature's attack, check, or save." },
+                    15: { name: "Controlled Chaos", description: "Roll twice on the Wild Magic Surge table and choose which effect occurs." }
+                }
+            }
+        }
+    },
+    Druid: {
+        name: "Druid Circle",
+        level: 3,
+        options: {
+            Land: {
+                name: "Circle of the Land",
+                description: "Druids who are mystic guardians of an area of land they are spiritually connected to.",
+                features: {
+                    3: { name: "Natural Recovery", description: "During a short rest, recover spell slots with combined level ≤ half your druid level (rounded up)." },
+                    7: { name: "Land's Stride", description: "Moving through nonmagical difficult terrain costs no extra movement. Advantage vs plant-based effects." },
+                    15: { name: "Nature's Sanctuary", description: "Beasts and plant creatures must WIS save to attack you. On failure, they must choose a new target." }
+                }
+            },
+            Moon: {
+                name: "Circle of the Moon",
+                description: "Druids who are fierce guardians of the wild, drawing power from the moon.",
+                features: {
+                    3: { name: "Combat Wild Shape", description: "Use Wild Shape as a bonus action. Can transform into beasts of CR 1 (instead of CR 1/4)." },
+                    7: { name: "Primal Strike", description: "Your attacks in beast form count as magical for overcoming resistance and immunity." },
+                    15: { name: "Elemental Wild Shape", description: "Expend two Wild Shape uses to transform into an elemental." }
+                }
+            }
+        }
+    },
+    Artificer: {
+        name: "Artificer Specialist",
+        level: 3,
+        options: {
+            Alchemist: {
+                name: "Alchemist",
+                description: "An expert at combining reagents to produce mystical effects.",
+                features: {
+                    3: { name: "Experimental Elixir", description: "Create a free elixir on long rest (random beneficial effect: healing, flight, resilience, boldness, swiftness, or transformation)." },
+                    7: { name: "Alchemical Savant", description: "Add INT modifier to healing and damage spells when using alchemist supplies." },
+                    15: { name: "Chemical Mastery", description: "Resistance to acid and poison. Cast Greater Restoration and Heal once each per long rest without a spell slot." }
+                }
+            },
+            BattleSmith: {
+                name: "Battle Smith",
+                description: "A master of defending others and repairing items and constructs.",
+                features: {
+                    3: { name: "Steel Defender", description: "Gain a construct companion that fights alongside you. Uses your bonus action to command." },
+                    7: { name: "Arcane Jolt", description: "When you or your defender hit, add 2d6 force damage or 2d6 healing to an ally within 30ft." },
+                    15: { name: "Improved Defender", description: "Steel Defender gains +2 AC and Arcane Jolt increases to 4d6." }
+                }
+            }
+        }
     }
 };
 
@@ -212,6 +675,7 @@ const KEYBOARD_SHORTCUTS = {
     'a': 'attack',
     's': 'spell',
     'd': 'defend',
+    'b': 'bonusAction',
     'r': 'retreat_or_rest',
     'i': 'inventory',
     'c': 'character',
@@ -979,35 +1443,35 @@ const CAMPAIGNS = {
         ],
         monsters: {
             1: [
-                { name: "Kobold", hp: 5, ac: 12, damage: "1d4", xp: 25, description: "A small, reptilian humanoid. Weak alone, dangerous in groups." },
-                { name: "Giant Rat", hp: 7, ac: 12, damage: "1d4", xp: 25, description: "An oversized rodent with diseased fangs." },
-                { name: "Goblin", hp: 7, ac: 13, damage: "1d6", xp: 50, description: "A small, malicious humanoid with a wicked grin." },
-                { name: "Stirge", hp: 2, ac: 14, damage: "1d4", xp: 25, description: "A bat-like creature that drinks blood!" }
+                { name: "Kobold", hp: 5, ac: 12, damage: "1d4", xp: 25, attackBonus: 4, damageType: "slashing", description: "A small, reptilian humanoid. Weak alone, dangerous in groups." },
+                { name: "Giant Rat", hp: 7, ac: 12, damage: "1d4", xp: 25, attackBonus: 2, damageType: "piercing", description: "An oversized rodent with diseased fangs." },
+                { name: "Goblin", hp: 7, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", description: "A small, malicious humanoid with a wicked grin." },
+                { name: "Stirge", hp: 2, ac: 14, damage: "1d4", xp: 25, attackBonus: 5, damageType: "piercing", description: "A bat-like creature that drinks blood!" }
             ],
             2: [
-                { name: "Orc", hp: 15, ac: 13, damage: "1d8", xp: 100, description: "A brutish humanoid with a thirst for battle." },
-                { name: "Hobgoblin", hp: 11, ac: 16, damage: "1d8", xp: 100, description: "A disciplined goblinoid warrior in chain mail." },
-                { name: "Giant Spider", hp: 18, ac: 13, damage: "1d8", xp: 200, description: "A horse-sized spider with venomous fangs!" },
-                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, description: "A shambling undead animated by dark magic." },
-                { name: "Skeleton", hp: 13, ac: 13, damage: "1d6", xp: 50, description: "The animated bones of the dead, armed with rusty weapons." }
+                { name: "Orc", hp: 15, ac: 13, damage: "1d8", xp: 100, attackBonus: 5, damageType: "slashing", description: "A brutish humanoid with a thirst for battle." },
+                { name: "Hobgoblin", hp: 11, ac: 16, damage: "1d8", xp: 100, attackBonus: 3, damageType: "slashing", description: "A disciplined goblinoid warrior in chain mail." },
+                { name: "Giant Spider", hp: 18, ac: 13, damage: "1d8", xp: 200, attackBonus: 5, damageType: "piercing", saveDC: 11, specialAbilities: [{ name: "Poison Bite", type: "poison", triggerChance: 0.3, damage: "2d8", damageType: "poison", dc: 11 }], description: "A horse-sized spider with venomous fangs!" },
+                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A shambling undead animated by dark magic." },
+                { name: "Skeleton", hp: 13, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", immunities: ["poison"], vulnerabilities: ["bludgeoning"], description: "The animated bones of the dead, armed with rusty weapons." }
             ],
             3: [
-                { name: "Gnoll", hp: 22, ac: 14, damage: "1d8", xp: 100, description: "A savage hyena-headed humanoid that cackles as it fights." },
-                { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, description: "A massive, hairy goblinoid that strikes from ambush." },
-                { name: "Ogre", hp: 32, ac: 11, damage: "2d8", xp: 450, description: "A towering brute with a very small brain and very big club." },
-                { name: "Orc Chieftain", hp: 30, ac: 15, damage: "1d10", xp: 200, description: "The leader of an orc tribe, stronger than his followers." },
-                { name: "Acolyte of Chaos", hp: 20, ac: 12, damage: "1d8", xp: 150, description: "A lesser priest of the evil temple with dark magic." }
+                { name: "Gnoll", hp: 22, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "piercing", description: "A savage hyena-headed humanoid that cackles as it fights." },
+                { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, attackBonus: 4, damageType: "slashing", description: "A massive, hairy goblinoid that strikes from ambush." },
+                { name: "Ogre", hp: 32, ac: 11, damage: "2d8", xp: 450, attackBonus: 6, damageType: "bludgeoning", description: "A towering brute with a very small brain and very big club." },
+                { name: "Orc Chieftain", hp: 30, ac: 15, damage: "1d10", xp: 200, attackBonus: 5, damageType: "slashing", multiattack: 2, description: "The leader of an orc tribe, stronger than his followers." },
+                { name: "Acolyte of Chaos", hp: 20, ac: 12, damage: "1d8", xp: 150, attackBonus: 4, damageType: "necrotic", saveDC: 13, specialAbilities: [{ name: "Dark Bolt", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "necrotic", dc: 13 }], description: "A lesser priest of the evil temple with dark magic." }
             ],
             4: [
-                { name: "Minotaur", hp: 45, ac: 14, damage: "2d10", xp: 700, description: "A bull-headed monster that charges with its horns!", boss: true },
-                { name: "Owlbear", hp: 38, ac: 13, damage: "2d8", xp: 700, description: "A terrifying hybrid of owl and bear with a vicious beak." },
-                { name: "Troll", hp: 52, ac: 15, damage: "2d6", xp: 1800, description: "A regenerating horror. Fire and acid stop its healing!" },
-                { name: "Hobgoblin Captain", hp: 35, ac: 17, damage: "2d8", xp: 450, description: "A veteran hobgoblin leader in gleaming armor." }
+                { name: "Minotaur", hp: 45, ac: 14, damage: "2d10", xp: 700, attackBonus: 6, damageType: "slashing", multiattack: 2, description: "A bull-headed monster that charges with its horns!", boss: true },
+                { name: "Owlbear", hp: 38, ac: 13, damage: "2d8", xp: 700, attackBonus: 7, damageType: "slashing", multiattack: 2, description: "A terrifying hybrid of owl and bear with a vicious beak." },
+                { name: "Troll", hp: 52, ac: 15, damage: "2d6", xp: 1800, attackBonus: 7, damageType: "slashing", multiattack: 3, vulnerabilities: ["fire", "acid"], specialAbilities: [{ name: "Regeneration", type: "heal", triggerChance: 0.5, healing: "1d10" }], description: "A regenerating horror. Fire and acid stop its healing!" },
+                { name: "Hobgoblin Captain", hp: 35, ac: 17, damage: "2d8", xp: 450, attackBonus: 4, damageType: "slashing", multiattack: 2, description: "A veteran hobgoblin leader in gleaming armor." }
             ],
             5: [
-                { name: "High Priest of Chaos", hp: 55, ac: 14, damage: "2d10", xp: 1100, description: "The leader of the evil cult, wielding dark divine magic!", boss: true },
-                { name: "Temple Guardian", hp: 40, ac: 18, damage: "2d8", xp: 700, description: "An undead warrior bound to protect the temple." },
-                { name: "Shadow Demon", hp: 38, ac: 13, damage: "2d6", xp: 1100, description: "A demon of pure darkness summoned by the priests." }
+                { name: "High Priest of Chaos", hp: 55, ac: 14, damage: "2d10", xp: 1100, attackBonus: 5, damageType: "necrotic", multiattack: 2, saveDC: 15, specialAbilities: [{ name: "Unholy Blight", type: "poison", triggerChance: 0.3, damage: "3d6", damageType: "necrotic", dc: 15 }], description: "The leader of the evil cult, wielding dark divine magic!", boss: true, legendaryResistances: 1 },
+                { name: "Temple Guardian", hp: 40, ac: 18, damage: "2d8", xp: 700, attackBonus: 6, damageType: "slashing", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], description: "An undead warrior bound to protect the temple." },
+                { name: "Shadow Demon", hp: 38, ac: 13, damage: "2d6", xp: 1100, attackBonus: 5, damageType: "psychic", resistances: ["cold", "fire", "lightning"], immunities: ["poison"], vulnerabilities: ["radiant"], description: "A demon of pure darkness summoned by the priests." }
             ]
         },
         events: {
@@ -1088,31 +1552,31 @@ const CAMPAIGNS = {
         ],
         monsters: {
             1: [
-                { name: "Goblin Scout", hp: 7, ac: 13, damage: "1d6", xp: 50, description: "A sneaky goblin with a crude shortbow." },
-                { name: "Wolf", hp: 11, ac: 13, damage: "1d6", xp: 50, description: "A grey wolf, common in the Karameikan wilderness." },
-                { name: "Bandit", hp: 11, ac: 12, damage: "1d6", xp: 25, description: "A desperate outlaw preying on travelers." }
+                { name: "Goblin Scout", hp: 7, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "piercing", description: "A sneaky goblin with a crude shortbow." },
+                { name: "Wolf", hp: 11, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "piercing", description: "A grey wolf, common in the Karameikan wilderness." },
+                { name: "Bandit", hp: 11, ac: 12, damage: "1d6", xp: 25, attackBonus: 3, damageType: "slashing", description: "A desperate outlaw preying on travelers." }
             ],
             2: [
-                { name: "Goblin Wolf-Rider", hp: 12, ac: 14, damage: "1d8", xp: 100, description: "An elite goblin mounted on a dire wolf!" },
-                { name: "Goblin Warrior", hp: 15, ac: 15, damage: "1d8", xp: 75, description: "A well-armed goblin soldier of Xitaqa's army." },
-                { name: "Dire Wolf", hp: 22, ac: 13, damage: "2d6", xp: 100, description: "A massive wolf with glowing red eyes." },
-                { name: "Iron Ring Thug", hp: 18, ac: 14, damage: "1d8", xp: 100, description: "A brutal enforcer for the Iron Ring slavers." }
+                { name: "Goblin Wolf-Rider", hp: 12, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "slashing", description: "An elite goblin mounted on a dire wolf!" },
+                { name: "Goblin Warrior", hp: 15, ac: 15, damage: "1d8", xp: 75, attackBonus: 4, damageType: "slashing", description: "A well-armed goblin soldier of Xitaqa's army." },
+                { name: "Dire Wolf", hp: 22, ac: 13, damage: "2d6", xp: 100, attackBonus: 5, damageType: "piercing", description: "A massive wolf with glowing red eyes." },
+                { name: "Iron Ring Thug", hp: 18, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "bludgeoning", description: "A brutal enforcer for the Iron Ring slavers." }
             ],
             3: [
-                { name: "Goblin Shaman", hp: 20, ac: 12, damage: "2d6", xp: 200, description: "A goblin witch-doctor wielding dark magic!" },
-                { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, description: "A massive, hairy goblinoid. Xitaqa's elite guard." },
-                { name: "Werewolf", hp: 35, ac: 12, damage: "2d6", xp: 450, description: "A cursed shapeshifter prowling the Dymrak." },
-                { name: "Iron Ring Assassin", hp: 25, ac: 15, damage: "2d6", xp: 250, description: "A deadly killer in service of the Iron Ring." }
+                { name: "Goblin Shaman", hp: 20, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "fire", saveDC: 13, specialAbilities: [{ name: "Dark Fire", type: "breath", triggerChance: 0.3, damage: "2d6", damageType: "fire", dc: 13 }], description: "A goblin witch-doctor wielding dark magic!" },
+                { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, attackBonus: 4, damageType: "slashing", description: "A massive, hairy goblinoid. Xitaqa's elite guard." },
+                { name: "Werewolf", hp: 35, ac: 12, damage: "2d6", xp: 450, attackBonus: 4, damageType: "slashing", multiattack: 2, description: "A cursed shapeshifter prowling the Dymrak." },
+                { name: "Iron Ring Assassin", hp: 25, ac: 15, damage: "2d6", xp: 250, attackBonus: 6, damageType: "piercing", multiattack: 2, specialAbilities: [{ name: "Poison Blade", type: "poison", triggerChance: 0.25, damage: "2d6", damageType: "poison", dc: 13 }], description: "A deadly killer in service of the Iron Ring." }
             ],
             4: [
-                { name: "King Xitaqa", hp: 45, ac: 16, damage: "2d8", xp: 700, description: "The cunning goblin king! He wears a crown of bones.", boss: true },
-                { name: "Xitaqa's Warg", hp: 30, ac: 14, damage: "2d6", xp: 200, description: "Xitaqa's personal mount - a massive black warg." },
-                { name: "Iron Ring Captain", hp: 40, ac: 16, damage: "2d8", xp: 450, description: "A high-ranking officer of the Iron Ring." }
+                { name: "King Xitaqa", hp: 45, ac: 16, damage: "2d8", xp: 700, attackBonus: 5, damageType: "slashing", multiattack: 2, description: "The cunning goblin king! He wears a crown of bones.", boss: true },
+                { name: "Xitaqa's Warg", hp: 30, ac: 14, damage: "2d6", xp: 200, attackBonus: 5, damageType: "piercing", description: "Xitaqa's personal mount - a massive black warg." },
+                { name: "Iron Ring Captain", hp: 40, ac: 16, damage: "2d8", xp: 450, attackBonus: 5, damageType: "slashing", multiattack: 2, description: "A high-ranking officer of the Iron Ring." }
             ],
             5: [
-                { name: "Golthar the Wizard", hp: 55, ac: 14, damage: "3d6", xp: 1100, description: "The Iron Ring's wizard! He crackles with dark energy.", boss: true },
-                { name: "Hutaakan Guardian", hp: 45, ac: 17, damage: "2d8", xp: 450, description: "An ancient construct guarding the temple." },
-                { name: "Shadow", hp: 30, ac: 12, damage: "2d6", xp: 200, description: "A creature of pure darkness from the temple depths." }
+                { name: "Golthar the Wizard", hp: 55, ac: 14, damage: "3d6", xp: 1100, attackBonus: 5, damageType: "fire", multiattack: 2, saveDC: 15, specialAbilities: [{ name: "Fireball", type: "breath", triggerChance: 0.3, damage: "3d6", damageType: "fire", dc: 15 }], description: "The Iron Ring's wizard! He crackles with dark energy.", boss: true, legendaryResistances: 1 },
+                { name: "Hutaakan Guardian", hp: 45, ac: 17, damage: "2d8", xp: 450, attackBonus: 6, damageType: "bludgeoning", immunities: ["poison", "psychic"], description: "An ancient construct guarding the temple." },
+                { name: "Shadow", hp: 30, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], vulnerabilities: ["radiant"], description: "A creature of pure darkness from the temple depths." }
             ]
         },
         events: {
@@ -1194,31 +1658,31 @@ const CAMPAIGNS = {
         ],
         monsters: {
             1: [
-                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, description: "A shambling corpse animated by dark magic." },
-                { name: "Swarm of Bats", hp: 10, ac: 12, damage: "1d6", xp: 25, description: "A cloud of chittering bats with glowing red eyes." },
-                { name: "Strahd Zombie", hp: 28, ac: 8, damage: "1d8", xp: 75, description: "A zombie enhanced by Strahd's dark power." }
+                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A shambling corpse animated by dark magic." },
+                { name: "Swarm of Bats", hp: 10, ac: 12, damage: "1d6", xp: 25, attackBonus: 4, damageType: "piercing", description: "A cloud of chittering bats with glowing red eyes." },
+                { name: "Strahd Zombie", hp: 28, ac: 8, damage: "1d8", xp: 75, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A zombie enhanced by Strahd's dark power." }
             ],
             2: [
-                { name: "Ghoul", hp: 22, ac: 12, damage: "2d6", xp: 200, description: "An undead creature that feeds on corpses. Its claws can paralyze!" },
-                { name: "Dire Wolf", hp: 37, ac: 14, damage: "2d6", xp: 200, description: "A massive wolf serving the dark powers of Barovia." },
-                { name: "Wight", hp: 45, ac: 14, damage: "1d8", xp: 700, description: "An undead warrior whose touch drains life force." },
-                { name: "Specter", hp: 22, ac: 12, damage: "2d6", xp: 200, description: "A vengeful spirit bound to the land of Barovia." }
+                { name: "Ghoul", hp: 22, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "slashing", immunities: ["poison"], saveDC: 10, specialAbilities: [{ name: "Paralyzing Touch", type: "frighten", triggerChance: 0.3, dc: 10 }], description: "An undead creature that feeds on corpses. Its claws can paralyze!" },
+                { name: "Dire Wolf", hp: 37, ac: 14, damage: "2d6", xp: 200, attackBonus: 5, damageType: "piercing", description: "A massive wolf serving the dark powers of Barovia." },
+                { name: "Wight", hp: 45, ac: 14, damage: "1d8", xp: 700, attackBonus: 4, damageType: "slashing", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], specialAbilities: [{ name: "Life Drain", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "necrotic", dc: 13 }], description: "An undead warrior whose touch drains life force." },
+                { name: "Specter", hp: 22, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], description: "A vengeful spirit bound to the land of Barovia." }
             ],
             3: [
-                { name: "Vampire Spawn", hp: 52, ac: 15, damage: "2d8", xp: 1100, description: "A lesser vampire, bound to serve Strahd's will." },
-                { name: "Werewolf", hp: 58, ac: 12, damage: "2d6", xp: 700, description: "A cursed shapeshifter prowling the forests of Barovia." },
-                { name: "Revenant", hp: 75, ac: 13, damage: "2d6", xp: 1800, description: "An undead knight sworn to destroy Strahd." },
-                { name: "Phantom Warrior", hp: 45, ac: 16, damage: "2d6", xp: 450, description: "A ghostly warrior from the Order of the Silver Dragon." }
+                { name: "Vampire Spawn", hp: 52, ac: 15, damage: "2d8", xp: 1100, attackBonus: 6, damageType: "slashing", multiattack: 2, resistances: ["necrotic"], immunities: ["poison"], description: "A lesser vampire, bound to serve Strahd's will." },
+                { name: "Werewolf", hp: 58, ac: 12, damage: "2d6", xp: 700, attackBonus: 4, damageType: "slashing", multiattack: 2, description: "A cursed shapeshifter prowling the forests of Barovia." },
+                { name: "Revenant", hp: 75, ac: 13, damage: "2d6", xp: 1800, attackBonus: 6, damageType: "bludgeoning", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], description: "An undead knight sworn to destroy Strahd." },
+                { name: "Phantom Warrior", hp: 45, ac: 16, damage: "2d6", xp: 450, attackBonus: 5, damageType: "slashing", resistances: ["cold", "necrotic"], immunities: ["poison"], description: "A ghostly warrior from the Order of the Silver Dragon." }
             ],
             4: [
-                { name: "Baba Lysaga", hp: 75, ac: 15, damage: "3d6", xp: 2900, description: "The ancient witch of Berez who considers Strahd her son!", boss: true },
-                { name: "Rahadin", hp: 85, ac: 17, damage: "2d8", xp: 2900, description: "Strahd's loyal chamberlain, surrounded by the screams of those he killed.", boss: true },
-                { name: "Nightmare", hp: 68, ac: 13, damage: "2d8", xp: 700, description: "A fiery steed from the lower planes." }
+                { name: "Baba Lysaga", hp: 75, ac: 15, damage: "3d6", xp: 2900, attackBonus: 6, damageType: "necrotic", multiattack: 2, saveDC: 16, specialAbilities: [{ name: "Finger of Death", type: "poison", triggerChance: 0.25, damage: "3d8", damageType: "necrotic", dc: 16 }], description: "The ancient witch of Berez who considers Strahd her son!", boss: true, legendaryResistances: 1 },
+                { name: "Rahadin", hp: 85, ac: 17, damage: "2d8", xp: 2900, attackBonus: 7, damageType: "slashing", multiattack: 3, specialAbilities: [{ name: "Deathly Choir", type: "frighten", triggerChance: 0.3, damage: "2d10", damageType: "psychic", dc: 14 }], description: "Strahd's loyal chamberlain, surrounded by the screams of those he killed.", boss: true, legendaryResistances: 1 },
+                { name: "Nightmare", hp: 68, ac: 13, damage: "2d8", xp: 700, attackBonus: 6, damageType: "fire", resistances: ["fire"], description: "A fiery steed from the lower planes." }
             ],
             5: [
-                { name: "Strahd von Zarovich", hp: 144, ac: 16, damage: "3d8", xp: 10000, description: "The ancient vampire lord of Barovia! He regenerates and controls the very land.", boss: true },
-                { name: "Amber Golem", hp: 95, ac: 17, damage: "3d6", xp: 2300, description: "A construct guarding the Amber Temple's darkest secrets." },
-                { name: "Death Knight", hp: 95, ac: 18, damage: "3d8", xp: 8400, description: "A fallen paladin serving dark powers." }
+                { name: "Strahd von Zarovich", hp: 144, ac: 16, damage: "3d8", xp: 10000, attackBonus: 9, damageType: "slashing", multiattack: 3, resistances: ["necrotic"], immunities: ["poison"], vulnerabilities: ["radiant"], saveDC: 18, specialAbilities: [{ name: "Charm", type: "frighten", triggerChance: 0.3, dc: 17 }, { name: "Children of the Night", type: "summon", triggerChance: 0.2 }], description: "The ancient vampire lord of Barovia! He regenerates and controls the very land.", boss: true, legendaryResistances: 3 },
+                { name: "Amber Golem", hp: 95, ac: 17, damage: "3d6", xp: 2300, attackBonus: 8, damageType: "bludgeoning", multiattack: 2, immunities: ["poison", "psychic"], description: "A construct guarding the Amber Temple's darkest secrets." },
+                { name: "Death Knight", hp: 95, ac: 18, damage: "3d8", xp: 8400, attackBonus: 8, damageType: "slashing", multiattack: 3, immunities: ["poison"], resistances: ["necrotic"], specialAbilities: [{ name: "Hellfire Orb", type: "breath", triggerChance: 0.25, damage: "4d6", damageType: "fire", dc: 18 }], description: "A fallen paladin serving dark powers." }
             ]
         },
         events: {
@@ -1300,32 +1764,32 @@ const CAMPAIGNS = {
         ],
         monsters: {
             1: [
-                { name: "Velociraptor", hp: 10, ac: 13, damage: "1d6", xp: 25, description: "A pack-hunting dinosaur with razor-sharp claws." },
-                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, description: "One of Ras Nsi's endless undead soldiers." },
-                { name: "Grung", hp: 11, ac: 12, damage: "1d4", xp: 50, description: "A poisonous frog-like humanoid native to Chult." }
+                { name: "Velociraptor", hp: 10, ac: 13, damage: "1d6", xp: 25, attackBonus: 4, damageType: "slashing", description: "A pack-hunting dinosaur with razor-sharp claws." },
+                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "One of Ras Nsi's endless undead soldiers." },
+                { name: "Grung", hp: 11, ac: 12, damage: "1d4", xp: 50, attackBonus: 4, damageType: "piercing", specialAbilities: [{ name: "Poisonous Skin", type: "poison", triggerChance: 0.3, damage: "1d6", damageType: "poison", dc: 12 }], description: "A poisonous frog-like humanoid native to Chult." }
             ],
             2: [
-                { name: "Allosaurus", hp: 51, ac: 13, damage: "2d8", xp: 450, description: "A massive predatory dinosaur, the terror of the jungle." },
-                { name: "Ghoul", hp: 22, ac: 12, damage: "2d6", xp: 200, description: "An undead creature with paralyzing claws." },
-                { name: "Su-monster", hp: 27, ac: 12, damage: "2d6", xp: 450, description: "A psionic ape-like creature that hunts in packs." },
-                { name: "Pterafolk", hp: 26, ac: 12, damage: "2d6", xp: 200, description: "Cruel flying humanoids that raid from above." }
+                { name: "Allosaurus", hp: 51, ac: 13, damage: "2d8", xp: 450, attackBonus: 6, damageType: "piercing", multiattack: 2, description: "A massive predatory dinosaur, the terror of the jungle." },
+                { name: "Ghoul", hp: 22, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "slashing", immunities: ["poison"], saveDC: 10, specialAbilities: [{ name: "Paralyzing Claws", type: "frighten", triggerChance: 0.3, dc: 10 }], description: "An undead creature with paralyzing claws." },
+                { name: "Su-monster", hp: 27, ac: 12, damage: "2d6", xp: 450, attackBonus: 4, damageType: "bludgeoning", saveDC: 11, specialAbilities: [{ name: "Psychic Crush", type: "frighten", triggerChance: 0.25, damage: "2d6", damageType: "psychic", dc: 11 }], description: "A psionic ape-like creature that hunts in packs." },
+                { name: "Pterafolk", hp: 26, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "slashing", description: "Cruel flying humanoids that raid from above." }
             ],
             3: [
-                { name: "Tyrannosaurus Rex", hp: 136, ac: 13, damage: "3d12", xp: 3900, description: "The king of dinosaurs! Its massive jaws can swallow prey whole.", boss: true },
-                { name: "Yuan-ti Malison", hp: 66, ac: 12, damage: "2d8", xp: 700, description: "A snake-human hybrid with dark magic." },
-                { name: "Girallon Zombie", hp: 59, ac: 11, damage: "2d8", xp: 450, description: "An undead four-armed ape, savage and relentless." },
-                { name: "Eblis", hp: 13, ac: 13, damage: "1d8", xp: 200, description: "Crane-like creatures that bargain for information." }
+                { name: "Tyrannosaurus Rex", hp: 136, ac: 13, damage: "3d12", xp: 3900, attackBonus: 10, damageType: "piercing", multiattack: 2, description: "The king of dinosaurs! Its massive jaws can swallow prey whole.", boss: true },
+                { name: "Yuan-ti Malison", hp: 66, ac: 12, damage: "2d8", xp: 700, attackBonus: 5, damageType: "piercing", immunities: ["poison"], saveDC: 13, specialAbilities: [{ name: "Suggestion", type: "frighten", triggerChance: 0.25, dc: 13 }], description: "A snake-human hybrid with dark magic." },
+                { name: "Girallon Zombie", hp: 59, ac: 11, damage: "2d8", xp: 450, attackBonus: 5, damageType: "slashing", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], description: "An undead four-armed ape, savage and relentless." },
+                { name: "Eblis", hp: 13, ac: 13, damage: "1d8", xp: 200, attackBonus: 3, damageType: "piercing", description: "Crane-like creatures that bargain for information." }
             ],
             4: [
-                { name: "Ras Nsi", hp: 127, ac: 15, damage: "3d6", xp: 5000, description: "The fallen paladin, now a yuan-ti abomination with a flaming sword!", boss: true },
-                { name: "Yuan-ti Abomination", hp: 127, ac: 15, damage: "2d10", xp: 2900, description: "The most powerful form of yuan-ti, more snake than human." },
-                { name: "Bodak", hp: 58, ac: 15, damage: "2d8", xp: 2300, description: "An undead whose gaze can kill." }
+                { name: "Ras Nsi", hp: 127, ac: 15, damage: "3d6", xp: 5000, attackBonus: 9, damageType: "fire", multiattack: 3, immunities: ["poison"], saveDC: 16, specialAbilities: [{ name: "Flame Blade", type: "breath", triggerChance: 0.3, damage: "3d6", damageType: "fire", dc: 16 }], description: "The fallen paladin, now a yuan-ti abomination with a flaming sword!", boss: true, legendaryResistances: 2 },
+                { name: "Yuan-ti Abomination", hp: 127, ac: 15, damage: "2d10", xp: 2900, attackBonus: 7, damageType: "piercing", multiattack: 3, immunities: ["poison"], saveDC: 14, specialAbilities: [{ name: "Fear Aura", type: "frighten", triggerChance: 0.25, dc: 14 }], description: "The most powerful form of yuan-ti, more snake than human." },
+                { name: "Bodak", hp: 58, ac: 15, damage: "2d8", xp: 2300, attackBonus: 5, damageType: "necrotic", immunities: ["poison"], resistances: ["necrotic"], vulnerabilities: ["radiant"], saveDC: 13, specialAbilities: [{ name: "Death Gaze", type: "frighten", triggerChance: 0.3, damage: "3d6", damageType: "necrotic", dc: 13 }], description: "An undead whose gaze can kill." }
             ],
             5: [
-                { name: "Acererak", hp: 285, ac: 21, damage: "4d8", xp: 25000, description: "The legendary archlich! He toys with adventurers before destroying them.", boss: true },
-                { name: "Atropal", hp: 225, ac: 7, damage: "4d8", xp: 13000, description: "An undead godling, fed by the Soulmonger. Its wail can kill instantly!", boss: true },
-                { name: "Tomb Guardian", hp: 75, ac: 17, damage: "2d10", xp: 1800, description: "A construct defending the tomb's deepest levels." },
-                { name: "Soulmonger", hp: 200, ac: 15, damage: "3d10", xp: 8000, description: "The source of the Death Curse! Destroy it to save countless souls.", boss: true }
+                { name: "Acererak", hp: 285, ac: 21, damage: "4d8", xp: 25000, attackBonus: 12, damageType: "necrotic", multiattack: 2, immunities: ["poison", "necrotic"], resistances: ["cold"], saveDC: 23, specialAbilities: [{ name: "Sphere of Annihilation", type: "breath", triggerChance: 0.3, damage: "4d10", damageType: "necrotic", dc: 22 }], description: "The legendary archlich! He toys with adventurers before destroying them.", boss: true, legendaryResistances: 3 },
+                { name: "Atropal", hp: 225, ac: 7, damage: "4d8", xp: 13000, attackBonus: 8, damageType: "necrotic", immunities: ["poison", "necrotic"], resistances: ["cold"], saveDC: 19, specialAbilities: [{ name: "Life Drain Aura", type: "poison", triggerChance: 0.4, damage: "3d8", damageType: "necrotic", dc: 19 }], description: "An undead godling, fed by the Soulmonger. Its wail can kill instantly!", boss: true, legendaryResistances: 2 },
+                { name: "Tomb Guardian", hp: 75, ac: 17, damage: "2d10", xp: 1800, attackBonus: 7, damageType: "bludgeoning", multiattack: 2, immunities: ["poison", "psychic"], description: "A construct defending the tomb's deepest levels." },
+                { name: "Soulmonger", hp: 200, ac: 15, damage: "3d10", xp: 8000, attackBonus: 8, damageType: "necrotic", immunities: ["poison", "psychic"], saveDC: 17, specialAbilities: [{ name: "Soul Drain", type: "poison", triggerChance: 0.3, damage: "3d10", damageType: "necrotic", dc: 17 }], description: "The source of the Death Curse! Destroy it to save countless souls.", boss: true, legendaryResistances: 1 }
             ]
         },
         events: {
@@ -1408,34 +1872,34 @@ const CAMPAIGNS = {
         ],
         monsters: {
             1: [
-                { name: "Goblin", hp: 7, ac: 13, damage: "1d6", xp: 50, description: "A sneaky Cragmaw goblin with a shortbow and a nasty attitude." },
-                { name: "Wolf", hp: 11, ac: 13, damage: "1d6", xp: 50, description: "A grey wolf trained by the Cragmaw tribe to attack intruders." },
-                { name: "Redbrand Ruffian", hp: 12, ac: 12, damage: "1d6", xp: 50, description: "A common thug wearing a tattered red cloak." }
+                { name: "Goblin", hp: 7, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", description: "A sneaky Cragmaw goblin with a shortbow and a nasty attitude." },
+                { name: "Wolf", hp: 11, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "piercing", description: "A grey wolf trained by the Cragmaw tribe to attack intruders." },
+                { name: "Redbrand Ruffian", hp: 12, ac: 12, damage: "1d6", xp: 50, attackBonus: 3, damageType: "slashing", description: "A common thug wearing a tattered red cloak." }
             ],
             2: [
-                { name: "Hobgoblin", hp: 15, ac: 16, damage: "1d8", xp: 100, description: "A disciplined goblinoid warrior in chainmail." },
-                { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, description: "A massive, hairy goblinoid that excels at stealth ambushes." },
-                { name: "Skeleton", hp: 13, ac: 13, damage: "1d6", xp: 50, description: "The animated bones of a long-dead Phandelver warrior." },
-                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, description: "A shambling corpse from the ancient battle at Wave Echo Cave." },
-                { name: "Ochre Jelly", hp: 45, ac: 8, damage: "2d6", xp: 200, description: "An acidic ooze that splits when struck by lightning or slashing weapons!" }
+                { name: "Hobgoblin", hp: 15, ac: 16, damage: "1d8", xp: 100, attackBonus: 3, damageType: "slashing", description: "A disciplined goblinoid warrior in chainmail." },
+                { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, attackBonus: 4, damageType: "slashing", description: "A massive, hairy goblinoid that excels at stealth ambushes." },
+                { name: "Skeleton", hp: 13, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", immunities: ["poison"], vulnerabilities: ["bludgeoning"], description: "The animated bones of a long-dead Phandelver warrior." },
+                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A shambling corpse from the ancient battle at Wave Echo Cave." },
+                { name: "Ochre Jelly", hp: 45, ac: 8, damage: "2d6", xp: 200, attackBonus: 4, damageType: "bludgeoning", immunities: ["lightning", "slashing"], description: "An acidic ooze that splits when struck by lightning or slashing weapons!" }
             ],
             3: [
-                { name: "Glasstaff", hp: 32, ac: 12, damage: "2d8", xp: 700, description: "The wizard leader of the Redbrands, wielding his signature glass staff!", boss: true },
-                { name: "Nothic", hp: 45, ac: 15, damage: "2d6", xp: 450, description: "A bizarre one-eyed aberration cursed by dark magic. It can see through lies!" },
-                { name: "Grick", hp: 27, ac: 14, damage: "2d6", xp: 450, description: "A worm-like predator with stone-hard skin and tentacles." },
-                { name: "Owlbear", hp: 59, ac: 13, damage: "2d8", xp: 700, description: "A ferocious hybrid creature with the temperament of a wounded bear." }
+                { name: "Glasstaff", hp: 32, ac: 12, damage: "2d8", xp: 700, attackBonus: 5, damageType: "fire", saveDC: 13, specialAbilities: [{ name: "Staff Blast", type: "breath", triggerChance: 0.3, damage: "2d6", damageType: "fire", dc: 13 }], description: "The wizard leader of the Redbrands, wielding his signature glass staff!", boss: true },
+                { name: "Nothic", hp: 45, ac: 15, damage: "2d6", xp: 450, attackBonus: 4, damageType: "slashing", saveDC: 12, specialAbilities: [{ name: "Rotting Gaze", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "necrotic", dc: 12 }], description: "A bizarre one-eyed aberration cursed by dark magic. It can see through lies!" },
+                { name: "Grick", hp: 27, ac: 14, damage: "2d6", xp: 450, attackBonus: 4, damageType: "slashing", description: "A worm-like predator with stone-hard skin and tentacles." },
+                { name: "Owlbear", hp: 59, ac: 13, damage: "2d8", xp: 700, attackBonus: 7, damageType: "slashing", multiattack: 2, description: "A ferocious hybrid creature with the temperament of a wounded bear." }
             ],
             4: [
-                { name: "King Grol", hp: 45, ac: 16, damage: "2d8", xp: 700, description: "The brutish bugbear king of Cragmaw Castle. His morningstar has crushed many skulls!", boss: true },
-                { name: "Doppelganger", hp: 52, ac: 14, damage: "1d8", xp: 700, description: "A shapeshifter working for the Black Spider. Who can you trust?" },
-                { name: "Flameskull", hp: 40, ac: 13, damage: "3d6", xp: 1100, description: "A floating skull wreathed in green flames! It guards the Forge of Spells with deadly magic.", boss: true },
-                { name: "Wraith", hp: 67, ac: 13, damage: "3d8", xp: 1800, description: "A powerful undead spirit whose touch drains life and creates specters!" }
+                { name: "King Grol", hp: 45, ac: 16, damage: "2d8", xp: 700, attackBonus: 5, damageType: "bludgeoning", multiattack: 2, description: "The brutish bugbear king of Cragmaw Castle. His morningstar has crushed many skulls!", boss: true },
+                { name: "Doppelganger", hp: 52, ac: 14, damage: "1d8", xp: 700, attackBonus: 6, damageType: "bludgeoning", description: "A shapeshifter working for the Black Spider. Who can you trust?" },
+                { name: "Flameskull", hp: 40, ac: 13, damage: "3d6", xp: 1100, attackBonus: 5, damageType: "fire", immunities: ["poison", "cold"], resistances: ["necrotic"], specialAbilities: [{ name: "Fireball", type: "breath", triggerChance: 0.3, damage: "3d6", damageType: "fire", dc: 13 }], description: "A floating skull wreathed in green flames! It guards the Forge of Spells with deadly magic.", boss: true },
+                { name: "Wraith", hp: 67, ac: 13, damage: "3d8", xp: 1800, attackBonus: 6, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], specialAbilities: [{ name: "Life Drain", type: "poison", triggerChance: 0.35, damage: "3d6", damageType: "necrotic", dc: 14 }], description: "A powerful undead spirit whose touch drains life and creates specters!" }
             ],
             5: [
-                { name: "Nezznar the Black Spider", hp: 55, ac: 14, damage: "3d6", xp: 2000, description: "The drow mastermind behind everything! His spider staff channels dark magic!", boss: true },
-                { name: "Giant Spider", hp: 26, ac: 14, damage: "1d8", xp: 200, description: "One of the Black Spider's loyal pets. Its venom can paralyze!" },
-                { name: "Drow", hp: 13, ac: 15, damage: "1d6", xp: 100, description: "A dark elf warrior serving Nezznar. Sunlight hurts their eyes." },
-                { name: "Spectator", hp: 39, ac: 14, damage: "1d8", xp: 700, description: "A beholder-kin with four eyestalks guarding the Forge of Spells." }
+                { name: "Nezznar the Black Spider", hp: 55, ac: 14, damage: "3d6", xp: 2000, attackBonus: 6, damageType: "poison", multiattack: 2, saveDC: 14, specialAbilities: [{ name: "Darkness", type: "frighten", triggerChance: 0.25, dc: 14 }, { name: "Spider Staff Venom", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "poison", dc: 14 }], description: "The drow mastermind behind everything! His spider staff channels dark magic!", boss: true, legendaryResistances: 2 },
+                { name: "Giant Spider", hp: 26, ac: 14, damage: "1d8", xp: 200, attackBonus: 5, damageType: "piercing", saveDC: 11, specialAbilities: [{ name: "Poison Bite", type: "poison", triggerChance: 0.3, damage: "2d8", damageType: "poison", dc: 11 }], description: "One of the Black Spider's loyal pets. Its venom can paralyze!" },
+                { name: "Drow", hp: 13, ac: 15, damage: "1d6", xp: 100, attackBonus: 4, damageType: "slashing", description: "A dark elf warrior serving Nezznar. Sunlight hurts their eyes." },
+                { name: "Spectator", hp: 39, ac: 14, damage: "1d8", xp: 700, attackBonus: 5, damageType: "fire", specialAbilities: [{ name: "Eye Ray", type: "breath", triggerChance: 0.35, damage: "2d8", damageType: "fire", dc: 13 }], description: "A beholder-kin with four eyestalks guarding the Forge of Spells." }
             ]
         },
         events: {
@@ -1473,6 +1937,93 @@ const CAMPAIGNS = {
 // Current active campaign data (set when campaign is selected)
 let ACTIVE_CAMPAIGN = null;
 
+// ========== D&D 5e Skill System ==========
+const SKILL_ABILITY_MAP = {
+    "Athletics": "str",
+    "Acrobatics": "dex", "Sleight of Hand": "dex", "Stealth": "dex",
+    "Arcana": "int", "History": "int", "Investigation": "int", "Nature": "int", "Religion": "int",
+    "Animal Handling": "wis", "Insight": "wis", "Medicine": "wis", "Perception": "wis", "Survival": "wis",
+    "Deception": "cha", "Intimidation": "cha", "Performance": "cha", "Persuasion": "cha"
+};
+
+// Skills each class can choose from during creation (D&D 5e PHB)
+const CLASS_SKILL_CHOICES = {
+    "Fighter": { count: 2, choices: ["Acrobatics", "Animal Handling", "Athletics", "History", "Insight", "Intimidation", "Perception", "Survival"] },
+    "Wizard": { count: 2, choices: ["Arcana", "History", "Insight", "Investigation", "Medicine", "Religion"] },
+    "Rogue": { count: 4, choices: ["Acrobatics", "Athletics", "Deception", "Insight", "Intimidation", "Investigation", "Perception", "Performance", "Persuasion", "Sleight of Hand", "Stealth"] },
+    "Cleric": { count: 2, choices: ["History", "Insight", "Medicine", "Persuasion", "Religion"] },
+    "Ranger": { count: 3, choices: ["Animal Handling", "Athletics", "Insight", "Investigation", "Nature", "Perception", "Stealth", "Survival"] },
+    "Barbarian": { count: 2, choices: ["Animal Handling", "Athletics", "Intimidation", "Nature", "Perception", "Survival"] },
+    "Paladin": { count: 2, choices: ["Athletics", "Insight", "Intimidation", "Medicine", "Persuasion", "Religion"] },
+    "Monk": { count: 2, choices: ["Acrobatics", "Athletics", "History", "Insight", "Religion", "Stealth"] },
+    "Warlock": { count: 2, choices: ["Arcana", "Deception", "History", "Intimidation", "Investigation", "Nature", "Religion"] },
+    "Bard": { count: 3, choices: ["Acrobatics", "Animal Handling", "Arcana", "Athletics", "Deception", "History", "Insight", "Intimidation", "Investigation", "Medicine", "Nature", "Perception", "Performance", "Persuasion", "Religion", "Sleight of Hand", "Stealth", "Survival"] },
+    "Sorcerer": { count: 2, choices: ["Arcana", "Deception", "Insight", "Intimidation", "Persuasion", "Religion"] },
+    "Druid": { count: 2, choices: ["Arcana", "Animal Handling", "Insight", "Medicine", "Nature", "Perception", "Religion", "Survival"] },
+    "Artificer": { count: 2, choices: ["Arcana", "History", "Investigation", "Medicine", "Nature", "Perception", "Sleight of Hand"] }
+};
+
+// ========== Equipment Proficiency Tables ==========
+const CLASS_ARMOR_PROFICIENCY = {
+    "Fighter": ["light", "medium", "heavy", "shields"],
+    "Barbarian": ["light", "medium", "shields"],
+    "Paladin": ["light", "medium", "heavy", "shields"],
+    "Ranger": ["light", "medium", "shields"],
+    "Cleric": ["light", "medium", "shields"],
+    "Druid": ["light", "medium", "shields"],
+    "Rogue": ["light"],
+    "Bard": ["light"],
+    "Warlock": ["light"],
+    "Monk": [],
+    "Wizard": [],
+    "Sorcerer": [],
+    "Artificer": ["light", "medium", "shields"]
+};
+
+const CLASS_WEAPON_PROFICIENCY = {
+    "Fighter": ["simple", "martial"],
+    "Barbarian": ["simple", "martial"],
+    "Paladin": ["simple", "martial"],
+    "Ranger": ["simple", "martial"],
+    "Rogue": ["simple", "hand crossbow", "longsword", "rapier", "shortsword"],
+    "Cleric": ["simple"],
+    "Monk": ["simple", "shortsword"],
+    "Bard": ["simple", "hand crossbow", "longsword", "rapier", "shortsword"],
+    "Warlock": ["simple"],
+    "Wizard": ["dagger", "dart", "sling", "quarterstaff", "light crossbow"],
+    "Sorcerer": ["dagger", "dart", "sling", "quarterstaff", "light crossbow"],
+    "Druid": ["club", "dagger", "dart", "javelin", "mace", "quarterstaff", "scimitar", "sickle", "sling", "spear"],
+    "Artificer": ["simple"]
+};
+
+// ========== Racial Ability Data ==========
+const RACIAL_ABILITIES = {
+    "Halfling": {
+        "Lucky": { description: "Reroll natural 1s on attack rolls, ability checks, and saving throws", type: "passive" },
+        "Brave": { description: "Advantage on saving throws against being frightened", type: "passive" }
+    },
+    "Elf": {
+        "Fey Ancestry": { description: "Advantage on saving throws against being charmed, and magic can't put you to sleep", type: "passive" },
+        "Darkvision": { description: "See in dim light within 60 feet as if bright light, and darkness as dim light", type: "passive" }
+    },
+    "Dwarf": {
+        "Dwarven Resilience": { description: "Advantage on saving throws against poison, and resistance to poison damage", type: "passive" },
+        "Darkvision": { description: "See in dim light within 60 feet as if bright light, and darkness as dim light", type: "passive" }
+    },
+    "Dragonborn": {
+        "Breath Weapon": { description: "Exhale destructive energy in a 15ft cone or 30ft line. 2d6 damage (scales with level). DEX save for half. Recharges on short rest.", type: "active", usesPerRest: 1, damage: "2d6", save: "dex" },
+        "Damage Resistance": { description: "Resistance to your breath weapon's damage type", type: "passive", damageType: "fire" }
+    },
+    "Tiefling": {
+        "Hellish Resistance": { description: "Resistance to fire damage", type: "passive", damageType: "fire" },
+        "Darkvision": { description: "See in dim light within 60 feet as if bright light, and darkness as dim light", type: "passive" }
+    },
+    "Human": {
+        "Versatile": { description: "+1 to all ability scores", type: "passive" },
+        "Extra Skill": { description: "Gain proficiency in one additional skill of your choice", type: "creation" }
+    }
+};
+
 const GAME_DATA = {
     races: {
         "Human": { bonus: { all: 1 }, traits: ["Versatile", "Extra Skill"] },
@@ -1480,7 +2031,8 @@ const GAME_DATA = {
         "Dwarf": { bonus: { con: 2 }, traits: ["Darkvision", "Dwarven Resilience"] },
         "Halfling": { bonus: { dex: 2 }, traits: ["Lucky", "Brave"] },
         "Dragonborn": { bonus: { str: 2, cha: 1 }, traits: ["Breath Weapon", "Damage Resistance"] },
-        "Tiefling": { bonus: { int: 1, cha: 2 }, traits: ["Darkvision", "Hellish Resistance"] }
+        "Tiefling": { bonus: { int: 1, cha: 2 }, traits: ["Darkvision", "Hellish Resistance"] },
+        "Half-Orc": { bonus: { str: 2, con: 1 }, traits: ["Darkvision", "Relentless Endurance", "Savage Attacks"] }
     },
     classes: {
         "Fighter": { hitDie: 10, primary: "str", saves: ["str", "con"], skills: ["Athletics", "Intimidation"], equipment: ["Longsword", "Shield", "Chain Mail"], spellcaster: false },
@@ -1488,7 +2040,14 @@ const GAME_DATA = {
         "Rogue": { hitDie: 8, primary: "dex", saves: ["dex", "int"], skills: ["Stealth", "Thieves' Tools"], equipment: ["Shortsword", "Dagger", "Leather Armor"], spellcaster: false },
         "Cleric": { hitDie: 8, primary: "wis", saves: ["wis", "cha"], skills: ["Medicine", "Religion"], equipment: ["Mace", "Shield", "Scale Mail"], spellcaster: true, spellStat: "wis", casterType: "full", cantrips: 3 },
         "Ranger": { hitDie: 10, primary: "dex", saves: ["str", "dex"], skills: ["Survival", "Nature"], equipment: ["Longbow", "Shortsword", "Leather Armor"], spellcaster: true, spellStat: "wis", casterType: "half", cantrips: 0 },
-        "Barbarian": { hitDie: 12, primary: "str", saves: ["str", "con"], skills: ["Athletics", "Survival"], equipment: ["Greataxe", "Handaxes", "Hide Armor"], spellcaster: false }
+        "Barbarian": { hitDie: 12, primary: "str", saves: ["str", "con"], skills: ["Athletics", "Survival"], equipment: ["Greataxe", "Handaxes", "Hide Armor"], spellcaster: false },
+        "Paladin": { hitDie: 10, primary: "cha", saves: ["wis", "cha"], skills: ["Athletics", "Religion"], equipment: ["Longsword", "Shield", "Chain Mail"], spellcaster: true, spellStat: "cha", casterType: "half", cantrips: 0 },
+        "Monk": { hitDie: 8, primary: "dex", saves: ["str", "dex"], skills: ["Acrobatics", "Insight"], equipment: ["Shortsword", "Dagger"], spellcaster: false },
+        "Warlock": { hitDie: 8, primary: "cha", saves: ["wis", "cha"], skills: ["Arcana", "Deception"], equipment: ["Light Crossbow", "Dagger", "Leather Armor"], spellcaster: true, spellStat: "cha", casterType: "pact", cantrips: 2 },
+        "Bard": { hitDie: 8, primary: "cha", saves: ["dex", "cha"], skills: ["Performance", "Persuasion"], equipment: ["Rapier", "Dagger", "Leather Armor"], spellcaster: true, spellStat: "cha", casterType: "full", cantrips: 2 },
+        "Sorcerer": { hitDie: 6, primary: "cha", saves: ["con", "cha"], skills: ["Arcana", "Persuasion"], equipment: ["Light Crossbow", "Dagger"], spellcaster: true, spellStat: "cha", casterType: "full", cantrips: 4 },
+        "Druid": { hitDie: 8, primary: "wis", saves: ["int", "wis"], skills: ["Nature", "Survival"], equipment: ["Quarterstaff", "Leather Armor", "Shield"], spellcaster: true, spellStat: "wis", casterType: "full", cantrips: 2 },
+        "Artificer": { hitDie: 8, primary: "int", saves: ["con", "int"], skills: ["Arcana", "Investigation"], equipment: ["Light Crossbow", "Dagger", "Scale Mail"], spellcaster: true, spellStat: "int", casterType: "half", cantrips: 2 }
     },
     // D&D 5e Spell Slot Tables
     // Full Caster table (Wizard, Cleric): slots by [characterLevel][spellLevel]
@@ -1537,10 +2096,17 @@ const GAME_DATA = {
         19: {1:4, 2:3, 3:3, 4:3, 5:2},
         20: {1:4, 2:3, 3:3, 4:3, 5:2}
     },
+    // Warlock Pact Magic (short rest recovery, fewer but higher-level slots)
+    pactMagicSlots: {
+        1:  {1:1}, 2:  {1:2}, 3:  {2:2}, 4:  {2:2}, 5:  {3:2},
+        6:  {3:2}, 7:  {4:2}, 8:  {4:2}, 9:  {5:2}, 10: {5:2},
+        11: {5:3}, 12: {5:3}, 13: {5:3}, 14: {5:3}, 15: {5:3},
+        16: {5:3}, 17: {5:4}, 18: {5:4}, 19: {5:4}, 20: {5:4}
+    },
     // Spell definitions
     spells: {
         // Cantrips (Level 0)
-        "Fire Bolt": { level: 0, school: "Evocation", classes: ["Wizard"], damage: "1d10", damageType: "fire", range: 120, description: "Hurl a mote of fire at a creature. Make a ranged spell attack. On hit, deal fire damage.", scaling: "1d10 per 5 levels" },
+        "Fire Bolt": { level: 0, school: "Evocation", classes: ["Wizard", "Sorcerer", "Artificer"], damage: "1d10", damageType: "fire", range: 120, description: "Hurl a mote of fire at a creature. Make a ranged spell attack. On hit, deal fire damage.", scaling: "1d10 per 5 levels" },
         "Ray of Frost": { level: 0, school: "Evocation", classes: ["Wizard"], damage: "1d8", damageType: "cold", range: 60, description: "A frigid beam strikes a creature, dealing cold damage and reducing speed by 10ft.", scaling: "1d8 per 5 levels" },
         "Shocking Grasp": { level: 0, school: "Evocation", classes: ["Wizard"], damage: "1d8", damageType: "lightning", range: 5, description: "Lightning springs from your hand. Advantage vs metal armor. Target can't take reactions.", scaling: "1d8 per 5 levels" },
         "Sacred Flame": { level: 0, school: "Evocation", classes: ["Cleric"], damage: "1d8", damageType: "radiant", range: 60, save: "dex", description: "Flame descends on a creature. DEX save or take radiant damage. No cover bonus.", scaling: "1d8 per 5 levels" },
@@ -1548,39 +2114,46 @@ const GAME_DATA = {
         "Spare the Dying": { level: 0, school: "Necromancy", classes: ["Cleric"], healing: true, range: 5, description: "Touch a creature with 0 HP. It becomes stable." },
         "Light": { level: 0, school: "Evocation", classes: ["Cleric", "Wizard"], utility: true, range: 0, description: "Touch an object. It sheds bright light in 20ft radius for 1 hour." },
         "Mage Hand": { level: 0, school: "Conjuration", classes: ["Wizard"], utility: true, range: 30, description: "A spectral hand appears to manipulate objects up to 30 feet away." },
+        // Ritual Spells
+        "Detect Magic": { level: 1, school: "Divination", classes: ["Wizard", "Cleric", "Bard", "Druid", "Sorcerer", "Paladin", "Artificer"], utility: true, ritual: true, concentration: true, description: "Sense the presence of magic within 30 feet. Can be cast as a ritual (10 min, no spell slot)." },
+        "Identify": { level: 1, school: "Divination", classes: ["Wizard", "Bard", "Artificer"], utility: true, ritual: true, description: "Learn the properties of a magic item or the effect of a spell on a creature/object. Can be cast as a ritual." },
+        "Comprehend Languages": { level: 1, school: "Divination", classes: ["Wizard", "Bard", "Warlock"], utility: true, ritual: true, description: "Understand any spoken or written language for 1 hour. Can be cast as a ritual." },
+        "Find Familiar": { level: 1, school: "Conjuration", classes: ["Wizard"], utility: true, ritual: true, description: "Summon a spirit that takes an animal form. Can be cast as a ritual (1 hour)." },
+        "Speak with Animals": { level: 1, school: "Divination", classes: ["Druid", "Ranger", "Bard"], utility: true, ritual: true, description: "Communicate with beasts for 10 minutes. Can be cast as a ritual." },
+        "Water Breathing": { level: 3, school: "Transmutation", classes: ["Wizard", "Druid", "Ranger", "Sorcerer", "Artificer"], utility: true, ritual: true, description: "Grant up to 10 creatures the ability to breathe underwater for 24 hours. Can be cast as a ritual." },
         
         // Level 1 Spells
-        "Magic Missile": { level: 1, school: "Evocation", classes: ["Wizard"], damage: "3d4+3", damageType: "force", range: 120, autoHit: true, description: "Three darts of magical force strike targets automatically. Each dart deals 1d4+1 force damage." },
-        "Burning Hands": { level: 1, school: "Evocation", classes: ["Wizard"], damage: "3d6", damageType: "fire", range: 15, aoe: "15ft cone", save: "dex", description: "Flames shoot from your fingers. Creatures in a 15ft cone must DEX save or take full damage, half on success." },
-        "Shield": { level: 1, school: "Abjuration", classes: ["Wizard"], defensive: true, description: "Reaction: +5 AC until start of your next turn, including vs triggering attack. Blocks Magic Missile." },
-        "Thunderwave": { level: 1, school: "Evocation", classes: ["Wizard"], damage: "2d8", damageType: "thunder", range: 0, aoe: "15ft cube", save: "con", description: "Thunder crashes outward. Creatures in 15ft cube take thunder damage and are pushed 10ft. CON save for half, no push." },
-        "Cure Wounds": { level: 1, school: "Evocation", classes: ["Cleric"], healing: "1d8", range: 5, description: "Touch a creature to restore 1d8 + spellcasting modifier HP." },
-        "Healing Word": { level: 1, school: "Evocation", classes: ["Cleric"], healing: "1d4", range: 60, bonus: true, description: "Bonus action: Speak a word of healing. Creature within 60ft regains 1d4 + modifier HP." },
+        "Magic Missile": { level: 1, school: "Evocation", classes: ["Wizard", "Sorcerer"], damage: "3d4+3", damageType: "force", range: 120, autoHit: true, description: "Three darts of magical force strike targets automatically. Each dart deals 1d4+1 force damage." },
+        "Burning Hands": { level: 1, school: "Evocation", classes: ["Wizard", "Sorcerer"], damage: "3d6", damageType: "fire", range: 15, aoe: "15ft cone", save: "dex", description: "Flames shoot from your fingers. Creatures in a 15ft cone must DEX save or take full damage, half on success." },
+        "Shield": { level: 1, school: "Abjuration", classes: ["Wizard", "Sorcerer"], defensive: true, description: "Reaction: +5 AC until start of your next turn, including vs triggering attack. Blocks Magic Missile." },
+        "Thunderwave": { level: 1, school: "Evocation", classes: ["Wizard", "Sorcerer", "Bard"], damage: "2d8", damageType: "thunder", range: 0, aoe: "15ft cube", save: "con", description: "Thunder crashes outward. Creatures in 15ft cube take thunder damage and are pushed 10ft. CON save for half, no push." },
+        "Cure Wounds": { level: 1, school: "Evocation", classes: ["Cleric", "Paladin", "Druid", "Bard", "Artificer"], healing: "1d8", range: 5, description: "Touch a creature to restore 1d8 + spellcasting modifier HP." },
+        "Healing Word": { level: 1, school: "Evocation", classes: ["Cleric", "Bard"], healing: "1d4", range: 60, bonus: true, description: "Bonus action: Speak a word of healing. Creature within 60ft regains 1d4 + modifier HP." },
         "Guiding Bolt": { level: 1, school: "Evocation", classes: ["Cleric"], damage: "4d6", damageType: "radiant", range: 120, description: "A flash of light streaks toward a creature. On hit, deal radiant damage and next attack has advantage." },
-        "Bless": { level: 1, school: "Enchantment", classes: ["Cleric"], buff: true, description: "Up to 3 creatures add 1d4 to attack rolls and saving throws for 1 minute (concentration)." },
+        "Bless": { level: 1, school: "Enchantment", classes: ["Cleric"], buff: true, concentration: true, description: "Up to 3 creatures add 1d4 to attack rolls and saving throws for 1 minute (concentration)." },
         "Inflict Wounds": { level: 1, school: "Necromancy", classes: ["Cleric"], damage: "3d10", damageType: "necrotic", range: 5, description: "Make a melee spell attack. On hit, deal massive necrotic damage." },
-        "Hunter's Mark": { level: 1, school: "Divination", classes: ["Ranger"], buff: true, description: "Mark a creature. Deal +1d6 damage to it with weapon attacks. Track it easily. Lasts 1 hour (concentration)." },
+        "Hunter's Mark": { level: 1, school: "Divination", classes: ["Ranger"], buff: true, concentration: true, description: "Mark a creature. Deal +1d6 damage to it with weapon attacks. Track it easily. Lasts 1 hour (concentration)." },
         
         // Level 2 Spells
         "Scorching Ray": { level: 2, school: "Evocation", classes: ["Wizard"], damage: "2d6", damageType: "fire", range: 120, multiAttack: 3, description: "Create three rays of fire. Make a spell attack for each. Each ray deals 2d6 fire damage." },
-        "Misty Step": { level: 2, school: "Conjuration", classes: ["Wizard"], utility: true, bonus: true, description: "Bonus action: Teleport up to 30 feet to an unoccupied space you can see." },
-        "Hold Person": { level: 2, school: "Enchantment", classes: ["Wizard", "Cleric"], save: "wis", description: "A humanoid must WIS save or be paralyzed for 1 minute. Repeat save at end of each turn." },
+        "Misty Step": { level: 2, school: "Conjuration", classes: ["Wizard", "Sorcerer", "Warlock"], utility: true, bonus: true, description: "Bonus action: Teleport up to 30 feet to an unoccupied space you can see." },
+        "Hold Person": { level: 2, school: "Enchantment", classes: ["Wizard", "Cleric", "Bard", "Sorcerer", "Warlock"], save: "wis", description: "A humanoid must WIS save or be paralyzed for 1 minute. Repeat save at end of each turn." },
         "Spiritual Weapon": { level: 2, school: "Evocation", classes: ["Cleric"], damage: "1d8", damageType: "force", range: 60, bonus: true, description: "Create a floating weapon. Bonus action to attack with it each turn. Lasts 1 minute." },
         "Prayer of Healing": { level: 2, school: "Evocation", classes: ["Cleric"], healing: "2d8", outOfCombat: true, description: "Up to 6 creatures regain 2d8 + modifier HP. Takes 10 minutes to cast." },
-        "Lesser Restoration": { level: 2, school: "Abjuration", classes: ["Cleric", "Ranger"], utility: true, description: "Touch a creature. End one disease, or blinded, deafened, paralyzed, or poisoned condition." },
+        "Lesser Restoration": { level: 2, school: "Abjuration", classes: ["Cleric", "Ranger", "Bard", "Druid"], utility: true, description: "Touch a creature. End one disease, or blinded, deafened, paralyzed, or poisoned condition." },
         
         // Level 3 Spells
-        "Fireball": { level: 3, school: "Evocation", classes: ["Wizard"], damage: "8d6", damageType: "fire", range: 150, aoe: "20ft sphere", save: "dex", description: "A bright streak explodes into a 20ft sphere of flame. DEX save for half damage." },
-        "Lightning Bolt": { level: 3, school: "Evocation", classes: ["Wizard"], damage: "8d6", damageType: "lightning", range: 100, aoe: "100ft line", save: "dex", description: "A stroke of lightning 100ft long and 5ft wide blasts out. DEX save for half." },
-        "Counterspell": { level: 3, school: "Abjuration", classes: ["Wizard"], utility: true, description: "Reaction: Attempt to interrupt a creature casting a spell. Automatically counters spells of 3rd level or lower." },
-        "Spirit Guardians": { level: 3, school: "Conjuration", classes: ["Cleric"], damage: "3d8", damageType: "radiant", range: 0, aoe: "15ft radius", save: "wis", description: "Spirits swirl around you in a 15ft radius. Hostile creatures take 3d8 radiant damage (WIS save for half). Lasts 10 minutes (concentration)." },
-        "Revivify": { level: 3, school: "Necromancy", classes: ["Cleric"], healing: true, range: 5, description: "Touch a creature that has died within the last minute. It returns to life with 1 HP. Requires 300 gp worth of diamonds." },
-        "Dispel Magic": { level: 3, school: "Abjuration", classes: ["Cleric", "Wizard"], utility: true, description: "End one spell on a creature, object, or area. Spells of 3rd level or lower end automatically; higher ones require a check." },
+        "Fireball": { level: 3, school: "Evocation", classes: ["Wizard", "Sorcerer"], damage: "8d6", damageType: "fire", range: 150, aoe: "20ft sphere", save: "dex", description: "A bright streak explodes into a 20ft sphere of flame. DEX save for half damage." },
+        "Lightning Bolt": { level: 3, school: "Evocation", classes: ["Wizard", "Sorcerer"], damage: "8d6", damageType: "lightning", range: 100, aoe: "100ft line", save: "dex", description: "A stroke of lightning 100ft long and 5ft wide blasts out. DEX save for half." },
+        "Counterspell": { level: 3, school: "Abjuration", classes: ["Wizard", "Sorcerer", "Warlock"], utility: true, description: "Reaction: Attempt to interrupt a creature casting a spell. Automatically counters spells of 3rd level or lower." },
+        "Spirit Guardians": { level: 3, school: "Conjuration", classes: ["Cleric"], damage: "3d8", damageType: "radiant", range: 0, aoe: "15ft radius", save: "wis", concentration: true, description: "Spirits swirl around you in a 15ft radius. Hostile creatures take 3d8 radiant damage (WIS save for half). Lasts 10 minutes (concentration)." },
+        "Revivify": { level: 3, school: "Necromancy", classes: ["Cleric", "Paladin", "Druid", "Artificer"], healing: true, range: 5, description: "Touch a creature that has died within the last minute. It returns to life with 1 HP. Requires 300 gp worth of diamonds." },
+        "Dispel Magic": { level: 3, school: "Abjuration", classes: ["Cleric", "Wizard", "Bard", "Sorcerer", "Warlock"], utility: true, description: "End one spell on a creature, object, or area. Spells of 3rd level or lower end automatically; higher ones require a check." },
         "Conjure Barrage": { level: 3, school: "Conjuration", classes: ["Ranger"], damage: "3d8", damageType: "slashing", range: 60, aoe: "60ft cone", save: "dex", description: "Throw a weapon or fire a piece of ammo that multiplies into a barrage. DEX save for half damage." },
         "Lightning Arrow": { level: 3, school: "Transmutation", classes: ["Ranger"], damage: "4d8", damageType: "lightning", range: 120, description: "Your next ranged attack transforms into a bolt of lightning. On hit, deal 4d8 lightning damage. Nearby creatures take 2d8 (DEX save for half)." },
         
         // Level 4 Spells
-        "Greater Invisibility": { level: 4, school: "Illusion", classes: ["Wizard"], buff: true, description: "You or a creature you touch becomes invisible for 1 minute (concentration). Attacking does not break it!" },
+        "Greater Invisibility": { level: 4, school: "Illusion", classes: ["Wizard", "Bard", "Sorcerer"], buff: true, concentration: true, description: "You or a creature you touch becomes invisible for 1 minute (concentration). Attacking does not break it!" },
         "Wall of Fire": { level: 4, school: "Evocation", classes: ["Wizard"], damage: "5d8", damageType: "fire", range: 120, save: "dex", description: "Create a wall of fire up to 60ft long. One side deals 5d8 fire damage to creatures within 10ft (DEX save for half)." },
         "Ice Storm": { level: 4, school: "Evocation", classes: ["Wizard"], damage: "2d8+4d6", damageType: "cold", range: 300, aoe: "20ft cylinder", save: "dex", description: "Hail pounds a 20ft radius. Deals 2d8 bludgeoning + 4d6 cold (DEX save for half). Ground becomes difficult terrain." },
         "Guardian of Faith": { level: 4, school: "Conjuration", classes: ["Cleric"], damage: "20", damageType: "radiant", range: 30, description: "A Large spectral guardian appears. Hostile creatures within 10ft take 20 radiant damage (DEX save for half). Disappears after dealing 60 total damage." },
@@ -1589,10 +2162,43 @@ const GAME_DATA = {
         
         // Level 5 Spells
         "Cone of Cold": { level: 5, school: "Evocation", classes: ["Wizard"], damage: "8d8", damageType: "cold", range: 60, aoe: "60ft cone", save: "con", description: "A blast of cold air erupts in a 60ft cone. CON save for half damage." },
-        "Telekinesis": { level: 5, school: "Transmutation", classes: ["Wizard"], utility: true, description: "Gain the ability to move creatures or objects with your mind. Lasts 10 minutes (concentration)." },
-        "Mass Cure Wounds": { level: 5, school: "Evocation", classes: ["Cleric"], healing: "3d8", range: 60, description: "A wave of healing energy washes out. Up to 6 creatures within 30ft regain 3d8 + modifier HP." },
+        "Telekinesis": { level: 5, school: "Transmutation", classes: ["Wizard"], utility: true, concentration: true, description: "Gain the ability to move creatures or objects with your mind. Lasts 10 minutes (concentration)." },
+        "Mass Cure Wounds": { level: 5, school: "Evocation", classes: ["Cleric", "Bard", "Druid"], healing: "3d8", range: 60, description: "A wave of healing energy washes out. Up to 6 creatures within 30ft regain 3d8 + modifier HP." },
         "Flame Strike": { level: 5, school: "Evocation", classes: ["Cleric"], damage: "4d6+4d6", damageType: "fire", range: 60, aoe: "10ft cylinder", save: "dex", description: "A vertical column of divine fire roars down. Deals 4d6 fire + 4d6 radiant damage. DEX save for half." },
-        "Swift Quiver": { level: 5, school: "Transmutation", classes: ["Ranger"], buff: true, description: "Your quiver produces an endless supply of ammunition. Bonus action: make two ranged weapon attacks. Lasts 1 minute (concentration)." }
+        "Swift Quiver": { level: 5, school: "Transmutation", classes: ["Ranger"], buff: true, concentration: true, description: "Your quiver produces an endless supply of ammunition. Bonus action: make two ranged weapon attacks. Lasts 1 minute (concentration)." },
+        // Paladin Spells
+        "Divine Smite": { level: 1, school: "Evocation", classes: ["Paladin"], damage: "2d8", damageType: "radiant", range: 5, description: "Channel divine energy through your weapon strike. Deals 2d8 radiant damage (+1d8 per slot level above 1st, +1d8 vs undead/fiends)." },
+        "Lay on Hands": { level: 0, school: "Evocation", classes: ["Paladin"], healing: "0", range: 5, description: "Your blessed touch can heal wounds. You have a pool of 5×Paladin level HP to restore." },
+        "Thunderous Smite": { level: 1, school: "Evocation", classes: ["Paladin"], damage: "2d6", damageType: "thunder", range: 5, concentration: true, description: "Your weapon rings with thunder. On hit, deal extra 2d6 thunder damage and target must STR save or be pushed 10ft and knocked prone (concentration)." },
+        "Shield of Faith": { level: 1, school: "Abjuration", classes: ["Paladin"], buff: true, concentration: true, description: "+2 AC to a creature you can see within 60 feet for up to 10 minutes (concentration)." },
+        "Branding Smite": { level: 2, school: "Evocation", classes: ["Paladin"], damage: "2d6", damageType: "radiant", range: 5, concentration: true, description: "Your weapon gleams with astral radiance. On hit, extra 2d6 radiant damage. Invisible creatures become visible (concentration)." },
+        // Warlock Spells
+        "Eldritch Blast": { level: 0, school: "Evocation", classes: ["Warlock"], damage: "1d10", damageType: "force", range: 120, description: "A beam of crackling energy. Multiple beams at higher levels. The quintessential warlock cantrip.", scaling: "1d10 per 5 levels" },
+        "Hex": { level: 1, school: "Enchantment", classes: ["Warlock"], buff: true, concentration: true, description: "Curse a creature. Deal +1d6 necrotic damage to it with your attacks. It has disadvantage on one ability check of your choice (concentration)." },
+        "Armor of Agathys": { level: 1, school: "Abjuration", classes: ["Warlock"], buff: true, description: "Gain 5 temp HP. While you have these temp HP, creatures that hit you with melee take 5 cold damage." },
+        "Hellish Rebuke": { level: 1, school: "Evocation", classes: ["Warlock"], damage: "2d10", damageType: "fire", range: 60, save: "dex", description: "Reaction: When damaged, point your finger and the creature is engulfed in flames. DEX save for half." },
+        "Darkness": { level: 2, school: "Evocation", classes: ["Warlock"], utility: true, concentration: true, description: "Magical darkness fills a 15ft sphere. Creatures with darkvision can't see through it. Nonmagical light can't illuminate it (concentration)." },
+        "Hunger of Hadar": { level: 3, school: "Conjuration", classes: ["Warlock"], damage: "2d6", damageType: "cold", range: 150, aoe: "20ft sphere", save: "dex", concentration: true, description: "Open a gateway to the void. 2d6 cold damage at start; 2d6 acid damage at end of turn in area (concentration)." },
+        // Bard Spells
+        "Vicious Mockery": { level: 0, school: "Enchantment", classes: ["Bard"], damage: "1d4", damageType: "psychic", range: 60, save: "wis", description: "You unleash a string of insults. WIS save or take psychic damage and have disadvantage on next attack.", scaling: "1d4 per 5 levels" },
+        "Dissonant Whispers": { level: 1, school: "Enchantment", classes: ["Bard"], damage: "3d6", damageType: "psychic", range: 60, save: "wis", description: "You whisper a discordant melody. WIS save or take 3d6 psychic damage and must use reaction to flee." },
+        "Faerie Fire": { level: 1, school: "Evocation", classes: ["Bard", "Druid", "Artificer"], buff: true, concentration: true, description: "Creatures in a 20ft cube are outlined in light. Affected creatures can't benefit from invisibility. Attacks against them have advantage (concentration)." },
+        "Bardic Inspiration": { level: 0, school: "Enchantment", classes: ["Bard"], buff: true, description: "As a bonus action, give an ally a Bardic Inspiration die (1d6, increases at higher levels) to add to an attack, check, or save." },
+        // Sorcerer Spells (shares many Wizard spells, add Sorcerer to existing + add unique ones)
+        "Chaos Bolt": { level: 1, school: "Evocation", classes: ["Sorcerer"], damage: "2d8", damageType: "varies", range: 120, description: "Hurl an undulating mass of chaotic energy. 2d8+1d6 damage of a random type. If both d8s match, bolt leaps to another target." },
+        "Chromatic Orb": { level: 1, school: "Evocation", classes: ["Sorcerer"], damage: "3d8", damageType: "varies", range: 90, description: "Hurl a 4-inch sphere of energy. Choose acid, cold, fire, lightning, poison, or thunder for the damage type." },
+        // Druid Spells
+        "Shillelagh": { level: 0, school: "Transmutation", classes: ["Druid"], buff: true, description: "A club or quarterstaff becomes a magical weapon. Uses WIS for attack/damage, deals 1d8 damage. Lasts 1 minute." },
+        "Thorn Whip": { level: 0, school: "Transmutation", classes: ["Druid"], damage: "1d6", damageType: "piercing", range: 30, description: "A vine-like whip lashes out. On hit, deal 1d6 piercing and pull Large or smaller creature 10ft closer.", scaling: "1d6 per 5 levels" },
+        "Entangle": { level: 1, school: "Conjuration", classes: ["Druid"], save: "str", concentration: true, description: "Grasping weeds and vines sprout in a 20ft square. STR save or be restrained. Lasts 1 minute (concentration)." },
+        "Moonbeam": { level: 2, school: "Evocation", classes: ["Druid"], damage: "2d10", damageType: "radiant", range: 120, save: "con", concentration: true, description: "A silvery beam of pale light shines down. 2d10 radiant to creatures in the area. CON save for half (concentration)." },
+        "Call Lightning": { level: 3, school: "Conjuration", classes: ["Druid"], damage: "3d10", damageType: "lightning", range: 120, save: "dex", concentration: true, description: "A storm cloud appears. Each turn, call down a bolt for 3d10 lightning damage. DEX save for half (concentration)." },
+        // Monk Abilities (treated as spells for the system)
+        "Flurry of Blows": { level: 0, school: "Martial", classes: ["Monk"], damage: "1d6", damageType: "bludgeoning", range: 5, description: "Spend 1 ki point after attacking to make two unarmed strikes as a bonus action." },
+        "Patient Defense": { level: 0, school: "Martial", classes: ["Monk"], defensive: true, description: "Spend 1 ki point to take the Dodge action as a bonus action, imposing disadvantage on attacks against you." },
+        "Step of the Wind": { level: 0, school: "Martial", classes: ["Monk"], utility: true, description: "Spend 1 ki point to take the Dash or Disengage action as a bonus action, and your jump distance is doubled." },
+        // Artificer Spells
+        "Mending": { level: 0, school: "Transmutation", classes: ["Artificer"], utility: true, description: "Repair a single break or tear in an object you touch." }
     },
     backgrounds: {
         "Soldier": { skills: ["Athletics", "Intimidation"], feature: "Military Rank" },
@@ -1610,48 +2216,48 @@ const GAME_DATA = {
         { name: "Healing Potion", getValue: () => 50, usable: true, effect: "heal" }
     ],
     weapons: {
-        "Longsword": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str" },
-        "Shortsword": { damage: "1d6", type: "piercing", properties: ["finesse", "light"], stat: "dex" },
-        "Greatsword": { damage: "2d6", type: "slashing", properties: ["two-handed", "heavy"], stat: "str" },
-        "Greataxe": { damage: "1d12", type: "slashing", properties: ["two-handed", "heavy"], stat: "str" },
-        "Battleaxe": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str" },
-        "Handaxes": { damage: "1d6", type: "slashing", properties: ["light", "thrown"], stat: "str" },
-        "Rapier": { damage: "1d8", type: "piercing", properties: ["finesse"], stat: "dex" },
-        "Scimitar": { damage: "1d6", type: "slashing", properties: ["finesse", "light"], stat: "dex" },
-        "Dagger": { damage: "1d4", type: "piercing", properties: ["finesse", "light", "thrown"], stat: "dex" },
-        "Mace": { damage: "1d6", type: "bludgeoning", properties: [], stat: "str" },
-        "Warhammer": { damage: "1d8", type: "bludgeoning", properties: ["versatile"], versatileDamage: "1d10", stat: "str" },
-        "Quarterstaff": { damage: "1d6", type: "bludgeoning", properties: ["versatile"], versatileDamage: "1d8", stat: "str" },
-        "Longbow": { damage: "1d8", type: "piercing", properties: ["two-handed", "ranged"], stat: "dex", range: 150 },
-        "Shortbow": { damage: "1d6", type: "piercing", properties: ["two-handed", "ranged"], stat: "dex", range: 80 },
-        "Light Crossbow": { damage: "1d8", type: "piercing", properties: ["two-handed", "ranged", "loading"], stat: "dex", range: 80 },
-        "Hand Crossbow": { damage: "1d6", type: "piercing", properties: ["light", "ranged", "loading"], stat: "dex", range: 30 },
-        "Javelin": { damage: "1d6", type: "piercing", properties: ["thrown"], stat: "str", range: 30 },
-        "Spear": { damage: "1d6", type: "piercing", properties: ["thrown", "versatile"], versatileDamage: "1d8", stat: "str" },
-        "Flail": { damage: "1d8", type: "bludgeoning", properties: [], stat: "str" },
-        "Morningstar": { damage: "1d8", type: "piercing", properties: [], stat: "str" },
-        "Glaive": { damage: "1d10", type: "slashing", properties: ["two-handed", "reach", "heavy"], stat: "str" },
-        "Halberd": { damage: "1d10", type: "slashing", properties: ["two-handed", "reach", "heavy"], stat: "str" },
-        "Unarmed": { damage: "1d1", type: "bludgeoning", properties: [], stat: "str" },
-        // +1 Magic Weapons
-        "+1 Longsword": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 1 },
-        "+1 Shortsword": { damage: "1d6", type: "piercing", properties: ["finesse", "light"], stat: "dex", magicBonus: 1 },
-        "+1 Greatsword": { damage: "2d6", type: "slashing", properties: ["two-handed", "heavy"], stat: "str", magicBonus: 1 },
-        "+1 Rapier": { damage: "1d8", type: "piercing", properties: ["finesse"], stat: "dex", magicBonus: 1 },
-        "+1 Battleaxe": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 1 },
-        "+1 Longbow": { damage: "1d8", type: "piercing", properties: ["two-handed", "ranged"], stat: "dex", range: 150, magicBonus: 1 },
-        "+1 Warhammer": { damage: "1d8", type: "bludgeoning", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 1 },
-        "+1 Mace": { damage: "1d6", type: "bludgeoning", properties: [], stat: "str", magicBonus: 1 },
+        "Longsword": { damage: "1d8", type: "slashing", category: "martial", properties: ["versatile"], versatileDamage: "1d10", stat: "str" },
+        "Shortsword": { damage: "1d6", type: "piercing", category: "martial", properties: ["finesse", "light"], stat: "dex" },
+        "Greatsword": { damage: "2d6", type: "slashing", category: "martial", properties: ["two-handed", "heavy"], stat: "str" },
+        "Greataxe": { damage: "1d12", type: "slashing", category: "martial", properties: ["two-handed", "heavy"], stat: "str" },
+        "Battleaxe": { damage: "1d8", type: "slashing", category: "martial", properties: ["versatile"], versatileDamage: "1d10", stat: "str" },
+        "Handaxes": { damage: "1d6", type: "slashing", category: "simple", properties: ["light", "thrown"], stat: "str" },
+        "Rapier": { damage: "1d8", type: "piercing", category: "martial", properties: ["finesse"], stat: "dex" },
+        "Scimitar": { damage: "1d6", type: "slashing", category: "martial", properties: ["finesse", "light"], stat: "dex" },
+        "Dagger": { damage: "1d4", type: "piercing", category: "simple", properties: ["finesse", "light", "thrown"], stat: "dex" },
+        "Mace": { damage: "1d6", type: "bludgeoning", category: "simple", properties: [], stat: "str" },
+        "Warhammer": { damage: "1d8", type: "bludgeoning", category: "martial", properties: ["versatile"], versatileDamage: "1d10", stat: "str" },
+        "Quarterstaff": { damage: "1d6", type: "bludgeoning", category: "simple", properties: ["versatile"], versatileDamage: "1d8", stat: "str" },
+        "Longbow": { damage: "1d8", type: "piercing", category: "martial", properties: ["two-handed", "ranged"], stat: "dex", range: 150 },
+        "Shortbow": { damage: "1d6", type: "piercing", category: "simple", properties: ["two-handed", "ranged"], stat: "dex", range: 80 },
+        "Light Crossbow": { damage: "1d8", type: "piercing", category: "simple", properties: ["two-handed", "ranged", "loading"], stat: "dex", range: 80 },
+        "Hand Crossbow": { damage: "1d6", type: "piercing", category: "martial", properties: ["light", "ranged", "loading"], stat: "dex", range: 30 },
+        "Javelin": { damage: "1d6", type: "piercing", category: "simple", properties: ["thrown"], stat: "str", range: 30 },
+        "Spear": { damage: "1d6", type: "piercing", category: "simple", properties: ["thrown", "versatile"], versatileDamage: "1d8", stat: "str" },
+        "Flail": { damage: "1d8", type: "bludgeoning", category: "martial", properties: [], stat: "str" },
+        "Morningstar": { damage: "1d8", type: "piercing", category: "martial", properties: [], stat: "str" },
+        "Glaive": { damage: "1d10", type: "slashing", category: "martial", properties: ["two-handed", "reach", "heavy"], stat: "str" },
+        "Halberd": { damage: "1d10", type: "slashing", category: "martial", properties: ["two-handed", "reach", "heavy"], stat: "str" },
+        "Unarmed": { damage: "1d1", type: "bludgeoning", category: "simple", properties: [], stat: "str" },
+        // +1 Magic Weapons (require attunement)
+        "+1 Longsword": { damage: "1d8", type: "slashing", category: "martial", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 1, requiresAttunement: true },
+        "+1 Shortsword": { damage: "1d6", type: "piercing", category: "martial", properties: ["finesse", "light"], stat: "dex", magicBonus: 1, requiresAttunement: true },
+        "+1 Greatsword": { damage: "2d6", type: "slashing", category: "martial", properties: ["two-handed", "heavy"], stat: "str", magicBonus: 1, requiresAttunement: true },
+        "+1 Rapier": { damage: "1d8", type: "piercing", category: "martial", properties: ["finesse"], stat: "dex", magicBonus: 1, requiresAttunement: true },
+        "+1 Battleaxe": { damage: "1d8", type: "slashing", category: "martial", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 1, requiresAttunement: true },
+        "+1 Longbow": { damage: "1d8", type: "piercing", category: "martial", properties: ["two-handed", "ranged"], stat: "dex", range: 150, magicBonus: 1, requiresAttunement: true },
+        "+1 Warhammer": { damage: "1d8", type: "bludgeoning", category: "martial", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 1, requiresAttunement: true },
+        "+1 Mace": { damage: "1d6", type: "bludgeoning", category: "simple", properties: [], stat: "str", magicBonus: 1, requiresAttunement: true },
         // +2 Magic Weapons
-        "+2 Longsword": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 2 },
-        "+2 Greatsword": { damage: "2d6", type: "slashing", properties: ["two-handed", "heavy"], stat: "str", magicBonus: 2 },
-        "+2 Rapier": { damage: "1d8", type: "piercing", properties: ["finesse"], stat: "dex", magicBonus: 2 },
-        "+2 Battleaxe": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 2 },
-        "+2 Longbow": { damage: "1d8", type: "piercing", properties: ["two-handed", "ranged"], stat: "dex", range: 150, magicBonus: 2 },
+        "+2 Longsword": { damage: "1d8", type: "slashing", category: "martial", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 2, requiresAttunement: true },
+        "+2 Greatsword": { damage: "2d6", type: "slashing", category: "martial", properties: ["two-handed", "heavy"], stat: "str", magicBonus: 2, requiresAttunement: true },
+        "+2 Rapier": { damage: "1d8", type: "piercing", category: "martial", properties: ["finesse"], stat: "dex", magicBonus: 2, requiresAttunement: true },
+        "+2 Battleaxe": { damage: "1d8", type: "slashing", category: "martial", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 2, requiresAttunement: true },
+        "+2 Longbow": { damage: "1d8", type: "piercing", category: "martial", properties: ["two-handed", "ranged"], stat: "dex", range: 150, magicBonus: 2, requiresAttunement: true },
         // +3 Magic Weapons
-        "+3 Longsword": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 3 },
-        "+3 Greatsword": { damage: "2d6", type: "slashing", properties: ["two-handed", "heavy"], stat: "str", magicBonus: 3 },
-        "+3 Rapier": { damage: "1d8", type: "piercing", properties: ["finesse"], stat: "dex", magicBonus: 3 }
+        "+3 Longsword": { damage: "1d8", type: "slashing", category: "martial", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 3, requiresAttunement: true },
+        "+3 Greatsword": { damage: "2d6", type: "slashing", category: "martial", properties: ["two-handed", "heavy"], stat: "str", magicBonus: 3, requiresAttunement: true },
+        "+3 Rapier": { damage: "1d8", type: "piercing", category: "martial", properties: ["finesse"], stat: "dex", magicBonus: 3, requiresAttunement: true }
     },
     armor: {
         "Robes": { ac: 10, type: "none", maxDex: 99, stealthDisadvantage: false },
@@ -2111,6 +2717,8 @@ class Character {
         this.race = "";
         this.charClass = "";
         this.background = "";
+        this.subclass = null; // Chosen at level 3 (e.g., "Champion", "Evocation")
+        this.subclassFeatures = {}; // Active subclass feature state
         this.level = 1;
         this.experience = 0;
         this.stats = { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
@@ -2195,6 +2803,20 @@ class Character {
         this.relationships = {}; // NPC name -> relationship level (-100 to 100)
         // Concentration tracking for spells
         this.concentrating = null; // Spell name if concentrating
+        // Feats system
+        this.feats = [];
+        this.featData = {}; // Runtime data for feats (lucky points, etc.)
+        // Bonus action resources
+        this.secondWindUsed = false; // Fighter: resets on short rest
+        // Skill proficiency system (proper D&D 5e)
+        this.skillProficiencies = {}; // { "Perception": true, "Stealth": true, ... }
+        this.expertise = {}; // Double proficiency: { "Stealth": true, ... }
+        // Attunement system
+        this.attunedItems = []; // Max 3 attuned magic items
+        // Racial ability tracking
+        this.racialAbilities = {}; // { breathWeaponUsed: false, relentlessUsed: false, ... }
+        // Darkvision range (0 for races without it)
+        this.darkvisionRange = 0;
         // Downtime tracking
         this.downtime = {
             daysAvailable: 0,
@@ -2223,6 +2845,23 @@ class Character {
             }
         }
         this.traits = [...GAME_DATA.races[this.race].traits];
+        
+        // Set darkvision based on race
+        if (this.traits.includes("Darkvision")) {
+            this.darkvisionRange = 60;
+        }
+        
+        // Initialize racial ability tracking
+        this.racialAbilities = {};
+        if (this.race === "Dragonborn") {
+            this.racialAbilities.breathWeaponUsed = false;
+            // Determine breath weapon type (fire by default)
+            this.racialAbilities.breathType = "fire";
+            this.racialAbilities.breathShape = "cone"; // 15ft cone
+        }
+        if (this.race === "Half-Orc") {
+            this.racialAbilities.relentlessUsed = false; // Resets on long rest
+        }
     }
 
     getModifier(stat) {
@@ -2232,6 +2871,137 @@ class Character {
     getProficiencyBonus() {
         // D&D 5e proficiency bonus: +2 at L1-4, +3 at L5-8, +4 at L9-12, +5 at L13-16, +6 at L17-20
         return Math.floor((this.level - 1) / 4) + 2;
+    }
+
+    // ========== Skill Proficiency System ==========
+    isSkillProficient(skillName) {
+        return this.skillProficiencies[skillName] === true;
+    }
+
+    hasExpertise(skillName) {
+        return this.expertise[skillName] === true;
+    }
+
+    getSkillModifier(skillName) {
+        const ability = SKILL_ABILITY_MAP[skillName];
+        if (!ability) return 0;
+        let mod = this.getModifier(ability);
+        if (this.isSkillProficient(skillName)) {
+            mod += this.getProficiencyBonus();
+        }
+        if (this.hasExpertise(skillName)) {
+            mod += this.getProficiencyBonus(); // Double proficiency
+        }
+        return mod;
+    }
+
+    getPassivePerception() {
+        return 10 + this.getSkillModifier("Perception");
+    }
+
+    getPassiveInsight() {
+        return 10 + this.getSkillModifier("Insight");
+    }
+
+    getPassiveInvestigation() {
+        return 10 + this.getSkillModifier("Investigation");
+    }
+
+    addSkillProficiency(skillName) {
+        if (SKILL_ABILITY_MAP[skillName]) {
+            this.skillProficiencies[skillName] = true;
+        }
+    }
+
+    // ========== Equipment Proficiency System ==========
+    isProficientWithWeapon(weaponName) {
+        const weapon = this.getWeaponData(weaponName);
+        if (!weapon) return false;
+        if (weaponName === "Unarmed") return true;
+        
+        const profList = CLASS_WEAPON_PROFICIENCY[this.charClass] || [];
+        // Strip magic prefix for base weapon name matching
+        const baseName = weaponName.replace(/^\+\d+\s/, '');
+        
+        // Check specific weapon name proficiency
+        if (profList.includes(baseName.toLowerCase())) return true;
+        
+        // Check category proficiency (simple/martial)
+        const category = weapon.category || "simple";
+        if (profList.includes(category)) return true;
+        
+        return false;
+    }
+
+    isProficientWithArmor(armorName) {
+        const armor = this.getArmorData(armorName);
+        if (!armor) return false;
+        if (armor.type === "none") return true; // Robes etc
+        
+        const profList = CLASS_ARMOR_PROFICIENCY[this.charClass] || [];
+        return profList.includes(armor.type);
+    }
+
+    isProficientWithShield() {
+        const profList = CLASS_ARMOR_PROFICIENCY[this.charClass] || [];
+        return profList.includes("shields");
+    }
+
+    // ========== Attunement System ==========
+    canAttune(itemName) {
+        if (this.attunedItems.length >= 3) return false;
+        if (this.attunedItems.includes(itemName)) return false;
+        return true;
+    }
+
+    attuneItem(itemName) {
+        if (!this.canAttune(itemName)) {
+            return { success: false, message: this.attunedItems.length >= 3 ? "You can only attune to 3 items at a time!" : "Already attuned to this item." };
+        }
+        this.attunedItems.push(itemName);
+        return { success: true, message: `Attuned to ${itemName}! (${this.attunedItems.length}/3 slots used)` };
+    }
+
+    unattuneItem(itemName) {
+        const idx = this.attunedItems.indexOf(itemName);
+        if (idx === -1) return { success: false, message: "Not attuned to this item." };
+        this.attunedItems.splice(idx, 1);
+        return { success: true, message: `Removed attunement to ${itemName}. (${this.attunedItems.length}/3 slots)` };
+    }
+
+    isAttuned(itemName) {
+        return this.attunedItems.includes(itemName);
+    }
+
+    getItemRequiresAttunement(itemName) {
+        const weapon = this.getWeaponData(itemName);
+        if (weapon && weapon.requiresAttunement) return true;
+        return false;
+    }
+
+    // ========== Ritual Casting ==========
+    canCastRitual(spellName) {
+        const spell = GAME_DATA.spells[spellName];
+        if (!spell || !spell.ritual) return false;
+        // Must know the spell
+        if (!this.spells.known.includes(spellName) && !this.spells.cantrips.includes(spellName)) return false;
+        // Wizards, Clerics, Druids can cast rituals. Bards too at higher levels.
+        const ritualCasters = ["Wizard", "Cleric", "Druid", "Bard", "Artificer"];
+        return ritualCasters.includes(this.charClass);
+    }
+
+    // ========== Darkvision Mechanics ==========
+    hasDarkvision() {
+        return this.darkvisionRange > 0;
+    }
+
+    // ========== Racial Abilities ==========
+    getBreathWeaponDamage() {
+        // Scales with level: 2d6 at L1, 3d6 at L6, 4d6 at L11, 5d6 at L16
+        if (this.level >= 16) return "5d6";
+        if (this.level >= 11) return "4d6";
+        if (this.level >= 6) return "3d6";
+        return "2d6";
     }
 
     getSneakAttackDice() {
@@ -2357,14 +3127,31 @@ class Character {
             if (weapon.properties && weapon.properties.includes("two-handed") && this.equipped.shield) {
                 return { success: false, message: "Cannot equip two-handed weapon while using a shield!" };
             }
+            // Attunement check for magic items
+            if (weapon.requiresAttunement && !this.isAttuned(itemName)) {
+                if (!this.canAttune(itemName)) {
+                    return { success: false, message: `${itemName} requires attunement, but you already have 3 attuned items! Unattune one first.` };
+                }
+                this.attuneItem(itemName);
+            }
             const oldWeapon = this.equipped.weapon;
             this.equipped.weapon = itemName;
-            return { success: true, message: `Equipped ${itemName}!`, oldItem: oldWeapon };
+            // Proficiency warning
+            let profMsg = "";
+            if (!this.isProficientWithWeapon(itemName)) {
+                profMsg = " ⚠️ Not proficient — you won't add proficiency bonus to attacks!";
+            }
+            return { success: true, message: `Equipped ${itemName}!${profMsg}`, oldItem: oldWeapon };
         } else if (armorData) {
             const oldArmor = this.equipped.armor;
             this.equipped.armor = itemName;
             this.calculateAc(campaignId);
-            return { success: true, message: `Equipped ${itemName}! AC is now ${this.ac}.`, oldItem: oldArmor };
+            // Proficiency warning for armor
+            let profMsg = "";
+            if (!this.isProficientWithArmor(itemName)) {
+                profMsg = " ⚠️ Not proficient — disadvantage on STR/DEX checks, attacks, and can't cast spells!";
+            }
+            return { success: true, message: `Equipped ${itemName}! AC is now ${this.ac}.${profMsg}`, oldItem: oldArmor };
         } else if (shieldData) {
             // Check if current weapon is two-handed
             const currentWeaponData = this.equipped.weapon ? this.getWeaponData(this.equipped.weapon, campaignId) : null;
@@ -2374,7 +3161,11 @@ class Character {
             const oldShield = this.equipped.shield;
             this.equipped.shield = itemName;
             this.calculateAc(campaignId);
-            return { success: true, message: `Equipped ${itemName}! AC is now ${this.ac}.`, oldItem: oldShield };
+            let profMsg = "";
+            if (!this.isProficientWithShield()) {
+                profMsg = " ⚠️ Not proficient with shields — disadvantage on STR/DEX checks and attacks!";
+            }
+            return { success: true, message: `Equipped ${itemName}! AC is now ${this.ac}.${profMsg}`, oldItem: oldShield };
         }
         return { success: false, message: "This item cannot be equipped." };
     }
@@ -2412,6 +3203,12 @@ class Character {
         this.inventory = [...classInfo.equipment];
         this.skills = [...classInfo.skills];
         
+        // Set skill proficiencies from class default skills
+        this.skillProficiencies = {};
+        for (const skill of classInfo.skills) {
+            this.skillProficiencies[skill] = true;
+        }
+        
         // Auto-equip starting equipment
         for (const item of this.inventory) {
             if (GAME_DATA.weapons[item] && !this.equipped.weapon) {
@@ -2436,6 +3233,50 @@ class Character {
             this.ragesRemaining = 2; // 2 rages at level 1
         }
         
+        // Setup Paladin
+        if (this.charClass === "Paladin") {
+            this.layOnHandsPool = this.level * 5;
+            this.divineSenseUses = 1 + this.getModifier("cha");
+        }
+        
+        // Setup Monk
+        if (this.charClass === "Monk") {
+            this.kiPoints = Math.max(0, this.level - 1); // Ki starts at level 2 
+            this.kiMax = this.kiPoints;
+            this.martialArtsDie = "1d4"; // Scales at levels 5, 11, 17
+        }
+        
+        // Setup Warlock
+        if (this.charClass === "Warlock") {
+            this.pactSlots = 1;
+            this.pactSlotLevel = 1;
+            this.pactSlotsUsed = 0;
+        }
+        
+        // Setup Bard
+        if (this.charClass === "Bard") {
+            this.bardicInspirationDie = "1d6";
+            this.bardicInspirationUses = Math.max(1, this.getModifier("cha"));
+        }
+        
+        // Setup Sorcerer
+        if (this.charClass === "Sorcerer") {
+            this.sorceryPoints = Math.max(0, this.level - 1); // Starts at level 2
+            this.sorceryPointsMax = this.sorceryPoints;
+        }
+        
+        // Setup Druid
+        if (this.charClass === "Druid") {
+            this.wildShapeUses = 2;
+            this.wildShapeCR = 0.25; // CR 1/4 at level 2
+        }
+        
+        // Setup Artificer
+        if (this.charClass === "Artificer") {
+            this.infusionsKnown = 2;
+            this.infusedItems = 0;
+        }
+        
         this.calculateHp();
         this.calculateAc();
     }
@@ -2445,7 +3286,14 @@ class Character {
         if (!classInfo.spellcaster) return;
         
         // Get spell slot table based on caster type
-        const slotTable = classInfo.casterType === 'half' ? GAME_DATA.halfCasterSlots : GAME_DATA.fullCasterSlots;
+        let slotTable;
+        if (classInfo.casterType === 'pact') {
+            slotTable = GAME_DATA.pactMagicSlots;
+        } else if (classInfo.casterType === 'half') {
+            slotTable = GAME_DATA.halfCasterSlots;
+        } else {
+            slotTable = GAME_DATA.fullCasterSlots;
+        }
         const levelSlots = slotTable[this.level] || {};
         
         // Initialize all 9 spell levels
@@ -2530,6 +3378,19 @@ class Character {
             if (!this.skills.includes(skill)) {
                 this.skills.push(skill);
             }
+            // Add to proficiency map
+            this.skillProficiencies[skill] = true;
+        }
+        // Human Extra Skill trait
+        if (this.race === "Human" && this.traits.includes("Extra Skill")) {
+            // Give a random skill the character doesn't already have
+            const allSkills = Object.keys(SKILL_ABILITY_MAP);
+            const available = allSkills.filter(s => !this.skillProficiencies[s]);
+            if (available.length > 0) {
+                const bonus = available[Math.floor(Math.random() * available.length)];
+                this.skillProficiencies[bonus] = true;
+                if (!this.skills.includes(bonus)) this.skills.push(bonus);
+            }
         }
         this.gold = Math.floor(Math.random() * 16) + 10;
         // Initialize reputation based on background
@@ -2557,8 +3418,37 @@ class Character {
         }
     }
 
-    takeDamage(damage) {
-        this.hp = Math.max(0, this.hp - damage);
+    takeDamage(damage, damageType = null) {
+        let finalDamage = damage;
+        
+        // Racial damage resistances
+        if (damageType) {
+            // Dragonborn Damage Resistance (fire by default)
+            if (this.race === "Dragonborn" && this.racialAbilities.breathType === "fire" && damageType === "fire") {
+                finalDamage = Math.floor(finalDamage / 2);
+            }
+            // Tiefling Hellish Resistance (fire)
+            if (this.race === "Tiefling" && damageType === "fire") {
+                finalDamage = Math.floor(finalDamage / 2);
+            }
+            // Dwarf Dwarven Resilience (poison)
+            if (this.race === "Dwarf" && damageType === "poison") {
+                finalDamage = Math.floor(finalDamage / 2);
+            }
+            // Barbarian Rage: resistance to bludgeoning, piercing, slashing
+            if (this.raging && ["bludgeoning", "piercing", "slashing"].includes(damageType)) {
+                finalDamage = Math.floor(finalDamage / 2);
+            }
+        }
+        
+        this.hp = Math.max(0, this.hp - finalDamage);
+        
+        // Half-Orc Relentless Endurance: drop to 1 HP instead of 0, once per long rest
+        if (this.hp === 0 && this.race === "Half-Orc" && this.racialAbilities && !this.racialAbilities.relentlessUsed) {
+            this.hp = 1;
+            this.racialAbilities.relentlessUsed = true;
+        }
+        
         if (this.hp === 0) {
             // Reset death saves when first hitting 0 HP
             this.deathSaves = { successes: 0, failures: 0, stable: false };
@@ -2664,6 +3554,8 @@ class Character {
             name: this.name,
             race: this.race,
             charClass: this.charClass,
+            subclass: this.subclass,
+            subclassFeatures: this.subclassFeatures,
             background: this.background,
             level: this.level,
             experience: this.experience,
@@ -2683,7 +3575,16 @@ class Character {
             hitDice: this.hitDice,
             materials: this.materials,
             reputation: this.reputation,
-            journal: this.journal
+            journal: this.journal,
+            concentrating: this.concentrating,
+            feats: this.feats,
+            featData: this.featData,
+            secondWindUsed: this.secondWindUsed,
+            skillProficiencies: this.skillProficiencies,
+            expertise: this.expertise,
+            attunedItems: this.attunedItems,
+            racialAbilities: this.racialAbilities,
+            darkvisionRange: this.darkvisionRange
         };
     }
 
@@ -2720,6 +3621,28 @@ class Character {
         }
         if (!char.journal) {
             char.journal = { quests: [], npcs: [], lore: [] };
+        }
+        // Ensure subclass fields exist for older saves
+        if (!char.subclass) char.subclass = null;
+        if (!char.subclassFeatures) char.subclassFeatures = {};
+        if (char.concentrating === undefined) char.concentrating = null;
+        if (!char.feats) char.feats = [];
+        if (!char.featData) char.featData = {};
+        if (char.secondWindUsed === undefined) char.secondWindUsed = false;
+        if (!char.skillProficiencies) {
+            // Backward compat: convert old skills array to proficiency map
+            char.skillProficiencies = {};
+            if (char.skills && Array.isArray(char.skills)) {
+                for (const skill of char.skills) {
+                    char.skillProficiencies[skill] = true;
+                }
+            }
+        }
+        if (!char.expertise) char.expertise = {};
+        if (!char.attunedItems) char.attunedItems = [];
+        if (!char.racialAbilities) char.racialAbilities = {};
+        if (char.darkvisionRange === undefined) {
+            char.darkvisionRange = (char.traits && (char.traits.includes("Darkvision"))) ? 60 : 0;
         }
         return char;
     }
@@ -2891,9 +3814,16 @@ class DungeonMaster {
         return total + bonus;
     }
 
-    skillCheck(stat, dc, advantage = false, disadvantage = false) {
+    skillCheck(stat, dc, advantage = false, disadvantage = false, skillName = null) {
         let roll1 = Math.floor(Math.random() * 20) + 1;
         let roll2 = Math.floor(Math.random() * 20) + 1;
+        
+        // Halfling Lucky: reroll natural 1s on ability checks
+        if (this.character.race === "Halfling") {
+            if (roll1 === 1) roll1 = Math.floor(Math.random() * 20) + 1;
+            if (roll2 === 1) roll2 = Math.floor(Math.random() * 20) + 1;
+        }
+        
         let roll = roll1;
         let advType = null;
         
@@ -2906,17 +3836,41 @@ class DungeonMaster {
             advType = "disadvantage";
         }
         
-        const modifier = this.character.getModifier(stat);
+        let modifier = this.character.getModifier(stat);
+        
+        // Add proficiency bonus if proficient in the skill
+        if (skillName && this.character.isSkillProficient(skillName)) {
+            modifier += this.character.getProficiencyBonus();
+            if (this.character.hasExpertise(skillName)) {
+                modifier += this.character.getProficiencyBonus(); // Double proficiency
+            }
+        }
+        
+        // Subclass skill bonuses
+        if (this.character.subclassFeatures?.['Champion_7'] && ['str','dex','con'].includes(stat)) {
+            modifier += 2; // Remarkable Athlete
+        }
+        if (this.character.subclass === 'Thief' && stat === 'dex') {
+            modifier += 2; // Fast Hands
+        }
+        
         const total = roll + modifier;
         const success = total >= dc;
         const critical = (roll === 20 || roll === 1); // Critical for narrative, but not auto-success/fail
 
-        return { success, critical, roll, roll1, roll2, modifier, total, dc, advType };
+        return { success, critical, roll, roll1, roll2, modifier, total, dc, advType, skillName };
     }
 
-    async skillCheckAnimated(stat, dc, advantage = false, disadvantage = false) {
+    async skillCheckAnimated(stat, dc, advantage = false, disadvantage = false, skillName = null) {
         let roll1 = Math.floor(Math.random() * 20) + 1;
         let roll2 = Math.floor(Math.random() * 20) + 1;
+        
+        // Halfling Lucky: reroll natural 1s on ability checks
+        if (this.character.race === "Halfling") {
+            if (roll1 === 1) roll1 = Math.floor(Math.random() * 20) + 1;
+            if (roll2 === 1) roll2 = Math.floor(Math.random() * 20) + 1;
+        }
+        
         let roll = roll1;
         let advType = null;
         
@@ -2929,7 +3883,24 @@ class DungeonMaster {
             advType = "disadvantage";
         }
         
-        const modifier = this.character.getModifier(stat);
+        let modifier = this.character.getModifier(stat);
+        
+        // Add proficiency bonus if proficient in the skill
+        if (skillName && this.character.isSkillProficient(skillName)) {
+            modifier += this.character.getProficiencyBonus();
+            if (this.character.hasExpertise(skillName)) {
+                modifier += this.character.getProficiencyBonus(); // Double proficiency
+            }
+        }
+        
+        // Subclass skill bonuses
+        if (this.character.subclassFeatures?.['Champion_7'] && ['str','dex','con'].includes(stat)) {
+            modifier += 2; // Remarkable Athlete
+        }
+        if (this.character.subclass === 'Thief' && stat === 'dex') {
+            modifier += 2; // Fast Hands
+        }
+        
         const total = roll + modifier;
         const success = total >= dc;
         const critical = (roll === 20 || roll === 1); // Critical for narrative, but not auto-success/fail
@@ -2945,7 +3916,7 @@ class DungeonMaster {
     }
     
     // Roll attack with advantage/disadvantage support
-    rollAttack(modifier = 0, advantage = false, disadvantage = false) {
+    rollAttack(modifier = 0, advantage = false, disadvantage = false, critRange = 20) {
         let roll1 = Math.floor(Math.random() * 20) + 1;
         let roll2 = Math.floor(Math.random() * 20) + 1;
         let roll = roll1;
@@ -2959,10 +3930,10 @@ class DungeonMaster {
             advType = "disadvantage";
         }
         
-        return { roll, roll1, roll2, total: roll + modifier, advType, isCrit: roll === 20, isFumble: roll === 1 };
+        return { roll, roll1, roll2, total: roll + modifier, advType, isCrit: roll >= critRange, isFumble: roll === 1 };
     }
 
-    async rollAttackAnimated(modifier = 0, advantage = false, disadvantage = false) {
+    async rollAttackAnimated(modifier = 0, advantage = false, disadvantage = false, critRange = 20) {
         let roll1 = Math.floor(Math.random() * 20) + 1;
         let roll2 = Math.floor(Math.random() * 20) + 1;
         let roll = roll1;
@@ -2983,7 +3954,7 @@ class DungeonMaster {
             await diceAnimator.rollD20(roll + modifier, "Attack Roll");
         }
         
-        return { roll, roll1, roll2, total: roll + modifier, advType, isCrit: roll === 20, isFumble: roll === 1 };
+        return { roll, roll1, roll2, total: roll + modifier, advType, isCrit: roll >= critRange, isFumble: roll === 1 };
     }
 
     // Time management
@@ -3235,8 +4206,21 @@ class DungeonMaster {
         
         const dc = Math.max(10, Math.floor(damageTaken / 2));
         const conMod = this.character.getModifier("con");
-        const roll = Math.floor(Math.random() * 20) + 1;
-        const total = roll + conMod;
+        let roll = Math.floor(Math.random() * 20) + 1;
+        
+        // War Caster feat: advantage on concentration saves
+        if (this.character.feats && this.character.feats.includes("War Caster")) {
+            const roll2 = Math.floor(Math.random() * 20) + 1;
+            roll = Math.max(roll, roll2);
+        }
+        
+        // Resilient (CON): add proficiency bonus to CON saves
+        let profBonus = 0;
+        if (this.character.feats && this.character.feats.includes("Resilient (CON)")) {
+            profBonus = this.character.getProficiencyBonus();
+        }
+        
+        const total = roll + conMod + profBonus;
         
         if (total >= dc) {
             return { success: true, roll, dc, message: `Concentration maintained! (${total} vs DC ${dc})` };
@@ -4065,6 +5049,12 @@ class Game {
             case 'defend':
                 if (inCombat) {
                     this.combatAction('defend');
+                    event.preventDefault();
+                }
+                break;
+            case 'bonusAction':
+                if (inCombat) {
+                    this.showBonusActionMenu();
                     event.preventDefault();
                 }
                 break;
@@ -4930,6 +5920,30 @@ class Game {
     }
 
     initCreation() {
+        // Icon maps for visual flair
+        const raceIcons = {
+            "Human": "👤", "Elf": "🧝", "Dwarf": "⛏️", "Halfling": "🍀",
+            "Dragonborn": "🐉", "Tiefling": "😈", "Half-Orc": "🪓"
+        };
+        const classIcons = {
+            "Fighter": "⚔️", "Wizard": "🧙", "Rogue": "🗡️", "Cleric": "⛪",
+            "Ranger": "🏹", "Barbarian": "💪", "Paladin": "🛡️", "Monk": "🥋",
+            "Warlock": "👁️", "Bard": "🎵", "Sorcerer": "✨", "Druid": "🌿",
+            "Artificer": "⚙️"
+        };
+        const bgIcons = {
+            "Soldier": "🎖️", "Scholar": "📚", "Criminal": "🔪", "Noble": "👑",
+            "Outlander": "🌲", "Acolyte": "🙏"
+        };
+        
+        // Class groupings for organized display
+        const classGroups = {
+            "Martial": ["Fighter", "Barbarian", "Monk", "Rogue"],
+            "Divine": ["Cleric", "Paladin", "Druid"],
+            "Arcane": ["Wizard", "Sorcerer", "Warlock", "Bard"],
+            "Hybrid": ["Ranger", "Artificer"]
+        };
+
         // Populate race options
         const raceContainer = document.getElementById("raceOptions");
         raceContainer.innerHTML = "";
@@ -4937,23 +5951,34 @@ class Game {
             const traits = GAME_DATA.races[race].traits.join(", ");
             raceContainer.innerHTML += `
                 <div class="option-card" data-race="${race}" onclick="game.selectRace('${race}')">
-                    <h3>${race}</h3>
-                    <p>${traits}</p>
+                    <span class="option-icon">${raceIcons[race] || "👤"}</span>
+                    <div class="option-info">
+                        <h3>${race}</h3>
+                        <p>${traits}</p>
+                    </div>
                 </div>
             `;
         }
 
-        // Populate class options
+        // Populate class options with grouped layout
         const classContainer = document.getElementById("classOptions");
         classContainer.innerHTML = "";
-        for (let cls in GAME_DATA.classes) {
-            const info = GAME_DATA.classes[cls];
-            classContainer.innerHTML += `
-                <div class="option-card" data-class="${cls}" onclick="game.selectClass('${cls}')">
-                    <h3>${cls}</h3>
-                    <p>Hit Die: d${info.hitDie}<br>Primary: ${info.primary.toUpperCase()}</p>
-                </div>
-            `;
+        for (let groupName in classGroups) {
+            classContainer.innerHTML += `<div class="class-group-label">${groupName}</div>`;
+            for (let cls of classGroups[groupName]) {
+                const info = GAME_DATA.classes[cls];
+                if (!info) continue;
+                const castLabel = info.spellcaster ? "🔮" : "";
+                classContainer.innerHTML += `
+                    <div class="option-card" data-class="${cls}" onclick="game.selectClass('${cls}')">
+                        <span class="option-icon">${classIcons[cls] || "⚔️"}</span>
+                        <div class="option-info">
+                            <h3>${cls}</h3>
+                            <p>d${info.hitDie} · ${info.primary.toUpperCase()} ${castLabel}</p>
+                        </div>
+                    </div>
+                `;
+            }
         }
 
         // Populate background options
@@ -4963,8 +5988,11 @@ class Game {
             const info = GAME_DATA.backgrounds[bg];
             bgContainer.innerHTML += `
                 <div class="option-card" data-background="${bg}" onclick="game.selectBackground('${bg}')">
-                    <h3>${bg}</h3>
-                    <p>${info.feature}</p>
+                    <span class="option-icon">${bgIcons[bg] || "📜"}</span>
+                    <div class="option-info">
+                        <h3>${bg}</h3>
+                        <p>${info.feature}</p>
+                    </div>
                 </div>
             `;
         }
@@ -5103,6 +6131,15 @@ class Game {
         document.getElementById("charLevel").textContent = this.character.level;
         document.getElementById("charBackground").textContent = this.character.background;
         
+        // Update subclass display if available
+        const charClassEl = document.getElementById("charClass");
+        if (this.character.subclass && SUBCLASS_DATA[this.character.charClass]) {
+            const subclassName = SUBCLASS_DATA[this.character.charClass].options[this.character.subclass]?.name;
+            if (subclassName) {
+                charClassEl.textContent = `${this.character.charClass} (${subclassName})`;
+            }
+        }
+        
         // Update HP bar
         const hpPercent = (this.character.hp / this.character.maxHp) * 100;
         document.getElementById("hpBar").style.width = hpPercent + "%";
@@ -5135,6 +6172,89 @@ class Game {
         // Update other stats
         document.getElementById("charAC").textContent = this.character.ac;
         document.getElementById("charGold").textContent = this.character.gold;
+        
+        // Update passive scores (Perception, Insight, Investigation)
+        const passivesEl = document.getElementById("charPassives");
+        if (passivesEl) {
+            const pp = this.character.getPassivePerception ? this.character.getPassivePerception() : 10;
+            const pi = this.character.getPassiveInsight ? this.character.getPassiveInsight() : 10;
+            const pinv = this.character.getPassiveInvestigation ? this.character.getPassiveInvestigation() : 10;
+            passivesEl.innerHTML = `
+                <div class="passive-badge" title="Passive Perception (10 + Perception modifier)">👁️ PP <span class="passive-val">${pp}</span></div>
+                <div class="passive-badge" title="Passive Insight (10 + Insight modifier)">🧠 PI <span class="passive-val">${pi}</span></div>
+                <div class="passive-badge" title="Passive Investigation (10 + Investigation modifier)">🔍 Inv <span class="passive-val">${pinv}</span></div>
+            `;
+        }
+        
+        // Update traits row (Darkvision, racial features)
+        const traitsEl = document.getElementById("charTraits");
+        if (traitsEl) {
+            let traitsHtml = '';
+            if (this.character.hasDarkvision && this.character.hasDarkvision()) {
+                traitsHtml += `<span class="trait-tag" title="Darkvision ${this.character.darkvisionRange}ft">🌙 Darkvision ${this.character.darkvisionRange}ft</span>`;
+            }
+            // Show racial ability status
+            if (this.character.racialAbilities) {
+                if (this.character.race === 'Dragonborn') {
+                    const used = this.character.racialAbilities.breathWeaponUsed;
+                    traitsHtml += `<span class="trait-tag" title="Breath Weapon (recharges on short rest)" style="${used ? 'opacity:0.4' : ''}">${used ? '💨' : '🔥'} Breath${used ? ' (used)' : ''}</span>`;
+                }
+                if (this.character.race === 'Half-Orc') {
+                    const used = this.character.racialAbilities.relentlessUsed;
+                    traitsHtml += `<span class="trait-tag" title="Relentless Endurance (recharges on long rest)" style="${used ? 'opacity:0.4' : ''}">💪 Relentless${used ? ' (used)' : ''}</span>`;
+                }
+            }
+            if (this.character.race === 'Halfling') {
+                traitsHtml += `<span class="trait-tag" title="Lucky: Reroll natural 1s on d20 rolls">🍀 Lucky</span>`;
+            }
+            if (this.character.race === 'Elf') {
+                traitsHtml += `<span class="trait-tag" title="Fey Ancestry: Advantage on saves vs charm">🧝 Fey Ancestry</span>`;
+            }
+            if (this.character.race === 'Dwarf') {
+                traitsHtml += `<span class="trait-tag" title="Dwarven Resilience: Advantage on saves vs poison">⛏️ Dwarven Resilience</span>`;
+            }
+            if (this.character.race === 'Tiefling') {
+                traitsHtml += `<span class="trait-tag" title="Fire Resistance: Half damage from fire">🔥 Fire Resistance</span>`;
+            }
+            traitsEl.innerHTML = traitsHtml;
+        }
+        
+        // Update attunement display
+        const attuneEl = document.getElementById("charAttunement");
+        if (attuneEl && this.character.attunedItems) {
+            const count = this.character.attunedItems.length;
+            if (count > 0) {
+                let html = `✨ Attuned: <span class="attune-count">${count}/3</span>`;
+                html += '<div style="margin-top:2px">';
+                this.character.attunedItems.forEach(item => {
+                    html += `<span class="attune-item">• ${item}</span> `;
+                });
+                html += '</div>';
+                attuneEl.innerHTML = html;
+            } else {
+                attuneEl.innerHTML = '';
+            }
+        }
+        
+        // Update skills panel
+        const skillsPanel = document.getElementById("skillsPanel");
+        if (skillsPanel && typeof SKILL_ABILITY_MAP !== 'undefined') {
+            let skillsHtml = '';
+            const skillNames = Object.keys(SKILL_ABILITY_MAP).sort();
+            for (const skill of skillNames) {
+                const isProficient = this.character.isSkillProficient ? this.character.isSkillProficient(skill) : false;
+                const hasExpert = this.character.hasExpertise ? this.character.hasExpertise(skill) : false;
+                const mod = this.character.getSkillModifier ? this.character.getSkillModifier(skill) : 0;
+                const sign = mod >= 0 ? '+' : '';
+                const marker = hasExpert ? '◆' : (isProficient ? '●' : '○');
+                const abilityAbbr = SKILL_ABILITY_MAP[skill].substring(0, 3).toUpperCase();
+                skillsHtml += `<div class="skill-row ${isProficient ? 'proficient' : ''}">
+                    <span><span class="skill-prof-marker">${marker}</span> ${skill} <span style="color:#666;font-size:0.65rem">(${abilityAbbr})</span></span>
+                    <span class="skill-mod">${sign}${mod}</span>
+                </div>`;
+            }
+            skillsPanel.innerHTML = skillsHtml;
+        }
         
         // Update equipment display
         this.updateEquipmentDisplay();
@@ -5683,20 +6803,30 @@ class Game {
         const char = this.character;
         
         // Rogues get advantage on DEX checks when sneaking
-        if (char.charClass === "Rogue" && skill === "dex" && char.skills.includes("Stealth")) {
+        if (char.charClass === "Rogue" && skill === "dex" && char.isSkillProficient("Stealth")) {
             return true;
         }
         
         // Rangers get advantage on Survival/Nature in wilderness
         if (char.charClass === "Ranger" && (skill === "wis" || skill === "int")) {
             const locType = this.dm.currentLocation.type;
-            if (locType === "wilderness" && (char.skills.includes("Survival") || char.skills.includes("Nature"))) {
+            if (locType === "wilderness" && (char.isSkillProficient("Survival") || char.isSkillProficient("Nature"))) {
                 return true;
             }
         }
         
-        // Halfling Lucky trait (reroll 1s - approximated as advantage)
-        if (char.race === "Halfling") {
+        // Elf Fey Ancestry: advantage on saves vs charm
+        if (char.race === "Elf" && char.conditions?.charmed) {
+            return true;
+        }
+        
+        // Dwarf Dwarven Resilience: advantage on saves vs poison
+        if (char.race === "Dwarf" && char.conditions?.poisoned) {
+            return true;
+        }
+        
+        // Halfling Brave: advantage on saves vs frightened
+        if (char.race === "Halfling" && char.conditions?.frightened) {
             return true;
         }
         
@@ -5931,12 +7061,36 @@ class Game {
             return;
         }
         
-        // Perception check to detect the ambush
+        // Passive Perception check first (automatic detection for easy ambushes)
         const perceptionDC = 10 + danger;
-        const hasAdvantage = this.character.skills.includes("Perception") || 
-                           this.character.traits.includes("Darkvision");
+        const passivePerception = this.character.getPassivePerception();
         
-        const check = await this.dm.skillCheckAnimated("wis", perceptionDC, hasAdvantage, false);
+        // Darkvision + lighting interaction
+        const isDark = this.dm.timeOfDay === "night";
+        const hasDarkvision = this.character.hasDarkvision();
+        let hasDisadvantage = isDark && !hasDarkvision; // Darkness without darkvision = disadvantage
+        let hasAdvantage = false;
+        
+        // Darkvision in dim light (dusk/dawn) works normally, in darkness treats as dim light
+        if (isDark && hasDarkvision) {
+            // Darkvision in darkness: treat as dim light, still disadvantage on Perception
+            hasDisadvantage = true; // Dim light = disadvantage on Perception (per RAW darkvision)
+        }
+        
+        // Passive perception auto-detects if high enough (with -5 for disadvantage)
+        const effectivePassive = hasDisadvantage ? passivePerception - 5 : (hasAdvantage ? passivePerception + 5 : passivePerception);
+        
+        if (effectivePassive >= perceptionDC) {
+            // Auto-detected via passive perception
+            this.log(`👁️ Passive Perception (${effectivePassive}) detected danger! (DC ${perceptionDC})`, "success");
+            this.log(`🔍 You notice a ${monster.name} lurking ahead. You have the advantage!`, "dm");
+            this.character.buffs.guidingBolt = true;
+            this.startCombat(monster);
+            return;
+        }
+        
+        // Active Perception check (with proficiency)
+        const check = await this.dm.skillCheckAnimated("wis", perceptionDC, hasAdvantage, hasDisadvantage, "Perception");
         
         let rollMsg = `🎲 Perception Check: `;
         if (check.advType) {
@@ -5981,11 +7135,25 @@ class Game {
         // Initialize monster conditions
         monster.conditions = monster.conditions || {};
         
+        // Initialize legendary resistances for bosses
+        if (monster.legendaryResistances && monster.legendaryResistances > 0) {
+            monster.legendaryResistancesRemaining = monster.legendaryResistances;
+        }
+        
         // Check if this is a boss
         if (BOSS_ENEMIES[monster.bossId]) {
             monster.isBoss = true;
             soundManager.playBossAppear();
             this.log(`⚠️ <strong>BOSS ENCOUNTER!</strong>`, 'danger');
+            if (monster.legendaryResistancesRemaining > 0) {
+                this.log(`💀 ${monster.name} has <strong>${monster.legendaryResistancesRemaining} Legendary Resistance${monster.legendaryResistancesRemaining > 1 ? 's' : ''}</strong>!`, 'danger');
+            }
+        } else if (monster.boss && monster.legendaryResistancesRemaining > 0) {
+            // Campaign encounter bosses (not in BOSS_ENEMIES but have boss: true)
+            monster.isBoss = true;
+            soundManager.playBossAppear();
+            this.log(`⚠️ <strong>BOSS ENCOUNTER!</strong>`, 'danger');
+            this.log(`💀 ${monster.name} has <strong>${monster.legendaryResistancesRemaining} Legendary Resistance${monster.legendaryResistancesRemaining > 1 ? 's' : ''}</strong>!`, 'danger');
         } else {
             // Regular combat start sound
             soundManager.playHit();
@@ -6028,8 +7196,37 @@ class Game {
             }
         }
         
+        // Show bonus action button if character has any bonus action available
+        const bonusBtn = document.getElementById("bonusActionBtn");
+        if (bonusBtn) {
+            const hasBonusActions = this.getAvailableBonusActions().length > 0;
+            if (hasBonusActions) {
+                bonusBtn.classList.remove("hidden");
+            } else {
+                bonusBtn.classList.add("hidden");
+            }
+        }
+        
         this.log(`⚔️ A ${monster.name} appears!`, "combat");
         this.log(`📊 Initiative: You (${init.player}) vs ${monster.name} (${init.enemy})`, "dm");
+        
+        // Display monster stat block info (resistances, immunities, etc.)
+        let statBlockInfo = [];
+        if (monster.resistances && monster.resistances.length > 0) {
+            statBlockInfo.push(`Resists: ${monster.resistances.join(", ")}`);
+        }
+        if (monster.immunities && monster.immunities.length > 0) {
+            statBlockInfo.push(`Immune: ${monster.immunities.join(", ")}`);
+        }
+        if (monster.vulnerabilities && monster.vulnerabilities.length > 0) {
+            statBlockInfo.push(`Vulnerable: ${monster.vulnerabilities.join(", ")}`);
+        }
+        if (monster.multiattack && monster.multiattack > 1) {
+            statBlockInfo.push(`Multiattack: ${monster.multiattack} attacks/turn`);
+        }
+        if (statBlockInfo.length > 0) {
+            this.log(`📋 ${monster.name}: ${statBlockInfo.join(" | ")}`, "dm");
+        }
         
         // Show weather effects if relevant
         const weatherEffects = this.dm.getWeatherEffects();
@@ -6039,6 +7236,12 @@ class Game {
         
         // Reset action economy
         this.dm.resetActions();
+        
+        // Store max HP for regeneration/healing caps
+        if (!monster.maxHp) monster.maxHp = monster.hp;
+        
+        // Initialize monster conditions
+        if (!monster.conditions) monster.conditions = {};
         
         // Show party status in combat if we have companions
         this.updateCombatPartyDisplay();
@@ -6055,6 +7258,12 @@ class Game {
             setTimeout(() => this.monsterTurn(), 500);
         } else {
             this.log("You act first!", "success");
+            // Assassin: Assassinate - advantage on first attack against enemies that haven't acted
+            if (this.character.subclass === 'Assassin') {
+                this.character.buffs.guidingBolt = true; // Uses existing advantage mechanic
+                this.character.subclassFeatures.assassinateActive = true; // Hits auto-crit
+                this.log(`🗡️ <strong>Assassinate!</strong> You have advantage and critical hits on this creature!`, "success");
+            }
         }
         
         this.updateUI();
@@ -6119,6 +7328,12 @@ class Game {
                 hasAdvantage = true;
             }
             
+            // Hidden Strike from Cunning Action: Hide
+            if (char.buffs.hiddenStrike) {
+                hasAdvantage = true;
+                char.buffs.hiddenStrike = false;
+            }
+            
             // Weather affects ranged attacks
             const weatherEffects = this.dm.getWeatherEffects();
             if (weaponInfo.properties?.includes("ranged") && weatherEffects.rangedDisadvantage) {
@@ -6137,11 +7352,43 @@ class Game {
             }
             const attackMod = char.getModifier(attackStat);
             
-            // Total attack modifier: ability mod + proficiency bonus + magic weapon bonus
-            const totalAttackMod = attackMod + profBonus + magicBonus;
+            // Total attack modifier: ability mod + proficiency bonus (if proficient) + magic weapon bonus
+            let totalAttackMod = attackMod + magicBonus;
+            if (char.isProficientWithWeapon(char.equipped.weapon || "Unarmed")) {
+                totalAttackMod += profBonus;
+            }
+            
+            // Equipment proficiency: non-proficient armor causes disadvantage on attacks
+            let armorPenalty = false;
+            if (char.equipped.armor && !char.isProficientWithArmor(char.equipped.armor)) {
+                armorPenalty = true;
+                hasDisadvantage = true;
+            }
+            if (char.equipped.shield && !char.isProficientWithShield()) {
+                armorPenalty = true;
+                hasDisadvantage = true;
+            }
+            
+            // Feat: Great Weapon Master / Sharpshooter power attack (-5 hit, +10 damage)
+            let powerAttackActive = false;
+            if (char.feats.includes("Great Weapon Master") && weaponInfo.properties?.includes("heavy")) {
+                totalAttackMod -= 5;
+                powerAttackActive = true;
+            } else if (char.feats.includes("Sharpshooter") && weaponInfo.properties?.includes("ranged")) {
+                totalAttackMod -= 5;
+                powerAttackActive = true;
+            }
             
             // Roll attack with advantage/disadvantage support - with animation
-            const attackResult = await this.dm.rollAttackAnimated(totalAttackMod, hasAdvantage, hasDisadvantage);
+            // Champion subclass: expanded crit range
+            const critRange = char.subclassFeatures?.critRange || 20;
+            const attackResult = await this.dm.rollAttackAnimated(totalAttackMod, hasAdvantage, hasDisadvantage, critRange);
+            
+            // Assassin: Assassinate - first hit on a surprised enemy is auto-crit
+            if (char.subclassFeatures?.assassinateActive && attackResult.total >= monster.ac) {
+                attackResult.isCrit = true;
+                char.subclassFeatures.assassinateActive = false; // Only works once
+            }
             
             // Calculate bonus damage from various sources
             let bonusDamage = 0;
@@ -6159,6 +7406,14 @@ class Game {
                 const rageDmg = char.getRageDamage();
                 bonusDamage += rageDmg;
                 bonusDamageText += ` +${rageDmg} Rage`;
+            }
+            
+            // Bardic Inspiration bonus on attack
+            if (char.buffs.bardicInspiration) {
+                const inspireDmg = this.dm.rollDice(char.buffs.bardicInspiration);
+                bonusDamage += inspireDmg;
+                bonusDamageText += ` +${inspireDmg} Inspiration`;
+                char.buffs.bardicInspiration = null;
             }
             
             // Weapon-specific bonus damage (e.g., Yuan-ti Fang Sword poison, Goblin Cleaver vs goblinoids)
@@ -6204,6 +7459,30 @@ class Game {
                 bonusDamageText += ` +${sneakAttackDamage} Sneak Attack (${sneakDice}d6)`;
             }
             
+            // Subclass combat bonuses
+            // Battle Master: spend superiority die for bonus damage
+            if (char.subclass === 'BattleMaster' && char.subclassFeatures.superiorityDiceRemaining > 0) {
+                const dieSize = char.subclassFeatures.superiorityDieSize || 8;
+                const superiorityDmg = this.dm.rollDice(`1d${dieSize}`);
+                bonusDamage += superiorityDmg;
+                char.subclassFeatures.superiorityDiceRemaining--;
+                bonusDamageText += ` +${superiorityDmg} Maneuver (d${dieSize})`;
+                this.log(`⚔️ Combat Maneuver! (${char.subclassFeatures.superiorityDiceRemaining}/${char.subclassFeatures.superiorityDice} dice remaining)`, "combat");
+            }
+            
+            // Hunter Ranger: Colossus Slayer (1d8 extra vs wounded)
+            if (char.subclass === 'Hunter' && monster.hp < monster.maxHp) {
+                const colossusSlayerDmg = this.dm.rollDice("1d8");
+                bonusDamage += colossusSlayerDmg;
+                bonusDamageText += ` +${colossusSlayerDmg} Colossus Slayer`;
+            }
+            
+            // Feat: GWM / Sharpshooter +10 damage bonus
+            if (powerAttackActive) {
+                bonusDamage += 10;
+                bonusDamageText += ` +10 Power Attack`;
+            }
+            
             // Build roll message
             let rollMsg = "";
             if (attackResult.advType) {
@@ -6244,10 +7523,11 @@ class Game {
                     monster.conditions[critEffect.condition] = true;
                 }
                 
-                monster.hp -= critDamage;
+                const critResult = this.applyDamageToMonster(monster, critDamage, weaponInfo.type);
                 soundManager.playCritical();
                 this.log(`🎯 CRITICAL HIT! ${critEffect.name}: ${critEffect.effect}`, "success");
-                this.log(`💥 ${critDamage} ${weaponInfo.type} damage with ${weaponInfo.name}!${bonusDamageText}`, "combat");
+                this.log(`💥 ${critResult.finalDamage} ${weaponInfo.type} damage with ${weaponInfo.name}!${bonusDamageText}`, "combat");
+                if (critResult.message) this.log(critResult.message, "dm");
                 
                 // Check for bonus attack
                 if (critEffect.special === "bonusAttack") {
@@ -6255,16 +7535,18 @@ class Game {
                     const bonusAttack = await this.dm.rollAttackAnimated(totalAttackMod, false, false);
                     if (bonusAttack.total >= monster.ac) {
                         const bonusDmg = this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus;
-                        monster.hp -= bonusDmg;
-                        this.log(`⚔️ Bonus attack hits for ${bonusDmg} damage!`, "combat");
+                        const bonusResult = this.applyDamageToMonster(monster, bonusDmg, weaponInfo.type);
+                        this.log(`⚔️ Bonus attack hits for ${bonusResult.finalDamage} damage!`, "combat");
+                        if (bonusResult.message) this.log(bonusResult.message, "dm");
                     }
                 }
             } else if (attackResult.total >= monster.ac) {
                 // Normal hit: weapon die + ability mod + magic bonus + bonus damage
                 const damage = this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus + bonusDamage + sneakAttackDamage;
-                monster.hp -= damage;
+                const hitResult = this.applyDamageToMonster(monster, damage, weaponInfo.type);
                 soundManager.playHit();
-                this.log(`⚔️ You hit with ${weaponInfo.name}! (Roll: ${rollMsg} vs AC ${monster.ac}) Damage: ${damage} ${weaponInfo.type}${bonusDamageText}`, "combat");
+                this.log(`⚔️ You hit with ${weaponInfo.name}! (Roll: ${rollMsg} vs AC ${monster.ac}) Damage: ${hitResult.finalDamage} ${weaponInfo.type}${bonusDamageText}`, "combat");
+                if (hitResult.message) this.log(hitResult.message, "dm");
             } else {
                 soundManager.playMiss();
                 this.log(`❌ You miss with ${weaponInfo.name}! (Roll: ${rollMsg} vs AC ${monster.ac})`, "combat");
@@ -6274,7 +7556,7 @@ class Game {
             const totalAttacks = char.getExtraAttackCount();
             for (let extraNum = 1; extraNum < totalAttacks && monster.hp > 0; extraNum++) {
                 this.log(`⚔️ Extra Attack ${extraNum}!`, "combat");
-                const extraAttack = await this.dm.rollAttackAnimated(totalAttackMod, hasAdvantage, hasDisadvantage);
+                const extraAttack = await this.dm.rollAttackAnimated(totalAttackMod, hasAdvantage, hasDisadvantage, critRange);
                 let extraRollMsg = `${extraAttack.roll}+${totalAttackMod}=${extraAttack.total}`;
                 
                 // Calculate extra attack bonus damage (Hunter's Mark applies to each attack, Sneak Attack does NOT)
@@ -6290,6 +7572,12 @@ class Game {
                     extraBonusDmg += rageDmg;
                     extraBonusText += ` +${rageDmg} Rage`;
                 }
+                // Subclass bonus on extra attacks
+                if (char.subclass === 'Hunter' && monster.hp < monster.maxHp) {
+                    const csExtra = this.dm.rollDice("1d8");
+                    extraBonusDmg += csExtra;
+                    extraBonusText += ` +${csExtra} Colossus Slayer`;
+                }
                 
                 if (extraAttack.isFumble) {
                     const fumble = FUMBLE_EFFECTS[Math.floor(Math.random() * FUMBLE_EFFECTS.length)];
@@ -6297,14 +7585,65 @@ class Game {
                     this.applyFumbleEffect(fumble);
                 } else if (extraAttack.isCrit) {
                     const extraCritDmg = this.dm.rollDice(weaponInfo.damage) + this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus + extraBonusDmg;
-                    monster.hp -= extraCritDmg;
-                    this.log(`🎯 CRITICAL! Extra attack deals ${extraCritDmg} damage!${extraBonusText}`, "success");
+                    const ecResult = this.applyDamageToMonster(monster, extraCritDmg, weaponInfo.type);
+                    this.log(`🎯 CRITICAL! Extra attack deals ${ecResult.finalDamage} damage!${extraBonusText}`, "success");
+                    if (ecResult.message) this.log(ecResult.message, "dm");
                 } else if (extraAttack.total >= monster.ac) {
                     const extraDmg = this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus + extraBonusDmg;
-                    monster.hp -= extraDmg;
-                    this.log(`⚔️ Extra attack hits! (${extraRollMsg} vs AC ${monster.ac}) ${extraDmg} damage!${extraBonusText}`, "combat");
+                    const ehResult = this.applyDamageToMonster(monster, extraDmg, weaponInfo.type);
+                    this.log(`⚔️ Extra attack hits! (${extraRollMsg} vs AC ${monster.ac}) ${ehResult.finalDamage} damage!${extraBonusText}`, "combat");
+                    if (ehResult.message) this.log(ehResult.message, "dm");
                 } else {
                     this.log(`❌ Extra attack misses! (${extraRollMsg} vs AC ${monster.ac})`, "combat");
+                }
+            }
+            
+            // Berserker Frenzy: bonus action attack while raging
+            if (char.subclass === 'Berserker' && char.raging && monster.hp > 0) {
+                this.log(`💢 Frenzy! Bonus action attack!`, "combat");
+                const frenzyAttack = await this.dm.rollAttackAnimated(totalAttackMod, false, false, critRange);
+                if (frenzyAttack.isCrit) {
+                    const frenzyDmg = this.dm.rollDice(weaponInfo.damage) + this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus;
+                    this.applyDamageToMonster(monster, frenzyDmg, weaponInfo.type);
+                    this.log(`🎯 CRITICAL Frenzy attack! ${frenzyDmg} damage!`, "success");
+                } else if (frenzyAttack.total >= monster.ac) {
+                    const frenzyDmg = this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus;
+                    this.applyDamageToMonster(monster, frenzyDmg, weaponInfo.type);
+                    this.log(`💢 Frenzy attack hits for ${frenzyDmg} damage!`, "combat");
+                } else {
+                    this.log(`❌ Frenzy attack misses!`, "combat");
+                }
+            }
+            
+            // War Priest: bonus action attack
+            if (char.subclass === 'War' && char.subclassFeatures.warPriestUsesRemaining > 0 && monster.hp > 0) {
+                char.subclassFeatures.warPriestUsesRemaining--;
+                this.log(`⚔️ War Priest! Bonus weapon attack!`, "combat");
+                const warAttack = await this.dm.rollAttackAnimated(totalAttackMod, false, false);
+                if (warAttack.total >= monster.ac || warAttack.isCrit) {
+                    const warDmg = this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus;
+                    this.applyDamageToMonster(monster, warDmg, weaponInfo.type);
+                    this.log(`⚔️ War Priest hits for ${warDmg} damage! (${char.subclassFeatures.warPriestUsesRemaining} uses left)`, "combat");
+                } else {
+                    this.log(`❌ War Priest attack misses!`, "combat");
+                }
+            }
+            
+            // Beast Master: Animal Companion attacks
+            if (char.subclass === 'BeastMaster' && char.subclassFeatures.companion && char.subclassFeatures.companion.hp > 0 && monster.hp > 0) {
+                const companion = char.subclassFeatures.companion;
+                const companionAttackMod = char.getModifier("wis") + char.getProficiencyBonus();
+                const companionAttack = await this.dm.rollAttackAnimated(companionAttackMod, false, false);
+                if (companionAttack.isCrit) {
+                    const compDmg = this.dm.rollDice(companion.damage) + this.dm.rollDice(companion.damage);
+                    this.applyDamageToMonster(monster, compDmg, "piercing");
+                    this.log(`🐺 ${companion.name} scores a CRITICAL bite for ${compDmg} damage!`, "success");
+                } else if (companionAttack.total >= monster.ac) {
+                    const compDmg = this.dm.rollDice(companion.damage);
+                    this.applyDamageToMonster(monster, compDmg, "piercing");
+                    this.log(`🐺 ${companion.name} bites for ${compDmg} damage!`, "combat");
+                } else {
+                    this.log(`🐺 ${companion.name}'s attack misses!`, "combat");
                 }
             }
             
@@ -6315,14 +7654,66 @@ class Game {
             this.dm.defendingThisTurn = true;
             
         } else if (action === "flee") {
-            const check = await this.dm.skillCheckAnimated("dex", 12);
+            // Cunning Action: Dash / Step of the Wind gives auto-flee
+            if (this.dm.cunningDash) {
+                this.dm.cunningDash = false;
+                this.log(`🏃 You dash away with blinding speed — escape is automatic!`, "success");
+                this.endCombat(false);
+                this.processingCombatAction = false;
+                return;
+            }
+            
+            // Check for Disengage (no opportunity attack if disengaged)
+            let disengaged = false;
+            if (this.dm.cunningDisengage) {
+                disengaged = true;
+                this.dm.cunningDisengage = false;
+                this.log(`🤸 You nimbly disengage, avoiding opportunity attacks!`, "dm");
+            }
+            
+            // Opportunity Attack: monster gets a free attack when you flee without disengaging
+            if (!disengaged && monster.hp > 0) {
+                this.log(`⚔️ ${monster.name} makes an opportunity attack as you try to flee!`, "danger");
+                const monsterAttackBonus = monster.attackBonus || Math.floor(monster.hp / 10) + 3;
+                const oaRoll = Math.floor(Math.random() * 20) + 1;
+                const oaTotal = oaRoll + monsterAttackBonus;
+                const playerAC = char.ac + (this.dm.defendingThisTurn ? 2 : 0);
+                
+                if (oaRoll === 20 || oaTotal >= playerAC) {
+                    const oaDmg = monster.damage ? this.dm.rollDice(monster.damage) : Math.floor(Math.random() * 6) + 2;
+                    const finalOaDmg = oaRoll === 20 ? oaDmg * 2 : oaDmg;
+                    
+                    // Half-Orc Relentless Endurance check
+                    if (char.hp - finalOaDmg <= 0 && char.race === "Half-Orc" && !char.racialAbilities.relentlessUsed) {
+                        char.hp = 1;
+                        char.racialAbilities.relentlessUsed = true;
+                        this.log(`💀 The attack would have dropped you, but your Relentless Endurance keeps you at 1 HP!`, "success");
+                    } else {
+                        char.hp = Math.max(0, char.hp - finalOaDmg);
+                        this.log(`💥 Opportunity attack hits for ${finalOaDmg} damage! (${oaRoll}+${monsterAttackBonus}=${oaTotal} vs AC ${playerAC})`, "danger");
+                    }
+                    
+                    // Sentinel feat: if monster has it, speed reduced to 0 — but since it's a player fleeing, Sentinel on monster stops the flee
+                    if (char.hp <= 0) {
+                        this.updateUI();
+                        this.processingCombatAction = false;
+                        return;
+                    }
+                } else {
+                    this.log(`⚔️ Opportunity attack misses! (${oaRoll}+${monsterAttackBonus}=${oaTotal} vs AC ${playerAC})`, "dm");
+                }
+            }
+            
+            // Flee check (Athletics/Acrobatics)
+            let fleeDC = disengaged ? 5 : 12;
+            const check = await this.dm.skillCheckAnimated("dex", fleeDC, false, false, "Acrobatics");
             if (check.success) {
-                this.log(`🏃 You successfully flee from combat! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 12)`, "success");
+                this.log(`🏃 You successfully flee from combat! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC ${fleeDC})`, "success");
                 this.endCombat(false);
                 this.processingCombatAction = false;
                 return;
             } else {
-                this.log(`❌ You fail to escape! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 12)`, "danger");
+                this.log(`❌ You fail to escape! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC ${fleeDC})`, "danger");
             }
             this.dm.defendingThisTurn = false;
         } else if (action === "spell") {
@@ -6520,6 +7911,15 @@ class Game {
             return;
         }
         
+        // Execute special abilities at start of monster turn (if any)
+        if (monster.specialAbilities && monster.specialAbilities.length > 0) {
+            for (const ability of monster.specialAbilities) {
+                if (ability.triggerChance && Math.random() < ability.triggerChance) {
+                    this.executeMonsterAbility(monster, ability, char);
+                }
+            }
+        }
+        
         // Decide target: player or companion?
         // 40% chance to target a companion if there are conscious companions
         const activeCompanions = (this.dm.party || []).filter(c => c.currentHp > 0);
@@ -6535,8 +7935,45 @@ class Game {
             return;
         }
         
+        // Determine number of attacks (multiattack)
+        const numAttacks = monster.multiattack || 1;
+        
+        for (let attackNum = 0; attackNum < numAttacks; attackNum++) {
+            if (char.hp <= 0 && char.deathSaves.failures >= 3) break; // Already dead
+            
+            if (numAttacks > 1 && attackNum === 0) {
+                this.log(`⚔️ The ${monster.name} uses Multiattack! (${numAttacks} attacks)`, "combat");
+            }
+            
+            this.monsterSingleAttack(monster, char, attackNum > 0);
+        }
+        
+        // Clear prone after being attacked (you can stand up)
+        char.removeCondition("prone");
+        
+        // Reset actions for next player turn
+        this.dm.resetActions();
+        
+        // Re-enable bonus action button for new turn
+        const bonusBtn = document.getElementById("bonusActionBtn");
+        if (bonusBtn) {
+            const hasBonusActions = this.getAvailableBonusActions().length > 0;
+            if (hasBonusActions) {
+                bonusBtn.classList.remove("hidden");
+                bonusBtn.disabled = false;
+                bonusBtn.innerHTML = '<span class="icon">⚡</span> Bonus <span class="shortcut-hint">[B]</span>';
+            } else {
+                bonusBtn.classList.add("hidden");
+            }
+        }
+        
+        this.updateCombatPartyDisplay();
+        this.updateUI();
+    }
+    
+    monsterSingleAttack(monster, char, isExtraAttack = false) {
         // Monster attack roll against player
-        let monsterAdvantage = this.dm.enemyAdvantageNextAttack || false;
+        let monsterAdvantage = (!isExtraAttack && this.dm.enemyAdvantageNextAttack) || false;
         let monsterDisadvantage = false;
         
         if (monster.conditions?.blinded) monsterDisadvantage = true;
@@ -6544,7 +7981,7 @@ class Game {
         if (monster.conditions?.restrained) monsterDisadvantage = true;
         if (char.hasCondition("prone")) monsterAdvantage = true;
         
-        this.dm.enemyAdvantageNextAttack = false;
+        if (!isExtraAttack) this.dm.enemyAdvantageNextAttack = false;
         
         let roll1 = Math.floor(Math.random() * 20) + 1;
         let roll2 = Math.floor(Math.random() * 20) + 1;
@@ -6557,8 +7994,10 @@ class Game {
         }
         
         let defenseBonus = this.dm.defendingThisTurn ? 2 : 0;
-        defenseBonus -= this.dm.tempAcPenalty || 0;
-        this.dm.tempAcPenalty = 0;
+        if (!isExtraAttack) {
+            defenseBonus -= this.dm.tempAcPenalty || 0;
+            this.dm.tempAcPenalty = 0;
+        }
         
         // Shield spell adds +5 AC
         if (char.buffs.shieldActive) {
@@ -6566,72 +8005,206 @@ class Game {
             char.buffs.shieldActive = false; // Expires after this attack
         }
         
-        // Prone gives advantage to melee, disadvantage to ranged
-        if (char.hasCondition("prone")) {
-            // Assume most monsters are melee
-            monsterAdvantage = true;
-        }
-        
+        const attackBonus = this.getMonsterAttackBonus(monster);
         const isCrit = monsterAttack === 20;
         const isFumble = monsterAttack === 1;
         
+        // Use the monster's attack bonus for the total
+        const totalAttackRoll = monsterAttack + attackBonus;
+        
         if (isFumble) {
-            this.log(`🎉 The ${monster.name} fumbles their attack!`, "success");
+            this.log(`🎉 The ${monster.name} fumbles ${isExtraAttack ? 'an extra ' : 'their '}attack!`, "success");
             soundManager.playMiss();
-        } else if (isCrit || monsterAttack >= char.ac + defenseBonus) {
-            let damage = this.dm.rollDice(monster.damage);
+        } else if (isCrit || totalAttackRoll >= char.ac + defenseBonus) {
+            // Determine damage dice — support multiple attack types
+            let damageDice = monster.damage;
+            let damageType = monster.damageType || "physical";
+            
+            // If monster has attacks array, pick the appropriate one
+            if (monster.attacks && monster.attacks.length > 0) {
+                const attackChoice = monster.attacks[isExtraAttack ? Math.min(1, monster.attacks.length - 1) : 0];
+                damageDice = attackChoice.damage || monster.damage;
+                damageType = attackChoice.type || damageType;
+            }
+            
+            let damage = this.dm.rollDice(damageDice);
             
             // Critical hit from monster
             if (isCrit) {
                 damage *= 2;
                 soundManager.playCritical();
-                this.log(`💀 CRITICAL HIT! The ${monster.name} crits you for ${damage} damage!`, "danger");
+                this.log(`💀 CRITICAL HIT! The ${monster.name} crits you for ${damage} ${damageType} damage!`, "danger");
             } else {
                 soundManager.playHit();
-                this.log(`💥 The ${monster.name} hits you for ${damage} damage!`, "danger");
+                this.log(`💥 The ${monster.name} hits you for ${damage} ${damageType} damage! (${monsterAttack}+${attackBonus}=${totalAttackRoll} vs AC ${char.ac + defenseBonus})`, "danger");
             }
             
             // Barbarian Rage: resistance to bludgeoning, piercing, and slashing damage
             if (char.raging && char.charClass === "Barbarian") {
-                damage = Math.floor(damage / 2);
-                this.log(`💢 Rage reduces damage to ${damage}!`, "success");
+                const physicalTypes = ["bludgeoning", "piercing", "slashing", "physical"];
+                if (char.subclass === 'TotemWarrior' || physicalTypes.includes(damageType)) {
+                    damage = Math.floor(damage / 2);
+                    if (char.subclass === 'TotemWarrior') {
+                        this.log(`🐻 Bear Totem Rage absorbs the blow! Damage reduced to ${damage}!`, "success");
+                    } else {
+                        this.log(`💢 Rage reduces damage to ${damage}!`, "success");
+                    }
+                }
             }
             
-            // Taking damage while at 0 HP = automatic death save failure
-            if (char.hp === 0) {
-                char.deathSaves.failures++;
-                if (isCrit) char.deathSaves.failures++; // Crit = 2 failures
-                this.log(`Taking damage while dying! (${char.deathSaves.failures}/3 failures)`, "danger");
-                if (char.deathSaves.failures >= 3) {
-                    this.log("💀 You have died...", "danger");
-                    soundManager.playDeath();
-                    this.gameOver();
+            // Abjuration Wizard: Arcane Ward absorbs damage first
+            if (char.subclass === 'Abjuration' && char.subclassFeatures.arcaneWardHp > 0) {
+                const absorbed = Math.min(damage, char.subclassFeatures.arcaneWardHp);
+                char.subclassFeatures.arcaneWardHp -= absorbed;
+                damage -= absorbed;
+                this.log(`🛡️ Arcane Ward absorbs ${absorbed} damage! (Ward HP: ${char.subclassFeatures.arcaneWardHp})`, "success");
+                if (damage <= 0) {
+                    this.log(`✨ The Arcane Ward blocked all the damage!`, "success");
+                    this.stats.damageThisCombat += 0;
                     return;
                 }
-            } else if (!char.takeDamage(damage)) {
-                // Dropped to 0 HP
+            }
+            
+            if (damage > 0) {
+                this.applyMonsterDamageToPlayer(char, damage, isCrit, damageType);
+            }
+        } else {
+            soundManager.playMiss();
+            if (!isExtraAttack) {
+                this.log(`🛡️ The ${monster.name} misses! (${monsterAttack}+${attackBonus}=${totalAttackRoll} vs AC ${char.ac + defenseBonus})`, "dm");
+            } else {
+                this.log(`🛡️ Extra attack misses!`, "dm");
+            }
+        }
+    }
+    
+    applyMonsterDamageToPlayer(char, damage, isCrit = false, damageType = null) {
+        // Taking damage while at 0 HP = automatic death save failure
+        if (char.hp === 0) {
+            char.deathSaves.failures++;
+            if (isCrit) char.deathSaves.failures++; // Crit = 2 failures
+            this.log(`Taking damage while dying! (${char.deathSaves.failures}/3 failures)`, "danger");
+            if (char.deathSaves.failures >= 3) {
+                this.log("💀 You have died...", "danger");
+                soundManager.playDeath();
+                this.gameOver();
+                return;
+            }
+        } else if (!char.takeDamage(damage, damageType)) {
+            // Dropped to 0 HP (or Relentless Endurance triggered)
+            if (char.hp > 0) {
+                // Half-Orc Relentless Endurance triggered
+                this.stats.damageThisCombat += damage;
+                this.log(`🔥 Half-Orc Relentless Endurance! You refuse to fall — 1 HP remaining!`, "success");
+            } else {
                 this.stats.damageThisCombat += damage;
                 soundManager.playDeath();
                 this.log("💀 You fall unconscious! Roll death saves to survive!", "danger");
                 this.showDeathSaveButton();
-            } else {
-                // Still conscious, track damage
-                this.stats.damageThisCombat += damage;
             }
         } else {
-            soundManager.playMiss();
-            this.log(`🛡️ The ${monster.name} misses!`, "dm");
+            // Still conscious, track damage
+            this.stats.damageThisCombat += damage;
+            
+            // Racial resistance notification
+            if (damageType) {
+                if ((char.race === "Dragonborn" && damageType === "fire") ||
+                    (char.race === "Tiefling" && damageType === "fire") ||
+                    (char.race === "Dwarf" && damageType === "poison")) {
+                    this.log(`🛡️ Racial resistance halves the ${damageType} damage!`, "success");
+                }
+            }
+            
+            // Concentration check when taking damage
+            if (char.concentrating) {
+                const concCheck = this.dm.concentrationCheck(damage);
+                if (!concCheck.success) {
+                    this.dropConcentration(char, concCheck.message);
+                } else if (concCheck.message) {
+                    this.log(`🔮 ${concCheck.message}`, "success");
+                }
+            }
         }
-        
-        // Clear prone after being attacked (you can stand up)
-        char.removeCondition("prone");
-        
-        // Reset actions for next player turn
-        this.dm.resetActions();
-        this.updateCombatPartyDisplay();
-        this.updateUI();
     }
     
+    executeMonsterAbility(monster, ability, char) {
+        const abilityName = ability.name || "Special Ability";
+        
+        switch (ability.type) {
+            case "breath":
+                // Breath weapon (dragon-type): DEX save for half damage
+                const breathDmg = this.dm.rollDice(ability.damage);
+                const saveDC = ability.dc || this.getMonsterSaveDC(monster);
+                const dexSave = this.dm.rollDice("1d20") + char.getModifier("dex");
+                if (dexSave >= saveDC) {
+                    const halfDmg = Math.floor(breathDmg / 2);
+                    this.log(`🔥 ${monster.name} uses ${abilityName}! You dodge (DEX save ${dexSave} vs DC ${saveDC}) — ${halfDmg} ${ability.damageType || 'fire'} damage!`, "danger");
+                    this.applyMonsterDamageToPlayer(char, halfDmg);
+                } else {
+                    this.log(`🔥 ${monster.name} uses ${abilityName}! (DEX save ${dexSave} vs DC ${saveDC}) — ${breathDmg} ${ability.damageType || 'fire'} damage!`, "danger");
+                    this.applyMonsterDamageToPlayer(char, breathDmg);
+                }
+                break;
+                
+            case "frighten":
+                // Frightful Presence: WIS save or become frightened
+                const wisSave = this.dm.rollDice("1d20") + char.getModifier("wis");
+                const frightDC = ability.dc || this.getMonsterSaveDC(monster);
+                if (wisSave < frightDC) {
+                    char.addCondition("frightened");
+                    this.log(`😱 ${monster.name} uses ${abilityName}! (WIS save ${wisSave} vs DC ${frightDC}) You are frightened!`, "danger");
+                } else {
+                    this.log(`💪 ${monster.name} uses ${abilityName}! (WIS save ${wisSave} vs DC ${frightDC}) You resist the fear!`, "success");
+                }
+                break;
+                
+            case "poison":
+                // Poison attack: CON save or take poison damage + poisoned condition
+                const conSave = this.dm.rollDice("1d20") + char.getModifier("con");
+                const poisonDC = ability.dc || this.getMonsterSaveDC(monster);
+                const poisonDmg = this.dm.rollDice(ability.damage || "2d6");
+                if (conSave < poisonDC) {
+                    char.addCondition("poisoned");
+                    this.log(`☠️ ${monster.name} uses ${abilityName}! (CON save ${conSave} vs DC ${poisonDC}) You take ${poisonDmg} poison damage and are poisoned!`, "danger");
+                    this.applyMonsterDamageToPlayer(char, poisonDmg);
+                } else {
+                    const halfPoison = Math.floor(poisonDmg / 2);
+                    this.log(`💪 ${monster.name} uses ${abilityName}! (CON save ${conSave} vs DC ${poisonDC}) You resist! ${halfPoison} poison damage.`, "success");
+                    this.applyMonsterDamageToPlayer(char, halfPoison);
+                }
+                break;
+                
+            case "heal":
+                // Monster heals itself (like Troll regeneration)
+                const healAmount = this.dm.rollDice(ability.healing || "1d10");
+                const oldHp = monster.hp;
+                monster.hp = Math.min(monster.maxHp || monster.hp + healAmount, monster.hp + healAmount);
+                const healed = monster.hp - oldHp;
+                if (healed > 0) {
+                    this.log(`💚 ${monster.name} ${abilityName}! Recovers ${healed} HP. (${monster.hp} HP)`, "danger");
+                    document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+                }
+                break;
+                
+            case "summon":
+                this.log(`📢 ${monster.name} ${abilityName}!`, "danger");
+                // Summon effect — adds temp HP to monster as "reinforcements"
+                const bonusHp = this.dm.rollDice(ability.bonusHp || "2d6");
+                monster.hp += bonusHp;
+                if (monster.maxHp) monster.maxHp += bonusHp;
+                this.log(`Reinforcements arrive! (+${bonusHp} HP)`, "danger");
+                document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+                break;
+                
+            default:
+                // Generic ability — just logs a message
+                if (ability.message) {
+                    this.log(`⚡ ${monster.name}: ${ability.message}`, "danger");
+                }
+                break;
+        }
+    }
+
     monsterAttacksCompanion(monster, companion) {
         const monsterAttack = Math.floor(Math.random() * 20) + 1;
         const attackBonus = Math.floor((monster.ac - 10) / 4) + 2; // Estimate attack bonus
@@ -6729,6 +8302,498 @@ class Game {
             combatActions.appendChild(btn);
         }
     }
+
+    // ===== BONUS ACTION ECONOMY =====
+    
+    getAvailableBonusActions() {
+        const char = this.character;
+        const actions = [];
+        
+        // Check if bonus action already used this turn
+        if (!this.dm.actions.bonusAction) return actions;
+        
+        // Fighter: Second Wind (1d10 + level HP, once per short rest)
+        if (char.charClass === "Fighter" && !char.secondWindUsed) {
+            actions.push({
+                id: "secondWind",
+                name: "Second Wind",
+                icon: "💨",
+                description: `Heal 1d10+${char.level} HP (once per short rest)`,
+                className: "Fighter"
+            });
+        }
+        
+        // Rogue: Cunning Action (Dash, Disengage, or Hide)
+        if (char.charClass === "Rogue") {
+            actions.push({
+                id: "cunningAction",
+                name: "Cunning Action",
+                icon: "🗡️",
+                description: "Dash, Disengage, or Hide as a bonus action",
+                className: "Rogue"
+            });
+        }
+        
+        // Monk: Ki abilities (level 2+)
+        if (char.charClass === "Monk" && char.kiPoints > 0 && char.level >= 2) {
+            actions.push({
+                id: "flurryOfBlows",
+                name: "Flurry of Blows",
+                icon: "👊",
+                description: `Two unarmed strikes (1 ki) — ${char.kiPoints}/${char.kiMax} ki`,
+                className: "Monk"
+            });
+            actions.push({
+                id: "patientDefense",
+                name: "Patient Defense",
+                icon: "🧘",
+                description: `Dodge action as bonus (1 ki) — ${char.kiPoints}/${char.kiMax} ki`,
+                className: "Monk"
+            });
+            actions.push({
+                id: "stepOfTheWind",
+                name: "Step of the Wind",
+                icon: "💨",
+                description: `Dash or Disengage as bonus (1 ki) — ${char.kiPoints}/${char.kiMax} ki`,
+                className: "Monk"
+            });
+        }
+        
+        // Bard: Bardic Inspiration
+        if (char.charClass === "Bard" && char.bardicInspirationUses > 0) {
+            actions.push({
+                id: "bardicInspiration",
+                name: "Bardic Inspiration",
+                icon: "🎵",
+                description: `Grant ${char.bardicInspirationDie} inspiration (${char.bardicInspirationUses} uses left)`,
+                className: "Bard"
+            });
+        }
+        
+        // Paladin: Lay on Hands (as bonus heal pool)
+        if (char.charClass === "Paladin" && char.layOnHandsPool > 0) {
+            actions.push({
+                id: "layOnHands",
+                name: "Lay on Hands",
+                icon: "✋",
+                description: `Heal up to ${char.layOnHandsPool} HP from your pool`,
+                className: "Paladin"
+            });
+        }
+        
+        // Sorcerer: Quickened Spell (costs 2 sorcery points)
+        if (char.charClass === "Sorcerer" && char.sorceryPoints >= 2 && char.level >= 3) {
+            actions.push({
+                id: "quickenedSpell",
+                name: "Quickened Spell",
+                icon: "⚡",
+                description: `Cast a spell as bonus action (2 sorcery pts, ${char.sorceryPoints} left)`,
+                className: "Sorcerer"
+            });
+        }
+        
+        // Two-Weapon Fighting: off-hand attack if wielding light weapon
+        if (char.equipped.weapon) {
+            const weaponData = char.getWeaponData(char.equipped.weapon, this.dm.campaignId);
+            if (weaponData && weaponData.properties && weaponData.properties.includes("light")) {
+                actions.push({
+                    id: "offhandAttack",
+                    name: "Off-Hand Attack",
+                    icon: "🗡️",
+                    description: `Attack with off hand (${weaponData.damage} without ability mod)`,
+                    className: "Any"
+                });
+            }
+        }
+        
+        // Dragonborn: Breath Weapon (action, but we treat as bonus for flow)
+        if (char.race === "Dragonborn" && char.racialAbilities && !char.racialAbilities.breathWeaponUsed) {
+            const breathDmg = char.getBreathWeaponDamage();
+            const breathType = char.racialAbilities.breathType || "fire";
+            actions.push({
+                id: "breathWeapon",
+                name: "Breath Weapon",
+                icon: "🐉",
+                description: `${breathDmg} ${breathType} damage, DEX save for half (recharges on short rest)`,
+                className: "Dragonborn"
+            });
+        }
+        
+        return actions;
+    }
+    
+    showBonusActionMenu() {
+        if (!this.dm.inCombat) return;
+        
+        const actions = this.getAvailableBonusActions();
+        if (actions.length === 0) {
+            this.log("No bonus actions available!", "danger");
+            return;
+        }
+        
+        // Create modal
+        let modal = document.getElementById("bonusActionModal");
+        if (!modal) {
+            modal = document.createElement("div");
+            modal.id = "bonusActionModal";
+            modal.className = "modal";
+            document.body.appendChild(modal);
+        }
+        
+        let actionsHtml = actions.map(a => `
+            <div class="spell-btn" onclick="game.executeBonusAction('${a.id}')" style="cursor:pointer; padding: 10px; margin: 5px 0; border: 1px solid #7b2d8e; border-radius: 8px; background: rgba(123,45,142,0.15);">
+                <span style="font-size:1.2em">${a.icon}</span> <strong>${a.name}</strong>
+                <div style="font-size:0.85em; color:#aaa; margin-top:2px">${a.description}</div>
+            </div>
+        `).join("");
+        
+        modal.innerHTML = `
+            <div class="modal-content spell-modal-content">
+                <h2>⚡ Bonus Actions</h2>
+                <div style="max-height: 400px; overflow-y: auto;">
+                    ${actionsHtml}
+                </div>
+                <button class="close-btn" onclick="game.closeBonusActionMenu()">Cancel</button>
+            </div>
+        `;
+        
+        modal.style.display = "flex";
+    }
+    
+    closeBonusActionMenu() {
+        const modal = document.getElementById("bonusActionModal");
+        if (modal) modal.style.display = "none";
+    }
+    
+    async executeBonusAction(actionId) {
+        this.closeBonusActionMenu();
+        
+        if (!this.dm.actions.bonusAction) {
+            this.log("You've already used your bonus action this turn!", "danger");
+            return;
+        }
+        
+        const char = this.character;
+        const monster = this.dm.currentEnemy;
+        
+        switch (actionId) {
+            case "secondWind":
+                await this.bonusSecondWind(char);
+                break;
+            case "cunningAction":
+                await this.bonusCunningAction(char);
+                break;
+            case "flurryOfBlows":
+                await this.bonusFlurryOfBlows(char, monster);
+                break;
+            case "patientDefense":
+                await this.bonusPatientDefense(char);
+                break;
+            case "stepOfTheWind":
+                await this.bonusStepOfTheWind(char);
+                break;
+            case "bardicInspiration":
+                await this.bonusBardicInspiration(char);
+                break;
+            case "layOnHands":
+                await this.bonusLayOnHands(char);
+                break;
+            case "quickenedSpell":
+                await this.bonusQuickenedSpell(char);
+                break;
+            case "offhandAttack":
+                await this.bonusOffhandAttack(char, monster);
+                break;
+            case "breathWeapon":
+                await this.bonusBreathWeapon(char, monster);
+                break;
+            default:
+                this.log("Unknown bonus action!", "danger");
+                return;
+        }
+        
+        // Consume the bonus action
+        this.dm.useAction('bonusAction');
+        
+        // Update bonus action button state
+        const bonusBtn = document.getElementById("bonusActionBtn");
+        if (bonusBtn) {
+            bonusBtn.disabled = true;
+            bonusBtn.innerHTML = '<span class="icon">⚡</span> Used';
+        }
+        
+        this.updateUI();
+    }
+    
+    async bonusSecondWind(char) {
+        const healing = this.dm.rollDice("1d10") + char.level;
+        const oldHp = char.hp;
+        char.hp = Math.min(char.maxHp, char.hp + healing);
+        const healed = char.hp - oldHp;
+        char.secondWindUsed = true;
+        this.log(`💨 Second Wind! You catch your breath and recover ${healed} HP! (${char.hp}/${char.maxHp})`, "success");
+    }
+    
+    async bonusCunningAction(char) {
+        // Simplified: Cunning Action gives a defensive benefit 
+        const options = ["Dash", "Disengage", "Hide"];
+        const choice = options[Math.floor(Math.random() * options.length)];
+        
+        if (choice === "Dash") {
+            this.log(`🏃 Cunning Action: Dash! You dart around the battlefield with extra movement.`, "success");
+            // Gives advantage on next flee attempt
+            this.dm.cunningDash = true;
+        } else if (choice === "Disengage") {
+            this.log(`🗡️ Cunning Action: Disengage! You slip away — the enemy can't make opportunity attacks.`, "success");
+            this.dm.cunningDisengage = true;
+        } else {
+            // Hide: gain advantage on next attack
+            const stealthCheck = this.dm.rollDice("1d20") + char.getModifier("dex");
+            if (stealthCheck >= (this.dm.currentEnemy?.ac || 12)) {
+                this.log(`🫥 Cunning Action: Hide! You melt into the shadows. (Stealth: ${stealthCheck}) Next attack has advantage!`, "success");
+                char.buffs.hiddenStrike = true;
+            } else {
+                this.log(`🫥 Cunning Action: Hide attempt failed! (Stealth: ${stealthCheck}) The enemy spots you.`, "danger");
+            }
+        }
+    }
+    
+    async bonusFlurryOfBlows(char, monster) {
+        if (char.kiPoints < 1) {
+            this.log("Not enough ki points!", "danger");
+            return;
+        }
+        char.kiPoints--;
+        
+        const profBonus = char.getProficiencyBonus();
+        const attackMod = Math.max(char.getModifier("dex"), char.getModifier("str"));
+        const totalMod = attackMod + profBonus;
+        const martialDie = char.martialArtsDie || "1d4";
+        
+        this.log(`👊 Flurry of Blows! (${char.kiPoints}/${char.kiMax} ki remaining)`, "combat");
+        
+        for (let i = 0; i < 2; i++) {
+            await this.delay(400);
+            const roll = this.dm.rollDice("1d20");
+            const total = roll + totalMod;
+            const isCrit = roll === 20;
+            
+            if (isCrit) {
+                const dmg = this.dm.rollDice(martialDie) + this.dm.rollDice(martialDie) + attackMod;
+                monster.hp -= dmg;
+                this.log(`🎯 CRITICAL unarmed strike ${i+1}! ${dmg} damage!`, "success");
+            } else if (total >= monster.ac) {
+                const dmg = this.dm.rollDice(martialDie) + attackMod;
+                monster.hp -= dmg;
+                this.log(`👊 Unarmed strike ${i+1} hits! (${roll}+${totalMod}=${total} vs AC ${monster.ac}) ${dmg} damage!`, "combat");
+            } else {
+                this.log(`❌ Unarmed strike ${i+1} misses! (${roll}+${totalMod}=${total} vs AC ${monster.ac})`, "combat");
+            }
+            
+            if (monster.hp <= 0) break;
+        }
+        
+        document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+        if (monster.hp <= 0) {
+            this.handleMonsterDeath(monster);
+        }
+    }
+    
+    async bonusPatientDefense(char) {
+        if (char.kiPoints < 1) {
+            this.log("Not enough ki points!", "danger");
+            return;
+        }
+        char.kiPoints--;
+        this.dm.defendingThisTurn = true;
+        this.log(`🧘 Patient Defense! You adopt a defensive stance (+2 AC this round). (${char.kiPoints}/${char.kiMax} ki)`, "success");
+    }
+    
+    async bonusStepOfTheWind(char) {
+        if (char.kiPoints < 1) {
+            this.log("Not enough ki points!", "danger");
+            return;
+        }
+        char.kiPoints--;
+        // Gives advantage on next flee attempt and +2 AC as movement perk
+        this.dm.cunningDash = true;
+        this.log(`💨 Step of the Wind! Your movement doubles — you move like the wind! (${char.kiPoints}/${char.kiMax} ki)`, "success");
+    }
+    
+    async bonusBardicInspiration(char) {
+        if (char.bardicInspirationUses <= 0) {
+            this.log("No Bardic Inspiration uses remaining!", "danger");
+            return;
+        }
+        char.bardicInspirationUses--;
+        
+        // Apply inspiration buff — adds die to next attack or check
+        char.buffs.bardicInspiration = char.bardicInspirationDie;
+        this.log(`🎵 Bardic Inspiration! You play an inspiring tune, granting a ${char.bardicInspirationDie} bonus to your next attack or ability check! (${char.bardicInspirationUses} uses left)`, "success");
+    }
+    
+    async bonusLayOnHands(char) {
+        if (char.layOnHandsPool <= 0) {
+            this.log("Lay on Hands pool is empty!", "danger");
+            return;
+        }
+        
+        // Heal based on how hurt the character is, up to pool max
+        const missing = char.maxHp - char.hp;
+        const healAmount = Math.min(missing, char.layOnHandsPool, Math.max(5, Math.ceil(char.level * 2.5)));
+        
+        if (healAmount <= 0) {
+            this.log("You're already at full health!", "danger");
+            return;
+        }
+        
+        char.layOnHandsPool -= healAmount;
+        char.hp = Math.min(char.maxHp, char.hp + healAmount);
+        this.log(`✋ Lay on Hands! Divine energy flows through you, healing ${healAmount} HP. (${char.hp}/${char.maxHp}, pool: ${char.layOnHandsPool})`, "success");
+    }
+    
+    async bonusQuickenedSpell(char) {
+        if (char.sorceryPoints < 2) {
+            this.log("Not enough sorcery points! (Need 2)", "danger");
+            return;
+        }
+        char.sorceryPoints -= 2;
+        this.log(`⚡ Quickened Spell! You channel metamagic to cast with lightning speed. (${char.sorceryPoints}/${char.sorceryPointsMax} sorcery pts)`, "success");
+        // Open spell menu — the spell cast from here doesn't consume the main action
+        char.buffs.quickenedSpell = true;
+        this.showSpellMenu();
+    }
+    
+    async bonusOffhandAttack(char, monster) {
+        const weaponData = char.getWeaponData(char.equipped.weapon, this.dm.campaignId);
+        if (!weaponData) return;
+        
+        const profBonus = char.getProficiencyBonus();
+        let attackStat = weaponData.stat;
+        if (weaponData.properties && weaponData.properties.includes("finesse")) {
+            attackStat = char.getModifier("dex") > char.getModifier("str") ? "dex" : "str";
+        }
+        const attackMod = char.getModifier(attackStat);
+        const totalMod = attackMod + profBonus;
+        
+        const roll = this.dm.rollDice("1d20");
+        const total = roll + totalMod;
+        const isCrit = roll === 20;
+        
+        if (isCrit) {
+            // Off-hand does NOT add ability modifier to damage (unless Two-Weapon Fighting style)
+            const dmg = this.dm.rollDice(weaponData.damage) + this.dm.rollDice(weaponData.damage);
+            monster.hp -= dmg;
+            this.log(`🎯 CRITICAL off-hand strike! ${dmg} damage!`, "success");
+        } else if (total >= monster.ac) {
+            // No ability mod on damage for off-hand (RAW)
+            const dmg = this.dm.rollDice(weaponData.damage);
+            monster.hp -= dmg;
+            this.log(`🗡️ Off-hand attack hits! (${roll}+${totalMod}=${total} vs AC ${monster.ac}) ${dmg} damage!`, "combat");
+        } else {
+            this.log(`❌ Off-hand attack misses! (${roll}+${totalMod}=${total} vs AC ${monster.ac})`, "combat");
+        }
+        
+        document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+        if (monster.hp <= 0) {
+            this.handleMonsterDeath(monster);
+        }
+    }
+    
+    async bonusBreathWeapon(char, monster) {
+        if (!monster) return;
+        if (char.race !== "Dragonborn" || char.racialAbilities.breathWeaponUsed) {
+            this.log("Breath weapon already used!", "danger");
+            return;
+        }
+        
+        char.racialAbilities.breathWeaponUsed = true;
+        const breathDmg = char.getBreathWeaponDamage();
+        const breathType = char.racialAbilities.breathType || "fire";
+        const saveDC = 8 + char.getModifier("con") + char.getProficiencyBonus();
+        
+        const damage = this.dm.rollDice(breathDmg);
+        const monsterSave = this.dm.rollDice("1d20") + (monster.saveMod || 0);
+        
+        this.log(`🐉 You unleash your ${breathType} Breath Weapon! (DC ${saveDC} DEX save)`, "combat");
+        
+        if (monsterSave >= saveDC) {
+            const halfDmg = Math.floor(damage / 2);
+            this.applyDamageToMonster(monster, halfDmg, breathType);
+            this.log(`🛡️ ${monster.name} partially resists! ${halfDmg} ${breathType} damage (saved: ${monsterSave} vs DC ${saveDC})`, "combat");
+        } else {
+            this.applyDamageToMonster(monster, damage, breathType);
+            this.log(`🔥 ${monster.name} takes ${damage} ${breathType} damage! (failed save: ${monsterSave} vs DC ${saveDC})`, "success");
+        }
+        
+        document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+        if (monster.hp <= 0) {
+            this.handleMonsterDeath(monster);
+        }
+    }
+    
+    // ===== END BONUS ACTION ECONOMY =====
+
+    // ===== MONSTER STAT BLOCKS =====
+    
+    /**
+     * Apply damage to a monster, checking resistances, immunities, and vulnerabilities.
+     * @param {object} monster - The monster object
+     * @param {number} damage - Raw damage amount
+     * @param {string} damageType - The type of damage (e.g., "slashing", "fire", "radiant")
+     * @returns {object} { finalDamage, message } 
+     */
+    applyDamageToMonster(monster, damage, damageType = "physical") {
+        let finalDamage = damage;
+        let message = "";
+        
+        // Normalize damage type
+        const dtype = (damageType || "physical").toLowerCase();
+        
+        // Check immunity first
+        if (monster.immunities && monster.immunities.includes(dtype)) {
+            finalDamage = 0;
+            message = `💀 The ${monster.name} is IMMUNE to ${dtype} damage!`;
+        }
+        // Check resistance
+        else if (monster.resistances && monster.resistances.includes(dtype)) {
+            finalDamage = Math.floor(damage / 2);
+            message = `🛡️ The ${monster.name} RESISTS ${dtype} damage! (${damage} → ${finalDamage})`;
+        }
+        // Check vulnerability
+        else if (monster.vulnerabilities && monster.vulnerabilities.includes(dtype)) {
+            finalDamage = damage * 2;
+            message = `💥 The ${monster.name} is VULNERABLE to ${dtype} damage! (${damage} → ${finalDamage})`;
+        }
+        
+        monster.hp -= finalDamage;
+        
+        // Update enemy HP display
+        const hpEl = document.getElementById("enemyHp");
+        if (hpEl) hpEl.textContent = Math.max(0, monster.hp);
+        
+        return { finalDamage, message };
+    }
+    
+    /**
+     * Get the attack bonus for a monster based on its stat block
+     */
+    getMonsterAttackBonus(monster) {
+        if (monster.attackBonus !== undefined) return monster.attackBonus;
+        // Estimate from AC: roughly (AC - 10) / 2 + proficiency
+        return Math.floor((monster.ac - 10) / 4) + 2;
+    }
+    
+    /**
+     * Get the save DC for monster abilities
+     */
+    getMonsterSaveDC(monster) {
+        if (monster.saveDC !== undefined) return monster.saveDC;
+        // Estimate: 8 + proficiency + ability mod
+        return 8 + Math.floor(monster.xp / 500) + 2;
+    }
+    
+    // ===== END MONSTER STAT BLOCKS =====
 
     endCombat(victory) {
         this.dm.inCombat = false;
@@ -6837,7 +8902,8 @@ class Game {
                     spellList.innerHTML += `<div class="spell-section-header">${ordinal} Level Spells (${slotsLeft} slots)</div>`;
                     spellsByLevel[lvl].forEach(({ name, spell }) => {
                         const canCast = char.canCastSpell(name);
-                        spellList.innerHTML += this.createSpellButton(name, spell, canCast);
+                        const canRitual = !canCast && spell.ritual && char.canCastRitual(name) && !this.dm.inCombat;
+                        spellList.innerHTML += this.createSpellButton(name, spell, canCast || canRitual ? true : canCast);
                     });
                 }
             }
@@ -6867,15 +8933,24 @@ class Game {
         const levelText = spell.level === 0 ? "Cantrip" : `Level ${spell.level}`;
         const disabledClass = canCast ? "" : "disabled";
         const disabledAttr = canCast ? "" : "disabled";
+        const ritualTag = spell.ritual ? ' <span class="ritual-tag">🕯️ Ritual</span>' : '';
+        const concTag = spell.concentration ? ' <span class="conc-tag">◎</span>' : '';
+        
+        // Show ritual cast button if can cast as ritual but not enough slots
+        let ritualBtn = "";
+        if (spell.ritual && !canCast && char.canCastRitual(spellName) && !this.dm.inCombat) {
+            ritualBtn = `<div class="spell-ritual-btn" onclick="game.castSpellAsRitual('${spellName}')">🕯️ Cast as Ritual (no slot)</div>`;
+        }
         
         return `
             <div class="spell-option ${disabledClass}" onclick="${canCast ? `game.castSpell('${spellName}')` : ''}">
-                <div class="spell-name">${spellName}</div>
+                <div class="spell-name">${spellName}${ritualTag}${concTag}</div>
                 <div class="spell-info">
                     <span class="spell-level">${levelText}</span>
                     <span class="spell-effect">${effectText}</span>
                 </div>
                 <div class="spell-desc">${spell.description}</div>
+                ${ritualBtn}
             </div>
         `;
     }
@@ -6885,6 +8960,63 @@ class Game {
         if (modal) {
             modal.classList.remove("active");
         }
+    }
+    
+    async castSpellAsRitual(spellName) {
+        const char = this.character;
+        const spell = GAME_DATA.spells[spellName];
+        
+        if (!spell || !spell.ritual) {
+            this.log("This spell cannot be cast as a ritual.", "danger");
+            return;
+        }
+        if (!char.canCastRitual(spellName)) {
+            this.log("You can't cast this spell as a ritual.", "danger");
+            return;
+        }
+        if (this.dm.inCombat) {
+            this.log("You can't cast a ritual during combat — it takes 10 minutes!", "danger");
+            return;
+        }
+        
+        this.closeSpellMenu();
+        
+        // Ritual casting takes 10 extra minutes but uses no spell slot
+        this.log(`🕯️ You begin a ritual casting of ${spellName}... (10 minutes)`, "dm");
+        this.dm.advanceTime(0.167); // ~10 minutes
+        
+        // Apply the spell effect
+        if (spell.utility) {
+            this.log(`✨ ${spellName} takes effect through the ritual! ${spell.description}`, "success");
+            // Detect Magic: reveal magic items in inventory
+            if (spellName === "Detect Magic") {
+                const magicItems = char.inventory.filter(item => {
+                    const weapon = char.getWeaponData(item);
+                    return weapon && weapon.magicBonus;
+                });
+                if (magicItems.length > 0) {
+                    this.log(`🔮 You sense magic emanating from: ${magicItems.join(", ")}`, "dm");
+                } else {
+                    this.log(`🔮 You sense no magical auras nearby.`, "dm");
+                }
+            }
+            // Identify: identify a random magic item
+            if (spellName === "Identify") {
+                const unidentified = char.inventory.filter(item => {
+                    const weapon = char.getWeaponData(item);
+                    return weapon && weapon.magicBonus && !char.isAttuned(item);
+                });
+                if (unidentified.length > 0) {
+                    const item = unidentified[0];
+                    const weapon = char.getWeaponData(item);
+                    this.log(`📖 You identify ${item}: +${weapon.magicBonus} magical weapon (${weapon.damage} ${weapon.type} damage). Requires attunement.`, "success");
+                } else {
+                    this.log(`📖 You have no unidentified magic items.`, "dm");
+                }
+            }
+        }
+        
+        this.updateUI();
     }
     
     async castSpell(spellName) {
@@ -6911,6 +9043,15 @@ class Game {
         const spellMod = char.getSpellcastingMod();
         const spellAttack = char.getSpellAttackBonus();
         const spellDC = char.getSpellSaveDC();
+        
+        // Concentration check: drop existing concentration if casting a new concentration spell
+        if (spell.concentration) {
+            if (char.concentrating) {
+                this.dropConcentration(char, `casting ${spellName}`);
+            }
+            char.concentrating = spellName;
+            this.log(`🔮 Concentrating on ${spellName}.`, "dm");
+        }
         
         // Handle different spell types
         if (spell.damage) {
@@ -6967,12 +9108,27 @@ class Game {
     async handleDamageSpell(spellName, spell, monster, spellAttack, spellDC, spellMod) {
         // Get scaled damage for cantrips
         const spellDamage = this.getScaledSpellDamage(spell);
+        const char = this.character;
+        
+        // Evocation: Empowered Evocation (level 14) - add INT mod to damage
+        let evocationBonus = 0;
+        if (char.subclass === 'Evocation' && char.subclassFeatures['Evocation_14'] && spell.school === 'Evocation') {
+            evocationBonus = char.getModifier('int');
+        }
+        
+        // Light Domain (14): Corona of Light - extra 1d8 radiant on damaging spells
+        let lightBonus = 0;
+        if (char.subclass === 'Light' && char.subclassFeatures['Light_14']) {
+            lightBonus = this.dm.rollDice("1d8");
+        }
+        
+        const subclassSpellBonus = evocationBonus + lightBonus;
         
         if (spell.autoHit) {
             // Magic Missile - auto hit (not a cantrip, uses spell.damage directly)
-            const damage = this.dm.rollDice(spell.damage);
+            const damage = this.dm.rollDice(spell.damage) + subclassSpellBonus;
             monster.hp -= damage;
-            this.log(`🎯 ${spellName} automatically hits for ${damage} ${spell.damageType} damage!`, "combat");
+            this.log(`🎯 ${spellName} automatically hits for ${damage} ${spell.damageType} damage!${evocationBonus ? ` (includes +${evocationBonus} Empowered Evocation)` : ''}${lightBonus ? ` (+${lightBonus} radiant Corona)` : ''}`, "combat");
         } else if (spell.save) {
             // Saving throw spell  
             const monsterSave = Math.floor(Math.random() * 20) + 1 + 2; // Monster has +2 save
@@ -6980,23 +9136,39 @@ class Game {
                 const halfDamage = Math.floor(this.dm.rollDice(spellDamage) / 2);
                 monster.hp -= halfDamage;
                 this.log(`🎲 Enemy ${spell.save.toUpperCase()} save: ${monsterSave} vs DC ${spellDC} - Saved! Half damage: ${halfDamage}`, "combat");
+            } else if (monster.legendaryResistancesRemaining > 0) {
+                // Legendary Resistance: boss chooses to succeed instead
+                monster.legendaryResistancesRemaining--;
+                const halfDamage = Math.floor(this.dm.rollDice(spellDamage) / 2);
+                monster.hp -= halfDamage;
+                this.log(`🎲 Enemy ${spell.save.toUpperCase()} save: ${monsterSave} vs DC ${spellDC} - <strong>Failed!</strong>`, "danger");
+                this.log(`⚡ <strong>${monster.name} uses Legendary Resistance!</strong> The save succeeds instead! Half damage: ${halfDamage}`, "danger");
+                this.log(`💀 Legendary Resistances remaining: ${monster.legendaryResistancesRemaining}/${monster.legendaryResistances || '?'}`, "dm");
             } else {
-                const damage = this.dm.rollDice(spellDamage);
+                const damage = this.dm.rollDice(spellDamage) + subclassSpellBonus;
                 monster.hp -= damage;
-                this.log(`🎲 Enemy ${spell.save.toUpperCase()} save: ${monsterSave} vs DC ${spellDC} - Failed! ${damage} ${spell.damageType} damage!`, "combat");
+                this.log(`🎲 Enemy ${spell.save.toUpperCase()} save: ${monsterSave} vs DC ${spellDC} - Failed! ${damage} ${spell.damageType} damage!${evocationBonus ? ` (+${evocationBonus} Empowered)` : ''}`, "combat");
+                
+                // Necromancy: Grim Harvest - heal when you kill with a spell
+                if (char.subclass === 'Necromancy' && monster.hp <= 0) {
+                    const spellLevel = spell.level || 1;
+                    const grimHeal = spell.school === 'Necromancy' ? spellLevel * 3 : spellLevel * 2;
+                    char.heal(grimHeal);
+                    this.log(`💀 Grim Harvest: You drain ${grimHeal} HP from the fallen creature! (${char.hp}/${char.maxHp})`, "success");
+                }
             }
         } else {
             // Attack roll spell
             const attackResult = await this.dm.rollAttackAnimated(spellAttack, false, false);
             
             if (attackResult.isCrit) {
-                const damage = this.dm.rollDice(spellDamage) + this.dm.rollDice(spellDamage);
+                const damage = this.dm.rollDice(spellDamage) + this.dm.rollDice(spellDamage) + subclassSpellBonus;
                 monster.hp -= damage;
                 this.log(`🎯 CRITICAL! Spell attack: ${attackResult.roll}+${spellAttack}=${attackResult.total} vs AC ${monster.ac}. ${damage} ${spell.damageType} damage!`, "success");
             } else if (attackResult.total >= monster.ac) {
-                const damage = this.dm.rollDice(spellDamage);
+                const damage = this.dm.rollDice(spellDamage) + subclassSpellBonus;
                 monster.hp -= damage;
-                this.log(`✨ Spell attack: ${attackResult.roll}+${spellAttack}=${attackResult.total} vs AC ${monster.ac}. ${damage} ${spell.damageType} damage!`, "combat");
+                this.log(`✨ Spell attack: ${attackResult.roll}+${spellAttack}=${attackResult.total} vs AC ${monster.ac}. ${damage} ${spell.damageType} damage!${evocationBonus ? ` (+${evocationBonus} Empowered)` : ''}`, "combat");
                 
                 // Guiding Bolt grants advantage on next attack
                 if (spellName === "Guiding Bolt") {
@@ -7011,15 +9183,44 @@ class Game {
     
     handleHealingSpell(spellName, spell, spellMod) {
         const char = this.character;
-        const healAmount = this.dm.rollDice(spell.healing) + spellMod;
+        let healAmount = this.dm.rollDice(spell.healing) + spellMod;
+        
+        // Life Domain: Disciple of Life adds 2 + spell level to healing
+        if (char.subclass === 'Life') {
+            const spellLevel = spell.level || 1;
+            const lifeBonus = 2 + spellLevel;
+            healAmount += lifeBonus;
+            this.log(`💛 Disciple of Life: +${lifeBonus} bonus healing!`, "success");
+        }
+        
         char.heal(healAmount);
         this.log(`💚 ${spellName} restores ${healAmount} HP! (Now at ${char.hp}/${char.maxHp})`, "success");
+        
+        // Life Domain (7): Blessed Healer - caster also heals
+        if (char.subclass === 'Life' && char.subclassFeatures['Life_7']) {
+            const selfHeal = 2 + (spell.level || 1);
+            char.heal(selfHeal);
+            this.log(`💛 Blessed Healer: You also regain ${selfHeal} HP! (${char.hp}/${char.maxHp})`, "success");
+        }
     }
     
     handleDefensiveSpell(spellName, spell) {
         if (spellName === "Shield") {
             this.character.buffs.shieldActive = true;
             this.log("🛡️ A magical barrier appears! +5 AC until your next turn!", "success");
+            
+            // Abjuration: Arcane Ward recharges when casting abjuration spells
+            if (this.character.subclass === 'Abjuration' && spell.school === 'Abjuration') {
+                const recharge = (spell.level || 1) * 2;
+                const maxWard = this.character.subclassFeatures.arcaneWardMaxHp || 0;
+                if (maxWard > 0) {
+                    this.character.subclassFeatures.arcaneWardHp = Math.min(
+                        maxWard,
+                        (this.character.subclassFeatures.arcaneWardHp || 0) + recharge
+                    );
+                    this.log(`🛡️ Arcane Ward recharges! Ward HP: ${this.character.subclassFeatures.arcaneWardHp}/${maxWard}`, "success");
+                }
+            }
         }
     }
     
@@ -7047,6 +9248,26 @@ class Game {
         } else {
             this.log(`✨ You cast ${spellName}!`, "dm");
         }
+    }
+    
+    // Drop concentration on a spell and remove its buff effects
+    dropConcentration(char, reason) {
+        if (!char.concentrating) return;
+        const oldSpell = char.concentrating;
+        char.concentrating = null;
+        
+        // Remove buff effects tied to concentration spells
+        if (oldSpell === "Bless") {
+            char.buffs.blessActive = false;
+        } else if (oldSpell === "Hunter's Mark") {
+            char.buffs.huntersMark = false;
+        } else if (oldSpell === "Greater Invisibility") {
+            // Remove invisibility advantage
+        } else if (oldSpell === "Swift Quiver") {
+            // Remove swift quiver bonus attacks
+        }
+        
+        this.log(`💔 Concentration on ${oldSpell} ends${reason ? ` (${reason})` : ''}!`, "danger");
     }
     
     handleMonsterDeath(monster) {
@@ -7874,6 +10095,24 @@ class Game {
         this.log(`🎊 LEVEL UP! You are now level ${char.level}!`, "success");
         this.log(`HP increased by ${hpGain}! (New max: ${char.maxHp})`, "success");
         
+        // Subclass selection at level 3
+        if (char.level === 3 && !char.subclass && SUBCLASS_DATA[char.charClass]) {
+            this.showSubclassSelection();
+        }
+        
+        // Apply subclass features gained at this level
+        if (char.subclass && SUBCLASS_DATA[char.charClass]) {
+            const subclassInfo = SUBCLASS_DATA[char.charClass].options[char.subclass];
+            if (subclassInfo && subclassInfo.features[char.level]) {
+                const feature = subclassInfo.features[char.level];
+                this.log(`🌟 <strong>${subclassInfo.name} Feature:</strong> ${feature.name}!`, "success");
+                this.log(`📜 ${feature.description}`, "dm");
+                
+                // Apply feature-specific effects
+                this.applySubclassFeature(char, char.subclass, char.level, feature);
+            }
+        }
+        
         // Show proficiency bonus if it increased
         const profBonus = char.getProficiencyBonus();
         const prevProfBonus = Math.floor((char.level - 2) / 4) + 2;
@@ -7883,7 +10122,7 @@ class Game {
         
         // Extra Attack at level 5 for martial classes
         if (char.level === 5) {
-            if (char.charClass === "Fighter" || char.charClass === "Barbarian" || char.charClass === "Ranger") {
+            if (char.charClass === "Fighter" || char.charClass === "Barbarian" || char.charClass === "Ranger" || char.charClass === "Paladin" || char.charClass === "Monk") {
                 char.extraAttack = true;
                 this.log(`⚔️ Extra Attack! You can now attack twice per turn!`, "success");
             }
@@ -7921,45 +10160,99 @@ class Game {
             this.log(`🗡️ Sneak Attack increased to ${sneakDice}d6!`, "success");
         }
         
+        // Monk Ki progression
+        if (char.charClass === "Monk" && char.level >= 2) {
+            char.kiMax = char.level;
+            char.kiPoints = char.kiMax;
+            // Martial arts die scaling
+            if (char.level >= 17) char.martialArtsDie = "1d10";
+            else if (char.level >= 11) char.martialArtsDie = "1d8";
+            else if (char.level >= 5) char.martialArtsDie = "1d6";
+            else char.martialArtsDie = "1d4";
+            if (char.level === 2) this.log(`🥋 Ki Points unlocked! You have ${char.kiMax} ki points.`, "success");
+        }
+        
+        // Paladin progression  
+        if (char.charClass === "Paladin") {
+            char.layOnHandsPool = char.level * 5;
+            char.divineSenseUses = 1 + char.getModifier("cha");
+            if (char.level === 2) this.log(`✋ Lay on Hands pool: ${char.layOnHandsPool} HP`, "success");
+            if (char.level === 2) this.log(`⚔️ Fighting Style and Divine Smite unlocked!`, "success");
+            if (char.level === 6) this.log(`🛡️ Aura of Protection! +${Math.max(1, char.getModifier("cha"))} to all saves for you and nearby allies!`, "success");
+        }
+        
+        // Warlock Pact Slot progression
+        if (char.charClass === "Warlock") {
+            const pactTable = GAME_DATA.pactMagicSlots[char.level];
+            if (pactTable) {
+                const pactLevel = parseInt(Object.keys(pactTable)[0]);
+                const pactCount = pactTable[pactLevel];
+                char.pactSlotLevel = pactLevel;
+                char.pactSlots = pactCount;
+                char.pactSlotsUsed = 0;
+            }
+        }
+        
+        // Bard progression
+        if (char.charClass === "Bard") {
+            char.bardicInspirationUses = Math.max(1, char.getModifier("cha"));
+            if (char.level >= 15) char.bardicInspirationDie = "1d12";
+            else if (char.level >= 10) char.bardicInspirationDie = "1d10";
+            else if (char.level >= 5) char.bardicInspirationDie = "1d8";
+            else char.bardicInspirationDie = "1d6";
+            if (char.level === 2) this.log(`🎵 Jack of All Trades! Add half proficiency to non-proficient ability checks.`, "success");
+            if (char.level === 3) this.log(`🎵 Expertise! Double proficiency in two skills.`, "success");
+        }
+        
+        // Sorcerer progression
+        if (char.charClass === "Sorcerer" && char.level >= 2) {
+            char.sorceryPointsMax = char.level;
+            char.sorceryPoints = char.sorceryPointsMax;
+            if (char.level === 2) this.log(`✨ Font of Magic! ${char.sorceryPoints} sorcery points available.`, "success");
+            if (char.level === 3) this.log(`✨ Metamagic unlocked! Quickened Spell and Twinned Spell available.`, "success");
+        }
+        
+        // Druid progression
+        if (char.charClass === "Druid") {
+            if (char.level === 2) {
+                char.wildShapeUses = 2;
+                char.wildShapeCR = 0.25;
+                this.log(`🐻 Wild Shape unlocked! Transform into beasts (CR 1/4).`, "success");
+            }
+            if (char.level === 4) char.wildShapeCR = 0.5;
+            if (char.level === 8) char.wildShapeCR = 1;
+        }
+        
+        // Artificer progression
+        if (char.charClass === "Artificer") {
+            if (char.level === 2) {
+                this.log(`🔧 Infuse Item! Imbue mundane items with magical properties.`, "success");
+                char.infusionsKnown = 4;
+            }
+            if (char.level === 6) char.infusionsKnown = 6;
+            if (char.level === 10) char.infusionsKnown = 8;
+        }
+        
         // ASI at levels 4, 8, 12, 16, 19 (Fighters also at 6, 14; Rogues also at 10)
         const asiLevels = [4, 8, 12, 16, 19];
         const fighterExtraAsi = [6, 14];
         const rogueExtraAsi = [10];
         if (asiLevels.includes(char.level) || (char.charClass === "Fighter" && fighterExtraAsi.includes(char.level)) || (char.charClass === "Rogue" && rogueExtraAsi.includes(char.level))) {
-            // Auto-assign ASI: increase primary stat by 2 (or 1 to two stats if capped at 20)
-            const primaryStat = GAME_DATA.classes[char.charClass].primary;
-            if (char.stats[primaryStat] < 20) {
-                const increase = Math.min(2, 20 - char.stats[primaryStat]);
-                char.stats[primaryStat] += increase;
-                this.log(`📊 Ability Score Improvement! ${primaryStat.toUpperCase()} increased by ${increase} to ${char.stats[primaryStat]}!`, "success");
-                // If only +1 was added (at 19), put the other +1 in CON
-                if (increase === 1 && char.stats.con < 20) {
-                    char.stats.con += 1;
-                    this.log(`📊 CON also increased by 1 to ${char.stats.con}!`, "success");
-                }
-            } else {
-                // Primary stat already 20, increase CON or secondary
-                const secondaryStat = char.charClass === "Rogue" ? "con" : char.charClass === "Wizard" ? "con" : "con";
-                if (char.stats[secondaryStat] < 20) {
-                    const increase = Math.min(2, 20 - char.stats[secondaryStat]);
-                    char.stats[secondaryStat] += increase;
-                    this.log(`📊 Ability Score Improvement! ${secondaryStat.toUpperCase()} increased by ${increase} to ${char.stats[secondaryStat]}!`, "success");
-                }
-            }
-            // Recalculate HP (CON may have changed) and AC (DEX may have changed)
-            const conMod = char.getModifier("con");
-            char.maxHp = GAME_DATA.classes[char.charClass].hitDie + conMod;
-            for (let lvl = 2; lvl <= char.level; lvl++) {
-                char.maxHp += Math.max(1, Math.floor(GAME_DATA.classes[char.charClass].hitDie / 2) + 1 + conMod);
-            }
-            char.hp = char.maxHp;
-            char.calculateAc(this.dm?.campaignId);
+            // Show ASI/Feat choice modal
+            this.showAsiOrFeatChoice();
         }
         
         // Spellcaster spell slot progression (uses D&D 5e tables)
-        if (char.isSpellcaster() || (char.charClass === "Ranger" && char.level >= 2)) {
+        if (char.isSpellcaster() || (char.charClass === "Ranger" && char.level >= 2) || (char.charClass === "Paladin" && char.level >= 2)) {
             const classInfo = GAME_DATA.classes[char.charClass];
-            const slotTable = classInfo.casterType === 'half' ? GAME_DATA.halfCasterSlots : GAME_DATA.fullCasterSlots;
+            let slotTable;
+            if (classInfo.casterType === 'pact') {
+                slotTable = GAME_DATA.pactMagicSlots;
+            } else if (classInfo.casterType === 'half') {
+                slotTable = GAME_DATA.halfCasterSlots;
+            } else {
+                slotTable = GAME_DATA.fullCasterSlots;
+            }
             const prevSlotTable = slotTable[char.level - 1] || {};
             const newSlotTable = slotTable[char.level] || {};
             
@@ -8011,6 +10304,319 @@ class Game {
             title: `Reached Level ${char.level}`, 
             text: `Grew stronger on Day ${this.dm.day}. Proficiency bonus: +${profBonus}.` 
         });
+    }
+
+    showSubclassSelection() {
+        const char = this.character;
+        const classData = SUBCLASS_DATA[char.charClass];
+        if (!classData) return;
+
+        let html = `<h2>🌟 Choose Your ${classData.name}</h2>`;
+        html += `<p style="margin-bottom:15px;">At level 3, ${char.name} must choose a specialization path:</p>`;
+        html += `<div style="display:flex;flex-direction:column;gap:12px;">`;
+
+        for (const [key, subclass] of Object.entries(classData.options)) {
+            const level3Feature = subclass.features[3];
+            html += `<div style="border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;transition:all 0.2s;" 
+                          onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(255,215,0,0.05)'" 
+                          onmouseout="this.style.borderColor='var(--border)';this.style.background=''" 
+                          onclick="game.selectSubclass('${key}')">
+                <div style="font-weight:bold;font-size:1.1em;color:var(--accent);">⚔️ ${subclass.name}</div>
+                <div style="margin:6px 0;color:var(--text-secondary);font-style:italic;">${subclass.description}</div>
+                <div style="font-size:0.9em;color:var(--text);padding:6px;background:rgba(0,0,0,0.2);border-radius:4px;">
+                    <strong>Level 3:</strong> ${level3Feature.name} — ${level3Feature.description}
+                </div>
+            </div>`;
+        }
+        html += `</div>`;
+        this.showModal(html);
+    }
+
+    selectSubclass(subclassKey) {
+        const char = this.character;
+        const classData = SUBCLASS_DATA[char.charClass];
+        if (!classData || !classData.options[subclassKey]) return;
+
+        const subclass = classData.options[subclassKey];
+        char.subclass = subclassKey;
+
+        // Close the modal
+        const modals = document.querySelectorAll('.modal-overlay');
+        modals.forEach(m => m.remove());
+
+        this.log(`🌟 <strong>${char.name} has chosen the ${subclass.name}!</strong>`, "success");
+
+        // Apply level 3 feature
+        const feature = subclass.features[3];
+        if (feature) {
+            this.log(`📜 <strong>${feature.name}:</strong> ${feature.description}`, "dm");
+            this.applySubclassFeature(char, subclassKey, 3, feature);
+        }
+
+        // Add journal entry
+        char.addJournalEntry('lore', {
+            title: `Chose ${subclass.name}`,
+            text: `Specialized as a ${subclass.name}. Gained: ${feature ? feature.name : 'subclass features'}.`
+        });
+
+        this.updateUI();
+    }
+
+    // ==================== ASI / FEAT CHOICE ====================
+    showAsiOrFeatChoice() {
+        const char = this.character;
+        let html = `<h2>📊 Ability Score Improvement</h2>`;
+        html += `<p style="margin-bottom:15px;">Choose how to improve at level ${char.level}:</p>`;
+        html += `<div style="display:flex;flex-direction:column;gap:12px;">`;
+        
+        html += `<div style="border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;transition:all 0.2s;" 
+                      onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(255,215,0,0.05)'" 
+                      onmouseout="this.style.borderColor='var(--border)';this.style.background=''" 
+                      onclick="game.chooseAsi()">
+            <div style="font-weight:bold;font-size:1.1em;color:var(--accent);">📈 Ability Score Increase</div>
+            <div style="margin:6px 0;color:var(--text-secondary);font-style:italic;">+2 to your primary ability score (${GAME_DATA.classes[char.charClass].primary.toUpperCase()})</div>
+        </div>`;
+        
+        const availableFeats = Object.entries(FEATS_DATA).filter(([name, feat]) => {
+            if (char.feats.includes(name)) return false;
+            if (feat.prerequisite === "spellcaster" && !char.isSpellcaster()) return false;
+            return true;
+        });
+        
+        if (availableFeats.length > 0) {
+            html += `<div style="border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;transition:all 0.2s;" 
+                          onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(255,215,0,0.05)'" 
+                          onmouseout="this.style.borderColor='var(--border)';this.style.background=''" 
+                          onclick="game.showFeatSelection()">
+                <div style="font-weight:bold;font-size:1.1em;color:var(--accent);">🏆 Choose a Feat</div>
+                <div style="margin:6px 0;color:var(--text-secondary);font-style:italic;">Gain a special ability instead of stat increases (${availableFeats.length} available)</div>
+            </div>`;
+        }
+        
+        html += `</div>`;
+        this.showModal(html);
+    }
+    
+    chooseAsi() {
+        const char = this.character;
+        const modals = document.querySelectorAll('.modal-overlay');
+        modals.forEach(m => m.remove());
+        
+        const primaryStat = GAME_DATA.classes[char.charClass].primary;
+        if (char.stats[primaryStat] < 20) {
+            const increase = Math.min(2, 20 - char.stats[primaryStat]);
+            char.stats[primaryStat] += increase;
+            this.log(`📊 Ability Score Improvement! ${primaryStat.toUpperCase()} increased by ${increase} to ${char.stats[primaryStat]}!`, "success");
+            if (increase === 1 && char.stats.con < 20) {
+                char.stats.con += 1;
+                this.log(`📊 CON also increased by 1 to ${char.stats.con}!`, "success");
+            }
+        } else {
+            if (char.stats.con < 20) {
+                const increase = Math.min(2, 20 - char.stats.con);
+                char.stats.con += increase;
+                this.log(`📊 Ability Score Improvement! CON increased by ${increase} to ${char.stats.con}!`, "success");
+            }
+        }
+        this.recalculateAfterAsi();
+    }
+    
+    showFeatSelection() {
+        const char = this.character;
+        const availableFeats = Object.entries(FEATS_DATA).filter(([name, feat]) => {
+            if (char.feats.includes(name)) return false;
+            if (feat.prerequisite === "spellcaster" && !char.isSpellcaster()) return false;
+            return true;
+        });
+        
+        let html = `<h2>🏆 Choose a Feat</h2>`;
+        html += `<p style="margin-bottom:15px;">Select a feat to learn:</p>`;
+        html += `<div style="display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow-y:auto;">`;
+        
+        for (const [name, feat] of availableFeats) {
+            html += `<div style="border:1px solid var(--border);border-radius:8px;padding:10px;cursor:pointer;transition:all 0.2s;" 
+                          onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(255,215,0,0.05)'" 
+                          onmouseout="this.style.borderColor='var(--border)';this.style.background=''" 
+                          onclick="game.selectFeat('${name}')">
+                <div style="font-weight:bold;color:var(--accent);">🏆 ${name}</div>
+                <div style="font-size:0.9em;margin-top:4px;color:var(--text-secondary);">${feat.description}</div>
+            </div>`;
+        }
+        
+        html += `</div>`;
+        html += `<div style="margin-top:12px;text-align:center;"><button onclick="game.showAsiOrFeatChoice()" style="padding:8px 16px;cursor:pointer;border-radius:4px;border:1px solid var(--border);background:rgba(0,0,0,0.3);color:var(--text);">← Back</button></div>`;
+        
+        const modals = document.querySelectorAll('.modal-overlay');
+        modals.forEach(m => m.remove());
+        this.showModal(html);
+    }
+    
+    selectFeat(featName) {
+        const char = this.character;
+        const feat = FEATS_DATA[featName];
+        if (!feat || char.feats.includes(featName)) return;
+        
+        const modals = document.querySelectorAll('.modal-overlay');
+        modals.forEach(m => m.remove());
+        
+        feat.onApply(char);
+        
+        this.log(`🏆 <strong>Feat Gained: ${featName}!</strong>`, "success");
+        this.log(`📜 ${feat.description}`, "dm");
+        
+        if (featName === "Tough") {
+            this.log(`❤️ Max HP increased by ${char.level * 2}!`, "success");
+        }
+        
+        this.recalculateAfterAsi();
+    }
+    
+    recalculateAfterAsi() {
+        const char = this.character;
+        const conMod = char.getModifier("con");
+        char.maxHp = GAME_DATA.classes[char.charClass].hitDie + conMod;
+        for (let lvl = 2; lvl <= char.level; lvl++) {
+            char.maxHp += Math.max(1, Math.floor(GAME_DATA.classes[char.charClass].hitDie / 2) + 1 + conMod);
+        }
+        if (char.feats.includes("Tough")) {
+            char.maxHp += char.level * 2;
+        }
+        char.hp = char.maxHp;
+        char.calculateAc(this.dm?.campaignId);
+        this.updateUI();
+    }
+
+    applySubclassFeature(char, subclassKey, level, feature) {
+        // Store the feature as active
+        if (!char.subclassFeatures) char.subclassFeatures = {};
+        char.subclassFeatures[`${subclassKey}_${level}`] = true;
+
+        // Apply specific mechanical effects
+        switch (subclassKey) {
+            case 'Champion':
+                if (level === 3) {
+                    char.subclassFeatures.critRange = 19; // Crit on 19-20
+                } else if (level === 15) {
+                    char.subclassFeatures.critRange = 18; // Crit on 18-20
+                }
+                break;
+                
+            case 'BattleMaster':
+                if (level === 3) {
+                    char.subclassFeatures.superiorityDice = 4;
+                    char.subclassFeatures.superiorityDiceRemaining = 4;
+                    char.subclassFeatures.superiorityDieSize = 8;
+                } else if (level === 7) {
+                    char.subclassFeatures.superiorityDice = 5;
+                    char.subclassFeatures.superiorityDiceRemaining = 5;
+                }
+                break;
+
+            case 'EldritchKnight':
+                if (level === 3) {
+                    // Grant spellcasting to Fighter
+                    if (!char.spells.cantrips.length) char.spells.cantrips = [];
+                    const wizCantrips = Object.keys(GAME_DATA.spells).filter(s => 
+                        GAME_DATA.spells[s].level === 0 && GAME_DATA.spells[s].classes.includes("Wizard")
+                    );
+                    // Add 2 wizard cantrips
+                    for (let i = 0; i < Math.min(2, wizCantrips.length); i++) {
+                        if (!char.spells.cantrips.includes(wizCantrips[i])) {
+                            char.spells.cantrips.push(wizCantrips[i]);
+                            this.log(`✨ Learned cantrip: ${wizCantrips[i]}`, "success");
+                        }
+                    }
+                    // Add 3 level-1 wizard spells
+                    const wizSpells = Object.keys(GAME_DATA.spells).filter(s => 
+                        GAME_DATA.spells[s].level === 1 && GAME_DATA.spells[s].classes.includes("Wizard") && !char.spells.known.includes(s)
+                    );
+                    for (let i = 0; i < Math.min(3, wizSpells.length); i++) {
+                        char.spells.known.push(wizSpells[i]);
+                        this.log(`📖 Learned spell: ${wizSpells[i]}`, "success");
+                    }
+                    // Grant spell slots (third-caster: round up at /3)
+                    char.spells.slots[1] = Math.max(char.spells.slots[1], 2);
+                }
+                break;
+
+            case 'ArcaneTrickster':
+                if (level === 3) {
+                    // Similar to Eldritch Knight
+                    if (!char.spells.cantrips.length) char.spells.cantrips = [];
+                    const rogueCantrips = Object.keys(GAME_DATA.spells).filter(s => 
+                        GAME_DATA.spells[s].level === 0 && GAME_DATA.spells[s].classes.includes("Wizard")
+                    );
+                    for (let i = 0; i < Math.min(3, rogueCantrips.length); i++) {
+                        if (!char.spells.cantrips.includes(rogueCantrips[i])) {
+                            char.spells.cantrips.push(rogueCantrips[i]);
+                            this.log(`✨ Learned cantrip: ${rogueCantrips[i]}`, "success");
+                        }
+                    }
+                    const rogueSpells = Object.keys(GAME_DATA.spells).filter(s => 
+                        GAME_DATA.spells[s].level === 1 && GAME_DATA.spells[s].classes.includes("Wizard") && !char.spells.known.includes(s)
+                    );
+                    for (let i = 0; i < Math.min(3, rogueSpells.length); i++) {
+                        char.spells.known.push(rogueSpells[i]);
+                        this.log(`📖 Learned spell: ${rogueSpells[i]}`, "success");
+                    }
+                    char.spells.slots[1] = Math.max(char.spells.slots[1], 2);
+                }
+                break;
+
+            case 'Life':
+                // Disciple of Life: bonus healing tracked via subclassFeatures flag
+                break;
+
+            case 'War':
+                if (level === 3) {
+                    const wisMod = Math.max(1, char.getModifier("wis"));
+                    char.subclassFeatures.warPriestUses = wisMod;
+                    char.subclassFeatures.warPriestUsesRemaining = wisMod;
+                } else if (level === 7) {
+                    char.subclassFeatures.guidedStrikeAvailable = true;
+                }
+                break;
+
+            case 'BeastMaster':
+                if (level === 3) {
+                    const companionHp = 4 * char.level;
+                    char.subclassFeatures.companion = {
+                        name: "Wolf Companion",
+                        hp: companionHp,
+                        maxHp: companionHp,
+                        damage: "2d4+2",
+                        ac: 13
+                    };
+                    this.log(`🐺 A loyal wolf joins you as your animal companion! (HP: ${companionHp})`, "success");
+                }
+                break;
+
+            case 'Berserker':
+                // Frenzy: bonus attack while raging (tracked in combat)
+                break;
+
+            case 'TotemWarrior':
+                // Bear Totem: resistance to all damage while raging (tracked in combat)
+                break;
+
+            case 'Abjuration':
+                if (level === 3) {
+                    // Arcane Ward: HP = twice wizard level + INT modifier
+                    const wardHp = (char.level * 2) + char.getModifier('int');
+                    char.subclassFeatures.arcaneWardHp = wardHp;
+                    char.subclassFeatures.arcaneWardMaxHp = wardHp;
+                    this.log(`🛡️ Arcane Ward activated! Ward HP: ${wardHp}`, "success");
+                }
+                break;
+
+            case 'Evocation':
+                // Sculpt Spells / Empowered Evocation: passive, tracked via feature flags
+                break;
+
+            case 'Necromancy':
+                // Grim Harvest: tracked in handleDamageSpell
+                break;
+        }
     }
 
     rollEnemyLoot(monster) {
@@ -9447,12 +12053,28 @@ class Game {
         
         this.log("✨ You discover a treasure chest!", "dm");
         
+        // Passive Perception auto-detects traps
+        const passivePerc = this.character.getPassivePerception();
+        let trapAutoDetected = false;
+        if (passivePerc >= trapDC) {
+            trapAutoDetected = true;
+            this.log(`👁️ Your keen senses (Passive Perception ${passivePerc}) detect a trap on the chest!`, "success");
+        }
+        
+        // Darkvision/light interaction
+        const isDark = this.dm.timeOfDay === "night";
+        const hasDarkvision = this.character.hasDarkvision();
+        let darkPenalty = "";
+        if (isDark && !hasDarkvision) {
+            darkPenalty = " (Harder to see in the dark!)";
+        }
+        
         // Show chest with DC hints for trap detection
         const choice = await this.showChoiceWithDC(
             "📦 Treasure Chest",
-            `You've found a ${rarity} treasure chest! It looks ${danger >= 3 ? "heavily locked" : "old but intact"}.`,
+            `You've found a ${rarity} treasure chest! It looks ${danger >= 3 ? "heavily locked" : "old but intact"}.${trapAutoDetected ? ' You can see a trap mechanism!' : ''}${darkPenalty}`,
             [
-                { text: "Open it", skill: null },
+                { text: trapAutoDetected ? "Open it (trap disarmed)" : "Open it", skill: null },
                 { text: "Check for traps first", skill: "dex", dc: trapDC },
                 { text: "Leave it alone", skill: null }
             ]
@@ -9466,13 +12088,15 @@ class Game {
         let trapTriggered = false;
         
         if (choice === 0) {
-            // Direct open - chance of trap based on danger
-            if (Math.random() < (danger * 0.15)) {
+            if (trapAutoDetected) {
+                this.log("🔓 You disarm the detected trap and safely open the chest!", "success");
+            } else if (Math.random() < (danger * 0.15)) {
                 trapTriggered = true;
             }
         } else if (choice === 1) {
-            // Check for traps - DEX check
-            const check = await this.dm.skillCheckAnimated("dex", trapDC);
+            // Check for traps - Investigation (INT) or Perception (WIS) check with proficiency
+            const hasDisadvantage = isDark && !hasDarkvision;
+            const check = await this.dm.skillCheckAnimated("int", trapDC, false, hasDisadvantage, "Investigation");
             if (check.success) {
                 this.log(`🔍 You carefully examine the chest and disarm a hidden trap! (Roll: ${check.total} vs DC ${trapDC})`, "success");
             } else {
@@ -9609,18 +12233,29 @@ class Game {
         this.log("You discover an old chest covered in dust.", "dm");
         const trapDC = 12;
         
+        // Passive Perception auto-detect
+        const passivePerc = this.character.getPassivePerception();
+        if (passivePerc >= trapDC) {
+            this.log(`👁️ Passive Perception (${passivePerc}) detects a trap!`, "success");
+        }
+        
         const choice = await this.showChoiceWithDC(
             "📦 Mysterious Chest",
-            "You discover an old chest covered in dust...",
+            `You discover an old chest covered in dust...${passivePerc >= trapDC ? ' You notice a trap mechanism!' : ''}`,
             [
-                { text: "Open it", skill: null },
+                { text: passivePerc >= trapDC ? "Open it (trap disarmed)" : "Open it", skill: null },
                 { text: "Check for traps first", skill: "int", dc: trapDC },
                 { text: "Leave it", skill: null }
             ]
         );
         
         if (choice === 0) {
-            if (Math.random() < 0.4) {
+            if (passivePerc >= trapDC) {
+                // Auto-disarmed
+                const gold = Math.floor(Math.random() * 41) + 20;
+                this.character.gold += gold;
+                this.log(`You disarm the trap and find ${gold} gold!`, "loot");
+            } else if (Math.random() < 0.4) {
                 const damage = Math.floor(Math.random() * 10) + 3;
                 this.character.takeDamage(damage);
                 this.log(`💥 A trap! You take ${damage} damage!`, "danger");
@@ -9635,7 +12270,7 @@ class Game {
                 this.log(`Inside you find ${gold} gold!`, "loot");
             }
         } else if (choice === 1) {
-            const check = await this.dm.skillCheckAnimated("int", trapDC);
+            const check = await this.dm.skillCheckAnimated("int", trapDC, false, false, "Investigation");
             if (check.success) {
                 this.log(`You disarm the trap! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC ${trapDC})`, "success");
                 const gold = Math.floor(Math.random() * 41) + 20;
@@ -10437,6 +13072,42 @@ class Game {
         this.log(`⏰ You take a short rest and recover ${healing} HP using a hit die.`, "success");
         this.log(`Hit dice remaining: ${char.hitDice.current}/${char.hitDice.max}`, "dm");
 
+        // Restore subclass short rest resources
+        if (char.subclass === 'BattleMaster') {
+            char.subclassFeatures.superiorityDiceRemaining = char.subclassFeatures.superiorityDice || 4;
+            this.log(`⚔️ Superiority dice restored!`, "success");
+        }
+        
+        // Fighter: Second Wind resets on short rest
+        if (char.charClass === 'Fighter' && char.secondWindUsed) {
+            char.secondWindUsed = false;
+            this.log(`💨 Second Wind restored!`, "success");
+        }
+        
+        // Monk: Ki points fully restore on short rest
+        if (char.charClass === 'Monk' && char.kiPoints < char.kiMax) {
+            char.kiPoints = char.kiMax;
+            this.log(`🥋 Ki points restored! (${char.kiMax}/${char.kiMax})`, "success");
+        }
+        
+        // Bard: Bardic Inspiration restores on short rest (level 5+ with Font of Inspiration)
+        if (char.charClass === 'Bard' && char.level >= 5) {
+            char.bardicInspirationUses = Math.max(1, char.getModifier('cha'));
+            this.log(`🎵 Bardic Inspiration uses restored!`, "success");
+        }
+        
+        // Warlock: Pact Magic slots restore on short rest
+        if (char.charClass === 'Warlock' && char.pactSlotsUsed > 0) {
+            char.pactSlotsUsed = 0;
+            this.log(`🔮 Pact Magic slots restored!`, "success");
+        }
+        
+        // Dragonborn: Breath Weapon recharges on short rest
+        if (char.race === 'Dragonborn' && char.racialAbilities?.breathWeaponUsed) {
+            char.racialAbilities.breathWeaponUsed = false;
+            this.log(`🐉 Breath Weapon recharged!`, "success");
+        }
+
         // Show time update
         this.log(`${this.dm.getTimeIcon()} Time: ${this.formatTime()} | ${this.dm.getWeatherIcon()} ${this.dm.weather}`, "dm");
         
@@ -10491,9 +13162,9 @@ class Game {
         // Restore all hit dice
         char.hitDice.current = char.hitDice.max;
 
-        // Restore spell slots
+        // Restore spell slots (all 9 levels)
         if (char.spells) {
-            char.spells.slotsUsed = { 1: 0, 2: 0 };
+            char.spells.slotsUsed = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
         }
 
         // Clear conditions
@@ -10501,6 +13172,49 @@ class Game {
 
         // Reset short rest counter
         this.dm.shortRestsTaken = 0;
+
+        // Restore subclass long rest resources
+        if (char.subclass === 'BattleMaster') {
+            char.subclassFeatures.superiorityDiceRemaining = char.subclassFeatures.superiorityDice || 4;
+        }
+        if (char.subclass === 'War') {
+            const wisMod = Math.max(1, char.getModifier("wis"));
+            char.subclassFeatures.warPriestUsesRemaining = wisMod;
+            char.subclassFeatures.guidedStrikeAvailable = true;
+        }
+        
+        // Restore feat resources on long rest
+        if (char.feats.includes("Lucky")) {
+            char.featData.luckyPoints = 3;
+        }
+        
+        // Restore class resources on long rest
+        if (char.charClass === 'Fighter') char.secondWindUsed = false;
+        if (char.charClass === 'Monk') char.kiPoints = char.kiMax;
+        if (char.charClass === 'Bard') char.bardicInspirationUses = Math.max(1, char.getModifier('cha'));
+        if (char.charClass === 'Paladin') char.layOnHandsPool = char.level * 5;
+        if (char.charClass === 'Sorcerer') char.sorceryPoints = char.sorceryPointsMax;
+        if (char.charClass === 'Druid') char.wildShapeUses = 2;
+        if (char.charClass === 'Barbarian') {
+            char.raging = false; // Rage ends on long rest
+        }
+        if (char.charClass === 'Paladin') {
+            char.divineSenseUses = 1 + char.getModifier('cha');
+        }
+        if (char.charClass === 'Warlock' && char.pactSlotsUsed !== undefined) {
+            char.pactSlotsUsed = 0;
+        }
+        
+        // Clear concentration
+        if (char.concentrating) {
+            char.concentrating = null;
+        }
+        
+        // Restore racial abilities on long rest
+        if (char.racialAbilities) {
+            if (char.race === "Dragonborn") char.racialAbilities.breathWeaponUsed = false;
+            if (char.race === "Half-Orc") char.racialAbilities.relentlessUsed = false;
+        }
 
         // Advance time if not already done
         if (showTime) {
@@ -10835,7 +13549,7 @@ class Game {
         const classData = GAME_DATA.classes[char.charClass] || {};
 
         const exportData = {
-            formatVersion: "3.1",
+            formatVersion: "3.2",
             exportType: "dnd-character",
             system: "dnd5e",
             generator: "dnd-text-adventure",
@@ -10857,7 +13571,7 @@ class Game {
                     primaryAbility: classData.primary || null,
                     spellcaster: classData.spellcaster || false,
                     spellcastingAbility: classData.spellStat || null,
-                    subclass: null
+                    subclass: char.subclass || null
                 },
 
                 background: {

@@ -2,7 +2,7 @@
 
 ### *An Epic D&D 5th Edition Web RPG Experience*
 
-![Version](https://img.shields.io/badge/version-3.1-gold)
+![Version](https://img.shields.io/badge/version-3.2-gold)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![D&D](https://img.shields.io/badge/D%26D-5e-red)
 
@@ -11,12 +11,18 @@
 ## 🌟 Features
 
 ### **Authentic D&D 5e Mechanics**
-- ✅ **Complete Character Creation** - 7 races, 6 classes, 6 backgrounds
+- ✅ **Complete Character Creation** - 7 races, 13 classes, 6 backgrounds
 - ✅ **True D&D Combat** - Attack rolls, saving throws, advantage/disadvantage
-- ✅ **Spell System** - Full spellcasting with spell slots and preparation
-- ✅ **Ability Checks** - Skill checks with proficiency bonuses
+- ✅ **Spell System** - Full spellcasting with spell slots, preparation, and ritual casting
+- ✅ **18-Skill Proficiency System** - All D&D 5e skills with proficiency bonuses and expertise
+- ✅ **Passive Scores** - Passive Perception, Insight, Investigation for auto-detection
 - ✅ **Leveling System** - XP progression from Level 1-20
 - ✅ **Status Effects** - Poisoned, burning, stunned, blessed, and more
+- ✅ **Equipment Proficiency** - Weapon/armor proficiency by class with penalties
+- ✅ **Attunement** - 3-item magic item attunement limit per D&D 5e rules
+- ✅ **Opportunity Attacks** - Fleeing provokes attacks; Disengage prevents them
+- ✅ **Racial Abilities** - Halfling Lucky, Dragonborn Breath Weapon, Half-Orc Relentless Endurance, and more
+- ✅ **Darkvision** - Mechanical effect on perception, trap detection, and ambush checks
 
 ### **Epic Campaign Content**
 - 🛡️ **Keep on the Borderlands** ★ Recommended Start — Defend against chaos (Levels 1-3)
@@ -75,8 +81,8 @@
 
 ### **Character Creation**
 1. Choose your character name
-2. Select a race (Human, Elf, Dwarf, Halfling, Half-Orc, Tiefling, Dragonborn)
-3. Pick a class (Fighter, Wizard, Rogue, Cleric, Ranger, Barbarian)
+2. Select a race (Human, Elf, Dwarf, Halfling, Half-Orc, Tiefling, Dragonborn) — each with unique mechanical abilities
+3. Pick a class (Fighter, Wizard, Rogue, Cleric, Ranger, Barbarian, Paladin, Monk, Warlock, Bard, Sorcerer, Druid, Artificer)
 4. Choose a background (Soldier, Scholar, Criminal, Noble, Outlander, Acolyte)
 5. Your stats are automatically rolled using D&D 5e rules (4d6 drop lowest)
 
@@ -218,8 +224,9 @@ dnd-game/
 
 - **6,850+ lines of Python** - Comprehensive text adventure engine (`game.py`)
 - **10,900+ lines of JavaScript** - Full web game frontend (`game.js`)
-- **7 playable races** with unique abilities
-- **6 playable classes** with distinct mechanics
+- **7 playable races** with unique mechanical abilities (Darkvision, Lucky, Breath Weapon, Relentless Endurance)
+- **13 playable classes** with distinct mechanics and subclasses
+- **18 D&D 5e skills** fully tracked with proficiency and expertise
 - **5 campaign settings** with unique economies, loot, and magic-item tables
 - **50+ unique enemies** from D&D lore
 - **100+ items** including weapons, armor, and consumables
@@ -230,6 +237,11 @@ dnd-game/
 - **6-level exhaustion system** tied to starvation, foraging, and lifestyle
 - **Black market economy** with haggle mechanics, guard encounters, and bounty tracking
 - **Artifact favor system** with decrementing encounter-based charges
+- **Equipment proficiency system** - Class-based weapon/armor proficiency with penalties
+- **Attunement system** - 3-item magic item limit per D&D 5e rules
+- **Opportunity attacks** - Tactical flee/disengage decision-making
+- **Ritual casting** - Cast ritual spells without expending spell slots
+- **Racial abilities** - Meaningful mechanical effects for all 7 races
 - **100% Dice Animation Coverage** - Every single roll features 3D spinning effects
 - **Immersive Sound System** - Procedurally generated sound effects for all actions
 - **Endless replayability**
@@ -249,6 +261,7 @@ The game supports various settings:
 ## 📝 Development
 
 ### **Version History**
+- **v3.2** - "Realism & Depth" — 8 D&D 5e realism systems (Skill Proficiency, Opportunity Attacks, Passive Perception, Ritual Casting, Equipment Proficiency, Attunement, Darkvision, Racial Abilities), Half-Orc race, character panel UI overhaul
 - **v3.1** - "Combat Gates" — Lost Mine of Phandelver campaign, combat-gated story progression across all 5 campaigns, full 15-point integration audit
 - **v3.0** - "Underworld Economy" — Full economy/lifestyle system, black market with haggle & guard encounters, artifact favor charges, 5 campaign settings with unique loot, boss encounter depth, exhaustion system, death spiral prevention, tactical combat enhancements
 - **v2.3** - Professional save manager modal, compact combat toast notifications (auto-dismiss + expandable), death save button fix for unconscious combat, UI refinements
