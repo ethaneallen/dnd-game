@@ -1,5 +1,5 @@
-# D&D 5e Text Adventure Engine  v3.0.0
-# "Underworld Economy" — Major Release, February 2026
+# D&D 5e Text Adventure Engine  v3.1.0
+# "Combat Gates" — Campaign Progression Overhaul, February 2026
 import random
 import json
 import os

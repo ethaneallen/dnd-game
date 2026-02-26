@@ -1047,7 +1047,7 @@ const CAMPAIGNS = {
         coverArt: "images/nights_dark_terror.jpg",
         description: "A classic adventure in the Grand Duchy of Karameikos. Escort a horse trader home, only to find his family's homestead under siege by goblin wolf-riders!",
         setting: "Karameikos",
-        level: "1-3",
+        level: "2-4",
         chapters: [
             { id: 0, name: "Prologue: Journey to Sukiskyn", description: "You have been hired by Stephan, a horse trader, to escort him to his family's homestead at Sukiskyn in the wilderness of Karameikos.", objective: "Travel to Sukiskyn homestead" },
             { id: 1, name: "Chapter 1: Siege of Sukiskyn", description: "Goblin wolf-riders have laid siege to the Sukiskyn homestead! The Sukiskyn family desperately needs your help to defend their home.", objective: "Defend Sukiskyn from the goblin attack" },
@@ -1357,6 +1357,116 @@ const CAMPAIGNS = {
                 "Wanted posters show Artus Cimber. The Zhentarim pay well for information."
             ]
         }
+    },
+    "lost_mine_of_phandelver": {
+        id: "lost_mine_of_phandelver",
+        name: "Lost Mine of Phandelver",
+        icon: "⛏️",
+        coverArt: "images/lost-mine-of-phandelver.jpg",
+        description: "The classic D&D 5th Edition starter adventure! Escort supplies to the frontier town of Phandalin, but danger lurks on the Triboar Trail. Goblins, bandits, and a mysterious villain seek the legendary Wave Echo Cave!",
+        setting: "Sword Coast",
+        level: "1-5",
+        chapters: [
+            { id: 0, name: "Prologue: The Triboar Trail", description: "You've been hired by Gundren Rockseeker to escort a wagon of supplies to the frontier town of Phandalin. Gundren and his bodyguard Sildar have ridden ahead, promising to meet you in town.", objective: "Escort the wagon safely to Phandalin" },
+            { id: 1, name: "Chapter 1: Goblin Trouble", description: "The road is blocked by dead horses - an ambush! Gundren and Sildar are missing, and goblin tracks lead into the forest. The Cragmaw tribe is behind this.", objective: "Rescue Sildar and discover what happened to Gundren" },
+            { id: 2, name: "Chapter 2: Phandalin", description: "The small frontier town is being terrorized by the Redbrands - thugs who work for someone called Glasstaff. The townsfolk desperately need heroes.", objective: "Deal with the Redbrand menace" },
+            { id: 3, name: "Chapter 3: Secrets of Tresendar Manor", description: "The Redbrand hideout lies beneath the old Tresendar Manor. Their leader Glasstaff knows something about Gundren's disappearance and the mysterious Black Spider.", objective: "Infiltrate the Redbrand hideout and confront Glasstaff" },
+            { id: 4, name: "Chapter 4: Cragmaw Castle", description: "The goblin stronghold of Cragmaw Castle is where King Grol holds Gundren prisoner. The Black Spider wants information about Wave Echo Cave.", objective: "Storm Cragmaw Castle and rescue Gundren" },
+            { id: 5, name: "Chapter 5: Wave Echo Cave", description: "The legendary lost mine has been found! Within lies the Forge of Spells, a magical forge from the ancient Phandelver's Pact. But the Black Spider has already entered the cave...", objective: "Explore Wave Echo Cave and stop the Black Spider" },
+            { id: 6, name: "Epilogue: Heroes of Phandalin", description: "With the Black Spider defeated and Wave Echo Cave secured, Phandalin can finally prosper. You are celebrated as the heroes who saved the town!", objective: "Celebrate your victory!" }
+        ],
+        npcs: {
+            "Gundren": { name: "Gundren Rockseeker", role: "Dwarf Prospector (Quest Giver)", description: "A jovial dwarf entrepreneur who discovered something important. He and his brothers have a big secret.", dialogue: ["Thank you for agreeing to escort my supplies! I need to ride ahead with Sildar to prepare for your arrival.", "There's something I haven't told you... my brothers and I found something. Something big. But that's a story for when you arrive in Phandalin!", "The Rockseeker name will be famous again! Just you wait and see!"] },
+            "Sildar": { name: "Sildar Hallwinter", role: "Lords' Alliance Agent", description: "A retired soldier working for the Lords' Alliance. He's searching for a missing agent named Iarno Albrek.", dialogue: ["*groaning* Those cursed goblins... Thank you for rescuing me. But Gundren - they took him somewhere else!", "I was escorting Gundren as a favor to the Lords' Alliance. He's onto something big in these hills.", "I'm searching for Iarno Albrek, a fellow agent. He came to Phandalin two months ago and vanished. Have you seen him?"] },
+            "TheBlackSpider": { name: "The Black Spider", role: "Mysterious Villain", description: "A mysterious figure who commands goblins and bandits alike. His agents seek Gundren and his map to Wave Echo Cave.", dialogue: ["[You receive a note] 'Gundren Rockseeker is my prisoner. Send word to his family that they should give up their search. The Black Spider.'", "So, the troublesome adventurers have finally arrived. No matter - you're too late!", "Wave Echo Cave and the Forge of Spells will be mine! The power within will make me unstoppable!"], boss: true },
+            "Glasstaff": { name: "Glasstaff (Iarno Albrek)", role: "Redbrand Leader", description: "The mysterious wizard leading the Redbrands. He carries a glass staff and has connections to the Black Spider.", dialogue: ["You dare invade my sanctuary?! The Redbrands will cut you down!", "You don't understand - the Black Spider offers power! He'll make me the lord of Phandalin!", "Sildar was a fool to come looking for me. I've found a better path!"] },
+            "Nezznar": { name: "Nezznar", role: "The Black Spider (Drow Villain)", description: "The true identity of the Black Spider - a drow seeking the magic of the Forge of Spells to advance his dark schemes.", dialogue: ["Ah, the meddlesome surface dwellers. Did you think your small victories would stop my plans?", "For too long, the secrets of Wave Echo Cave have been lost. Now they will serve the Spider Queen!", "Die knowing that your deaths will not be remembered, while my name will echo through the Underdark for centuries!"], boss: true },
+            "ElmarBarthen": { name: "Elmar Barthen", role: "Merchant", description: "The owner of Barthen's Provisions in Phandalin. He hired you to deliver Gundren's supplies.", dialogue: ["Welcome to Phandalin! I've been expecting Gundren's delivery. Where is the old dwarf?", "The Redbrands are a menace. They work for someone in Tresendar Manor, but no one dares investigate.", "I'll pay you the agreed 10 gold pieces for the delivery. Shame to hear Gundren's in trouble."] }
+        },
+        locations: [
+            { name: "Triboar Trail", type: "wilderness", danger: 0, icon: "🛤️", chapter: 0, description: "The High Road from Neverwinter to Phandalin. Well-traveled by merchants and settlers." },
+            { name: "Goblin Ambush Site", type: "wilderness", danger: 1, icon: "💀", chapter: 1, description: "Dead horses block the trail. Goblin arrows still stick from their flanks." },
+            { name: "Cragmaw Hideout - Entrance", type: "dungeon", danger: 1, icon: "🕳️", chapter: 1, description: "A hidden cave entrance where the Cragmaw goblins took their prisoners." },
+            { name: "Cragmaw Hideout - Depths", type: "dungeon", danger: 2, icon: "👹", chapter: 1, description: "The main goblin den. Sildar is held prisoner somewhere inside." },
+            { name: "Phandalin - Town Square", type: "town", danger: 0, icon: "🏘️", chapter: 2, description: "A small frontier settlement. Miners and farmers eye you with a mix of hope and suspicion." },
+            { name: "Barthen's Provisions", type: "town", danger: 0, icon: "🏺", chapter: 2, description: "The general store run by Elmar Barthen. Gundren's supplies were destined here." },
+            { name: "Stonehill Inn", type: "town", danger: 0, icon: "🍺", chapter: 2, description: "The town's inn and taproom, run by Toblen Stonehill and his family." },
+            { name: "Shrine of Luck", type: "town", danger: 0, icon: "⛪", chapter: 2, description: "A small shrine tended by Sister Garaele, a contact for the Harpers." },
+            { name: "Townmaster's Hall", type: "town", danger: 0, icon: "🏛️", chapter: 2, description: "Where the pompous Harbin Wester serves as townmaster under Redbrand intimidation." },
+            { name: "Sleeping Giant Tap House", type: "town", danger: 2, icon: "🍷", chapter: 2, description: "A grimy taphouse that serves as the Redbrand headquarters in town." },
+            { name: "Tresendar Manor Ruins", type: "dungeon", danger: 2, icon: "🏚️", chapter: 3, description: "The ruins of the old Tresendar estate. A hidden entrance leads to the Redbrand hideout below." },
+            { name: "Redbrand Hideout - Crypts", type: "dungeon", danger: 2, icon: "⚰️", chapter: 3, description: "Ancient crypts beneath the manor, now infested with undead and Redbrand thugs." },
+            { name: "Redbrand Hideout - Cells", type: "dungeon", danger: 2, icon: "⛓️", chapter: 3, description: "Prison cells where the Redbrands keep captured townsfolk." },
+            { name: "Glasstaff's Quarters", type: "dungeon", danger: 3, icon: "🪄", chapter: 3, description: "The wizard's luxurious quarters. His desk contains incriminating documents." },
+            { name: "Cragmaw Castle - Ruins", type: "dungeon", danger: 3, icon: "🏰", chapter: 4, description: "An ancient ruined castle, now the stronghold of the Cragmaw tribe." },
+            { name: "Cragmaw Castle - Great Hall", type: "dungeon", danger: 3, icon: "👑", chapter: 4, description: "Where King Grol holds court over his disorganized goblin kingdom." },
+            { name: "King Grol's Chamber", type: "dungeon", danger: 4, icon: "💎", chapter: 4, description: "The bugbear king's personal chamber. Gundren is held prisoner here!" },
+            { name: "Wave Echo Cave - Entrance", type: "dungeon", danger: 3, icon: "⛏️", chapter: 5, description: "The legendary lost mine! An eerie echo like crashing waves reverberates through the tunnels." },
+            { name: "Wave Echo Cave - Mines", type: "dungeon", danger: 4, icon: "💎", chapter: 5, description: "Old mining tunnels filled with monsters and the restless undead of Phandelver's Pact." },
+            { name: "The Forge of Spells", type: "dungeon", danger: 4, icon: "🔨", chapter: 5, description: "The ancient magical forge where wizards once enchanted weapons and armor." },
+            { name: "Temple of Dumathoin", type: "dungeon", danger: 5, icon: "⛏️", chapter: 5, description: "An underground temple to the dwarven god of mining. The Black Spider awaits within!" }
+        ],
+        monsters: {
+            1: [
+                { name: "Goblin", hp: 7, ac: 13, damage: "1d6", xp: 50, description: "A sneaky Cragmaw goblin with a shortbow and a nasty attitude." },
+                { name: "Wolf", hp: 11, ac: 13, damage: "1d6", xp: 50, description: "A grey wolf trained by the Cragmaw tribe to attack intruders." },
+                { name: "Redbrand Ruffian", hp: 12, ac: 12, damage: "1d6", xp: 50, description: "A common thug wearing a tattered red cloak." }
+            ],
+            2: [
+                { name: "Hobgoblin", hp: 15, ac: 16, damage: "1d8", xp: 100, description: "A disciplined goblinoid warrior in chainmail." },
+                { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, description: "A massive, hairy goblinoid that excels at stealth ambushes." },
+                { name: "Skeleton", hp: 13, ac: 13, damage: "1d6", xp: 50, description: "The animated bones of a long-dead Phandelver warrior." },
+                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, description: "A shambling corpse from the ancient battle at Wave Echo Cave." },
+                { name: "Ochre Jelly", hp: 45, ac: 8, damage: "2d6", xp: 200, description: "An acidic ooze that splits when struck by lightning or slashing weapons!" }
+            ],
+            3: [
+                { name: "Glasstaff", hp: 32, ac: 12, damage: "2d8", xp: 700, description: "The wizard leader of the Redbrands, wielding his signature glass staff!", boss: true },
+                { name: "Nothic", hp: 45, ac: 15, damage: "2d6", xp: 450, description: "A bizarre one-eyed aberration cursed by dark magic. It can see through lies!" },
+                { name: "Grick", hp: 27, ac: 14, damage: "2d6", xp: 450, description: "A worm-like predator with stone-hard skin and tentacles." },
+                { name: "Owlbear", hp: 59, ac: 13, damage: "2d8", xp: 700, description: "A ferocious hybrid creature with the temperament of a wounded bear." }
+            ],
+            4: [
+                { name: "King Grol", hp: 45, ac: 16, damage: "2d8", xp: 700, description: "The brutish bugbear king of Cragmaw Castle. His morningstar has crushed many skulls!", boss: true },
+                { name: "Doppelganger", hp: 52, ac: 14, damage: "1d8", xp: 700, description: "A shapeshifter working for the Black Spider. Who can you trust?" },
+                { name: "Flameskull", hp: 40, ac: 13, damage: "3d6", xp: 1100, description: "A floating skull wreathed in green flames! It guards the Forge of Spells with deadly magic.", boss: true },
+                { name: "Wraith", hp: 67, ac: 13, damage: "3d8", xp: 1800, description: "A powerful undead spirit whose touch drains life and creates specters!" }
+            ],
+            5: [
+                { name: "Nezznar the Black Spider", hp: 55, ac: 14, damage: "3d6", xp: 2000, description: "The drow mastermind behind everything! His spider staff channels dark magic!", boss: true },
+                { name: "Giant Spider", hp: 26, ac: 14, damage: "1d8", xp: 200, description: "One of the Black Spider's loyal pets. Its venom can paralyze!" },
+                { name: "Drow", hp: 13, ac: 15, damage: "1d6", xp: 100, description: "A dark elf warrior serving Nezznar. Sunlight hurts their eyes." },
+                { name: "Spectator", hp: 39, ac: 14, damage: "1d8", xp: 700, description: "A beholder-kin with four eyestalks guarding the Forge of Spells." }
+            ]
+        },
+        events: {
+            dungeon: [
+                "You hear the scurrying of small feet echoing through stone passages.",
+                "Crude goblin graffiti covers the walls - threats against intruders.",
+                "The sound of dripping water and distant waves echoes eerily through the cave.",
+                "You find old mining equipment, rusted and abandoned for centuries.",
+                "Scratch marks on the walls show where something large was dragged through.",
+                "A skeleton wearing ancient dwarven armor lies against the wall, still clutching a pickaxe.",
+                "The air smells of mold, earth, and something else... something dangerous."
+            ],
+            wilderness: [
+                "The Sword Mountains loom to the east, their peaks often shrouded in clouds.",
+                "You spot signs of recent goblin activity - small footprints and crude camps.",
+                "A merchant wagon passes, its driver nervously eyeing the tree line.",
+                "You discover an old trail marker pointing toward Phandalin.",
+                "Animal tracks cross your path - deer, wolves, and something larger.",
+                "The Neverwinter Wood stretches to the west, dark and forbidding.",
+                "You pass abandoned homesteads, victims of orc raids years ago."
+            ],
+            town: [
+                "Townsfolk whisper nervously when Redbrands swagger past.",
+                "A farmer offers to pay for help dealing with nearby monsters.",
+                "The local miners speak hopefully of work once Wave Echo Cave is found.",
+                "You overhear gossip about the Rockseeker brothers and their secret.",
+                "A merchant complains about 'protection money' demanded by thugs.",
+                "Children play in the street but scatter when adults appear nervous.",
+                "The sound of hammers rings from the smithy as the town slowly rebuilds."
+            ]
+        }
     }
 };
 
@@ -1564,6 +1674,32 @@ const GAME_DATA = {
     },
     // Campaign-specific equipment
     campaignItems: {
+        "keep_on_borderlands": {
+            weapons: {
+                "Castellan's Blade": { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 1, description: "A +1 longsword gifted by the Castellan for exceptional service." },
+                "Orc Cleaver": { damage: "1d10", type: "slashing", properties: ["two-handed", "heavy"], stat: "str", description: "A brutal two-handed weapon taken from an orc chieftain." },
+                "Kobold Crossbow": { damage: "1d8", type: "piercing", properties: ["ranged", "loading"], stat: "dex", range: 80, description: "A light crossbow rigged with a kobold hair-trigger." },
+                "Chaos Mace": { damage: "1d8", type: "bludgeoning", properties: [], stat: "str", magicBonus: 1, bonusDamageDice: "1d4", bonusDamageType: "necrotic", description: "A +1 mace crackling with dark energy from the Temple of Evil Chaos." },
+                "Goblin Shortbow": { damage: "1d6", type: "piercing", properties: ["ranged", "light"], stat: "dex", range: 80, description: "A crude but effective goblin shortbow." }
+            },
+            armor: {
+                "Guard's Chain": { ac: 16, type: "heavy", maxDex: 0, stealthDisadvantage: true, description: "Standard-issue chain mail from the Keep's armory." },
+                "Orc Hide Armor": { ac: 13, type: "medium", maxDex: 2, stealthDisadvantage: false, description: "Crude armor pieced together from various hides by orcs." },
+                "Temple Cult Robes": { ac: 11, type: "light", maxDex: 99, stealthDisadvantage: false, description: "Dark robes from the Temple of Evil Chaos. Faintly unsettling." },
+                "Castellan's Plate": { ac: 18, type: "heavy", maxDex: 0, stealthDisadvantage: true, description: "Polished plate armor awarded to the Keep's greatest champion." }
+            },
+            shields: {
+                "Keep Shield": { acBonus: 2, description: "A sturdy shield bearing the emblem of the Keep." }
+            },
+            consumables: {
+                "Green Man Ale": { effect: "courage", description: "A hearty ale from the Green Man Inn. Grants advantage on fear saves for 1 hour." },
+                "Chapel Holy Water": { effect: "damage_undead", description: "Blessed water from the Keep's chapel. Deals 2d6 radiant damage to undead." },
+                "Frontier Rations": { effect: "heal", healAmount: "1d6", description: "Dried meats and hardtack from the Keep's stores." }
+            },
+            shopItems: ["Guard's Chain", "Orc Hide Armor", "Keep Shield", "Goblin Shortbow", "Green Man Ale", "Chapel Holy Water", "Frontier Rations"],
+            lootItems: ["Orc Cleaver", "Kobold Crossbow", "Orc Hide Armor", "Green Man Ale", "Frontier Rations"],
+            bossLoot: ["Castellan's Blade", "Chaos Mace", "Castellan's Plate", "Temple Cult Robes"]
+        },
         "nights_dark_terror": {
             weapons: {
                 "Karameikan Saber": { damage: "1d8", type: "slashing", properties: ["finesse"], stat: "dex", description: "A curved cavalry saber favored by Karameikan nobles." },
@@ -1646,6 +1782,31 @@ const GAME_DATA = {
             shopItems: ["Chultan Machete", "Yklwa", "Dinosaur Bone Club", "Jungle Explorer's Gear", "Dinosaur Hide Armor", "Turtle Shell Shield", "Tej (Honey Wine)", "Antivenom", "Insect Repellent"],
             lootItems: ["Chultan Machete", "Yklwa", "Pterafolk Wing Blade", "Jungle Explorer's Gear", "Tej (Honey Wine)", "Insect Repellent", "Rain Catcher Rations"],
             bossLoot: ["Trickster God Blade", "Yuan-ti Fang Sword", "Dinosaur Hide Armor", "Yuan-ti Scale Mail", "Tomb Guardian Plate", "Omu Relic Shield", "Spirit of Ubtao"]
+        },
+        "lost_mine_of_phandelver": {
+            weapons: {
+                "Talon" : { damage: "1d8", type: "slashing", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 1, description: "A +1 longsword found in the Redbrand hideout. Its blade glows faintly blue." },
+                "Hew": { damage: "1d10", type: "slashing", properties: ["two-handed", "heavy"], stat: "str", magicBonus: 1, bonusDamageVs: "plant", bonusDamage: 2, description: "A +1 battleaxe made for a human hero long ago. It was used to clear forests. Extra damage vs plant creatures." },
+                "Lightbringer": { damage: "1d6", type: "bludgeoning", properties: ["versatile"], versatileDamage: "1d8", stat: "str", magicBonus: 1, bonusDamageDice: "1d6", bonusDamageType: "radiant", description: "A +1 mace that glows bright as a torch on command. Extra 1d6 radiant damage vs undead." },
+                "Dragonguard Halberd": { damage: "1d10", type: "slashing", properties: ["two-handed", "heavy", "reach"], stat: "str", magicBonus: 1, description: "A +1 halberd etched with dragon imagery from Cragmaw Castle." },
+                "Spider Staff": { damage: "1d6", type: "bludgeoning", properties: ["versatile"], versatileDamage: "1d8", stat: "str", magicBonus: 1, description: "Nezznar's staff, carved to resemble black spider legs. +1 quarterstaff." }
+            },
+            armor: {
+                "Redbrand Cloak": { ac: 12, type: "light", maxDex: 99, stealthDisadvantage: false, description: "Dyed red leather armor worn by Redbrand thugs." },
+                "Miner's Breastplate": { ac: 14, type: "medium", maxDex: 2, stealthDisadvantage: false, description: "Reinforced breastplate made for the miners of Wave Echo Cave." },
+                "Dragonguard": { ac: 17, type: "heavy", maxDex: 0, stealthDisadvantage: true, description: "A suit of armor adorned with dragon motifs. Grants advantage on saves vs. dragon breath." }
+            },
+            shields: {
+                "Phandalin Shield": { acBonus: 2, description: "A sturdy wooden shield painted with the Phandalin coat of arms." }
+            },
+            consumables: {
+                "Healing Potion (Phandalin)": { effect: "heal", healAmount: "2d4+2", description: "A standard healing potion from Barthen's Provisions." },
+                "Stonehill Special Ale": { effect: "courage", description: "Toblen's special brew. Grants advantage on fear saves for 1 hour." },
+                "Scroll of Augury": { effect: "divination", description: "A scroll from Sister Garaele. Reveals whether a course of action will be beneficial." }
+            },
+            shopItems: ["Redbrand Cloak", "Miner's Breastplate", "Phandalin Shield", "Healing Potion (Phandalin)", "Stonehill Special Ale", "Scroll of Augury"],
+            lootItems: ["Redbrand Cloak", "Healing Potion (Phandalin)", "Stonehill Special Ale"],
+            bossLoot: ["Talon", "Hew", "Lightbringer", "Dragonguard Halberd", "Spider Staff", "Dragonguard", "Miner's Breastplate"]
         }
     },
     // Shop prices for equipment
@@ -2614,6 +2775,9 @@ class DungeonMaster {
         this.rumors = [];
         this.worldEvents = [];
         this.tavennRumorsHeard = [];
+        
+        // Combat-gated story progression
+        this.pendingStoryEvent = null;
     }
     
     initQuestFlags(campaignId) {
@@ -2684,6 +2848,26 @@ class DungeonMaster {
                 defeatedMinotaur: false,
                 foundTemple: false,
                 defeatedHighPriest: false
+            };
+        } else if (campaignId === "lost_mine_of_phandelver") {
+            return {
+                ambushed: false,
+                rescuedSildar: false,
+                arrivedPhandalin: false,
+                metBarthen: false,
+                learnedRedbrands: false,
+                enteredRedbrandHideout: false,
+                clearedRedbrands: false,
+                defeatedGlassstaff: false,
+                redbrandsDefeated: 0,
+                enteredCragmawCastle: false,
+                rescuedGundren: false,
+                defeatedKingGrol: false,
+                enteredWaveEchoCave: false,
+                foundForgeOfSpells: false,
+                defeatedBlackSpider: false,
+                goblinsKilled: 0,
+                townsfolkHelped: 0
             };
         }
         return {};
@@ -3511,6 +3695,46 @@ const COMPANIONS = {
                 victory: "Alisanda would be proud."
             }
         }
+    },
+    "lost_mine_of_phandelver": {
+        "Sildar Hallwinter": {
+            name: "Sildar Hallwinter",
+            race: "Human",
+            class: "Fighter",
+            level: 3,
+            hp: 24, maxHp: 24, ac: 16,
+            stats: { str: 14, dex: 10, con: 14, int: 12, wis: 13, cha: 12 },
+            weapon: { name: "Longsword", damage: "1d8", stat: "str" },
+            loyalty: 60,
+            personality: "A veteran soldier with a strong sense of duty.",
+            voiceStyle: "Speaks with military formality and gratitude",
+            recruitCondition: "rescuedSildar",
+            dialogue: {
+                greeting: "You saved my life. My sword is yours.",
+                combat: "For the Lords' Alliance!",
+                hurt: "I've survived worse...",
+                victory: "Well fought, friend."
+            }
+        },
+        "Sister Garaele": {
+            name: "Sister Garaele",
+            race: "Elf",
+            class: "Cleric",
+            level: 2,
+            hp: 14, maxHp: 14, ac: 14,
+            stats: { str: 10, dex: 12, con: 12, int: 13, wis: 16, cha: 14 },
+            weapon: { name: "Mace", damage: "1d6", stat: "str" },
+            loyalty: 50,
+            personality: "A kind-hearted elf devoted to Tymora, goddess of luck.",
+            voiceStyle: "Speaks softly with elvish grace",
+            recruitCondition: "arrivedPhandalin",
+            dialogue: {
+                greeting: "Tymora smiles on our meeting. Let me aid your quest.",
+                combat: "Lady Luck, guide my hand!",
+                hurt: "Tymora, grant me strength...",
+                victory: "Fortune favors the bold!"
+            }
+        }
     }
 };
 
@@ -3611,6 +3835,16 @@ const FLAW_COMPLICATIONS = {
 
 // Random rumors by campaign
 const RUMORS = {
+    "keep_on_borderlands": [
+        "The Caves of Chaos are a day's march north. Multiple monster tribes lair there.",
+        "Kobolds set traps everywhere. Watch where you step in those tunnels.",
+        "An unnatural alliance binds the cave monsters. Someone is organizing them.",
+        "The Castellan pays 100 gold for proof the caves are cleared.",
+        "A hidden temple lies deep in the ravine. Dark magic emanates from within.",
+        "Gnolls and bugbears guard the inner caves. They're tougher than the outer lot.",
+        "A minotaur is said to roam the deepest tunnels. Best go well-armed.",
+        "Brother Caedmon at the chapel seeks brave souls to cleanse the caves of evil."
+    ],
     "nights_dark_terror": [
         "The Iron Ring slavers have been seen moving through the Dymrak Forest.",
         "Wolves have been attacking more frequently. Unnatural, some say.",
@@ -3640,6 +3874,16 @@ const RUMORS = {
         "Acererak built the Soulmonger deep beneath Omu.",
         "The guides of Port Nyanzaru know the jungle's secrets.",
         "Red Wizards seek the tomb too. Trust them not."
+    ],
+    "lost_mine_of_phandelver": [
+        "Gundren Rockseeker and his brothers found something big in these hills.",
+        "The Redbrands have been terrorizing Phandalin for weeks. Someone needs to stop them.",
+        "There's an old manor on the east edge of town. The Redbrands use it as their base.",
+        "The Cragmaw goblins answer to a bugbear named King Grol.",
+        "A mysterious figure called the Black Spider is pulling all the strings.",
+        "Wave Echo Cave was lost five hundred years ago. The Forge of Spells lies within.",
+        "Sister Garaele at the shrine has been asking about a banshee named Agatha.",
+        "Old Owl Well has been overrun - something dark stirs there."
     ]
 };
 
@@ -4324,6 +4568,8 @@ class Game {
             let coverClass = 'nights-dark';
             if (campaignId === 'curse_of_strahd') coverClass = 'strahd';
             else if (campaignId === 'tomb_of_annihilation') coverClass = 'tomb';
+            else if (campaignId === 'lost_mine_of_phandelver') coverClass = 'phandelver';
+            else if (campaignId === 'keep_on_borderlands') coverClass = 'borderlands';
             
             campaignContainer.innerHTML += `
                 <div class="campaign-card" data-campaign="${campaignId}" onclick="game.selectCampaign('${campaignId}')">
@@ -4333,7 +4579,7 @@ class Game {
                     </div>
                     <div class="campaign-info">
                         <h3>${campaign.name}</h3>
-                        <p class="campaign-setting">Setting: ${campaign.setting} | Levels: ${campaign.level}</p>
+                        <p class="campaign-setting">Setting: ${campaign.setting} | Level Range: ${campaign.level}</p>
                         <p class="campaign-desc">${campaign.description}</p>
                     </div>
                 </div>
@@ -4815,6 +5061,11 @@ class Game {
             this.log(`<em>The dusty road stretches before you. In the distance, you can see the walls of the Keep...</em>`, "dm");
             this.log("💡 <strong>TIP:</strong> Click TRAVEL to go to the Keep Gates!", "loot");
             this.updateChapterDisplay();
+        } else if (this.selectedCampaign === "lost_mine_of_phandelver") {
+            this.log(`You've been hired by a dwarf named Gundren Rockseeker to escort a wagonload of supplies to the rough-and-tumble settlement of Phandalin, a couple of days' travel southeast of the city of Neverwinter.`, "dm");
+            this.log("Your stats have been rolled: " + Object.entries(this.character.stats).map(([k,v]) => `${k.toUpperCase()}: ${v}`).join(", "), "success");
+            this.log(`<em>Gundren rode ahead with his bodyguard Sildar Hallwinter, promising to meet you in Phandalin. The Triboar Trail stretches before you...</em>`, "dm");
+            setTimeout(() => this.triggerStoryEvent("intro_lmop"), 1500);
         }
     }
     
@@ -6865,6 +7116,16 @@ class Game {
                     }
                 }
             }
+        } else if (this.dm.campaignId === "keep_on_borderlands") {
+            const monsterNameLower = monster.name.toLowerCase();
+            if (monsterNameLower.includes("kobold") || monsterNameLower.includes("goblin") || monsterNameLower.includes("orc")) {
+                if (!this.dm.questFlags.outerMonstersKilled) this.dm.questFlags.outerMonstersKilled = 0;
+                this.dm.questFlags.outerMonstersKilled++;
+            }
+            if (monsterNameLower.includes("bugbear") || monsterNameLower.includes("gnoll") || monsterNameLower.includes("hobgoblin")) {
+                if (!this.dm.questFlags.innerMonstersKilled) this.dm.questFlags.innerMonstersKilled = 0;
+                this.dm.questFlags.innerMonstersKilled++;
+            }
         } else if (this.dm.campaignId === "curse_of_strahd") {
             const undeadNames = ["zombie", "ghoul", "wight", "specter", "vampire", "skeleton"];
             if (undeadNames.some(name => monster.name.toLowerCase().includes(name))) {
@@ -6879,10 +7140,34 @@ class Game {
             if (undeadNames.some(name => monster.name.toLowerCase().includes(name))) {
                 this.dm.questFlags.undeadSlain++;
             }
+        } else if (this.dm.campaignId === "lost_mine_of_phandelver") {
+            if (monster.name.toLowerCase().includes("goblin") || monster.name.toLowerCase().includes("hobgoblin") || monster.name.toLowerCase().includes("bugbear")) {
+                this.dm.questFlags.goblinsKilled++;
+            }
+            if (monster.name.toLowerCase().includes("redbrand") || monster.name.toLowerCase().includes("ruffian")) {
+                this.dm.questFlags.redbrandsDefeated++;
+                if (this.dm.currentChapter === 3 && !this.dm.questFlags.clearedRedbrands) {
+                    const kills = this.dm.questFlags.redbrandsDefeated;
+                    const needed = 4;
+                    if (kills < needed) {
+                        this.log(`📊 Redbrand Hideout Progress: ${kills}/${needed} Redbrands defeated`, "dm");
+                    }
+                    if (kills >= needed) {
+                        setTimeout(() => this.triggerStoryEvent("redbrandsCleared"), 500);
+                    }
+                }
+            }
         }
         
         // Check for boss defeat
         this.checkBossDefeat(monster);
+        
+        // Fire any combat-gated story event
+        if (this.dm.pendingStoryEvent) {
+            const pendingEvent = this.dm.pendingStoryEvent;
+            this.dm.pendingStoryEvent = null;
+            setTimeout(() => this.triggerStoryEvent(pendingEvent), 600);
+        }
         
         // Level up check
         if (char.experience >= char.level * 300) {
@@ -6978,6 +7263,16 @@ class Game {
                     setTimeout(() => this.triggerStoryEvent("defeatedMinotaur"), 500);
                 } else if (monster.name === "High Priest of Chaos") {
                     setTimeout(() => this.triggerStoryEvent("defeatedHighPriest"), 500);
+                }
+            } else if (this.dm.campaignId === "lost_mine_of_phandelver") {
+                if (monster.name === "Glasstaff") {
+                    setTimeout(() => this.triggerStoryEvent("defeatGlassstaff"), 500);
+                } else if (monster.name === "King Grol") {
+                    setTimeout(() => this.triggerStoryEvent("defeatKingGrol"), 500);
+                } else if (monster.name === "Nezznar the Black Spider") {
+                    setTimeout(() => this.triggerStoryEvent("defeatBlackSpider"), 500);
+                } else if (monster.name === "Flameskull") {
+                    setTimeout(() => this.triggerStoryEvent("defeatFlameskull"), 500);
                 }
             }
         }
@@ -8508,6 +8803,15 @@ class Game {
             if (npcId === "Merchant" && locName.includes("port nyanzaru")) return true;
         }
         
+        if (campaignId === "lost_mine_of_phandelver") {
+            if (npcId === "Gundren" && chapter === 0) return true;
+            if (npcId === "Sildar" && flags.rescuedSildar && locName.includes("phandalin")) return true;
+            if (npcId === "ElmarBarthen" && locName.includes("barthen")) return true;
+            if (npcId === "ElmarBarthen" && locName.includes("town square")) return true;
+            if (npcId === "Glasstaff" && locName.includes("glasstaff") && !flags.defeatedGlassstaff) return true;
+            if (npcId === "Nezznar" && locName.includes("temple of dumathoin") && !flags.defeatedBlackSpider) return true;
+        }
+        
         return false;
     }
     
@@ -8606,6 +8910,15 @@ class Game {
         if (campaignId === "nights_dark_terror") {
             if (npcId === "Stephan" && !flags.intro) {
                 this.triggerStoryEvent("intro");
+            }
+        }
+        
+        if (campaignId === "lost_mine_of_phandelver") {
+            if (npcId === "ElmarBarthen" && !flags.metBarthen) {
+                this.triggerStoryEvent("meetBarthen");
+            }
+            if (npcId === "Sildar" && flags.rescuedSildar && !flags.learnedRedbrands) {
+                this.triggerStoryEvent("sildarWarnsRedbrands");
             }
         }
     }
@@ -9693,14 +10006,18 @@ class Game {
         const campaignId = this.dm.campaignId;
         
         if (campaignId === "nights_dark_terror") {
-            // Chapter 1 trigger - reaching Sukiskyn
+            // Chapter 1 trigger - reaching Sukiskyn (town arrival, siege starts after)
             if (location.name === "Sukiskyn Homestead" && !flags.reachedSukiskyn) {
                 this.triggerStoryEvent("reachSukiskyn");
             }
             
-            // Chapter 3 trigger - entering Xitaqa's Lair
+            // Chapter 3 trigger - entering Xitaqa's Lair - bugbear guards block the way
             if (location.name === "Xitaqa's Lair - Entrance" && !flags.enteredXitaqasLair) {
-                this.triggerStoryEvent("enterXitaqasLair");
+                this.log("Bugbear sentries guard the ancient entrance! They spot you and charge with weapons raised!", "danger");
+                this.dm.pendingStoryEvent = "enterXitaqasLair";
+                const bugbear = { ...this.dm.campaign.monsters[3].find(m => m.name === "Bugbear") };
+                bugbear.name = "Bugbear Sentry";
+                this.startCombat(bugbear);
             }
             
             // Xitaqa's Throne Room - boss fight
@@ -9710,14 +10027,21 @@ class Game {
                 this.startCombat(xitaqa);
             }
             
-            // Prison caves - rescue opportunity
+            // Prison caves - must fight goblin jailer to rescue Taras
             if (location.name === "Prison Caves" && !flags.rescuedTaras) {
-                this.triggerStoryEvent("rescueTaras");
+                this.log("A goblin warrior stands guard over the prisoners, keys jangling at his belt! He draws his blade as you approach!", "danger");
+                this.dm.pendingStoryEvent = "rescueTaras";
+                const goblin = { ...this.dm.campaign.monsters[2].find(m => m.name === "Goblin Warrior") };
+                goblin.name = "Goblin Jailer";
+                this.startCombat(goblin);
             }
             
-            // Chapter 5 trigger - Lost Valley
+            // Chapter 5 trigger - Lost Valley - dire wolves prowl the entrance
             if (location.name === "The Lost Valley - Entrance" && !flags.foundLostValley) {
-                this.triggerStoryEvent("findLostValley");
+                this.log("A pack of dire wolves guards the narrow pass into the valley! The alpha snarls and lunges!", "danger");
+                this.dm.pendingStoryEvent = "findLostValley";
+                const wolf = { ...this.dm.campaign.monsters[2].find(m => m.name === "Dire Wolf") };
+                this.startCombat(wolf);
             }
             
             // Final boss - Golthar's Sanctum
@@ -9727,44 +10051,56 @@ class Game {
                 this.startCombat(golthar);
             }
         } else if (campaignId === "curse_of_strahd") {
-            // Death House
+            // Death House - animated dead block the entrance
             if (location.name === "Death House" && !flags.enteredBarovia) {
-                this.triggerStoryEvent("enterDeathHouse");
+                this.log("The door creaks open and a shambling horror lurches from the darkness! The dead walk in this cursed house!", "danger");
+                this.dm.pendingStoryEvent = "enterDeathHouse";
+                const zombie = { ...this.dm.campaign.monsters[1].find(m => m.name === "Strahd Zombie") };
+                this.startCombat(zombie);
             }
             
-            // Village of Barovia - meet Ismark
+            // Village of Barovia - meet Ismark (town NPC - no gate)
             if (location.name === "Village of Barovia" && !flags.metIsmark) {
                 this.triggerStoryEvent("meetIsmark");
             }
             
-            // Burgomaster's Mansion - meet Ireena
+            // Burgomaster's Mansion - meet Ireena (NPC - no gate)
             if (location.name === "Burgomaster's Mansion" && !flags.metIreena) {
                 this.triggerStoryEvent("meetIreena");
             }
             
-            // Tser Pool - Madam Eva
+            // Tser Pool - Madam Eva (NPC fortune - no gate)
             if (location.name === "Tser Pool" && !flags.visitedMadamEva) {
                 this.triggerStoryEvent("visitMadamEva");
             }
             
-            // Vallaki
+            // Vallaki (town arrival - no gate)
             if (location.name === "Vallaki" && !flags.reachedVallaki) {
                 this.triggerStoryEvent("reachVallaki");
             }
             
-            // Van Richten's Tower - Chapter 4
+            // Van Richten's Tower - werewolves prowl the area
             if (location.name === "Van Richten's Tower" && !flags.foundVanRichten) {
-                this.triggerStoryEvent("findVanRichten");
+                this.log("A werewolf lunges from the treeline near the tower! Its howl pierces the fog-choked night!", "danger");
+                this.dm.pendingStoryEvent = "findVanRichten";
+                const werewolf = { ...this.dm.campaign.monsters[3].find(m => m.name === "Werewolf") };
+                this.startCombat(werewolf);
             }
             
-            // Amber Temple - Chapter 5
+            // Amber Temple - golem guardian blocks the way
             if (location.name === "Amber Temple" && !flags.reachedAmberTemple) {
-                this.triggerStoryEvent("reachAmberTemple");
+                this.log("A massive amber golem stirs to life in the temple doorway! Its eyes glow with ancient sorcery as it raises a fist!", "danger");
+                this.dm.pendingStoryEvent = "reachAmberTemple";
+                const golem = { ...this.dm.campaign.monsters[5].find(m => m.name === "Amber Golem") };
+                this.startCombat(golem);
             }
             
-            // Castle Ravenloft - Chapter 6
+            // Castle Ravenloft - vampire spawn guard the gates
             if (location.name === "Castle Ravenloft - Gates" && !flags.enteredRavenloft) {
-                this.triggerStoryEvent("enterRavenloft");
+                this.log("Vampire spawn descend from the castle battlements, their eyes gleaming with hunger! 'The master does not receive uninvited guests!'", "danger");
+                this.dm.pendingStoryEvent = "enterRavenloft";
+                const spawn = { ...this.dm.campaign.monsters[3].find(m => m.name === "Vampire Spawn") };
+                this.startCombat(spawn);
             }
             
             // Castle Ravenloft - Crypt - Final boss
@@ -9774,29 +10110,38 @@ class Game {
                 this.startCombat(strahd);
             }
         } else if (campaignId === "tomb_of_annihilation") {
-            // Port Nyanzaru - arrival
+            // Port Nyanzaru - arrival (town - no gate)
             if (location.name === "Port Nyanzaru - Harbor" && !flags.arrivedPort) {
                 this.triggerStoryEvent("arrivePort");
             }
             
-            // Meet a guide
+            // Meet a guide (town NPC - no gate)
             if (location.name === "Port Nyanzaru - Market" && !flags.hiredGuide) {
                 this.triggerStoryEvent("meetGuide");
             }
             
-            // Enter the jungle
+            // Enter the jungle - dinosaur attack!
             if (location.name === "Aldani Basin" && !flags.enteredJungle) {
-                this.triggerStoryEvent("enterJungle");
+                this.log("A massive allosaurus bursts from the jungle canopy! The ground shakes as it charges toward you!", "danger");
+                this.dm.pendingStoryEvent = "enterJungle";
+                const dino = { ...this.dm.campaign.monsters[2].find(m => m.name === "Allosaurus") };
+                this.startCombat(dino);
             }
             
-            // Find Omu
+            // Find Omu - yuan-ti sentinels guard the ruins
             if (location.name === "Omu - City Gates" && !flags.foundOmu) {
-                this.triggerStoryEvent("findOmu");
+                this.log("A yuan-ti malison slithers from the vine-choked gates, hissing a warning! 'No warm-bloods enter the Forbidden City!'", "danger");
+                this.dm.pendingStoryEvent = "findOmu";
+                const yuanti = { ...this.dm.campaign.monsters[3].find(m => m.name === "Yuan-ti Malison") };
+                this.startCombat(yuanti);
             }
             
-            // Enter the Fane - Chapter 4
+            // Enter the Fane - yuan-ti abomination bars the way
             if (location.name === "Fane of the Night Serpent" && !flags.enteredFane) {
-                this.triggerStoryEvent("enterFane");
+                this.log("A monstrous yuan-ti abomination coils before the fane entrance, its massive serpentine body filling the passage! 'The Night Serpent devours all intruders!'", "danger");
+                this.dm.pendingStoryEvent = "enterFane";
+                const abom = { ...this.dm.campaign.monsters[4].find(m => m.name === "Yuan-ti Abomination") };
+                this.startCombat(abom);
             }
             
             // Ras Nsi boss fight
@@ -9806,9 +10151,12 @@ class Game {
                 this.startCombat(rasNsi);
             }
             
-            // Enter the Tomb
+            // Enter the Tomb - tomb guardian blocks the entrance
             if (location.name === "Tomb - Level 1" && !flags.enteredTomb) {
-                this.triggerStoryEvent("enterTomb");
+                this.log("A tomb guardian materializes in the doorway, its stone form crackling with necrotic energy! 'None shall desecrate the Nine Gods!'", "danger");
+                this.dm.pendingStoryEvent = "enterTomb";
+                const guardian = { ...this.dm.campaign.monsters[5].find(m => m.name === "Tomb Guardian") };
+                this.startCombat(guardian);
             }
             
             // Soulmonger - must destroy before Acererak
@@ -9825,44 +10173,60 @@ class Game {
                 this.startCombat(acererak);
             }
         } else if (campaignId === "keep_on_borderlands") {
-            // Chapter 0 -> 1: Arrive at Keep Gates
+            // Chapter 0 -> 1: Arrive at Keep Gates (town - no gate)
             if (location.name === "Keep Gates" && !flags.arrivedAtKeep) {
                 this.triggerStoryEvent("arriveAtKeep");
             }
             
-            // Chapter 1: Enter the Outer Bailey (explore the keep)
+            // Chapter 1: Enter the Outer Bailey (town - no gate)
             if (location.name === "Keep - Outer Bailey" && !flags.exploredKeep) {
                 this.triggerStoryEvent("exploreKeep");
             }
             
-            // Chapter 1: Visit the Inn for lodging
+            // Chapter 1: Visit the Inn for lodging (town - no gate)
             if (location.name === "Green Man Inn" && !flags.foundLodging) {
                 this.triggerStoryEvent("findLodging");
             }
             
-            // Chapter 1 -> 2: Learn about Caves from Castellan
+            // Chapter 1 -> 2: Learn about Caves from Castellan (NPC - no gate)
             if (location.name === "Keep - Inner Bailey" && !flags.metCastellan) {
                 this.triggerStoryEvent("meetCastellan");
             }
             
-            // Chapter 2 -> 3: Enter the Caves of Chaos
+            // Chapter 2 -> 3: Enter the Caves of Chaos - kobold scouts attack
             if (location.name === "Caves of Chaos - Entrance" && !flags.foundCaves) {
-                this.triggerStoryEvent("findCaves");
+                this.log("Kobold scouts leap from behind the rocks, hurling javelins! They've been watching the ravine entrance!", "danger");
+                this.dm.pendingStoryEvent = "findCaves";
+                const kobold = { ...this.dm.campaign.monsters[1].find(m => m.name === "Kobold") };
+                kobold.name = "Kobold Scout";
+                this.startCombat(kobold);
             }
             
-            // Chapter 3: Clear Kobold Caves
+            // Chapter 3: Enter Kobold Caves - kobold warriors defend their lair
             if (location.name === "Kobold Caves" && !flags.clearedKobolds) {
-                this.triggerStoryEvent("enterKoboldCaves");
+                this.log("Kobold warriors screech and charge from the cave mouth, crude weapons raised in defense of their tunnels!", "danger");
+                this.dm.pendingStoryEvent = "enterKoboldCaves";
+                const kobold = { ...this.dm.campaign.monsters[1].find(m => m.name === "Kobold") };
+                kobold.name = "Kobold Warrior";
+                this.startCombat(kobold);
             }
             
-            // Chapter 3: Clear Goblin Caves
+            // Chapter 3: Enter Goblin Caves - goblin ambush
             if (location.name === "Goblin Caves" && !flags.clearedGoblins) {
-                this.triggerStoryEvent("enterGoblinCaves");
+                this.log("Goblins drop from concealed ledges above the cave entrance! Arrows fly as they spring their ambush!", "danger");
+                this.dm.pendingStoryEvent = "enterGoblinCaves";
+                const goblin = { ...this.dm.campaign.monsters[1].find(m => m.name === "Goblin") };
+                goblin.name = "Goblin Ambusher";
+                this.startCombat(goblin);
             }
             
-            // Chapter 4: Hobgoblin Caves
+            // Chapter 4: Hobgoblin Caves - hobgoblin patrol
             if (location.name === "Hobgoblin Caves" && !flags.enteredHobgoblins) {
-                this.triggerStoryEvent("enterHobgoblinCaves");
+                this.log("A hobgoblin patrol blocks the cave entrance in disciplined formation! 'Halt! None pass without tribute to the war chief!'", "danger");
+                this.dm.pendingStoryEvent = "enterHobgoblinCaves";
+                const hobgoblin = { ...this.dm.campaign.monsters[2].find(m => m.name === "Hobgoblin") };
+                hobgoblin.name = "Hobgoblin Patrol Leader";
+                this.startCombat(hobgoblin);
             }
             
             // Chapter 4: Minotaur boss
@@ -9872,9 +10236,12 @@ class Game {
                 this.startCombat(minotaur);
             }
             
-            // Chapter 5: Temple of Evil Chaos
+            // Chapter 5: Temple of Evil Chaos - acolytes guard the entrance
             if (location.name === "Temple of Evil Chaos" && !flags.enteredTemple) {
-                this.triggerStoryEvent("enterTemple");
+                this.log("Robed acolytes chant dark prayers at the temple entrance! One spots you and shrieks, 'Unbelievers! The Dark Gods demand your blood!'", "danger");
+                this.dm.pendingStoryEvent = "enterTemple";
+                const acolyte = { ...this.dm.campaign.monsters[3].find(m => m.name === "Acolyte of Chaos") };
+                this.startCombat(acolyte);
             }
             
             // Chapter 5: Final boss - High Priest
@@ -9882,6 +10249,88 @@ class Game {
                 this.log("The High Priest of Chaos turns, dark energy swirling around him. 'Fools! The dark gods will consume your souls!'", "danger");
                 const highPriest = { ...this.dm.campaign.monsters[5].find(m => m.name === "High Priest of Chaos") };
                 this.startCombat(highPriest);
+            }
+        } else if (campaignId === "lost_mine_of_phandelver") {
+            // Chapter 1: Goblin Ambush Site - ambush triggers intro
+            if (location.name === "Goblin Ambush Site" && !flags.ambushed) {
+                this.log("Dead horses block the trail ahead - it's an ambush! Goblins leap from the undergrowth!", "danger");
+                this.dm.pendingStoryEvent = "intro_lmop";
+                const goblin = { ...this.dm.campaign.monsters[1].find(m => m.name === "Goblin") };
+                this.startCombat(goblin);
+            }
+            
+            // Chapter 1: Cragmaw Hideout - must fight Klarg the bugbear to rescue Sildar
+            if (location.name === "Cragmaw Hideout - Depths" && !flags.rescuedSildar) {
+                this.log("A massive bugbear named Klarg blocks the passage, his pet wolf snarling beside him! Sildar is chained to a post behind them!", "danger");
+                this.dm.pendingStoryEvent = "rescueSildar";
+                const bugbear = { ...this.dm.campaign.monsters[2].find(m => m.name === "Bugbear") };
+                bugbear.name = "Klarg the Bugbear";
+                this.startCombat(bugbear);
+            }
+            
+            // Chapter 2: Arrive in Phandalin (town - no gate needed)
+            if (location.name === "Phandalin - Town Square" && !flags.arrivedPhandalin) {
+                this.triggerStoryEvent("arrivePhandalin");
+            }
+            
+            // Chapter 2: Visit Barthen's (NPC meeting - no gate needed)
+            if (location.name === "Barthen's Provisions" && !flags.metBarthen) {
+                this.triggerStoryEvent("meetBarthen");
+            }
+            
+            // Chapter 3: Enter Redbrand Hideout - must fight through a Nothic guardian
+            if (location.name === "Tresendar Manor Ruins" && !flags.enteredRedbrandHideout) {
+                this.log("As you descend into the cellar, a horrible one-eyed creature lurches from the shadows! Its single eye glows with malevolent intelligence.", "danger");
+                this.dm.pendingStoryEvent = "enterRedbrandHideout";
+                const nothic = { ...this.dm.campaign.monsters[3].find(m => m.name === "Nothic") };
+                this.startCombat(nothic);
+            }
+            
+            // Chapter 3: Boss fight - Glasstaff
+            if (location.name === "Glasstaff's Quarters" && !flags.defeatedGlassstaff) {
+                this.log("A wizard in fine robes whirls to face you, clutching a glass staff! 'You dare invade my sanctuary?!'", "danger");
+                const glasstaff = { ...this.dm.campaign.monsters[3].find(m => m.name === "Glasstaff") };
+                this.startCombat(glasstaff);
+            }
+            
+            // Chapter 4: Enter Cragmaw Castle - must fight hobgoblin sentries
+            if (location.name === "Cragmaw Castle - Ruins" && !flags.enteredCragmawCastle) {
+                this.log("Hobgoblin sentries spot you approaching the crumbling castle! 'Intruders! Sound the alarm!' They charge with weapons drawn!", "danger");
+                this.dm.pendingStoryEvent = "enterCragmawCastle";
+                const hobgoblin = { ...this.dm.campaign.monsters[2].find(m => m.name === "Hobgoblin") };
+                hobgoblin.name = "Hobgoblin Sentry";
+                this.startCombat(hobgoblin);
+            }
+            
+            // Chapter 4: Boss fight - King Grol
+            if (location.name === "King Grol's Chamber" && !flags.defeatedKingGrol) {
+                this.log("A massive bugbear rises from a pile of furs, morningstar in hand. Beside him, Gundren lies chained to the wall!", "danger");
+                const kingGrol = { ...this.dm.campaign.monsters[4].find(m => m.name === "King Grol") };
+                this.startCombat(kingGrol);
+            }
+            
+            // Chapter 5: Enter Wave Echo Cave - must fight through undead guardians
+            if (location.name === "Wave Echo Cave - Entrance" && !flags.enteredWaveEchoCave) {
+                this.log("The cave entrance reeks of death. Shambling corpses of ancient miners stagger toward you, eyes glowing with pale light!", "danger");
+                this.dm.pendingStoryEvent = "enterWaveEchoCave";
+                const zombie = { ...this.dm.campaign.monsters[2].find(m => m.name === "Zombie") };
+                zombie.name = "Undead Miner";
+                this.startCombat(zombie);
+            }
+            
+            // Chapter 5: Find the Forge of Spells - must defeat the Spectator guardian
+            if (location.name === "The Forge of Spells" && !flags.foundForgeOfSpells) {
+                this.log("A bizarre floating creature with a central eye and four eyestalks guards the ancient forge! 'None shall claim the forge without my master's permission!'", "danger");
+                this.dm.pendingStoryEvent = "findForgeOfSpells";
+                const spectator = { ...this.dm.campaign.monsters[5].find(m => m.name === "Spectator") };
+                this.startCombat(spectator);
+            }
+            
+            // Chapter 5: Final boss - Black Spider
+            if (location.name === "Temple of Dumathoin" && !flags.defeatedBlackSpider) {
+                this.log("A dark elf steps from the shadows, flanked by giant spiders. 'So, the meddlesome adventurers have finally arrived. No matter - you're too late!'", "danger");
+                const nezznar = { ...this.dm.campaign.monsters[5].find(m => m.name === "Nezznar the Black Spider") };
+                this.startCombat(nezznar);
             }
         }
     }
@@ -10386,7 +10835,7 @@ class Game {
         const classData = GAME_DATA.classes[char.charClass] || {};
 
         const exportData = {
-            formatVersion: "3.0",
+            formatVersion: "3.1",
             exportType: "dnd-character",
             system: "dnd5e",
             generator: "dnd-text-adventure",
@@ -10733,6 +11182,12 @@ class Game {
             this.log(`Undead Slain: ${this.dm.questFlags.undeadKilled} | Villagers Rescued: ${this.dm.questFlags.villagersRescued}`, "dm");
         } else if (this.dm.campaignId === "tomb_of_annihilation") {
             this.log(`Dinosaurs Slain: ${this.dm.questFlags.dinosaursSlain} | Undead Slain: ${this.dm.questFlags.undeadSlain}`, "dm");
+        } else if (this.dm.campaignId === "lost_mine_of_phandelver") {
+            this.log(`Goblins Slain: ${this.dm.questFlags.goblinsKilled} | Redbrands Defeated: ${this.dm.questFlags.redbrandsDefeated} | Townsfolk Helped: ${this.dm.questFlags.townsfolkHelped}`, "dm");
+        } else if (this.dm.campaignId === "keep_on_borderlands") {
+            const outerKills = this.dm.questFlags.outerCavesKills || 0;
+            const innerKills = this.dm.questFlags.innerCavesKills || 0;
+            this.log(`Outer Cave Monsters: ${outerKills} | Inner Cave Monsters: ${innerKills} | Chapter Reached: ${this.dm.currentChapter}`, "dm");
         }
         
         // Delete current save on game over
@@ -11339,6 +11794,184 @@ class Game {
                 this.updateChapterDisplay();
                 this.updateUI();
                 break;
+            
+            // Lost Mine of Phandelver events
+            case "intro_lmop":
+                await this.showChoice(
+                    "🛤️ The Triboar Trail",
+                    `You've been driving the wagon of supplies for about half a day when you spot two dead horses sprawled across the trail. They're peppered with black-feathered arrows. The saddlebags have been looted. These are Gundren's horses! An ambush!`,
+                    [{ text: "Draw weapons and search for survivors" }, { text: "Carefully examine the area for traps" }]
+                ).then(choice => {
+                    this.dm.questFlags.ambushed = true;
+                    this.dm.currentChapter = 1;
+                    if (choice === 0) {
+                        this.log("You ready your weapons just as goblins leap from the bushes!", "danger");
+                    } else {
+                        this.log("You spot crude snare traps hidden in the underbrush. But the goblins notice you and attack!", "danger");
+                        this.character.experience += 25;
+                    }
+                    this.log("📜 <strong>CHAPTER 1: GOBLIN TROUBLE</strong>", "danger");
+                    this.log("📜 <strong>OBJECTIVE:</strong> Follow the goblin trail to find Gundren and Sildar!", "loot");
+                    
+                    this.character.addJournalEntry('quest', {
+                        id: 'rescue_gundren',
+                        name: 'Find Gundren Rockseeker',
+                        description: 'Gundren and Sildar were ambushed by goblins on the Triboar Trail. Find them!',
+                        completed: false
+                    });
+                    
+                    this.log("📜 <strong>QUEST STARTED:</strong> Find Gundren Rockseeker", "loot");
+                    this.log("💡 <strong>TIP:</strong> Travel to the Cragmaw Hideout to rescue Sildar!", "loot");
+                    this.updateChapterDisplay();
+                    this.updateUI();
+                });
+                break;
+            
+            case "rescueSildar":
+                this.dm.questFlags.rescuedSildar = true;
+                this.character.experience += 200;
+                this.character.gold += 10;
+                this.log("⛓️ You free Sildar Hallwinter from the goblins!", "success");
+                this.log(`<em>"Thank the gods you found me! Those filthy goblins ambushed us on the road. They took Gundren and his map to somewhere called Cragmaw Castle - their chieftain King Grol has him. But first, we should head to Phandalin. I can tell you more there."</em>`, "dm");
+                this.log("📜 <strong>CLUE:</strong> Gundren was taken to Cragmaw Castle!", "loot");
+                this.log("👥 <strong>NEW COMPANION AVAILABLE:</strong> Sildar Hallwinter can now join your party! Click 'Party' to recruit him.", "success");
+                this.updateUI();
+                break;
+            
+            case "arrivePhandalin":
+                this.dm.questFlags.arrivedPhandalin = true;
+                this.dm.currentChapter = 2;
+                this.character.experience += 100;
+                this.log("🏘️ <strong>CHAPTER 2: PHANDALIN</strong>", "success");
+                this.log(`You arrive in the small frontier town of Phandalin. It's a rough-and-tumble settlement of miners, farmers, and shopkeepers. But something is wrong - the townsfolk cast nervous glances at rough-looking thugs in tattered red cloaks who swagger through the streets.`, "dm");
+                this.log(`<em>"The Redbrands," a merchant whispers. "They've been terrorizing the town for weeks. Their hideout is somewhere near the old Tresendar Manor."</em>`, "dm");
+                this.log("📜 <strong>OBJECTIVE:</strong> Deliver the supplies and deal with the Redbrand menace!", "loot");
+                this.log("👥 <strong>NEW COMPANION AVAILABLE:</strong> Sister Garaele can now join your party! Click 'Party' to recruit her.", "success");
+                this.updateChapterDisplay();
+                this.updateUI();
+                break;
+            
+            case "meetBarthen":
+                this.dm.questFlags.metBarthen = true;
+                this.character.gold += 10;
+                this.dm.questFlags.townsfolkHelped++;
+                this.log("🏺 Elmar Barthen accepts the delivery of supplies.", "success");
+                this.log(`<em>"Thank you for bringing these! Here's the 10 gold Gundren promised. Terrible shame about him being captured. The Redbrands are another matter entirely - they're led by someone called Glasstaff, holed up under Tresendar Manor on the east side of town."</em>`, "dm");
+                this.log("📜 <strong>CLUE:</strong> The Redbrand leader 'Glasstaff' is in Tresendar Manor!", "loot");
+                this.updateUI();
+                break;
+            
+            case "sildarWarnsRedbrands":
+                this.dm.questFlags.learnedRedbrands = true;
+                this.log("💬 Sildar tells you more about the situation.", "dm");
+                this.log(`<em>"I came to Phandalin searching for a fellow Lords' Alliance agent named Iarno Albrek. He disappeared here two months ago. I suspect the Redbrands may be involved. Also - I've been asking around about Cragmaw Castle. It's somewhere in Neverwinter Wood, northeast of here."</em>`, "dm");
+                this.log("📜 <strong>CLUE:</strong> Missing agent Iarno Albrek may be connected to the Redbrands!", "loot");
+                this.updateUI();
+                break;
+            
+            case "enterRedbrandHideout":
+                this.dm.questFlags.enteredRedbrandHideout = true;
+                this.dm.currentChapter = 3;
+                this.character.experience += 100;
+                this.log("🏚️ <strong>CHAPTER 3: SECRETS OF TRESENDAR MANOR</strong>", "danger");
+                this.log(`You descend into the cellar beneath the ruined manor. The Redbrand hideout sprawls through ancient crypts and storerooms. You can hear voices echoing through the stone corridors.`, "dm");
+                this.log("📜 <strong>OBJECTIVE:</strong> Clear out the Redbrands and confront Glasstaff!", "loot");
+                this.updateChapterDisplay();
+                break;
+            
+            case "redbrandsCleared":
+                this.dm.questFlags.clearedRedbrands = true;
+                this.character.experience += 200;
+                this.character.gold += 50;
+                this.dm.questFlags.townsfolkHelped += 3;
+                this.log("🎉 <strong>REDBRANDS DRIVEN OUT!</strong>", "success");
+                this.log(`The remaining Redbrands flee the hideout. The townsfolk of Phandalin cheer as word spreads that their tormentors have been defeated!`, "dm");
+                this.log("📜 <strong>OBJECTIVE:</strong> Now find Cragmaw Castle and rescue Gundren!", "loot");
+                this.updateChapterDisplay();
+                this.updateUI();
+                break;
+            
+            case "defeatGlassstaff":
+                this.dm.questFlags.defeatedGlassstaff = true;
+                this.character.experience += 400;
+                this.character.gold += 75;
+                this.log("🪄 <strong>GLASSTAFF IS DEFEATED!</strong>", "success");
+                this.log(`Among his belongings, you find a letter signed with a black spider symbol: <em>"Lord Albrek, my spies have located Wave Echo Cave. Secure the area around Phandalin and prevent anyone from interfering. - The Black Spider"</em>`, "dm");
+                this.log(`Sildar is stunned: <em>"Iarno Albrek IS Glasstaff?! My own colleague, turned traitor! At least now we know the Black Spider is behind everything."</em>`, "dm");
+                this.log("📜 <strong>CLUE:</strong> Glasstaff was Iarno Albrek! The Black Spider seeks Wave Echo Cave!", "loot");
+                if (!this.dm.questFlags.clearedRedbrands) {
+                    this.dm.questFlags.clearedRedbrands = true;
+                    this.dm.questFlags.townsfolkHelped += 3;
+                }
+                this.updateUI();
+                break;
+            
+            case "enterCragmawCastle":
+                this.dm.questFlags.enteredCragmawCastle = true;
+                this.dm.currentChapter = 4;
+                this.character.experience += 150;
+                this.log("🏰 <strong>CHAPTER 4: CRAGMAW CASTLE</strong>", "danger");
+                this.log(`The crumbling castle looms ahead - towers collapsed, walls breached, but still formidable. Goblins patrol the ramparts and a bugbear's roar echoes from within. Gundren is somewhere inside!`, "dm");
+                this.log("📜 <strong>OBJECTIVE:</strong> Storm Cragmaw Castle and rescue Gundren!", "loot");
+                this.updateChapterDisplay();
+                break;
+            
+            case "defeatKingGrol":
+                this.dm.questFlags.defeatedKingGrol = true;
+                this.dm.questFlags.rescuedGundren = true;
+                this.character.experience += 500;
+                this.character.gold += 100;
+                this.log("👑 <strong>KING GROL IS DEFEATED!</strong>", "success");
+                this.log(`You find Gundren chained in the bugbear's chamber, battered but alive!`, "dm");
+                this.log(`<em>"You came for me! Thank Moradin! The Black Spider - his real name is Nezznar, a drow! He took my map to Wave Echo Cave. We must stop him before he claims the Forge of Spells!"</em>`, "dm");
+                this.dm.currentChapter = 5;
+                this.log("⛏️ <strong>CHAPTER 5: WAVE ECHO CAVE</strong>", "danger");
+                this.log("📜 <strong>OBJECTIVE:</strong> Enter Wave Echo Cave and stop the Black Spider!", "loot");
+                this.updateChapterDisplay();
+                this.updateUI();
+                break;
+            
+            case "enterWaveEchoCave":
+                this.dm.questFlags.enteredWaveEchoCave = true;
+                this.character.experience += 200;
+                this.log("⛏️ You enter the legendary Wave Echo Cave!", "dm");
+                this.log(`The sound of crashing waves echoes through the tunnels despite being miles from the sea - the source of the cave's name. Ancient mining tunnels branch in every direction. Skeletons of dwarves and orcs from the battle five hundred years ago still litter the passages.`, "dm");
+                this.log("📜 <strong>OBJECTIVE:</strong> Find the Forge of Spells and stop Nezznar!", "loot");
+                this.updateChapterDisplay();
+                break;
+            
+            case "findForgeOfSpells":
+                this.dm.questFlags.foundForgeOfSpells = true;
+                this.character.experience += 300;
+                this.log("🔨 <strong>THE FORGE OF SPELLS!</strong>", "success");
+                this.log(`You discover the legendary Forge of Spells - a great stone brazier that burns with an eerie green flame. A spectator beholder-kin hovers nearby, still guarding the forge after five centuries!`, "dm");
+                this.log(`The magical energy here is palpable. Weapons and armor placed in the forge could be imbued with magical power!`, "dm");
+                this.updateUI();
+                break;
+            
+            case "defeatFlameskull":
+                this.character.experience += 500;
+                this.log("💀 <strong>THE FLAMESKULL IS DESTROYED!</strong>", "success");
+                this.log(`The flaming skull shatters! Its green fire dissipates, revealing a hidden passage deeper into the mine.`, "dm");
+                this.updateUI();
+                break;
+            
+            case "defeatBlackSpider":
+                this.dm.questFlags.defeatedBlackSpider = true;
+                this.dm.currentChapter = 6;
+                this.character.experience += 1500;
+                this.character.gold += 500;
+                this.log("🕷️ <strong>THE BLACK SPIDER IS DEFEATED!</strong>", "success");
+                this.log(`Nezznar crumples to the ground, his spider staff clattering beside him. <em>"Impossible... I was so close..."</em> The drow's schemes are finally over.`, "dm");
+                this.log("⛏️ <strong>EPILOGUE: HEROES OF PHANDALIN</strong>", "success");
+                this.log(`With the Black Spider defeated and Wave Echo Cave secured, the Rockseeker brothers can begin mining once more. The Forge of Spells will bring prosperity to the entire region!`, "dm");
+                this.log(`You return to Phandalin as heroes! The townsfolk throw a celebration, and Gundren insists on sharing the mine's profits with you.`, "dm");
+                this.log(`<strong>🏆 CONGRATULATIONS! You have completed Lost Mine of Phandelver!</strong>`, "success");
+                this.log(`Final Stats - Level: ${this.character.level} | XP: ${this.character.experience} | Gold: ${this.character.gold}`, "loot");
+                this.log(`Goblins Slain: ${this.dm.questFlags.goblinsKilled} | Redbrands Defeated: ${this.dm.questFlags.redbrandsDefeated} | Townsfolk Helped: ${this.dm.questFlags.townsfolkHelped}`, "loot");
+                this.updateChapterDisplay();
+                this.updateUI();
+                break;
         }
     }
     
@@ -11422,6 +12055,19 @@ class Game {
             if (chapter === 6) return "🎉 Congratulations! The death curse is ended!";
         }
         
+        if (campaignId === "lost_mine_of_phandelver") {
+            if (chapter === 0 && !flags.ambushed) return "💡 TRAVEL along the Triboar Trail to deliver supplies";
+            if (chapter === 1 && !flags.rescuedSildar) return "💡 TRAVEL to the Cragmaw Hideout to rescue Sildar";
+            if (chapter === 1 && flags.rescuedSildar) return "💡 TRAVEL to Phandalin to deliver the supplies";
+            if (chapter === 2 && !flags.enteredRedbrandHideout) return "💡 TRAVEL to Tresendar Manor Ruins to confront the Redbrands";
+            if (chapter === 3 && !flags.defeatedGlassstaff) return "💡 TRAVEL to Glasstaff's Quarters to confront the Redbrand leader";
+            if (chapter === 3 && flags.defeatedGlassstaff) return "💡 TRAVEL to Cragmaw Castle to rescue Gundren";
+            if (chapter === 4 && !flags.defeatedKingGrol) return "💡 TRAVEL to King Grol's Chamber to rescue Gundren";
+            if (chapter === 5 && !flags.foundForgeOfSpells) return "💡 EXPLORE Wave Echo Cave and find the Forge of Spells";
+            if (chapter === 5 && flags.foundForgeOfSpells) return "💡 TRAVEL to the Temple of Dumathoin to face the Black Spider";
+            if (chapter === 6) return "🎉 Congratulations! Phandalin is saved!";
+        }
+        
         return null;
     }
     
@@ -11462,6 +12108,14 @@ class Game {
                 "Omu - City Gates",
                 "Fane of the Night Serpent",
                 "Tomb - Level 1"
+            ],
+            "lost_mine_of_phandelver": [
+                "Goblin Ambush Site",
+                "Phandalin - Town Square",
+                "Tresendar Manor Ruins",
+                "Cragmaw Castle - Ruins",
+                "Wave Echo Cave - Entrance",
+                "Temple of Dumathoin"
             ]
         };
         
@@ -11562,6 +12216,30 @@ class Game {
                 }
                 // Once you enter Tomb, show chapter 5 locations
                 if (flags.enteredTomb && loc.chapter === 5) {
+                    return true;
+                }
+            }
+            
+            // Special handling for Lost Mine of Phandelver
+            if (campaignId === "lost_mine_of_phandelver") {
+                // Once ambushed, show chapter 1 locations (Cragmaw Hideout)
+                if (flags.ambushed && loc.chapter === 1) {
+                    return true;
+                }
+                // Once arrived in Phandalin, show chapter 2 locations
+                if (flags.arrivedPhandalin && loc.chapter === 2) {
+                    return true;
+                }
+                // Once learned about Redbrands, show chapter 3 locations
+                if (flags.enteredRedbrandHideout && loc.chapter === 3) {
+                    return true;
+                }
+                // Once Redbrands cleared, show chapter 4 locations
+                if (flags.clearedRedbrands && loc.chapter === 4) {
+                    return true;
+                }
+                // Once Gundren rescued, show chapter 5 locations
+                if (flags.rescuedGundren && loc.chapter === 5) {
                     return true;
                 }
             }

@@ -4,6 +4,56 @@ All notable changes to the D&D: Realms of Adventure web game.
 
 ---
 
+## [3.1.0] - 2026-02-25 - "Combat Gates" ⚔️
+
+### 🎉 MAJOR UPDATE - New Campaign, Combat-Gated Progression & Full Campaign Audit
+
+This release adds the Lost Mine of Phandelver as a fully integrated 5th campaign with all 15 game systems wired, and overhauls story progression across ALL campaigns so players must earn advancement through combat instead of clicking through locations.
+
+### ✨ Added
+
+#### **Lost Mine of Phandelver Campaign** (NEW)
+- Complete 7-chapter campaign: Prologue through Epilogue (Levels 1-5)
+- 6 NPCs: Gundren Rockseeker, Sildar Hallwinter, The Black Spider, Glasstaff, Nezznar, Elmar Barthen
+- 21 locations across wilderness, town, and dungeon types
+- 17 monsters across 5 tiers including 4 bosses (Glasstaff, King Grol, Flameskull, Nezznar)
+- 17 quest flags tracking full story progression
+- 2 companions: Sildar Hallwinter (Fighter) and Sister Garaele (Cleric)
+- 8 campaign-specific rumors
+- Campaign-specific items: Talon, Hew, Lightbringer, Spider Staff, Phandalin Shield, and more
+- Full story events: intro, rescue Sildar, arrive Phandalin, Redbrand arc, Cragmaw Castle, Wave Echo Cave, defeat Black Spider
+- Chapter hints and progression locations fully wired
+- Location unlock logic tied to quest flags for chapter gating
+
+#### **Combat-Gated Story Progression** (NEW - All 5 Campaigns)
+- New `pendingStoryEvent` system queues story events behind mandatory combat encounters
+- Story no longer advances by simply clicking travel — players must fight through guardians
+- 22 combat gates added across all campaigns:
+  - **LMoP (6):** Goblin ambush, Klarg the Bugbear, Nothic guardian, Hobgoblin Sentry, Undead Miner, Spectator
+  - **Night's Dark Terror (3):** Bugbear Sentry, Goblin Jailer, Dire Wolf
+  - **Curse of Strahd (4):** Strahd Zombie, Werewolf, Amber Golem, Vampire Spawn
+  - **Tomb of Annihilation (4):** Allosaurus, Yuan-ti Malison, Yuan-ti Abomination, Tomb Guardian
+  - **Keep on the Borderlands (6):** Kobold Scout, Kobold Warrior, Goblin Ambusher, Hobgoblin Patrol Leader, Acolyte of Chaos (+ existing Minotaur/High Priest bosses)
+- Town arrivals and NPC meetings remain ungated (narratively appropriate)
+- Each gate features unique flavor text describing the encounter
+
+#### **Full Campaign Integration Audit**
+- Verified all 5 campaigns across 15 integration points each (75 total checkpoints)
+- Fixed 4 missing integration points in Keep on the Borderlands:
+  - Campaign items (weapons, armor, consumables, shop/loot tables)
+  - Campaign rumors (8 entries)
+  - Kill tracking (outer/inner monster counters)
+  - Game over statistics
+- All campaigns confirmed at 100% integration coverage
+
+### 🔧 Changed
+- `checkStoryTriggers()` now starts combat at dungeon/dangerous progression points instead of instantly firing story events
+- Combat victory handler checks `pendingStoryEvent` and fires queued story after winning
+- `DungeonMaster` constructor initializes `pendingStoryEvent: null`
+- Save format version bumped to 3.1 (backward compatible with 3.0)
+
+---
+
 ## [3.0.0] - 2026-02-25 - "Underworld Economy" ⚔️
 
 ### 🎉 MAJOR RELEASE - Full Economy, Black Market & Combat Depth
@@ -305,25 +355,27 @@ Modified:
 
 ## 📊 Version Comparison
 
-| Feature | v1.0 | v1.5 | v2.0 | v3.0 |
-|---------|------|------|------|------|
-| Core D&D Mechanics | ✅ | ✅ | ✅ | ✅ |
-| Campaigns | 4 | 4 | 4 | 5 settings |
-| Character Options | Basic | Advanced | Advanced | Advanced |
-| Achievements | ❌ | ✅ | ✅ | ✅ |
-| Crafting | ❌ | ✅ | ✅ | ✅ |
-| Companions | ❌ | ✅ | ✅ | ✅ |
-| Professional UI | ❌ | ⚠️ | ✅ | ✅ |
-| Landing Page | ❌ | ❌ | ✅ | ✅ |
-| Full Economy System | ❌ | ❌ | ❌ | ✅ |
-| Black Market | ❌ | ❌ | ❌ | ✅ |
-| Artifact Favors | ❌ | ❌ | ❌ | ✅ |
-| Boss Depth (LR/LS) | ❌ | ❌ | ❌ | ✅ |
-| Exhaustion System | ❌ | ❌ | ❌ | ✅ |
-| Campaign Magic Items | ❌ | ❌ | ❌ | ✅ |
-| Bounty/Guard System | ❌ | ❌ | ❌ | ✅ |
-| Lines of Code (py) | — | — | — | ~6,850 |
-| Lines of Code (js) | ~6,000 | ~9,000 | ~11,000 | ~11,000 |
+| Feature | v1.0 | v1.5 | v2.0 | v3.0 | v3.1 |
+|---------|------|------|------|------|------|
+| Core D&D Mechanics | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Campaigns | 4 | 4 | 4 | 5 settings | 5 full |
+| Character Options | Basic | Advanced | Advanced | Advanced | Advanced |
+| Achievements | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Crafting | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Companions | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Professional UI | ❌ | ⚠️ | ✅ | ✅ | ✅ |
+| Landing Page | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Full Economy System | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Black Market | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Artifact Favors | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Boss Depth (LR/LS) | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Exhaustion System | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Campaign Magic Items | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Bounty/Guard System | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Combat-Gated Progress | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Lost Mine of Phandelver | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Lines of Code (py) | — | — | — | ~6,850 | ~6,850 |
+| Lines of Code (js) | ~6,000 | ~9,000 | ~11,000 | ~11,000 | ~13,000 |
 
 ---
 
@@ -391,4 +443,4 @@ The version number is displayed in:
 ---
 
 **Last Updated:** February 25, 2026  
-**Current Stable Version:** 3.0.0
+**Current Stable Version:** 3.1.0

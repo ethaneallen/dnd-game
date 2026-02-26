@@ -2,7 +2,7 @@
 
 ### *An Epic D&D 5th Edition Web RPG Experience*
 
-![Version](https://img.shields.io/badge/version-3.0-gold)
+![Version](https://img.shields.io/badge/version-3.1-gold)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![D&D](https://img.shields.io/badge/D%26D-5e-red)
 
@@ -19,11 +19,11 @@
 - ✅ **Status Effects** - Poisoned, burning, stunned, blessed, and more
 
 ### **Epic Campaign Content**
-- � **Keep on the Borderlands** ★ Recommended Start — Defend against chaos (Levels 1-3)
+- 🛡️ **Keep on the Borderlands** ★ Recommended Start — Defend against chaos (Levels 1-3)
 - 🌙 **Night's Dark Terror** - Classic goblin raid adventure (Levels 1-3)
 - 🧛 **Curse of Strahd** - Gothic horror in Barovia (Levels 1-10)
 - ☠️ **Tomb of Annihilation** - Death curse in Chult (Levels 1-11)
-- 🗡️ **Dark Terror** - Savage frontier survival
+- ⛏️ **Lost Mine of Phandelver** - Classic starter adventure on the Sword Coast (Levels 1-5)
 
 ### **Advanced Game Features**
 - 👥 **Companion System** - Recruit NPCs, build loyalty, manage your party
@@ -249,6 +249,7 @@ The game supports various settings:
 ## 📝 Development
 
 ### **Version History**
+- **v3.1** - "Combat Gates" — Lost Mine of Phandelver campaign, combat-gated story progression across all 5 campaigns, full 15-point integration audit
 - **v3.0** - "Underworld Economy" — Full economy/lifestyle system, black market with haggle & guard encounters, artifact favor charges, 5 campaign settings with unique loot, boss encounter depth, exhaustion system, death spiral prevention, tactical combat enhancements
 - **v2.3** - Professional save manager modal, compact combat toast notifications (auto-dismiss + expandable), death save button fix for unconscious combat, UI refinements
 - **v2.2** - Complete dice animation coverage (trap damage, disarming), landing page visibility fixes, UI polish
