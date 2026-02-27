@@ -1,5 +1,5 @@
-# D&D 5e Text Adventure Engine  v3.1.0
-# "Combat Gates" — Campaign Progression Overhaul, February 2026
+# D&D 5e Text Adventure Engine  v3.3.0
+# "Tabletop Fidelity" — HP Choices, Short Rest Features, Tools, Languages, Encumbrance, February 2026
 import random
 import json
 import os
@@ -98,6 +98,18 @@ class Character:
         self.is_dead = False
         # --- Readied Action ---
         self.readied_action = None  # {"trigger": str, "action": str}
+        # --- Tool Proficiencies ---
+        self.tool_proficiencies = []  # e.g. ["Thieves' Tools", "Herbalism Kit"]
+        # --- Languages ---
+        self.languages = ["Common"]
+        # --- Short Rest Resources ---
+        self.action_surge_uses = 0
+        self.action_surge_used = False
+        self.channel_divinity_uses = 0
+        self.channel_divinity_used = False
+        self.arcane_recovery_used = False
+        # --- HP Roll History ---
+        self.hp_roll_history = []  # tracks HP gained per level
         # --- Last Stand (boss fights only) ---
         self.last_stand_active = False
         self.last_stand_rounds = 0  # Rounds remaining in Last Stand
@@ -3437,9 +3449,19 @@ class DungeonMaster:
         self.character.class_levels[chosen_class] = (
             self.character.class_levels.get(chosen_class, 0) + 1)
         hit_die = Character.CLASSES[chosen_class]["hit_die"]
-        hp_gain = (random.randint(1, hit_die)
-                   + self.character.get_modifier("con"))
-        hp_gain = max(1, hp_gain)
+        die_roll = random.randint(1, hit_die)
+        average_hp = hit_die // 2 + 1
+        con_mod = self.character.get_modifier("con")
+        roll_total = max(1, die_roll + con_mod)
+        avg_total = max(1, average_hp + con_mod)
+        print(f"\n  Choose HP gain for level {self.character.level}:")
+        print(f"    [1] Take the Roll: d{hit_die} rolled {die_roll} + {con_mod} CON = {roll_total} HP")
+        print(f"    [2] Take the Average: {average_hp} + {con_mod} CON = {avg_total} HP")
+        hp_choice = input("  Choose (1 or 2): ").strip()
+        if hp_choice == "2":
+            hp_gain = avg_total
+        else:
+            hp_gain = roll_total
         self.character.max_hp += hp_gain
         self.character.hp = self.character.max_hp
         # Update primary class if new class has more levels

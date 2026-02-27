@@ -2,7 +2,7 @@
 
 ### *An Epic D&D 5th Edition Web RPG Experience*
 
-![Version](https://img.shields.io/badge/version-3.2-gold)
+![Version](https://img.shields.io/badge/version-3.3-gold)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![D&D](https://img.shields.io/badge/D%26D-5e-red)
 
@@ -23,6 +23,11 @@
 - ✅ **Opportunity Attacks** - Fleeing provokes attacks; Disengage prevents them
 - ✅ **Racial Abilities** - Halfling Lucky, Dragonborn Breath Weapon, Half-Orc Relentless Endurance, and more
 - ✅ **Darkvision** - Mechanical effect on perception, trap detection, and ambush checks
+- ✅ **HP Level-Up Choice** - Roll or take the PHB average on each level up, with full history tracking
+- ✅ **Short Rest Features** - Action Surge, Channel Divinity, and Arcane Recovery with proper recharge
+- ✅ **Tool Proficiencies** - Thieves' Tools, Herbalism Kit, and more granted by class, race, and background
+- ✅ **Languages** - 16 D&D languages (8 standard + 8 exotic) from race and background
+- ✅ **Variant Encumbrance** - 60+ real item weights with STR-based carry thresholds
 
 ### **Epic Campaign Content**
 - 🛡️ **Keep on the Borderlands** ★ Recommended Start — Defend against chaos (Levels 1-3)
@@ -261,6 +266,7 @@ The game supports various settings:
 ## 📝 Development
 
 ### **Version History**
+- **v3.3** - "Tabletop Fidelity" — Proper HP on level up (roll vs average choice), short rest class features (Action Surge, Channel Divinity, Arcane Recovery), tool proficiencies, 16 D&D languages, real item-weight encumbrance (60+ items)
 - **v3.2** - "Realism & Depth" — 8 D&D 5e realism systems (Skill Proficiency, Opportunity Attacks, Passive Perception, Ritual Casting, Equipment Proficiency, Attunement, Darkvision, Racial Abilities), Half-Orc race, character panel UI overhaul
 - **v3.1** - "Combat Gates" — Lost Mine of Phandelver campaign, combat-gated story progression across all 5 campaigns, full 15-point integration audit
 - **v3.0** - "Underworld Economy" — Full economy/lifestyle system, black market with haggle & guard encounters, artifact favor charges, 5 campaign settings with unique loot, boss encounter depth, exhaustion system, death spiral prevention, tactical combat enhancements

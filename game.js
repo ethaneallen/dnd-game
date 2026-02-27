@@ -1297,6 +1297,46 @@ class DiceAnimator {
         });
     }
 
+    async rollDamage(notation, finalValue, label = "Damage") {
+        return new Promise(resolve => {
+            const match = notation.match(/d(\d+)/);
+            const sides = match ? parseInt(match[1]) : 6;
+
+            const container = this.createContainer();
+            container.innerHTML = '';
+            container.classList.add('active');
+
+            const dice = document.createElement('div');
+            dice.className = `dice d${sides} rolling`;
+            dice.innerHTML = `<span class="dice-value">?</span>`;
+            container.appendChild(dice);
+
+            if (label) {
+                const labelEl = document.createElement('div');
+                labelEl.className = 'dice-label';
+                labelEl.textContent = label;
+                container.appendChild(labelEl);
+            }
+
+            const maxRandom = Math.max(finalValue, sides);
+            let count = 0;
+            const animInterval = setInterval(() => {
+                dice.querySelector('.dice-value').textContent = Math.floor(Math.random() * maxRandom) + 1;
+                count++;
+                if (count > 10) {
+                    clearInterval(animInterval);
+                    dice.classList.remove('rolling');
+                    dice.querySelector('.dice-value').textContent = finalValue;
+
+                    setTimeout(() => {
+                        container.classList.remove('active');
+                        resolve(finalValue);
+                    }, 700);
+                }
+            }, 35);
+        });
+    }
+
     hide() {
         if (this.container) {
             this.container.classList.remove('active');
@@ -1996,6 +2036,30 @@ const CLASS_WEAPON_PROFICIENCY = {
     "Artificer": ["simple"]
 };
 
+// ========== Tool Proficiency Data (by class) ==========
+const CLASS_TOOL_PROFICIENCY = {
+    "Fighter": [],
+    "Barbarian": [],
+    "Paladin": [],
+    "Ranger": [],
+    "Rogue": ["Thieves' Tools"],
+    "Cleric": [],
+    "Monk": [],        // Monk chooses 1 artisan's tool or musical instrument — simplified
+    "Bard": [],        // 3 musical instruments — simplified to none (covered by background)
+    "Warlock": [],
+    "Wizard": [],
+    "Sorcerer": [],
+    "Druid": ["Herbalism Kit"],
+    "Artificer": ["Thieves' Tools", "Tinker's Tools"]
+};
+
+// All available languages in the game world
+const ALL_LANGUAGES = [
+    "Common", "Dwarvish", "Elvish", "Giant", "Gnomish", "Goblin", "Halfling", "Orc",
+    "Abyssal", "Celestial", "Draconic", "Deep Speech", "Infernal", "Primordial",
+    "Sylvan", "Undercommon"
+];
+
 // ========== Racial Ability Data ==========
 const RACIAL_ABILITIES = {
     "Halfling": {
@@ -2026,13 +2090,13 @@ const RACIAL_ABILITIES = {
 
 const GAME_DATA = {
     races: {
-        "Human": { bonus: { all: 1 }, traits: ["Versatile", "Extra Skill"] },
-        "Elf": { bonus: { dex: 2 }, traits: ["Darkvision", "Fey Ancestry"] },
-        "Dwarf": { bonus: { con: 2 }, traits: ["Darkvision", "Dwarven Resilience"] },
-        "Halfling": { bonus: { dex: 2 }, traits: ["Lucky", "Brave"] },
-        "Dragonborn": { bonus: { str: 2, cha: 1 }, traits: ["Breath Weapon", "Damage Resistance"] },
-        "Tiefling": { bonus: { int: 1, cha: 2 }, traits: ["Darkvision", "Hellish Resistance"] },
-        "Half-Orc": { bonus: { str: 2, con: 1 }, traits: ["Darkvision", "Relentless Endurance", "Savage Attacks"] }
+        "Human": { bonus: { all: 1 }, traits: ["Versatile", "Extra Skill"], languages: ["Common"], extraLanguages: 1 },
+        "Elf": { bonus: { dex: 2 }, traits: ["Darkvision", "Fey Ancestry"], languages: ["Common", "Elvish"] },
+        "Dwarf": { bonus: { con: 2 }, traits: ["Darkvision", "Dwarven Resilience"], languages: ["Common", "Dwarvish"], toolProficiencies: [] },
+        "Halfling": { bonus: { dex: 2 }, traits: ["Lucky", "Brave"], languages: ["Common", "Halfling"] },
+        "Dragonborn": { bonus: { str: 2, cha: 1 }, traits: ["Breath Weapon", "Damage Resistance"], languages: ["Common", "Draconic"] },
+        "Tiefling": { bonus: { int: 1, cha: 2 }, traits: ["Darkvision", "Hellish Resistance"], languages: ["Common", "Infernal"] },
+        "Half-Orc": { bonus: { str: 2, con: 1 }, traits: ["Darkvision", "Relentless Endurance", "Savage Attacks"], languages: ["Common", "Orc"] }
     },
     classes: {
         "Fighter": { hitDie: 10, primary: "str", saves: ["str", "con"], skills: ["Athletics", "Intimidation"], equipment: ["Longsword", "Shield", "Chain Mail"], spellcaster: false },
@@ -2201,12 +2265,12 @@ const GAME_DATA = {
         "Mending": { level: 0, school: "Transmutation", classes: ["Artificer"], utility: true, description: "Repair a single break or tear in an object you touch." }
     },
     backgrounds: {
-        "Soldier": { skills: ["Athletics", "Intimidation"], feature: "Military Rank" },
-        "Scholar": { skills: ["Arcana", "History"], feature: "Researcher" },
-        "Criminal": { skills: ["Deception", "Stealth"], feature: "Criminal Contact" },
-        "Noble": { skills: ["History", "Persuasion"], feature: "Position of Privilege" },
-        "Outlander": { skills: ["Athletics", "Survival"], feature: "Wanderer" },
-        "Acolyte": { skills: ["Insight", "Religion"], feature: "Shelter of the Faithful" }
+        "Soldier": { skills: ["Athletics", "Intimidation"], feature: "Military Rank", toolProficiencies: ["Dice Set", "Vehicles (Land)"], languages: [] },
+        "Scholar": { skills: ["Arcana", "History"], feature: "Researcher", toolProficiencies: [], languages: ["Choose One", "Choose One"] },
+        "Criminal": { skills: ["Deception", "Stealth"], feature: "Criminal Contact", toolProficiencies: ["Thieves' Tools", "Dice Set"], languages: [] },
+        "Noble": { skills: ["History", "Persuasion"], feature: "Position of Privilege", toolProficiencies: ["Dice Set"], languages: ["Choose One"] },
+        "Outlander": { skills: ["Athletics", "Survival"], feature: "Wanderer", toolProficiencies: ["Herbalism Kit"], languages: ["Choose One"] },
+        "Acolyte": { skills: ["Insight", "Religion"], feature: "Shelter of the Faithful", toolProficiencies: [], languages: ["Choose One", "Choose One"] }
     },
     treasures: [
         { name: "Gold coins", getValue: () => Math.floor(Math.random() * 26) + 5 },
@@ -2788,6 +2852,8 @@ class Character {
         this.inspiration = false;
         // Exhaustion system (0-6 levels)
         this.exhaustion = 0;
+        // HP roll history (tracks actual HP gained per level for accurate recalculation)
+        this.hpRollHistory = []; // [{level: 2, roll: 7, conMod: 2, total: 9}, ...]
         // Encumbrance tracking
         this.carryCapacity = 0; // Will be calculated based on STR
         // Character personality for roleplay
@@ -2808,6 +2874,18 @@ class Character {
         this.featData = {}; // Runtime data for feats (lucky points, etc.)
         // Bonus action resources
         this.secondWindUsed = false; // Fighter: resets on short rest
+        // Fighter: Action Surge (resets on short rest)
+        this.actionSurgeUses = 0;
+        this.actionSurgeUsed = false;
+        // Cleric/Paladin: Channel Divinity (resets on short rest)
+        this.channelDivinityUses = 0;
+        this.channelDivinityUsed = false;
+        // Wizard: Arcane Recovery (resets on long rest, usable once per day on short rest)
+        this.arcaneRecoveryUsed = false;
+        // Tool proficiencies
+        this.toolProficiencies = []; // e.g. ["Thieves' Tools", "Herbalism Kit"]
+        // Languages
+        this.languages = ["Common"]; // Everyone knows Common
         // Skill proficiency system (proper D&D 5e)
         this.skillProficiencies = {}; // { "Perception": true, "Stealth": true, ... }
         this.expertise = {}; // Double proficiency: { "Stealth": true, ... }
@@ -2862,6 +2940,32 @@ class Character {
         if (this.race === "Half-Orc") {
             this.racialAbilities.relentlessUsed = false; // Resets on long rest
         }
+        
+        // Apply racial languages
+        const raceData = GAME_DATA.races[this.race];
+        if (raceData.languages) {
+            for (const lang of raceData.languages) {
+                if (!this.languages.includes(lang)) {
+                    this.languages.push(lang);
+                }
+            }
+        }
+        // Extra languages (Human gets 1 extra)
+        if (raceData.extraLanguages) {
+            const available = ALL_LANGUAGES.filter(l => !this.languages.includes(l));
+            for (let i = 0; i < raceData.extraLanguages && i < available.length; i++) {
+                this.languages.push(available[Math.floor(Math.random() * available.length)]);
+            }
+        }
+        
+        // Apply racial tool proficiencies (Dwarf smithing, etc.)
+        if (raceData.toolProficiencies) {
+            for (const tool of raceData.toolProficiencies) {
+                if (!this.toolProficiencies.includes(tool)) {
+                    this.toolProficiencies.push(tool);
+                }
+            }
+        }
     }
 
     getModifier(stat) {
@@ -2876,6 +2980,22 @@ class Character {
     // ========== Skill Proficiency System ==========
     isSkillProficient(skillName) {
         return this.skillProficiencies[skillName] === true;
+    }
+
+    // ========== Tool Proficiency System ==========
+    isToolProficient(toolName) {
+        return this.toolProficiencies && this.toolProficiencies.includes(toolName);
+    }
+
+    getToolCheckBonus(toolName) {
+        // Tool check = relevant ability mod + proficiency bonus (if proficient)
+        if (!this.isToolProficient(toolName)) return 0;
+        return this.getProficiencyBonus();
+    }
+
+    // ========== Language System ==========
+    knowsLanguage(language) {
+        return this.languages && this.languages.includes(language);
     }
 
     hasExpertise(skillName) {
@@ -3209,6 +3329,14 @@ class Character {
             this.skillProficiencies[skill] = true;
         }
         
+        // Set tool proficiencies from class
+        const classTools = CLASS_TOOL_PROFICIENCY[this.charClass] || [];
+        for (const tool of classTools) {
+            if (!this.toolProficiencies.includes(tool)) {
+                this.toolProficiencies.push(tool);
+            }
+        }
+        
         // Auto-equip starting equipment
         for (const item of this.inventory) {
             if (GAME_DATA.weapons[item] && !this.equipped.weapon) {
@@ -3228,15 +3356,32 @@ class Character {
             this.setupSpells();
         }
         
+        // Setup Fighter
+        if (this.charClass === "Fighter") {
+            // Action Surge at level 2 (initialized to 0, unlocked at level 2 in levelUp)
+            this.actionSurgeUses = 0;
+            this.actionSurgeUsed = false;
+        }
+        
         // Setup Barbarian Rage
         if (this.charClass === "Barbarian") {
             this.ragesRemaining = 2; // 2 rages at level 1
+        }
+        
+        // Setup Cleric
+        if (this.charClass === "Cleric") {
+            // Channel Divinity at level 2 (initialized, unlocked in levelUp)
+            this.channelDivinityUses = 0;
+            this.channelDivinityUsed = false;
         }
         
         // Setup Paladin
         if (this.charClass === "Paladin") {
             this.layOnHandsPool = this.level * 5;
             this.divineSenseUses = 1 + this.getModifier("cha");
+            // Channel Divinity at level 3
+            this.channelDivinityUses = 0;
+            this.channelDivinityUsed = false;
         }
         
         // Setup Monk
@@ -3275,6 +3420,11 @@ class Character {
         if (this.charClass === "Artificer") {
             this.infusionsKnown = 2;
             this.infusedItems = 0;
+        }
+        
+        // Setup Wizard
+        if (this.charClass === "Wizard") {
+            this.arcaneRecoveryUsed = false;
         }
         
         this.calculateHp();
@@ -3393,6 +3543,32 @@ class Character {
             }
         }
         this.gold = Math.floor(Math.random() * 16) + 10;
+        
+        // Apply background tool proficiencies
+        if (bgInfo.toolProficiencies) {
+            for (const tool of bgInfo.toolProficiencies) {
+                if (!this.toolProficiencies.includes(tool)) {
+                    this.toolProficiencies.push(tool);
+                }
+            }
+        }
+        
+        // Apply background languages
+        if (bgInfo.languages) {
+            for (const lang of bgInfo.languages) {
+                if (lang === "Choose One") {
+                    // Pick a random language the character doesn't know yet
+                    const available = ALL_LANGUAGES.filter(l => !this.languages.includes(l));
+                    if (available.length > 0) {
+                        const chosen = available[Math.floor(Math.random() * available.length)];
+                        this.languages.push(chosen);
+                    }
+                } else if (!this.languages.includes(lang)) {
+                    this.languages.push(lang);
+                }
+            }
+        }
+        
         // Initialize reputation based on background
         this.initializeReputation();
     }
@@ -3580,11 +3756,19 @@ class Character {
             feats: this.feats,
             featData: this.featData,
             secondWindUsed: this.secondWindUsed,
+            actionSurgeUses: this.actionSurgeUses || 0,
+            actionSurgeUsed: this.actionSurgeUsed || false,
+            channelDivinityUses: this.channelDivinityUses || 0,
+            channelDivinityUsed: this.channelDivinityUsed || false,
+            arcaneRecoveryUsed: this.arcaneRecoveryUsed || false,
             skillProficiencies: this.skillProficiencies,
             expertise: this.expertise,
             attunedItems: this.attunedItems,
             racialAbilities: this.racialAbilities,
-            darkvisionRange: this.darkvisionRange
+            darkvisionRange: this.darkvisionRange,
+            hpRollHistory: this.hpRollHistory || [],
+            toolProficiencies: this.toolProficiencies || [],
+            languages: this.languages || []
         };
     }
 
@@ -3644,6 +3828,13 @@ class Character {
         if (char.darkvisionRange === undefined) {
             char.darkvisionRange = (char.traits && (char.traits.includes("Darkvision"))) ? 60 : 0;
         }
+        if (!char.hpRollHistory) char.hpRollHistory = [];
+        if (!char.toolProficiencies) char.toolProficiencies = [];
+        if (!char.languages) char.languages = ["Common"];
+        // Short rest resource defaults for older saves
+        if (char.charClass === 'Fighter' && char.actionSurgeUsed === undefined) char.actionSurgeUsed = false;
+        if ((char.charClass === 'Cleric' || char.charClass === 'Paladin') && char.channelDivinityUsed === undefined) char.channelDivinityUsed = false;
+        if (char.charClass === 'Wizard' && char.arcaneRecoveryUsed === undefined) char.arcaneRecoveryUsed = false;
         return char;
     }
 }
@@ -4256,25 +4447,38 @@ class DungeonMaster {
         return penalties;
     }
 
-    // Encumbrance calculation
+    // Encumbrance calculation (proper 5e weights)
     calculateEncumbrance() {
         const str = this.character.stats.str;
-        this.character.carryCapacity = str * 15; // Standard 5e encumbrance
+        this.character.carryCapacity = str * 15; // Standard 5e: STR × 15 lbs
         
         let currentWeight = 0;
-        // Estimate weights (simplified)
-        currentWeight += this.character.inventory.length * 2; // 2 lbs per item average
-        currentWeight += Math.floor(this.character.gold / 50); // 50 coins = 1 lb
+        // Use real item weights from the ITEM_WEIGHTS table
+        for (const item of this.character.inventory) {
+            const weight = ITEM_WEIGHTS[item];
+            if (weight !== undefined) {
+                currentWeight += weight;
+            } else {
+                // Unknown items default to 1 lb (small miscellaneous items)
+                currentWeight += 1;
+            }
+        }
+        // 50 coins = 1 lb (standard 5e)
+        currentWeight += Math.floor(this.character.gold / 50);
         
-        const encumbered = currentWeight > this.character.carryCapacity * 0.33;
-        const heavilyEncumbered = currentWeight > this.character.carryCapacity * 0.66;
+        // Variant encumbrance thresholds (5e SRD)
+        // Encumbered: STR × 5 — speed -10ft
+        // Heavily Encumbered: STR × 10 — speed -20ft, disadvantage on ability checks/attacks/saves using STR/DEX/CON
+        // Over capacity: STR × 15 — can't move
+        const encumbered = currentWeight > str * 5;
+        const heavilyEncumbered = currentWeight > str * 10;
         
         return {
-            current: currentWeight,
+            current: Math.round(currentWeight * 10) / 10, // Round to 1 decimal
             capacity: this.character.carryCapacity,
             encumbered,
             heavilyEncumbered,
-            penalty: heavilyEncumbered ? -20 : (encumbered ? -10 : 0) // Speed penalty
+            penalty: heavilyEncumbered ? -20 : (encumbered ? -10 : 0) // Speed penalty in feet
         };
     }
 
@@ -4921,19 +5125,36 @@ const DOWNTIME_ACTIVITIES = {
     }
 };
 
-// Standard 5e item weights (lbs) for export enrichment
-const EXPORT_ITEM_WEIGHTS = {
+// Standard 5e item weights (lbs) — used for encumbrance and export
+const ITEM_WEIGHTS = {
+    // Weapons
     "Dagger": 1, "Handaxes": 4, "Javelin": 2, "Mace": 4, "Quarterstaff": 4,
     "Spear": 3, "Light Crossbow": 5, "Shortbow": 2, "Shortsword": 2,
     "Scimitar": 3, "Rapier": 2, "Longsword": 3, "Battleaxe": 4, "Flail": 2,
     "Morningstar": 4, "Warhammer": 2, "Longbow": 2, "Hand Crossbow": 3,
     "Glaive": 6, "Halberd": 6, "Greatsword": 6, "Greataxe": 7,
+    // Magic weapons (same base weight)
+    "+1 Longsword": 3, "+1 Shortsword": 2, "+1 Greatsword": 6, "+1 Rapier": 2,
+    "+1 Battleaxe": 4, "+1 Longbow": 2, "+2 Longsword": 3, "+2 Greatsword": 6,
+    "+2 Rapier": 2, "+2 Battleaxe": 4,
+    // Armor
     "Robes": 4, "Padded Armor": 8, "Leather Armor": 10, "Studded Leather": 13,
     "Hide Armor": 12, "Chain Shirt": 20, "Scale Mail": 45, "Breastplate": 20,
     "Half Plate": 40, "Ring Mail": 40, "Chain Mail": 55, "Splint Armor": 60,
-    "Plate Armor": 65, "Shield": 6, "Tower Shield": 12,
+    "Plate Armor": 65,
+    // Shields
+    "Shield": 6, "Tower Shield": 12,
+    // Consumables
     "Healing Potion": 0.5, "Greater Healing Potion": 0.5, "Antidote": 0.5,
-    "Torch": 1, "Rope (50 ft)": 10, "Rations (1 day)": 2
+    "Holy Water": 1, "Wolfsbane Potion": 0.5,
+    // Adventuring Gear
+    "Torch": 1, "Rope (50 ft)": 10, "Rations (1 day)": 2, "Spellbook": 3,
+    // Tools
+    "Thieves' Tools": 1, "Herbalism Kit": 3, "Tinker's Tools": 10,
+    "Dice Set": 0, "Vehicles (Land)": 0,
+    // Magic items (various)
+    "Crown of the Goblin King": 2, "Vampiric Blade": 3, "Dragon Scale Armor": 45,
+    "Staff of the Lich": 4, "Beholder Eye": 1
 };
 
 class Game {
@@ -5575,9 +5796,6 @@ class Game {
                 </div>
             `;
         }
-        
-        // Show saved games section
-        this.updateSavesDisplay();
     }
     
     updateSavesDisplay() {
@@ -6067,6 +6285,14 @@ class Game {
         // Show personality info
         this.log(`<em>Your ideal: ${this.character.personality.ideal}</em>`, "dm");
         
+        // Show languages and tool proficiencies
+        if (this.character.languages && this.character.languages.length > 0) {
+            this.log(`💬 Languages: ${this.character.languages.join(", ")}`, "dm");
+        }
+        if (this.character.toolProficiencies && this.character.toolProficiencies.length > 0) {
+            this.log(`🔧 Tool Proficiencies: ${this.character.toolProficiencies.join(", ")}`, "dm");
+        }
+        
         // Campaign-specific intro
         if (this.selectedCampaign === "nights_dark_terror") {
             this.log(`You begin your adventure in the frontier town of Kelven, in the Grand Duchy of Karameikos.`, "dm");
@@ -6254,6 +6480,86 @@ class Game {
                 </div>`;
             }
             skillsPanel.innerHTML = skillsHtml;
+        }
+        
+        // Update tool proficiencies display
+        const toolProfPanel = document.getElementById("toolProfPanel");
+        if (toolProfPanel && this.character.toolProficiencies) {
+            if (this.character.toolProficiencies.length > 0) {
+                let toolHtml = '';
+                for (const tool of this.character.toolProficiencies) {
+                    const bonus = this.character.getToolCheckBonus ? this.character.getToolCheckBonus(tool) : 0;
+                    toolHtml += `<span class="trait-tag" title="${tool}: +${bonus} proficiency bonus">🔧 ${tool}</span> `;
+                }
+                toolProfPanel.innerHTML = toolHtml;
+                toolProfPanel.style.display = '';
+            } else {
+                toolProfPanel.innerHTML = '';
+                toolProfPanel.style.display = 'none';
+            }
+        }
+        
+        // Update languages display
+        const langPanel = document.getElementById("languagesPanel");
+        if (langPanel && this.character.languages) {
+            if (this.character.languages.length > 0) {
+                let langHtml = '';
+                for (const lang of this.character.languages) {
+                    langHtml += `<span class="trait-tag" title="You speak ${lang}">💬 ${lang}</span> `;
+                }
+                langPanel.innerHTML = langHtml;
+                langPanel.style.display = '';
+            } else {
+                langPanel.innerHTML = '';
+                langPanel.style.display = 'none';
+            }
+        }
+        
+        // Update short rest resource display
+        const shortRestPanel = document.getElementById("shortRestResources");
+        if (shortRestPanel) {
+            let srHtml = '';
+            const char = this.character;
+            if (char.charClass === 'Fighter' && char.actionSurgeUses > 0) {
+                const used = char.actionSurgeUsed;
+                srHtml += `<span class="trait-tag" title="Action Surge (resets on short rest)" style="${used ? 'opacity:0.4' : ''}">⚡ Action Surge${used ? ' (used)' : ''}</span> `;
+            }
+            if ((char.charClass === 'Cleric' || char.charClass === 'Paladin') && char.channelDivinityUses > 0) {
+                const used = char.channelDivinityUsed;
+                srHtml += `<span class="trait-tag" title="Channel Divinity (resets on short rest)" style="${used ? 'opacity:0.4' : ''}">✝️ Channel Divinity${used ? ' (used)' : ''}</span> `;
+            }
+            if (char.charClass === 'Wizard') {
+                const used = char.arcaneRecoveryUsed;
+                srHtml += `<span class="trait-tag" title="Arcane Recovery (once per day on short rest)" style="${used ? 'opacity:0.4' : ''}">📘 Arcane Recovery${used ? ' (used)' : ''}</span> `;
+            }
+            shortRestPanel.innerHTML = srHtml;
+            shortRestPanel.style.display = srHtml ? '' : 'none';
+        }
+        
+        // Update encumbrance display
+        const encumPanel = document.getElementById("encumbrancePanel");
+        if (encumPanel && this.dm) {
+            const enc = this.dm.calculateEncumbrance();
+            let encClass = '';
+            let encLabel = '';
+            if (enc.heavilyEncumbered) {
+                encClass = 'enc-heavy';
+                encLabel = '⚠️ Heavily Encumbered';
+            } else if (enc.encumbered) {
+                encClass = 'enc-light';
+                encLabel = '⚠️ Encumbered';
+            }
+            const pct = Math.min(100, Math.round((enc.current / enc.capacity) * 100));
+            encumPanel.innerHTML = `
+                <div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:2px;">
+                    <span>⚖️ ${enc.current} / ${enc.capacity} lbs</span>
+                    ${encLabel ? `<span class="${encClass}" style="color:#e74c3c;font-weight:bold;">${encLabel}</span>` : '<span style="color:#2ecc71;">OK</span>'}
+                </div>
+                <div style="height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;">
+                    <div style="height:100%;width:${pct}%;background:${enc.heavilyEncumbered ? '#e74c3c' : enc.encumbered ? '#f39c12' : '#2ecc71'};border-radius:2px;transition:width 0.3s;"></div>
+                </div>
+            `;
+            encumPanel.style.display = '';
         }
         
         // Update equipment display
@@ -7269,12 +7575,17 @@ class Game {
         this.updateUI();
     }
 
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     async combatAction(action) {
         if (!this.dm.inCombat) return;
         
         // Prevent multiple actions while processing (fixes XP spam exploit)
         if (this.processingCombatAction) return;
         this.processingCombatAction = true;
+        try {
         
         const monster = this.dm.currentEnemy;
         const char = this.character;
@@ -7525,6 +7836,7 @@ class Game {
                 
                 const critResult = this.applyDamageToMonster(monster, critDamage, weaponInfo.type);
                 soundManager.playCritical();
+                await diceAnimator.rollDamage(weaponInfo.damage, critResult.finalDamage, `💥 ${critResult.finalDamage} ${weaponInfo.type}`);
                 this.log(`🎯 CRITICAL HIT! ${critEffect.name}: ${critEffect.effect}`, "success");
                 this.log(`💥 ${critResult.finalDamage} ${weaponInfo.type} damage with ${weaponInfo.name}!${bonusDamageText}`, "combat");
                 if (critResult.message) this.log(critResult.message, "dm");
@@ -7545,6 +7857,7 @@ class Game {
                 const damage = this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus + bonusDamage + sneakAttackDamage;
                 const hitResult = this.applyDamageToMonster(monster, damage, weaponInfo.type);
                 soundManager.playHit();
+                await diceAnimator.rollDamage(weaponInfo.damage, hitResult.finalDamage, `${hitResult.finalDamage} ${weaponInfo.type}`);
                 this.log(`⚔️ You hit with ${weaponInfo.name}! (Roll: ${rollMsg} vs AC ${monster.ac}) Damage: ${hitResult.finalDamage} ${weaponInfo.type}${bonusDamageText}`, "combat");
                 if (hitResult.message) this.log(hitResult.message, "dm");
             } else {
@@ -7765,9 +8078,10 @@ class Game {
         
         // Monster's turn
         this.monsterTurn();
-        
-        // Reset processing flag at the end
-        this.processingCombatAction = false;
+        } finally {
+            // Reset processing flag at the end (always, even if an error occurs)
+            this.processingCombatAction = false;
+        }
     }
     
     async companionCombatRound(monster) {
@@ -7776,27 +8090,33 @@ class Game {
         for (const companion of this.dm.party) {
             if (companion.currentHp <= 0) continue; // Skip unconscious companions
             
-            await this.delay(500); // Brief pause between companion attacks
-            
-            const result = this.dm.companionAttack(companion, monster);
-            this.log(result.message, result.hit ? "combat" : "dm");
-            
-            if (result.hit) {
-                monster.hp -= result.damage;
-                document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+            try {
+                await this.delay(500); // Brief pause between companion attacks
                 
-                if (monster.hp <= 0) {
-                    this.log(`${companion.name} deals the finishing blow!`, "success");
-                    return;
+                const result = this.dm.companionAttack(companion, monster);
+                this.log(result.message, result.hit ? "combat" : "dm");
+                
+                if (result.hit) {
+                    monster.hp -= result.damage;
+                    document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+                    
+                    if (monster.hp <= 0) {
+                        this.log(`${companion.name} deals the finishing blow!`, "success");
+                        return;
+                    }
                 }
-            }
-            
-            // Monster may retaliate against companions
-            if (Math.random() < 0.3 && monster.hp > 0) {
-                await this.delay(300);
-                this.companionTakesDamage(companion, monster);
+                
+                // Monster may retaliate against companions
+                if (Math.random() < 0.3 && monster.hp > 0) {
+                    await this.delay(300);
+                    this.companionTakesDamage(companion, monster);
+                }
+            } catch (e) {
+                console.error(`Companion ${companion.name} combat error:`, e);
             }
         }
+        
+        this.updateCombatPartyDisplay();
     }
     
     companionTakesDamage(companion, monster) {
@@ -8822,10 +9142,6 @@ class Game {
         
         this.updateUI();
         
-        // Show post-combat summary popup (only on victory)
-        if (victory) {
-            setTimeout(() => this.showPostCombatSummary(), 300);
-        }
     }
     
     // ==================== SPELL SYSTEM ====================
@@ -9164,10 +9480,12 @@ class Game {
             if (attackResult.isCrit) {
                 const damage = this.dm.rollDice(spellDamage) + this.dm.rollDice(spellDamage) + subclassSpellBonus;
                 monster.hp -= damage;
+                await diceAnimator.rollDamage(spellDamage, damage, `💥 ${damage} ${spell.damageType}`);
                 this.log(`🎯 CRITICAL! Spell attack: ${attackResult.roll}+${spellAttack}=${attackResult.total} vs AC ${monster.ac}. ${damage} ${spell.damageType} damage!`, "success");
             } else if (attackResult.total >= monster.ac) {
                 const damage = this.dm.rollDice(spellDamage) + subclassSpellBonus;
                 monster.hp -= damage;
+                await diceAnimator.rollDamage(spellDamage, damage, `${damage} ${spell.damageType}`);
                 this.log(`✨ Spell attack: ${attackResult.roll}+${spellAttack}=${attackResult.total} vs AC ${monster.ac}. ${damage} ${spell.damageType} damage!${evocationBonus ? ` (+${evocationBonus} Empowered)` : ''}`, "combat");
                 
                 // Guiding Bolt grants advantage on next attack
@@ -9280,7 +9598,6 @@ class Game {
         soundManager.playDeath(); // Enemy death sound
         this.log(`🎉 Victory! The ${monster.name} is defeated!`, "success");
         char.experience += xpGained;
-        this.stats.xpThisRound = xpGained; // Track XP for toast display
         this.log(`You gain ${xpGained} XP! (Total: ${char.experience})`, "loot");
         
         // Track statistics for achievements
@@ -9543,132 +9860,7 @@ class Game {
         }
     }
     
-    showPostCombatSummary() {
-        const char = this.character;
-        
-        // Calculate rewards
-        const xpGained = this.stats.xpThisRound || 0;
-        const goldGained = this.stats.goldThisRound || 0;
-        const lootItems = this.character.inventory.filter(item => item.justLooted);
-        
-        // Build summary line
-        const summaryParts = [];
-        summaryParts.push(`<strong style="color: #2ecc71;">+${xpGained}</strong> XP`);
-        if (goldGained > 0) {
-            summaryParts.push(`<strong style="color: #f1c40f;">${goldGained}</strong>g`);
-        }
-        if (lootItems.length > 0) {
-            summaryParts.push(`<strong style="color: #c9a227;">${lootItems.length}</strong> item${lootItems.length !== 1 ? 's' : ''}`);
-        }
-        
-        // Create toast if it doesn't exist
-        let toast = document.getElementById("combatToast");
-        if (!toast) {
-            toast = document.createElement("div");
-            toast.id = "combatToast";
-            toast.className = "combat-toast";
-            document.body.appendChild(toast);
-        }
-        
-        // Build expanded content
-        const location = this.dm.currentLocation;
-        const chapter = this.dm.campaign.chapters[this.dm.currentChapter];
-        const healthPercent = Math.round((char.hp / char.maxHp) * 100);
-        
-        let healthStatus = "";
-        if (healthPercent >= 75) healthStatus = "🟢 Good condition";
-        else if (healthPercent >= 50) healthStatus = "🟡 Lightly wounded";
-        else if (healthPercent >= 25) healthStatus = "🟠 Moderately wounded";
-        else healthStatus = "🔴 Critically wounded";
-        
-        // Build loot list
-        let lootHtml = lootItems.length > 0 
-            ? lootItems.map(item => `<div style="color: #c9a227; margin: 5px 0;">• ${item.name}${item.rarity ? ` <span style="color: #888;">(${item.rarity})</span>` : ''}</div>`).join('')
-            : '<div style="color: #888;">No loot this time</div>';
-        
-        // Set toast HTML
-        toast.innerHTML = `
-            <div class="combat-toast-header">
-                <div class="combat-toast-title">⚔️ Victory!</div>
-                <button class="combat-toast-close" onclick="game.closeCombatToast()">✕</button>
-            </div>
-            
-            <div class="combat-toast-summary">
-                <div class="toast-summary-line">
-                    ${summaryParts.join(' | ')}
-                </div>
-                <div class="toast-hint">Click to see more details</div>
-            </div>
-            
-            <div class="combat-toast-detail">
-                <div class="toast-detail-section">
-                    <div class="toast-detail-title">📍 Location</div>
-                    <div class="toast-detail-content">${location.icon} ${location.name}</div>
-                </div>
-                
-                <div class="toast-detail-section">
-                    <div class="toast-detail-title">❤️ Status</div>
-                    <div class="toast-detail-content">${healthStatus} (${char.hp}/${char.maxHp} HP)</div>
-                </div>
-                
-                <div class="toast-detail-section">
-                    <div class="toast-detail-title">💰 Rewards</div>
-                    <div class="toast-detail-content">
-                        <div style="margin: 5px 0;">XP Gained: <strong style="color: #2ecc71;">+${xpGained}</strong></div>
-                        <div style="margin: 5px 0;">Gold Gained: <strong style="color: #f1c40f;">+${goldGained}g</strong></div>
-                    </div>
-                </div>
-                
-                <div class="toast-detail-section">
-                    <div class="toast-detail-title">🎒 Loot</div>
-                    <div class="toast-detail-content">${lootHtml}</div>
-                </div>
-                
-                <div class="toast-detail-section">
-                    <div class="toast-detail-title">🎯 Objective</div>
-                    <div class="toast-detail-content">${chapter ? chapter.objective : 'Continue your adventure'}</div>
-                </div>
-            </div>
-        `;
-        
-        // Show toast with animation
-        toast.classList.remove("expanded");
-        toast.classList.add("show");
-        
-        // Make it clickable to expand
-        toast.onclick = (e) => {
-            if (e.target.closest('.combat-toast-close')) return;
-            toast.classList.toggle("expanded");
-        };
-        
-        // Auto-dismiss after 5 seconds if not expanded
-        this.combatToastTimer = setTimeout(() => {
-            if (!toast.classList.contains("expanded")) {
-                this.closeCombatToast();
-            }
-        }, 5000);
-        
-        // Clear looted flag
-        lootItems.forEach(item => item.justLooted = false);
-    }
-    
-    closeCombatToast() {
-        const toast = document.getElementById("combatToast");
-        if (toast) {
-            clearTimeout(this.combatToastTimer);
-            toast.classList.remove("show");
-            setTimeout(() => {
-                toast.classList.remove("expanded");
-            }, 400);
-        }
-        // Reset combat round rewards
-        this.stats.xpThisRound = 0;
-        this.stats.goldThisRound = 0;
-    }
-    
-    closePostCombatSummary() {
-        this.closeCombatToast();
-    }
+
     
     updateMiniMap() {
         // Create mini-map container if it doesn't exist
@@ -10083,9 +10275,11 @@ class Game {
         const char = this.character;
         char.level++;
         const hitDie = GAME_DATA.classes[char.charClass].hitDie;
-        const hpGain = Math.max(1, Math.floor(Math.random() * hitDie) + 1 + char.getModifier("con"));
-        char.maxHp += hpGain;
-        char.hp = char.maxHp;
+        const conMod = char.getModifier("con");
+        
+        // Roll the die AND compute the average
+        const dieRoll = Math.floor(Math.random() * hitDie) + 1;
+        const averageHp = Math.floor(hitDie / 2) + 1; // PHB "take average" rule
         
         // Increase hit dice
         char.hitDice.max = char.level;
@@ -10093,8 +10287,82 @@ class Game {
         
         soundManager.playLevelUp();
         this.log(`🎊 LEVEL UP! You are now level ${char.level}!`, "success");
-        this.log(`HP increased by ${hpGain}! (New max: ${char.maxHp})`, "success");
         
+        // Show the HP choice modal
+        this._pendingHpChoice = { dieRoll, averageHp, conMod, hitDie };
+        this.showHpLevelUpChoice(dieRoll, averageHp, conMod, hitDie);
+        
+    }
+
+    showHpLevelUpChoice(dieRoll, averageHp, conMod, hitDie) {
+        const char = this.character;
+        const rollTotal = Math.max(1, dieRoll + conMod);
+        const avgTotal = Math.max(1, averageHp + conMod);
+        const sign = conMod >= 0 ? '+' : '';
+        
+        let html = `<h2>❤️ Hit Points at Level ${char.level}</h2>`;
+        html += `<p style="margin-bottom:15px;">Choose how to gain HP this level (d${hitDie} ${sign}${conMod} CON):</p>`;
+        html += `<div style="display:flex;flex-direction:column;gap:12px;">`;
+        
+        // Roll option
+        html += `<div style="border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;transition:all 0.2s;"
+                      onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(255,215,0,0.05)'"
+                      onmouseout="this.style.borderColor='var(--border)';this.style.background=''"
+                      onclick="game.applyHpChoice('roll')">
+            <div style="font-weight:bold;font-size:1.1em;color:var(--accent);">🎲 Take the Roll: +${rollTotal} HP</div>
+            <div style="margin:6px 0;color:var(--text-secondary);font-style:italic;">Rolled ${dieRoll} on d${hitDie} ${sign}${conMod} CON = ${rollTotal} HP</div>
+        </div>`;
+        
+        // Average option
+        html += `<div style="border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;transition:all 0.2s;"
+                      onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(255,215,0,0.05)'"
+                      onmouseout="this.style.borderColor='var(--border)';this.style.background=''"
+                      onclick="game.applyHpChoice('average')">
+            <div style="font-weight:bold;font-size:1.1em;color:var(--accent);">📊 Take the Average: +${avgTotal} HP</div>
+            <div style="margin:6px 0;color:var(--text-secondary);font-style:italic;">Average of d${hitDie} = ${averageHp} ${sign}${conMod} CON = ${avgTotal} HP (safe &amp; steady)</div>
+        </div>`;
+        
+        html += `</div>`;
+        this.showModal(html);
+    }
+
+    applyHpChoice(choice) {
+        const char = this.character;
+        const pending = this._pendingHpChoice;
+        if (!pending) return;
+        
+        const modals = document.querySelectorAll('.modal-overlay');
+        modals.forEach(m => m.remove());
+        
+        const conMod = pending.conMod;
+        let baseRoll;
+        if (choice === 'roll') {
+            baseRoll = pending.dieRoll;
+        } else {
+            baseRoll = pending.averageHp;
+        }
+        const hpGain = Math.max(1, baseRoll + conMod);
+        
+        // Track the roll for accurate recalculation later
+        if (!char.hpRollHistory) char.hpRollHistory = [];
+        char.hpRollHistory.push({ level: char.level, baseRoll, conMod, total: hpGain });
+        
+        char.maxHp += hpGain;
+        char.hp = char.maxHp;
+        
+        const label = choice === 'roll' ? '🎲 Rolled' : '📊 Average';
+        this.log(`${label}: HP increased by ${hpGain}! (New max: ${char.maxHp})`, "success");
+        
+        this._pendingHpChoice = null;
+        
+        // Continue level-up progression
+        this.applyLevelUpFeatures();
+    }
+
+    applyLevelUpFeatures() {
+        const char = this.character;
+        const profBonus = char.getProficiencyBonus();
+
         // Subclass selection at level 3
         if (char.level === 3 && !char.subclass && SUBCLASS_DATA[char.charClass]) {
             this.showSubclassSelection();
@@ -10114,10 +10382,10 @@ class Game {
         }
         
         // Show proficiency bonus if it increased
-        const profBonus = char.getProficiencyBonus();
+        const currentProfBonus = char.getProficiencyBonus();
         const prevProfBonus = Math.floor((char.level - 2) / 4) + 2;
-        if (profBonus > prevProfBonus) {
-            this.log(`📈 Proficiency Bonus increased to +${profBonus}!`, "success");
+        if (currentProfBonus > prevProfBonus) {
+            this.log(`📈 Proficiency Bonus increased to +${currentProfBonus}!`, "success");
         }
         
         // Extra Attack at level 5 for martial classes
@@ -10125,6 +10393,52 @@ class Game {
             if (char.charClass === "Fighter" || char.charClass === "Barbarian" || char.charClass === "Ranger" || char.charClass === "Paladin" || char.charClass === "Monk") {
                 char.extraAttack = true;
                 this.log(`⚔️ Extra Attack! You can now attack twice per turn!`, "success");
+            }
+        }
+        
+        // Fighter: Action Surge at level 2, second use at level 17
+        if (char.charClass === "Fighter") {
+            if (char.level === 2) {
+                char.actionSurgeUses = 1;
+                char.actionSurgeUsed = false;
+                this.log(`⚡ Action Surge unlocked! Once per short rest, take an additional action on your turn.`, "success");
+            }
+            if (char.level === 17) {
+                char.actionSurgeUses = 2;
+                this.log(`⚡ Action Surge (2 uses)! You can now use Action Surge twice per short rest.`, "success");
+            }
+        }
+        
+        // Cleric: Channel Divinity at level 2, extra use at level 6 and 18
+        if (char.charClass === "Cleric") {
+            if (char.level === 2) {
+                char.channelDivinityUses = 1;
+                char.channelDivinityUsed = false;
+                this.log(`✝️ Channel Divinity unlocked! Turn Undead — once per short rest.`, "success");
+            }
+            if (char.level === 6) {
+                char.channelDivinityUses = 2;
+                this.log(`✝️ Channel Divinity (2 uses)! You can channel divinity twice per short rest.`, "success");
+            }
+            if (char.level === 18) {
+                char.channelDivinityUses = 3;
+                this.log(`✝️ Channel Divinity (3 uses)!`, "success");
+            }
+        }
+        
+        // Paladin: Channel Divinity at level 3
+        if (char.charClass === "Paladin") {
+            if (char.level === 3) {
+                char.channelDivinityUses = 1;
+                char.channelDivinityUsed = false;
+                this.log(`✝️ Channel Divinity unlocked! Use your oath's divine power once per short rest.`, "success");
+            }
+        }
+        
+        // Wizard: Arcane Recovery (available from level 1, but announce at level 1 setup passed — remind at level 2)
+        if (char.charClass === "Wizard") {
+            if (char.level === 2) {
+                this.log(`📘 Reminder: Arcane Recovery — once per day during a short rest, recover spell slots (up to ${Math.ceil(char.level / 2)} total levels).`, "success");
             }
         }
         
@@ -10474,9 +10788,18 @@ class Game {
     recalculateAfterAsi() {
         const char = this.character;
         const conMod = char.getModifier("con");
+        // Level 1: max hit die + current CON mod
         char.maxHp = GAME_DATA.classes[char.charClass].hitDie + conMod;
-        for (let lvl = 2; lvl <= char.level; lvl++) {
-            char.maxHp += Math.max(1, Math.floor(GAME_DATA.classes[char.charClass].hitDie / 2) + 1 + conMod);
+        // Levels 2+: use actual recorded rolls (re-applying current CON mod)
+        if (char.hpRollHistory && char.hpRollHistory.length > 0) {
+            for (const entry of char.hpRollHistory) {
+                char.maxHp += Math.max(1, entry.baseRoll + conMod);
+            }
+        } else {
+            // Fallback for old saves without roll history: use average
+            for (let lvl = 2; lvl <= char.level; lvl++) {
+                char.maxHp += Math.max(1, Math.floor(GAME_DATA.classes[char.charClass].hitDie / 2) + 1 + conMod);
+            }
         }
         if (char.feats.includes("Tough")) {
             char.maxHp += char.level * 2;
@@ -10634,7 +10957,6 @@ class Game {
         const [minGold, maxGold] = lootTable.goldRange;
         const gold = Math.floor(Math.random() * (maxGold - minGold + 1)) + minGold;
         this.character.gold += gold;
-        this.stats.goldThisRound = gold; // Track gold for toast display
         soundManager.playGold();
         this.log(`💰 You loot ${gold} gold from the ${monster.name}!`, "loot");
         
@@ -12687,7 +13009,7 @@ class Game {
             }
         } else if (campaignId === "curse_of_strahd") {
             // Death House - animated dead block the entrance
-            if (location.name === "Death House" && !flags.enteredBarovia) {
+            if (location.name === "Death House" && !flags.clearedDeathHouse) {
                 this.log("The door creaks open and a shambling horror lurches from the darkness! The dead walk in this cursed house!", "danger");
                 this.dm.pendingStoryEvent = "enterDeathHouse";
                 const zombie = { ...this.dm.campaign.monsters[1].find(m => m.name === "Strahd Zombie") };
@@ -12886,11 +13208,12 @@ class Game {
                 this.startCombat(highPriest);
             }
         } else if (campaignId === "lost_mine_of_phandelver") {
-            // Chapter 1: Goblin Ambush Site - ambush triggers intro
-            if (location.name === "Goblin Ambush Site" && !flags.ambushed) {
-                this.log("Dead horses block the trail ahead - it's an ambush! Goblins leap from the undergrowth!", "danger");
-                this.dm.pendingStoryEvent = "intro_lmop";
+            // Chapter 1: Goblin Ambush Site - goblin camp encounter
+            if (location.name === "Goblin Ambush Site" && !flags.clearedAmbushSite) {
+                this.log("More goblins lurk at the ambush site! They spring from their hiding spots with weapons drawn!", "danger");
+                this.dm.pendingStoryEvent = "clearAmbushSite";
                 const goblin = { ...this.dm.campaign.monsters[1].find(m => m.name === "Goblin") };
+                goblin.name = "Goblin Raider";
                 this.startCombat(goblin);
             }
             
@@ -13084,6 +13407,42 @@ class Game {
             this.log(`💨 Second Wind restored!`, "success");
         }
         
+        // Fighter: Action Surge resets on short rest
+        if (char.charClass === 'Fighter' && char.actionSurgeUses > 0 && char.actionSurgeUsed) {
+            char.actionSurgeUsed = false;
+            this.log(`⚡ Action Surge restored!`, "success");
+        }
+        
+        // Cleric: Channel Divinity resets on short rest
+        if (char.charClass === 'Cleric' && char.channelDivinityUses > 0 && char.channelDivinityUsed) {
+            char.channelDivinityUsed = false;
+            this.log(`✝️ Channel Divinity restored! (${char.channelDivinityUses} use${char.channelDivinityUses > 1 ? 's' : ''})`, "success");
+        }
+        
+        // Paladin: Channel Divinity resets on short rest
+        if (char.charClass === 'Paladin' && char.channelDivinityUses > 0 && char.channelDivinityUsed) {
+            char.channelDivinityUsed = false;
+            this.log(`✝️ Channel Divinity restored!`, "success");
+        }
+        
+        // Wizard: Arcane Recovery — once per day (long rest resets), recover spell slots on short rest
+        if (char.charClass === 'Wizard' && !char.arcaneRecoveryUsed && char.level >= 1) {
+            const maxRecoverLevels = Math.ceil(char.level / 2);
+            let levelsRecovered = 0;
+            // Recover lowest-level slots first, up to maxRecoverLevels total spell levels
+            for (let spellLvl = 1; spellLvl <= 5; spellLvl++) { // Max 5th level slots per RAW
+                while (levelsRecovered + spellLvl <= maxRecoverLevels &&
+                       char.spells.slotsUsed[spellLvl] > 0) {
+                    char.spells.slotsUsed[spellLvl]--;
+                    levelsRecovered += spellLvl;
+                }
+            }
+            if (levelsRecovered > 0) {
+                char.arcaneRecoveryUsed = true;
+                this.log(`📘 Arcane Recovery! Recovered ${levelsRecovered} level${levelsRecovered > 1 ? 's' : ''} of spell slots.`, "success");
+            }
+        }
+        
         // Monk: Ki points fully restore on short rest
         if (char.charClass === 'Monk' && char.kiPoints < char.kiMax) {
             char.kiPoints = char.kiMax;
@@ -13106,6 +13465,21 @@ class Game {
         if (char.race === 'Dragonborn' && char.racialAbilities?.breathWeaponUsed) {
             char.racialAbilities.breathWeaponUsed = false;
             this.log(`🐉 Breath Weapon recharged!`, "success");
+        }
+        
+        // Heal companions on short rest (recover half their max HP)
+        if (this.dm.party && this.dm.party.length > 0) {
+            for (const companion of this.dm.party) {
+                if (companion.currentHp < companion.maxHp) {
+                    const healAmount = Math.floor(companion.maxHp / 2);
+                    const oldHp = companion.currentHp;
+                    companion.currentHp = Math.min(companion.maxHp, companion.currentHp + healAmount);
+                    const healed = companion.currentHp - oldHp;
+                    if (healed > 0) {
+                        this.log(`💚 ${companion.name} recovers ${healed} HP during the short rest. (${companion.currentHp}/${companion.maxHp})`, "success");
+                    }
+                }
+            }
         }
 
         // Show time update
@@ -13189,7 +13563,12 @@ class Game {
         }
         
         // Restore class resources on long rest
-        if (char.charClass === 'Fighter') char.secondWindUsed = false;
+        if (char.charClass === 'Fighter') {
+            char.secondWindUsed = false;
+            char.actionSurgeUsed = false;
+        }
+        if (char.charClass === 'Cleric') char.channelDivinityUsed = false;
+        if (char.charClass === 'Wizard') char.arcaneRecoveryUsed = false; // Arcane Recovery resets on long rest
         if (char.charClass === 'Monk') char.kiPoints = char.kiMax;
         if (char.charClass === 'Bard') char.bardicInspirationUses = Math.max(1, char.getModifier('cha'));
         if (char.charClass === 'Paladin') char.layOnHandsPool = char.level * 5;
@@ -13200,6 +13579,7 @@ class Game {
         }
         if (char.charClass === 'Paladin') {
             char.divineSenseUses = 1 + char.getModifier('cha');
+            char.channelDivinityUsed = false;
         }
         if (char.charClass === 'Warlock' && char.pactSlotsUsed !== undefined) {
             char.pactSlotsUsed = 0;
@@ -13214,6 +13594,16 @@ class Game {
         if (char.racialAbilities) {
             if (char.race === "Dragonborn") char.racialAbilities.breathWeaponUsed = false;
             if (char.race === "Half-Orc") char.racialAbilities.relentlessUsed = false;
+        }
+        
+        // Fully heal all companions on long rest
+        if (this.dm.party && this.dm.party.length > 0) {
+            for (const companion of this.dm.party) {
+                if (companion.currentHp < companion.maxHp) {
+                    companion.currentHp = companion.maxHp;
+                    this.log(`💚 ${companion.name} is fully restored. (${companion.currentHp}/${companion.maxHp})`, "success");
+                }
+            }
         }
 
         // Advance time if not already done
@@ -13444,7 +13834,7 @@ class Game {
         const item = { name: itemName, slug: slug, quantity: 1 };
 
         // Weight
-        const weight = EXPORT_ITEM_WEIGHTS[itemName];
+        const weight = ITEM_WEIGHTS[itemName];
         if (weight !== undefined) item.weight = weight;
 
         // Price
@@ -13549,7 +13939,7 @@ class Game {
         const classData = GAME_DATA.classes[char.charClass] || {};
 
         const exportData = {
-            formatVersion: "3.2",
+            formatVersion: "3.3",
             exportType: "dnd-character",
             system: "dnd5e",
             generator: "dnd-text-adventure",
@@ -14064,7 +14454,7 @@ class Game {
                 break;
                 
             case "enterDeathHouse":
-                this.dm.currentChapter = 0;
+                this.dm.questFlags.clearedDeathHouse = true;
                 this.log("🏚️ <strong>DEATH HOUSE</strong>", "danger");
                 this.log(`The house seems to call to you. Two children stand outside, begging you to save their baby brother from the monster in the basement.`, "dm");
                 this.log("📜 <strong>OBJECTIVE:</strong> Explore Death House and survive!", "loot");
@@ -14510,6 +14900,13 @@ class Game {
                 break;
             
             // Lost Mine of Phandelver events
+            case "clearAmbushSite":
+                this.dm.questFlags.clearedAmbushSite = true;
+                this.character.experience += 50;
+                this.log("You clear out the remaining goblins at the ambush site. Tracks lead north toward the Cragmaw Hideout.", "success");
+                this.updateUI();
+                break;
+            
             case "intro_lmop":
                 await this.showChoice(
                     "🛤️ The Triboar Trail",
@@ -14799,9 +15196,8 @@ class Game {
                 "Keep Gates",                // Enter the Keep
                 "Green Man Inn",             // Get lodging → Chapter 1
                 "Keep - Inner Bailey",       // Meet Castellan → Chapter 2
-                "Caves of Chaos - Entrance", // Find caves → Chapter 3
-                "Temple of Evil Chaos",      // Enter temple → Chapter 5
-                "Inner Sanctum"              // Final battle
+                "Caves of Chaos - Entrance"  // Find caves → Chapter 3
+                // Ch4/5 locations unlock via outerCavesCleared/innerCavesCleared flags
             ],
             "nights_dark_terror": [
                 "Sukiskyn Homestead",
@@ -14826,10 +15222,8 @@ class Game {
             "lost_mine_of_phandelver": [
                 "Goblin Ambush Site",
                 "Phandalin - Town Square",
-                "Tresendar Manor Ruins",
-                "Cragmaw Castle - Ruins",
-                "Wave Echo Cave - Entrance",
-                "Temple of Dumathoin"
+                "Tresendar Manor Ruins"
+                // Ch4/5 locations unlock via clearedRedbrands/rescuedGundren flags
             ]
         };
         
@@ -15608,90 +16002,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("startGameBtn").addEventListener("click", () => game.startGame());
 });
 
-// ==================== PROFESSIONAL LANDING PAGE & LOADING ==================== 
-
-// Demo mode functionality
-function startDemo() {
-    const landingPage = document.getElementById('landing-page');
-    const loadingScreen = document.getElementById('loading-screen');
-    
-    // Hide landing page
-    landingPage.classList.add('hidden');
-    
-    // Show loading screen
-    loadingScreen.classList.remove('hidden');
-    
-    const loadingText = document.querySelector('.loading-text');
-    const tipElement = document.querySelector('.loading-tip');
-    
-    if (loadingText) loadingText.textContent = '🎬 Loading Demo 🎬';
-    if (tipElement) tipElement.textContent = 'Experience the adventure in auto-play mode!';
-    
-    // Start demo after loading
-    setTimeout(() => {
-        loadingScreen.classList.add('hidden');
-        alert('🎬 DEMO MODE 🎬\n\nWatch as an AI adventurer plays through a sample quest!\n\n' +
-              'Features showcased:\n' +
-              '✓ Character creation\n' +
-              '✓ Combat mechanics\n' +
-              '✓ Exploration\n' +
-              '✓ Leveling system\n' +
-              '✓ Quest completion\n\n' +
-              'Click OK to return to the main menu and create your own character!');
-        
-        // Return to landing page
-        landingPage.classList.remove('hidden');
-    }, 2500);
-}
-
-// Landing page functionality
-function startGame() {
-    const landingPage = document.getElementById('landing-page');
-    const loadingScreen = document.getElementById('loading-screen');
-    
-    // Hide landing page
-    landingPage.classList.add('hidden');
-    
-    // Show loading screen
-    loadingScreen.classList.remove('hidden');
-    
-    // Simulate loading with random tips
-    const tips = [
-        "💡 Tip: Always check your inventory before exploring!",
-        "💡 Tip: Resting restores HP and spell slots.",
-        "💡 Tip: Use keyboard shortcuts for faster combat!",
-        "💡 Tip: Recruit companions to strengthen your party.",
-        "💡 Tip: Complete side quests for extra rewards.",
-        "💡 Tip: Save your game frequently!",
-        "💡 Tip: Different combat tactics affect your AC and damage.",
-        "💡 Tip: Crafting powerful items can give you an edge.",
-        "💡 Tip: Your background affects available skills and story options.",
-        "💡 Tip: High Charisma helps with persuasion and deception.",
-        "💡 Tip: Stealth can help you avoid dangerous encounters.",
-        "💡 Tip: Explore thoroughly to find hidden treasures."
-    ];
-    
-    const tipElement = document.querySelector('.loading-tip');
-    if (tipElement) {
-        tipElement.textContent = tips[Math.floor(Math.random() * tips.length)];
-    }
-    
-    // Hide loading screen after delay
-    setTimeout(() => {
-        loadingScreen.classList.add('hidden');
-    }, 2000);
-}
-
-// Initialize on page load
-window.addEventListener('DOMContentLoaded', () => {
-    const loadingScreen = document.getElementById('loading-screen');
-    
-    // Hide initial loading screen after assets load
-    setTimeout(() => {
-        loadingScreen.classList.add('hidden');
-    }, 1500);
-});
-
 // Add smooth scrolling for better UX
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -15706,10 +16016,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
-
-// Add version and credits info
-console.log('%c⚔️ D&D: Realms of Adventure v2.5 ⚔️', 'color: #d4af37; font-size: 20px; font-weight: bold;');
-console.log('%cA professional D&D 5th Edition web experience', 'color: #c9a227; font-size: 12px;');
-console.log('%c📜 Features: Multiple campaigns, character creation, achievements, companions, crafting, and more!', 'color: #888;');
-console.log('%c💾 Auto-save enabled | 🎮 Keyboard shortcuts available | 🎲 Authentic D&D rules', 'color: #888;');
 

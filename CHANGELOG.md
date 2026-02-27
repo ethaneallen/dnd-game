@@ -4,6 +4,87 @@ All notable changes to the D&D: Realms of Adventure web game.
 
 ---
 
+## [3.3.0] - 2026-02-27 - "Tabletop Fidelity" 🎯
+
+### 🎉 MAJOR UPDATE - 5 Nice-to-Have D&D 5e Systems
+
+This release fills in five commonly requested "nice-to-have" gaps — proper HP choices on level up, missing short rest class features, tool proficiencies, languages, and real item weight encumbrance — bringing the game closer to a true Player's Handbook experience.
+
+### ✨ Added
+
+#### **Proper HP on Level Up** (NEW)
+- Modal dialog on level up presents the actual die roll AND the PHB "take average" (hitDie/2 + 1)
+- Player chooses between the rolled value or the safe average each level
+- `hpRollHistory` array tracks every HP choice (base roll + CON mod) per level
+- `recalculateAfterAsi()` now uses actual recorded rolls instead of flat averages — fixes inconsistency where raising CON via ASI previously recalculated all levels using averages
+- Python backend `level_up()` also prompts for roll vs average with printed options
+- `showHpLevelUpChoice()` and `applyHpChoice()` methods on Game class
+
+#### **Short Rest Class Features** (NEW)
+- **Action Surge** (Fighter): Unlocked at level 2, second use at level 17. Resets on short rest and long rest. Tracked via `actionSurgeUses` / `actionSurgeUsed`
+- **Channel Divinity** (Cleric): Unlocked at level 2 (Turn Undead), extra uses at levels 6 and 18. Resets on short rest and long rest. Tracked via `channelDivinityUses` / `channelDivinityUsed`
+- **Channel Divinity** (Paladin): Unlocked at level 3 (oath power). Resets on short rest and long rest
+- **Arcane Recovery** (Wizard): Once per day during short rest, automatically recovers lowest-level spell slots up to `ceil(level/2)` total levels (max 5th-level slots per RAW). Resets on long rest. Tracked via `arcaneRecoveryUsed`
+- Level-up log messages announce each feature when unlocked
+- Short Rest Resources panel in character sidebar shows Action Surge / Channel Divinity / Arcane Recovery status (used/available)
+
+#### **Tool Proficiencies** (NEW)
+- `CLASS_TOOL_PROFICIENCY` constant: Rogue → Thieves' Tools, Druid → Herbalism Kit, Artificer → Thieves' Tools + Tinker's Tools
+- Background tool grants: Criminal → Thieves' Tools + Dice Set, Soldier → Dice Set + Vehicles (Land), Outlander → Herbalism Kit, Noble → Dice Set
+- Race tool grants supported (data hook for Dwarf smith's tools variant, etc.)
+- `isToolProficient()` and `getToolCheckBonus()` methods on Character
+- Tool proficiency panel in character sidebar with proficiency bonus tooltips
+- Downtime "Training" activity now has a mechanical target for tool proficiency
+
+#### **Languages** (NEW)
+- `ALL_LANGUAGES` constant: 16 languages (8 standard + 8 exotic) — Common, Dwarvish, Elvish, Giant, Gnomish, Goblin, Halfling, Orc, Abyssal, Celestial, Draconic, Deep Speech, Infernal, Primordial, Sylvan, Undercommon
+- Racial languages: Elf → Common + Elvish, Dwarf → Common + Dwarvish, Dragonborn → Common + Draconic, Tiefling → Common + Infernal, Half-Orc → Common + Orc, Halfling → Common + Halfling, Human → Common + 1 extra
+- Background languages: Scholar & Acolyte → 2 extra, Noble & Outlander → 1 extra (randomly assigned from available pool)
+- `knowsLanguage()` method on Character for future language-gated encounters
+- Languages panel in character sidebar with speech-bubble icons
+- Languages and tool proficiencies announced in game start log
+
+#### **Proper Encumbrance with Real Item Weights** (NEW)
+- `ITEM_WEIGHTS` table: 60+ items with PHB-accurate weights (replaces old flat 2 lb/item estimate)
+- Weapons: Dagger 1 lb, Longsword 3 lb, Greataxe 7 lb, etc.
+- Armor: Leather 10 lb, Chain Mail 55 lb, Plate 65 lb, etc.
+- Consumables, tools, shields, magic weapons all weighted
+- Variant encumbrance thresholds per 5e SRD: Encumbered at STR×5 (-10 speed), Heavily Encumbered at STR×10 (-20 speed), Capacity at STR×15
+- Color-coded encumbrance bar in character panel (green → yellow → red)
+- Export system now uses the same `ITEM_WEIGHTS` table (renamed from `EXPORT_ITEM_WEIGHTS`)
+- Unknown items default to 1 lb
+
+### 🔧 Changed
+- `levelUp()` refactored: core progression logic moved to `applyLevelUpFeatures()` so HP choice modal doesn't block feature unlocks
+- `recalculateAfterAsi()` uses `hpRollHistory` for accurate HP when CON changes (falls back to averages for pre-3.3 saves)
+- `calculateEncumbrance()` rewritten with real item weights and 5e variant encumbrance thresholds
+- `EXPORT_ITEM_WEIGHTS` renamed to `ITEM_WEIGHTS` and expanded (backward compatible — same data, shared reference)
+- `setupClass()` now grants class tool proficiencies
+- `setupBackground()` now grants background tool proficiencies and languages
+- `applyRacialBonus()` now grants racial languages and tool proficiencies
+- `shortRest()` expanded with Action Surge, Channel Divinity, and Arcane Recovery recovery
+- `performLongRest()` expanded with Action Surge, Channel Divinity, Arcane Recovery, and Paladin Channel Divinity resets
+- `toJSON()` / `fromJSON()` updated with 8 new serialized properties (hpRollHistory, toolProficiencies, languages, actionSurgeUses, actionSurgeUsed, channelDivinityUses, channelDivinityUsed, arcaneRecoveryUsed) — backward compatible
+- Character constructor adds new state: `actionSurgeUses`, `actionSurgeUsed`, `channelDivinityUses`, `channelDivinityUsed`, `arcaneRecoveryUsed`, `toolProficiencies`, `languages`, `hpRollHistory`
+- Python `Character.__init__` adds matching state fields
+- Python `level_up()` now prompts for roll vs average HP choice
+- GAME_DATA races now include `languages` and optional `extraLanguages` / `toolProficiencies`
+- GAME_DATA backgrounds now include `toolProficiencies` and `languages` arrays
+- `updateUI()` expanded with 4 new panel renders (tools, languages, short rest resources, encumbrance)
+- index.html character panel gains 4 new display sections
+
+### 📊 Statistics
+- game.js: ~16,020 lines (+320 from v3.2)
+- game.py: ~6,870 lines (+20 from v3.2)
+- 5 new D&D 5e mechanical systems
+- 16 languages defined
+- 60+ items with real weights
+- 3 short rest class features added
+- ~10 new Character methods
+- Full backward compatibility with v3.0/v3.1/v3.2 saves
+
+---
+
 ## [3.2.0] - 2026-02-26 - "Realism & Depth" 🎯
 
 ### 🎉 MAJOR UPDATE - 8 D&D 5e Realism Systems, Half-Orc Race & UI Overhaul
@@ -493,27 +574,35 @@ Modified:
 
 ## 📊 Version Comparison
 
-| Feature | v1.0 | v1.5 | v2.0 | v3.0 | v3.1 |
-|---------|------|------|------|------|------|
-| Core D&D Mechanics | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Campaigns | 4 | 4 | 4 | 5 settings | 5 full |
-| Character Options | Basic | Advanced | Advanced | Advanced | Advanced |
-| Achievements | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Crafting | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Companions | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Professional UI | ❌ | ⚠️ | ✅ | ✅ | ✅ |
-| Landing Page | ❌ | ❌ | ✅ | ✅ | ✅ |
-| Full Economy System | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Black Market | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Artifact Favors | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Boss Depth (LR/LS) | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Exhaustion System | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Campaign Magic Items | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Bounty/Guard System | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Combat-Gated Progress | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Lost Mine of Phandelver | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Lines of Code (py) | — | — | — | ~6,850 | ~6,850 |
-| Lines of Code (js) | ~6,000 | ~9,000 | ~11,000 | ~11,000 | ~13,000 |
+| Feature | v1.0 | v1.5 | v2.0 | v3.0 | v3.1 | v3.2 | v3.3 |
+|---------|------|------|------|------|------|------|------|
+| Core D&D Mechanics | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Campaigns | 4 | 4 | 4 | 5 settings | 5 full | 5 full | 5 full |
+| Character Options | Basic | Advanced | Advanced | Advanced | Advanced | Advanced | Advanced |
+| Achievements | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Crafting | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Companions | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Professional UI | ❌ | ⚠️ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Landing Page | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Full Economy System | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Black Market | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Artifact Favors | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Boss Depth (LR/LS) | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Exhaustion System | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Campaign Magic Items | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Bounty/Guard System | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Combat-Gated Progress | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Lost Mine of Phandelver | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Skill Proficiency (18) | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Racial Abilities | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Darkvision | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Tool Proficiencies | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Languages | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Short Rest Features | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Proper Encumbrance | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| HP Roll vs Average | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Lines of Code (py) | — | — | — | ~6,850 | ~6,850 | ~6,850 | ~6,870 |
+| Lines of Code (js) | ~6,000 | ~9,000 | ~11,000 | ~11,000 | ~13,000 | ~15,700 | ~16,020 |
 
 ---
 
@@ -580,5 +669,5 @@ The version number is displayed in:
 
 ---
 
-**Last Updated:** February 25, 2026  
-**Current Stable Version:** 3.1.0
+**Last Updated:** February 27, 2026  
+**Current Stable Version:** 3.3.0
