@@ -1483,35 +1483,35 @@ const CAMPAIGNS = {
         ],
         monsters: {
             1: [
-                { name: "Kobold", hp: 5, ac: 12, damage: "1d4", xp: 25, attackBonus: 4, damageType: "slashing", description: "A small, reptilian humanoid. Weak alone, dangerous in groups." },
-                { name: "Giant Rat", hp: 7, ac: 12, damage: "1d4", xp: 25, attackBonus: 2, damageType: "piercing", description: "An oversized rodent with diseased fangs." },
-                { name: "Goblin", hp: 7, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", description: "A small, malicious humanoid with a wicked grin." },
-                { name: "Stirge", hp: 2, ac: 14, damage: "1d4", xp: 25, attackBonus: 5, damageType: "piercing", description: "A bat-like creature that drinks blood!" }
+                { name: "Kobold", hp: 5, ac: 12, damage: "1d4", xp: 25, attackBonus: 4, damageType: "slashing", description: "A small, reptilian humanoid. Weak alone, dangerous in groups.", image: "images/monsters/kobold.jpg" },
+                { name: "Giant Rat", hp: 7, ac: 12, damage: "1d4", xp: 25, attackBonus: 2, damageType: "piercing", description: "An oversized rodent with diseased fangs.", image: "images/monsters/giant-rat.jpg" },
+                { name: "Goblin", hp: 7, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", description: "A small, malicious humanoid with a wicked grin.", image: "images/monsters/goblin.jpg" },
+                { name: "Stirge", hp: 2, ac: 14, damage: "1d4", xp: 25, attackBonus: 5, damageType: "piercing", description: "A bat-like creature that drinks blood!", image: "images/monsters/stirge.jpg" }
             ],
             2: [
-                { name: "Orc", hp: 15, ac: 13, damage: "1d8", xp: 100, attackBonus: 5, damageType: "slashing", description: "A brutish humanoid with a thirst for battle." },
-                { name: "Hobgoblin", hp: 11, ac: 16, damage: "1d8", xp: 100, attackBonus: 3, damageType: "slashing", description: "A disciplined goblinoid warrior in chain mail." },
-                { name: "Giant Spider", hp: 18, ac: 13, damage: "1d8", xp: 200, attackBonus: 5, damageType: "piercing", saveDC: 11, specialAbilities: [{ name: "Poison Bite", type: "poison", triggerChance: 0.3, damage: "2d8", damageType: "poison", dc: 11 }], description: "A horse-sized spider with venomous fangs!" },
-                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A shambling undead animated by dark magic." },
-                { name: "Skeleton", hp: 13, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", immunities: ["poison"], vulnerabilities: ["bludgeoning"], description: "The animated bones of the dead, armed with rusty weapons." }
+                { name: "Orc", hp: 15, ac: 13, damage: "1d8", xp: 100, attackBonus: 5, damageType: "slashing", description: "A brutish humanoid with a thirst for battle.", image: "images/monsters/orc.jpg" },
+                { name: "Hobgoblin", hp: 11, ac: 16, damage: "1d8", xp: 100, attackBonus: 3, damageType: "slashing", description: "A disciplined goblinoid warrior in chain mail.", image: "images/monsters/hobgoblin.jpg" },
+                { name: "Giant Spider", hp: 18, ac: 13, damage: "1d8", xp: 200, attackBonus: 5, damageType: "piercing", saveDC: 11, specialAbilities: [{ name: "Poison Bite", type: "poison", triggerChance: 0.3, damage: "2d8", damageType: "poison", dc: 11 }], description: "A horse-sized spider with venomous fangs!", image: "images/monsters/giant-spider.jpg" },
+                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A shambling undead animated by dark magic.", image: "images/monsters/zombie.jpg" },
+                { name: "Skeleton", hp: 13, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", immunities: ["poison"], vulnerabilities: ["bludgeoning"], description: "The animated bones of the dead, armed with rusty weapons.", image: "images/monsters/skeleton.jpg" }
             ],
             3: [
-                { name: "Gnoll", hp: 22, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "piercing", description: "A savage hyena-headed humanoid that cackles as it fights." },
-                { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, attackBonus: 4, damageType: "slashing", description: "A massive, hairy goblinoid that strikes from ambush." },
-                { name: "Ogre", hp: 32, ac: 11, damage: "2d8", xp: 450, attackBonus: 6, damageType: "bludgeoning", description: "A towering brute with a very small brain and very big club." },
-                { name: "Orc Chieftain", hp: 30, ac: 15, damage: "1d10", xp: 200, attackBonus: 5, damageType: "slashing", multiattack: 2, description: "The leader of an orc tribe, stronger than his followers." },
-                { name: "Acolyte of Chaos", hp: 20, ac: 12, damage: "1d8", xp: 150, attackBonus: 4, damageType: "necrotic", saveDC: 13, specialAbilities: [{ name: "Dark Bolt", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "necrotic", dc: 13 }], description: "A lesser priest of the evil temple with dark magic." }
+                { name: "Gnoll", hp: 22, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "piercing", description: "A savage hyena-headed humanoid that cackles as it fights.", image: "images/monsters/gnoll.jpg" },
+                { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, attackBonus: 4, damageType: "slashing", description: "A massive, hairy goblinoid that strikes from ambush.", image: "images/monsters/bugbear.jpg" },
+                { name: "Ogre", hp: 32, ac: 11, damage: "2d8", xp: 450, attackBonus: 6, damageType: "bludgeoning", description: "A towering brute with a very small brain and very big club.", image: "images/monsters/ogre.jpg" },
+                { name: "Orc Chieftain", hp: 30, ac: 15, damage: "1d10", xp: 200, attackBonus: 5, damageType: "slashing", multiattack: 2, description: "The leader of an orc tribe, stronger than his followers.", image: "images/monsters/orc-chieftain.jpg" },
+                { name: "Acolyte of Chaos", hp: 20, ac: 12, damage: "1d8", xp: 150, attackBonus: 4, damageType: "necrotic", saveDC: 13, specialAbilities: [{ name: "Dark Bolt", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "necrotic", dc: 13 }], description: "A lesser priest of the evil temple with dark magic.", image: "images/monsters/acolyte-of-chaos.jpg" }
             ],
             4: [
-                { name: "Minotaur", hp: 45, ac: 14, damage: "2d10", xp: 700, attackBonus: 6, damageType: "slashing", multiattack: 2, description: "A bull-headed monster that charges with its horns!", boss: true },
-                { name: "Owlbear", hp: 38, ac: 13, damage: "2d8", xp: 700, attackBonus: 7, damageType: "slashing", multiattack: 2, description: "A terrifying hybrid of owl and bear with a vicious beak." },
-                { name: "Troll", hp: 52, ac: 15, damage: "2d6", xp: 1800, attackBonus: 7, damageType: "slashing", multiattack: 3, vulnerabilities: ["fire", "acid"], specialAbilities: [{ name: "Regeneration", type: "heal", triggerChance: 0.5, healing: "1d10" }], description: "A regenerating horror. Fire and acid stop its healing!" },
-                { name: "Hobgoblin Captain", hp: 35, ac: 17, damage: "2d8", xp: 450, attackBonus: 4, damageType: "slashing", multiattack: 2, description: "A veteran hobgoblin leader in gleaming armor." }
+                { name: "Minotaur", hp: 45, ac: 14, damage: "2d10", xp: 700, attackBonus: 6, damageType: "slashing", multiattack: 2, description: "A bull-headed monster that charges with its horns!", boss: true, image: "images/monsters/minotaur.jpg" },
+                { name: "Owlbear", hp: 38, ac: 13, damage: "2d8", xp: 700, attackBonus: 7, damageType: "slashing", multiattack: 2, description: "A terrifying hybrid of owl and bear with a vicious beak.", image: "images/monsters/owlbear.jpg" },
+                { name: "Troll", hp: 52, ac: 15, damage: "2d6", xp: 1800, attackBonus: 7, damageType: "slashing", multiattack: 3, vulnerabilities: ["fire", "acid"], specialAbilities: [{ name: "Regeneration", type: "heal", triggerChance: 0.5, healing: "1d10" }], description: "A regenerating horror. Fire and acid stop its healing!", image: "images/monsters/troll.jpg" },
+                { name: "Hobgoblin Captain", hp: 35, ac: 17, damage: "2d8", xp: 450, attackBonus: 4, damageType: "slashing", multiattack: 2, description: "A veteran hobgoblin leader in gleaming armor.", image: "images/monsters/hobgoblin-captain.jpg" }
             ],
             5: [
-                { name: "High Priest of Chaos", hp: 55, ac: 14, damage: "2d10", xp: 1100, attackBonus: 5, damageType: "necrotic", multiattack: 2, saveDC: 15, specialAbilities: [{ name: "Unholy Blight", type: "poison", triggerChance: 0.3, damage: "3d6", damageType: "necrotic", dc: 15 }], description: "The leader of the evil cult, wielding dark divine magic!", boss: true, legendaryResistances: 1 },
-                { name: "Temple Guardian", hp: 40, ac: 18, damage: "2d8", xp: 700, attackBonus: 6, damageType: "slashing", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], description: "An undead warrior bound to protect the temple." },
-                { name: "Shadow Demon", hp: 38, ac: 13, damage: "2d6", xp: 1100, attackBonus: 5, damageType: "psychic", resistances: ["cold", "fire", "lightning"], immunities: ["poison"], vulnerabilities: ["radiant"], description: "A demon of pure darkness summoned by the priests." }
+                { name: "High Priest of Chaos", hp: 55, ac: 14, damage: "2d10", xp: 1100, attackBonus: 5, damageType: "necrotic", multiattack: 2, saveDC: 15, specialAbilities: [{ name: "Unholy Blight", type: "poison", triggerChance: 0.3, damage: "3d6", damageType: "necrotic", dc: 15 }], description: "The leader of the evil cult, wielding dark divine magic!", boss: true, legendaryResistances: 1, image: "images/monsters/high-priest-of-chaos.jpg" },
+                { name: "Temple Guardian", hp: 40, ac: 18, damage: "2d8", xp: 700, attackBonus: 6, damageType: "slashing", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], description: "An undead warrior bound to protect the temple.", image: "images/monsters/temple-guardian.jpg" },
+                { name: "Shadow Demon", hp: 38, ac: 13, damage: "2d6", xp: 1100, attackBonus: 5, damageType: "psychic", resistances: ["cold", "fire", "lightning"], immunities: ["poison"], vulnerabilities: ["radiant"], description: "A demon of pure darkness summoned by the priests.", image: "images/monsters/shadow-demon.jpg" }
             ]
         },
         events: {
@@ -1592,31 +1592,31 @@ const CAMPAIGNS = {
         ],
         monsters: {
             1: [
-                { name: "Goblin Scout", hp: 7, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "piercing", description: "A sneaky goblin with a crude shortbow." },
-                { name: "Wolf", hp: 11, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "piercing", description: "A grey wolf, common in the Karameikan wilderness." },
-                { name: "Bandit", hp: 11, ac: 12, damage: "1d6", xp: 25, attackBonus: 3, damageType: "slashing", description: "A desperate outlaw preying on travelers." }
+                { name: "Goblin Scout", hp: 7, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "piercing", description: "A sneaky goblin with a crude shortbow.", image: "images/monsters/goblin-scout.jpg" },
+                { name: "Wolf", hp: 11, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "piercing", description: "A grey wolf, common in the Karameikan wilderness.", image: "images/monsters/wolf.jpg" },
+                { name: "Bandit", hp: 11, ac: 12, damage: "1d6", xp: 25, attackBonus: 3, damageType: "slashing", description: "A desperate outlaw preying on travelers.", image: "images/monsters/bandit.jpg" }
             ],
             2: [
-                { name: "Goblin Wolf-Rider", hp: 12, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "slashing", description: "An elite goblin mounted on a dire wolf!" },
-                { name: "Goblin Warrior", hp: 15, ac: 15, damage: "1d8", xp: 75, attackBonus: 4, damageType: "slashing", description: "A well-armed goblin soldier of Xitaqa's army." },
-                { name: "Dire Wolf", hp: 22, ac: 13, damage: "2d6", xp: 100, attackBonus: 5, damageType: "piercing", description: "A massive wolf with glowing red eyes." },
-                { name: "Iron Ring Thug", hp: 18, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "bludgeoning", description: "A brutal enforcer for the Iron Ring slavers." }
+                { name: "Goblin Wolf-Rider", hp: 12, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "slashing", description: "An elite goblin mounted on a dire wolf!", image: "images/monsters/goblin-wolf-rider.jpg" },
+                { name: "Goblin Warrior", hp: 15, ac: 15, damage: "1d8", xp: 75, attackBonus: 4, damageType: "slashing", description: "A well-armed goblin soldier of Xitaqa's army.", image: "images/monsters/goblin-warrior.jpg" },
+                { name: "Dire Wolf", hp: 22, ac: 13, damage: "2d6", xp: 100, attackBonus: 5, damageType: "piercing", description: "A massive wolf with glowing red eyes.", image: "images/monsters/dire-wolf.jpg" },
+                { name: "Iron Ring Thug", hp: 18, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "bludgeoning", description: "A brutal enforcer for the Iron Ring slavers.", image: "images/monsters/iron-ring-thug.jpg" }
             ],
             3: [
-                { name: "Goblin Shaman", hp: 20, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "fire", saveDC: 13, specialAbilities: [{ name: "Dark Fire", type: "breath", triggerChance: 0.3, damage: "2d6", damageType: "fire", dc: 13 }], description: "A goblin witch-doctor wielding dark magic!" },
-                { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, attackBonus: 4, damageType: "slashing", description: "A massive, hairy goblinoid. Xitaqa's elite guard." },
-                { name: "Werewolf", hp: 35, ac: 12, damage: "2d6", xp: 450, attackBonus: 4, damageType: "slashing", multiattack: 2, description: "A cursed shapeshifter prowling the Dymrak." },
-                { name: "Iron Ring Assassin", hp: 25, ac: 15, damage: "2d6", xp: 250, attackBonus: 6, damageType: "piercing", multiattack: 2, specialAbilities: [{ name: "Poison Blade", type: "poison", triggerChance: 0.25, damage: "2d6", damageType: "poison", dc: 13 }], description: "A deadly killer in service of the Iron Ring." }
+                { name: "Goblin Shaman", hp: 20, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "fire", saveDC: 13, specialAbilities: [{ name: "Dark Fire", type: "breath", triggerChance: 0.3, damage: "2d6", damageType: "fire", dc: 13 }], description: "A goblin witch-doctor wielding dark magic!", image: "images/monsters/goblin-shaman.jpg" },
+                { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, attackBonus: 4, damageType: "slashing", description: "A massive, hairy goblinoid. Xitaqa's elite guard.", image: "images/monsters/bugbear.jpg" },
+                { name: "Werewolf", hp: 35, ac: 12, damage: "2d6", xp: 450, attackBonus: 4, damageType: "slashing", multiattack: 2, description: "A cursed shapeshifter prowling the Dymrak.", image: "images/monsters/werewolf.jpg" },
+                { name: "Iron Ring Assassin", hp: 25, ac: 15, damage: "2d6", xp: 250, attackBonus: 6, damageType: "piercing", multiattack: 2, specialAbilities: [{ name: "Poison Blade", type: "poison", triggerChance: 0.25, damage: "2d6", damageType: "poison", dc: 13 }], description: "A deadly killer in service of the Iron Ring.", image: "images/monsters/iron-ring-assassin.jpg" }
             ],
             4: [
-                { name: "King Xitaqa", hp: 45, ac: 16, damage: "2d8", xp: 700, attackBonus: 5, damageType: "slashing", multiattack: 2, description: "The cunning goblin king! He wears a crown of bones.", boss: true },
-                { name: "Xitaqa's Warg", hp: 30, ac: 14, damage: "2d6", xp: 200, attackBonus: 5, damageType: "piercing", description: "Xitaqa's personal mount - a massive black warg." },
-                { name: "Iron Ring Captain", hp: 40, ac: 16, damage: "2d8", xp: 450, attackBonus: 5, damageType: "slashing", multiattack: 2, description: "A high-ranking officer of the Iron Ring." }
+                { name: "King Xitaqa", hp: 45, ac: 16, damage: "2d8", xp: 700, attackBonus: 5, damageType: "slashing", multiattack: 2, description: "The cunning goblin king! He wears a crown of bones.", boss: true, image: "images/monsters/king-xitaqa.jpg" },
+                { name: "Xitaqa's Warg", hp: 30, ac: 14, damage: "2d6", xp: 200, attackBonus: 5, damageType: "piercing", description: "Xitaqa's personal mount - a massive black warg.", image: "images/monsters/xitaqas-warg.jpg" },
+                { name: "Iron Ring Captain", hp: 40, ac: 16, damage: "2d8", xp: 450, attackBonus: 5, damageType: "slashing", multiattack: 2, description: "A high-ranking officer of the Iron Ring.", image: "images/monsters/iron-ring-captain.jpg" }
             ],
             5: [
-                { name: "Golthar the Wizard", hp: 55, ac: 14, damage: "3d6", xp: 1100, attackBonus: 5, damageType: "fire", multiattack: 2, saveDC: 15, specialAbilities: [{ name: "Fireball", type: "breath", triggerChance: 0.3, damage: "3d6", damageType: "fire", dc: 15 }], description: "The Iron Ring's wizard! He crackles with dark energy.", boss: true, legendaryResistances: 1 },
-                { name: "Hutaakan Guardian", hp: 45, ac: 17, damage: "2d8", xp: 450, attackBonus: 6, damageType: "bludgeoning", immunities: ["poison", "psychic"], description: "An ancient construct guarding the temple." },
-                { name: "Shadow", hp: 30, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], vulnerabilities: ["radiant"], description: "A creature of pure darkness from the temple depths." }
+                { name: "Golthar the Wizard", hp: 55, ac: 14, damage: "3d6", xp: 1100, attackBonus: 5, damageType: "fire", multiattack: 2, saveDC: 15, specialAbilities: [{ name: "Fireball", type: "breath", triggerChance: 0.3, damage: "3d6", damageType: "fire", dc: 15 }], description: "The Iron Ring's wizard! He crackles with dark energy.", boss: true, legendaryResistances: 1, image: "images/monsters/golthar-the-wizard.jpg" },
+                { name: "Hutaakan Guardian", hp: 45, ac: 17, damage: "2d8", xp: 450, attackBonus: 6, damageType: "bludgeoning", immunities: ["poison", "psychic"], description: "An ancient construct guarding the temple.", image: "images/monsters/hutaakan-guardian.jpg" },
+                { name: "Shadow", hp: 30, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], vulnerabilities: ["radiant"], description: "A creature of pure darkness from the temple depths.", image: "images/monsters/shadow.jpg" }
             ]
         },
         events: {
@@ -1698,31 +1698,31 @@ const CAMPAIGNS = {
         ],
         monsters: {
             1: [
-                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A shambling corpse animated by dark magic." },
-                { name: "Swarm of Bats", hp: 10, ac: 12, damage: "1d6", xp: 25, attackBonus: 4, damageType: "piercing", description: "A cloud of chittering bats with glowing red eyes." },
-                { name: "Strahd Zombie", hp: 28, ac: 8, damage: "1d8", xp: 75, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A zombie enhanced by Strahd's dark power." }
+                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A shambling corpse animated by dark magic.", image: "images/monsters/zombie.jpg" },
+                { name: "Swarm of Bats", hp: 10, ac: 12, damage: "1d6", xp: 25, attackBonus: 4, damageType: "piercing", description: "A cloud of chittering bats with glowing red eyes.", image: "images/monsters/swarm-of-bats.jpg" },
+                { name: "Strahd Zombie", hp: 28, ac: 8, damage: "1d8", xp: 75, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A zombie enhanced by Strahd's dark power.", image: "images/monsters/strahd-zombie.jpg" }
             ],
             2: [
-                { name: "Ghoul", hp: 22, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "slashing", immunities: ["poison"], saveDC: 10, specialAbilities: [{ name: "Paralyzing Touch", type: "frighten", triggerChance: 0.3, dc: 10 }], description: "An undead creature that feeds on corpses. Its claws can paralyze!" },
-                { name: "Dire Wolf", hp: 37, ac: 14, damage: "2d6", xp: 200, attackBonus: 5, damageType: "piercing", description: "A massive wolf serving the dark powers of Barovia." },
-                { name: "Wight", hp: 45, ac: 14, damage: "1d8", xp: 700, attackBonus: 4, damageType: "slashing", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], specialAbilities: [{ name: "Life Drain", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "necrotic", dc: 13 }], description: "An undead warrior whose touch drains life force." },
-                { name: "Specter", hp: 22, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], description: "A vengeful spirit bound to the land of Barovia." }
+                { name: "Ghoul", hp: 22, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "slashing", immunities: ["poison"], saveDC: 10, specialAbilities: [{ name: "Paralyzing Touch", type: "frighten", triggerChance: 0.3, dc: 10 }], description: "An undead creature that feeds on corpses. Its claws can paralyze!", image: "images/monsters/ghoul.jpg" },
+                { name: "Dire Wolf", hp: 37, ac: 14, damage: "2d6", xp: 200, attackBonus: 5, damageType: "piercing", description: "A massive wolf serving the dark powers of Barovia.", image: "images/monsters/dire-wolf-barovia.jpg" },
+                { name: "Wight", hp: 45, ac: 14, damage: "1d8", xp: 700, attackBonus: 4, damageType: "slashing", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], specialAbilities: [{ name: "Life Drain", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "necrotic", dc: 13 }], description: "An undead warrior whose touch drains life force.", image: "images/monsters/wight.jpg" },
+                { name: "Specter", hp: 22, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], description: "A vengeful spirit bound to the land of Barovia.", image: "images/monsters/specter.jpg" }
             ],
             3: [
-                { name: "Vampire Spawn", hp: 52, ac: 15, damage: "2d8", xp: 1100, attackBonus: 6, damageType: "slashing", multiattack: 2, resistances: ["necrotic"], immunities: ["poison"], description: "A lesser vampire, bound to serve Strahd's will." },
-                { name: "Werewolf", hp: 58, ac: 12, damage: "2d6", xp: 700, attackBonus: 4, damageType: "slashing", multiattack: 2, description: "A cursed shapeshifter prowling the forests of Barovia." },
-                { name: "Revenant", hp: 75, ac: 13, damage: "2d6", xp: 1800, attackBonus: 6, damageType: "bludgeoning", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], description: "An undead knight sworn to destroy Strahd." },
-                { name: "Phantom Warrior", hp: 45, ac: 16, damage: "2d6", xp: 450, attackBonus: 5, damageType: "slashing", resistances: ["cold", "necrotic"], immunities: ["poison"], description: "A ghostly warrior from the Order of the Silver Dragon." }
+                { name: "Vampire Spawn", hp: 52, ac: 15, damage: "2d8", xp: 1100, attackBonus: 6, damageType: "slashing", multiattack: 2, resistances: ["necrotic"], immunities: ["poison"], description: "A lesser vampire, bound to serve Strahd's will.", image: "images/monsters/vampire-spawn.jpg" },
+                { name: "Werewolf", hp: 58, ac: 12, damage: "2d6", xp: 700, attackBonus: 4, damageType: "slashing", multiattack: 2, description: "A cursed shapeshifter prowling the forests of Barovia.", image: "images/monsters/werewolf-barovia.jpg" },
+                { name: "Revenant", hp: 75, ac: 13, damage: "2d6", xp: 1800, attackBonus: 6, damageType: "bludgeoning", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], description: "An undead knight sworn to destroy Strahd.", image: "images/monsters/revenant.jpg" },
+                { name: "Phantom Warrior", hp: 45, ac: 16, damage: "2d6", xp: 450, attackBonus: 5, damageType: "slashing", resistances: ["cold", "necrotic"], immunities: ["poison"], description: "A ghostly warrior from the Order of the Silver Dragon.", image: "images/monsters/phantom-warrior.jpg" }
             ],
             4: [
-                { name: "Baba Lysaga", hp: 75, ac: 15, damage: "3d6", xp: 2900, attackBonus: 6, damageType: "necrotic", multiattack: 2, saveDC: 16, specialAbilities: [{ name: "Finger of Death", type: "poison", triggerChance: 0.25, damage: "3d8", damageType: "necrotic", dc: 16 }], description: "The ancient witch of Berez who considers Strahd her son!", boss: true, legendaryResistances: 1 },
-                { name: "Rahadin", hp: 85, ac: 17, damage: "2d8", xp: 2900, attackBonus: 7, damageType: "slashing", multiattack: 3, specialAbilities: [{ name: "Deathly Choir", type: "frighten", triggerChance: 0.3, damage: "2d10", damageType: "psychic", dc: 14 }], description: "Strahd's loyal chamberlain, surrounded by the screams of those he killed.", boss: true, legendaryResistances: 1 },
-                { name: "Nightmare", hp: 68, ac: 13, damage: "2d8", xp: 700, attackBonus: 6, damageType: "fire", resistances: ["fire"], description: "A fiery steed from the lower planes." }
+                { name: "Baba Lysaga", hp: 75, ac: 15, damage: "3d6", xp: 2900, attackBonus: 6, damageType: "necrotic", multiattack: 2, saveDC: 16, specialAbilities: [{ name: "Finger of Death", type: "poison", triggerChance: 0.25, damage: "3d8", damageType: "necrotic", dc: 16 }], description: "The ancient witch of Berez who considers Strahd her son!", boss: true, legendaryResistances: 1, image: "images/monsters/baba-lysaga.jpg" },
+                { name: "Rahadin", hp: 85, ac: 17, damage: "2d8", xp: 2900, attackBonus: 7, damageType: "slashing", multiattack: 3, specialAbilities: [{ name: "Deathly Choir", type: "frighten", triggerChance: 0.3, damage: "2d10", damageType: "psychic", dc: 14 }], description: "Strahd's loyal chamberlain, surrounded by the screams of those he killed.", boss: true, legendaryResistances: 1, image: "images/monsters/rahadin.jpg" },
+                { name: "Nightmare", hp: 68, ac: 13, damage: "2d8", xp: 700, attackBonus: 6, damageType: "fire", resistances: ["fire"], description: "A fiery steed from the lower planes.", image: "images/monsters/nightmare.jpg" }
             ],
             5: [
-                { name: "Strahd von Zarovich", hp: 144, ac: 16, damage: "3d8", xp: 10000, attackBonus: 9, damageType: "slashing", multiattack: 3, resistances: ["necrotic"], immunities: ["poison"], vulnerabilities: ["radiant"], saveDC: 18, specialAbilities: [{ name: "Charm", type: "frighten", triggerChance: 0.3, dc: 17 }, { name: "Children of the Night", type: "summon", triggerChance: 0.2 }], description: "The ancient vampire lord of Barovia! He regenerates and controls the very land.", boss: true, legendaryResistances: 3 },
-                { name: "Amber Golem", hp: 95, ac: 17, damage: "3d6", xp: 2300, attackBonus: 8, damageType: "bludgeoning", multiattack: 2, immunities: ["poison", "psychic"], description: "A construct guarding the Amber Temple's darkest secrets." },
-                { name: "Death Knight", hp: 95, ac: 18, damage: "3d8", xp: 8400, attackBonus: 8, damageType: "slashing", multiattack: 3, immunities: ["poison"], resistances: ["necrotic"], specialAbilities: [{ name: "Hellfire Orb", type: "breath", triggerChance: 0.25, damage: "4d6", damageType: "fire", dc: 18 }], description: "A fallen paladin serving dark powers." }
+                { name: "Strahd von Zarovich", hp: 144, ac: 16, damage: "3d8", xp: 10000, attackBonus: 9, damageType: "slashing", multiattack: 3, resistances: ["necrotic"], immunities: ["poison"], vulnerabilities: ["radiant"], saveDC: 18, specialAbilities: [{ name: "Charm", type: "frighten", triggerChance: 0.3, dc: 17 }, { name: "Children of the Night", type: "summon", triggerChance: 0.2 }], description: "The ancient vampire lord of Barovia! He regenerates and controls the very land.", boss: true, legendaryResistances: 3, image: "images/monsters/strahd-von-zarovich.jpg" },
+                { name: "Amber Golem", hp: 95, ac: 17, damage: "3d6", xp: 2300, attackBonus: 8, damageType: "bludgeoning", multiattack: 2, immunities: ["poison", "psychic"], description: "A construct guarding the Amber Temple's darkest secrets.", image: "images/monsters/amber-golem.jpg" },
+                { name: "Death Knight", hp: 95, ac: 18, damage: "3d8", xp: 8400, attackBonus: 8, damageType: "slashing", multiattack: 3, immunities: ["poison"], resistances: ["necrotic"], specialAbilities: [{ name: "Hellfire Orb", type: "breath", triggerChance: 0.25, damage: "4d6", damageType: "fire", dc: 18 }], description: "A fallen paladin serving dark powers.", image: "images/monsters/death-knight.jpg" }
             ]
         },
         events: {
@@ -1804,32 +1804,32 @@ const CAMPAIGNS = {
         ],
         monsters: {
             1: [
-                { name: "Velociraptor", hp: 10, ac: 13, damage: "1d6", xp: 25, attackBonus: 4, damageType: "slashing", description: "A pack-hunting dinosaur with razor-sharp claws." },
-                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "One of Ras Nsi's endless undead soldiers." },
-                { name: "Grung", hp: 11, ac: 12, damage: "1d4", xp: 50, attackBonus: 4, damageType: "piercing", specialAbilities: [{ name: "Poisonous Skin", type: "poison", triggerChance: 0.3, damage: "1d6", damageType: "poison", dc: 12 }], description: "A poisonous frog-like humanoid native to Chult." }
+                { name: "Velociraptor", hp: 10, ac: 13, damage: "1d6", xp: 25, attackBonus: 4, damageType: "slashing", description: "A pack-hunting dinosaur with razor-sharp claws.", image: "images/monsters/velociraptor.jpg" },
+                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "One of Ras Nsi's endless undead soldiers.", image: "images/monsters/zombie.jpg" },
+                { name: "Grung", hp: 11, ac: 12, damage: "1d4", xp: 50, attackBonus: 4, damageType: "piercing", specialAbilities: [{ name: "Poisonous Skin", type: "poison", triggerChance: 0.3, damage: "1d6", damageType: "poison", dc: 12 }], description: "A poisonous frog-like humanoid native to Chult.", image: "images/monsters/grung.jpg" }
             ],
             2: [
-                { name: "Allosaurus", hp: 51, ac: 13, damage: "2d8", xp: 450, attackBonus: 6, damageType: "piercing", multiattack: 2, description: "A massive predatory dinosaur, the terror of the jungle." },
-                { name: "Ghoul", hp: 22, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "slashing", immunities: ["poison"], saveDC: 10, specialAbilities: [{ name: "Paralyzing Claws", type: "frighten", triggerChance: 0.3, dc: 10 }], description: "An undead creature with paralyzing claws." },
-                { name: "Su-monster", hp: 27, ac: 12, damage: "2d6", xp: 450, attackBonus: 4, damageType: "bludgeoning", saveDC: 11, specialAbilities: [{ name: "Psychic Crush", type: "frighten", triggerChance: 0.25, damage: "2d6", damageType: "psychic", dc: 11 }], description: "A psionic ape-like creature that hunts in packs." },
-                { name: "Pterafolk", hp: 26, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "slashing", description: "Cruel flying humanoids that raid from above." }
+                { name: "Allosaurus", hp: 51, ac: 13, damage: "2d8", xp: 450, attackBonus: 6, damageType: "piercing", multiattack: 2, description: "A massive predatory dinosaur, the terror of the jungle.", image: "images/monsters/allosaurus.jpg" },
+                { name: "Ghoul", hp: 22, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "slashing", immunities: ["poison"], saveDC: 10, specialAbilities: [{ name: "Paralyzing Claws", type: "frighten", triggerChance: 0.3, dc: 10 }], description: "An undead creature with paralyzing claws.", image: "images/monsters/ghoul.jpg" },
+                { name: "Su-monster", hp: 27, ac: 12, damage: "2d6", xp: 450, attackBonus: 4, damageType: "bludgeoning", saveDC: 11, specialAbilities: [{ name: "Psychic Crush", type: "frighten", triggerChance: 0.25, damage: "2d6", damageType: "psychic", dc: 11 }], description: "A psionic ape-like creature that hunts in packs.", image: "images/monsters/su-monster.jpg" },
+                { name: "Pterafolk", hp: 26, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "slashing", description: "Cruel flying humanoids that raid from above.", image: "images/monsters/pterafolk.jpg" }
             ],
             3: [
-                { name: "Tyrannosaurus Rex", hp: 136, ac: 13, damage: "3d12", xp: 3900, attackBonus: 10, damageType: "piercing", multiattack: 2, description: "The king of dinosaurs! Its massive jaws can swallow prey whole.", boss: true },
-                { name: "Yuan-ti Malison", hp: 66, ac: 12, damage: "2d8", xp: 700, attackBonus: 5, damageType: "piercing", immunities: ["poison"], saveDC: 13, specialAbilities: [{ name: "Suggestion", type: "frighten", triggerChance: 0.25, dc: 13 }], description: "A snake-human hybrid with dark magic." },
-                { name: "Girallon Zombie", hp: 59, ac: 11, damage: "2d8", xp: 450, attackBonus: 5, damageType: "slashing", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], description: "An undead four-armed ape, savage and relentless." },
-                { name: "Eblis", hp: 13, ac: 13, damage: "1d8", xp: 200, attackBonus: 3, damageType: "piercing", description: "Crane-like creatures that bargain for information." }
+                { name: "Tyrannosaurus Rex", hp: 136, ac: 13, damage: "3d12", xp: 3900, attackBonus: 10, damageType: "piercing", multiattack: 2, description: "The king of dinosaurs! Its massive jaws can swallow prey whole.", boss: true, image: "images/monsters/tyrannosaurus-rex.jpg" },
+                { name: "Yuan-ti Malison", hp: 66, ac: 12, damage: "2d8", xp: 700, attackBonus: 5, damageType: "piercing", immunities: ["poison"], saveDC: 13, specialAbilities: [{ name: "Suggestion", type: "frighten", triggerChance: 0.25, dc: 13 }], description: "A snake-human hybrid with dark magic.", image: "images/monsters/yuan-ti-malison.jpg" },
+                { name: "Girallon Zombie", hp: 59, ac: 11, damage: "2d8", xp: 450, attackBonus: 5, damageType: "slashing", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], description: "An undead four-armed ape, savage and relentless.", image: "images/monsters/girallon-zombie.jpg" },
+                { name: "Eblis", hp: 13, ac: 13, damage: "1d8", xp: 200, attackBonus: 3, damageType: "piercing", description: "Crane-like creatures that bargain for information.", image: "images/monsters/eblis.jpg" }
             ],
             4: [
-                { name: "Ras Nsi", hp: 127, ac: 15, damage: "3d6", xp: 5000, attackBonus: 9, damageType: "fire", multiattack: 3, immunities: ["poison"], saveDC: 16, specialAbilities: [{ name: "Flame Blade", type: "breath", triggerChance: 0.3, damage: "3d6", damageType: "fire", dc: 16 }], description: "The fallen paladin, now a yuan-ti abomination with a flaming sword!", boss: true, legendaryResistances: 2 },
-                { name: "Yuan-ti Abomination", hp: 127, ac: 15, damage: "2d10", xp: 2900, attackBonus: 7, damageType: "piercing", multiattack: 3, immunities: ["poison"], saveDC: 14, specialAbilities: [{ name: "Fear Aura", type: "frighten", triggerChance: 0.25, dc: 14 }], description: "The most powerful form of yuan-ti, more snake than human." },
-                { name: "Bodak", hp: 58, ac: 15, damage: "2d8", xp: 2300, attackBonus: 5, damageType: "necrotic", immunities: ["poison"], resistances: ["necrotic"], vulnerabilities: ["radiant"], saveDC: 13, specialAbilities: [{ name: "Death Gaze", type: "frighten", triggerChance: 0.3, damage: "3d6", damageType: "necrotic", dc: 13 }], description: "An undead whose gaze can kill." }
+                { name: "Ras Nsi", hp: 127, ac: 15, damage: "3d6", xp: 5000, attackBonus: 9, damageType: "fire", multiattack: 3, immunities: ["poison"], saveDC: 16, specialAbilities: [{ name: "Flame Blade", type: "breath", triggerChance: 0.3, damage: "3d6", damageType: "fire", dc: 16 }], description: "The fallen paladin, now a yuan-ti abomination with a flaming sword!", boss: true, legendaryResistances: 2, image: "images/monsters/ras-nsi.jpg" },
+                { name: "Yuan-ti Abomination", hp: 127, ac: 15, damage: "2d10", xp: 2900, attackBonus: 7, damageType: "piercing", multiattack: 3, immunities: ["poison"], saveDC: 14, specialAbilities: [{ name: "Fear Aura", type: "frighten", triggerChance: 0.25, dc: 14 }], description: "The most powerful form of yuan-ti, more snake than human.", image: "images/monsters/yuan-ti-abomination.jpg" },
+                { name: "Bodak", hp: 58, ac: 15, damage: "2d8", xp: 2300, attackBonus: 5, damageType: "necrotic", immunities: ["poison"], resistances: ["necrotic"], vulnerabilities: ["radiant"], saveDC: 13, specialAbilities: [{ name: "Death Gaze", type: "frighten", triggerChance: 0.3, damage: "3d6", damageType: "necrotic", dc: 13 }], description: "An undead whose gaze can kill.", image: "images/monsters/bodak.jpg" }
             ],
             5: [
-                { name: "Acererak", hp: 285, ac: 21, damage: "4d8", xp: 25000, attackBonus: 12, damageType: "necrotic", multiattack: 2, immunities: ["poison", "necrotic"], resistances: ["cold"], saveDC: 23, specialAbilities: [{ name: "Sphere of Annihilation", type: "breath", triggerChance: 0.3, damage: "4d10", damageType: "necrotic", dc: 22 }], description: "The legendary archlich! He toys with adventurers before destroying them.", boss: true, legendaryResistances: 3 },
-                { name: "Atropal", hp: 225, ac: 7, damage: "4d8", xp: 13000, attackBonus: 8, damageType: "necrotic", immunities: ["poison", "necrotic"], resistances: ["cold"], saveDC: 19, specialAbilities: [{ name: "Life Drain Aura", type: "poison", triggerChance: 0.4, damage: "3d8", damageType: "necrotic", dc: 19 }], description: "An undead godling, fed by the Soulmonger. Its wail can kill instantly!", boss: true, legendaryResistances: 2 },
-                { name: "Tomb Guardian", hp: 75, ac: 17, damage: "2d10", xp: 1800, attackBonus: 7, damageType: "bludgeoning", multiattack: 2, immunities: ["poison", "psychic"], description: "A construct defending the tomb's deepest levels." },
-                { name: "Soulmonger", hp: 200, ac: 15, damage: "3d10", xp: 8000, attackBonus: 8, damageType: "necrotic", immunities: ["poison", "psychic"], saveDC: 17, specialAbilities: [{ name: "Soul Drain", type: "poison", triggerChance: 0.3, damage: "3d10", damageType: "necrotic", dc: 17 }], description: "The source of the Death Curse! Destroy it to save countless souls.", boss: true, legendaryResistances: 1 }
+                { name: "Acererak", hp: 285, ac: 21, damage: "4d8", xp: 25000, attackBonus: 12, damageType: "necrotic", multiattack: 2, immunities: ["poison", "necrotic"], resistances: ["cold"], saveDC: 23, specialAbilities: [{ name: "Sphere of Annihilation", type: "breath", triggerChance: 0.3, damage: "4d10", damageType: "necrotic", dc: 22 }], description: "The legendary archlich! He toys with adventurers before destroying them.", boss: true, legendaryResistances: 3, image: "images/monsters/acererak.jpg" },
+                { name: "Atropal", hp: 225, ac: 7, damage: "4d8", xp: 13000, attackBonus: 8, damageType: "necrotic", immunities: ["poison", "necrotic"], resistances: ["cold"], saveDC: 19, specialAbilities: [{ name: "Life Drain Aura", type: "poison", triggerChance: 0.4, damage: "3d8", damageType: "necrotic", dc: 19 }], description: "An undead godling, fed by the Soulmonger. Its wail can kill instantly!", boss: true, legendaryResistances: 2, image: "images/monsters/atropal.jpg" },
+                { name: "Tomb Guardian", hp: 75, ac: 17, damage: "2d10", xp: 1800, attackBonus: 7, damageType: "bludgeoning", multiattack: 2, immunities: ["poison", "psychic"], description: "A construct defending the tomb's deepest levels.", image: "images/monsters/tomb-guardian.jpg" },
+                { name: "Soulmonger", hp: 200, ac: 15, damage: "3d10", xp: 8000, attackBonus: 8, damageType: "necrotic", immunities: ["poison", "psychic"], saveDC: 17, specialAbilities: [{ name: "Soul Drain", type: "poison", triggerChance: 0.3, damage: "3d10", damageType: "necrotic", dc: 17 }], description: "The source of the Death Curse! Destroy it to save countless souls.", boss: true, legendaryResistances: 1, image: "images/monsters/soulmonger.jpg" }
             ]
         },
         events: {
@@ -1912,34 +1912,34 @@ const CAMPAIGNS = {
         ],
         monsters: {
             1: [
-                { name: "Goblin", hp: 7, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", description: "A sneaky Cragmaw goblin with a shortbow and a nasty attitude." },
-                { name: "Wolf", hp: 11, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "piercing", description: "A grey wolf trained by the Cragmaw tribe to attack intruders." },
-                { name: "Redbrand Ruffian", hp: 12, ac: 12, damage: "1d6", xp: 50, attackBonus: 3, damageType: "slashing", description: "A common thug wearing a tattered red cloak." }
+                { name: "Goblin", hp: 7, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", description: "A sneaky Cragmaw goblin with a shortbow and a nasty attitude.", image: "images/monsters/goblin-cragmaw.jpg" },
+                { name: "Wolf", hp: 11, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "piercing", description: "A grey wolf trained by the Cragmaw tribe to attack intruders.", image: "images/monsters/wolf.jpg" },
+                { name: "Redbrand Ruffian", hp: 12, ac: 12, damage: "1d6", xp: 50, attackBonus: 3, damageType: "slashing", description: "A common thug wearing a tattered red cloak.", image: "images/monsters/redbrand-ruffian.jpg" }
             ],
             2: [
-                { name: "Hobgoblin", hp: 15, ac: 16, damage: "1d8", xp: 100, attackBonus: 3, damageType: "slashing", description: "A disciplined goblinoid warrior in chainmail." },
-                { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, attackBonus: 4, damageType: "slashing", description: "A massive, hairy goblinoid that excels at stealth ambushes." },
-                { name: "Skeleton", hp: 13, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", immunities: ["poison"], vulnerabilities: ["bludgeoning"], description: "The animated bones of a long-dead Phandelver warrior." },
-                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A shambling corpse from the ancient battle at Wave Echo Cave." },
-                { name: "Ochre Jelly", hp: 45, ac: 8, damage: "2d6", xp: 200, attackBonus: 4, damageType: "bludgeoning", immunities: ["lightning", "slashing"], description: "An acidic ooze that splits when struck by lightning or slashing weapons!" }
+                { name: "Hobgoblin", hp: 15, ac: 16, damage: "1d8", xp: 100, attackBonus: 3, damageType: "slashing", description: "A disciplined goblinoid warrior in chainmail.", image: "images/monsters/hobgoblin.jpg" },
+                { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, attackBonus: 4, damageType: "slashing", description: "A massive, hairy goblinoid that excels at stealth ambushes.", image: "images/monsters/bugbear.jpg" },
+                { name: "Skeleton", hp: 13, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", immunities: ["poison"], vulnerabilities: ["bludgeoning"], description: "The animated bones of a long-dead Phandelver warrior.", image: "images/monsters/skeleton.jpg" },
+                { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A shambling corpse from the ancient battle at Wave Echo Cave.", image: "images/monsters/zombie.jpg" },
+                { name: "Ochre Jelly", hp: 45, ac: 8, damage: "2d6", xp: 200, attackBonus: 4, damageType: "bludgeoning", immunities: ["lightning", "slashing"], description: "An acidic ooze that splits when struck by lightning or slashing weapons!", image: "images/monsters/ochre-jelly.jpg" }
             ],
             3: [
-                { name: "Glasstaff", hp: 32, ac: 12, damage: "2d8", xp: 700, attackBonus: 5, damageType: "fire", saveDC: 13, specialAbilities: [{ name: "Staff Blast", type: "breath", triggerChance: 0.3, damage: "2d6", damageType: "fire", dc: 13 }], description: "The wizard leader of the Redbrands, wielding his signature glass staff!", boss: true },
-                { name: "Nothic", hp: 45, ac: 15, damage: "2d6", xp: 450, attackBonus: 4, damageType: "slashing", saveDC: 12, specialAbilities: [{ name: "Rotting Gaze", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "necrotic", dc: 12 }], description: "A bizarre one-eyed aberration cursed by dark magic. It can see through lies!" },
-                { name: "Grick", hp: 27, ac: 14, damage: "2d6", xp: 450, attackBonus: 4, damageType: "slashing", description: "A worm-like predator with stone-hard skin and tentacles." },
-                { name: "Owlbear", hp: 59, ac: 13, damage: "2d8", xp: 700, attackBonus: 7, damageType: "slashing", multiattack: 2, description: "A ferocious hybrid creature with the temperament of a wounded bear." }
+                { name: "Glasstaff", hp: 32, ac: 12, damage: "2d8", xp: 700, attackBonus: 5, damageType: "fire", saveDC: 13, specialAbilities: [{ name: "Staff Blast", type: "breath", triggerChance: 0.3, damage: "2d6", damageType: "fire", dc: 13 }], description: "The wizard leader of the Redbrands, wielding his signature glass staff!", boss: true, image: "images/monsters/glasstaff.jpg" },
+                { name: "Nothic", hp: 45, ac: 15, damage: "2d6", xp: 450, attackBonus: 4, damageType: "slashing", saveDC: 12, specialAbilities: [{ name: "Rotting Gaze", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "necrotic", dc: 12 }], description: "A bizarre one-eyed aberration cursed by dark magic. It can see through lies!", image: "images/monsters/nothic.jpg" },
+                { name: "Grick", hp: 27, ac: 14, damage: "2d6", xp: 450, attackBonus: 4, damageType: "slashing", description: "A worm-like predator with stone-hard skin and tentacles.", image: "images/monsters/grick.jpg" },
+                { name: "Owlbear", hp: 59, ac: 13, damage: "2d8", xp: 700, attackBonus: 7, damageType: "slashing", multiattack: 2, description: "A ferocious hybrid creature with the temperament of a wounded bear.", image: "images/monsters/owlbear-phandelver.jpg" }
             ],
             4: [
-                { name: "King Grol", hp: 45, ac: 16, damage: "2d8", xp: 700, attackBonus: 5, damageType: "bludgeoning", multiattack: 2, description: "The brutish bugbear king of Cragmaw Castle. His morningstar has crushed many skulls!", boss: true },
-                { name: "Doppelganger", hp: 52, ac: 14, damage: "1d8", xp: 700, attackBonus: 6, damageType: "bludgeoning", description: "A shapeshifter working for the Black Spider. Who can you trust?" },
-                { name: "Flameskull", hp: 40, ac: 13, damage: "3d6", xp: 1100, attackBonus: 5, damageType: "fire", immunities: ["poison", "cold"], resistances: ["necrotic"], specialAbilities: [{ name: "Fireball", type: "breath", triggerChance: 0.3, damage: "3d6", damageType: "fire", dc: 13 }], description: "A floating skull wreathed in green flames! It guards the Forge of Spells with deadly magic.", boss: true },
-                { name: "Wraith", hp: 67, ac: 13, damage: "3d8", xp: 1800, attackBonus: 6, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], specialAbilities: [{ name: "Life Drain", type: "poison", triggerChance: 0.35, damage: "3d6", damageType: "necrotic", dc: 14 }], description: "A powerful undead spirit whose touch drains life and creates specters!" }
+                { name: "King Grol", hp: 45, ac: 16, damage: "2d8", xp: 700, attackBonus: 5, damageType: "bludgeoning", multiattack: 2, description: "The brutish bugbear king of Cragmaw Castle. His morningstar has crushed many skulls!", boss: true, image: "images/monsters/king-grol.jpg" },
+                { name: "Doppelganger", hp: 52, ac: 14, damage: "1d8", xp: 700, attackBonus: 6, damageType: "bludgeoning", description: "A shapeshifter working for the Black Spider. Who can you trust?", image: "images/monsters/doppelganger.jpg" },
+                { name: "Flameskull", hp: 40, ac: 13, damage: "3d6", xp: 1100, attackBonus: 5, damageType: "fire", immunities: ["poison", "cold"], resistances: ["necrotic"], specialAbilities: [{ name: "Fireball", type: "breath", triggerChance: 0.3, damage: "3d6", damageType: "fire", dc: 13 }], description: "A floating skull wreathed in green flames! It guards the Forge of Spells with deadly magic.", boss: true, image: "images/monsters/flameskull.jpg" },
+                { name: "Wraith", hp: 67, ac: 13, damage: "3d8", xp: 1800, attackBonus: 6, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], specialAbilities: [{ name: "Life Drain", type: "poison", triggerChance: 0.35, damage: "3d6", damageType: "necrotic", dc: 14 }], description: "A powerful undead spirit whose touch drains life and creates specters!", image: "images/monsters/wraith.jpg" }
             ],
             5: [
-                { name: "Nezznar the Black Spider", hp: 55, ac: 14, damage: "3d6", xp: 2000, attackBonus: 6, damageType: "poison", multiattack: 2, saveDC: 14, specialAbilities: [{ name: "Darkness", type: "frighten", triggerChance: 0.25, dc: 14 }, { name: "Spider Staff Venom", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "poison", dc: 14 }], description: "The drow mastermind behind everything! His spider staff channels dark magic!", boss: true, legendaryResistances: 2 },
-                { name: "Giant Spider", hp: 26, ac: 14, damage: "1d8", xp: 200, attackBonus: 5, damageType: "piercing", saveDC: 11, specialAbilities: [{ name: "Poison Bite", type: "poison", triggerChance: 0.3, damage: "2d8", damageType: "poison", dc: 11 }], description: "One of the Black Spider's loyal pets. Its venom can paralyze!" },
-                { name: "Drow", hp: 13, ac: 15, damage: "1d6", xp: 100, attackBonus: 4, damageType: "slashing", description: "A dark elf warrior serving Nezznar. Sunlight hurts their eyes." },
-                { name: "Spectator", hp: 39, ac: 14, damage: "1d8", xp: 700, attackBonus: 5, damageType: "fire", specialAbilities: [{ name: "Eye Ray", type: "breath", triggerChance: 0.35, damage: "2d8", damageType: "fire", dc: 13 }], description: "A beholder-kin with four eyestalks guarding the Forge of Spells." }
+                { name: "Nezznar the Black Spider", hp: 55, ac: 14, damage: "3d6", xp: 2000, attackBonus: 6, damageType: "poison", multiattack: 2, saveDC: 14, specialAbilities: [{ name: "Darkness", type: "frighten", triggerChance: 0.25, dc: 14 }, { name: "Spider Staff Venom", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "poison", dc: 14 }], description: "The drow mastermind behind everything! His spider staff channels dark magic!", boss: true, legendaryResistances: 2, image: "images/monsters/nezznar-black-spider.jpg" },
+                { name: "Giant Spider", hp: 26, ac: 14, damage: "1d8", xp: 200, attackBonus: 5, damageType: "piercing", saveDC: 11, specialAbilities: [{ name: "Poison Bite", type: "poison", triggerChance: 0.3, damage: "2d8", damageType: "poison", dc: 11 }], description: "One of the Black Spider's loyal pets. Its venom can paralyze!", image: "images/monsters/giant-spider-minion.jpg" },
+                { name: "Drow", hp: 13, ac: 15, damage: "1d6", xp: 100, attackBonus: 4, damageType: "slashing", description: "A dark elf warrior serving Nezznar. Sunlight hurts their eyes.", image: "images/monsters/drow.jpg" },
+                { name: "Spectator", hp: 39, ac: 14, damage: "1d8", xp: 700, attackBonus: 5, damageType: "fire", specialAbilities: [{ name: "Eye Ray", type: "breath", triggerChance: 0.35, damage: "2d8", damageType: "fire", dc: 13 }], description: "A beholder-kin with four eyestalks guarding the Forge of Spells.", image: "images/monsters/spectator.jpg" }
             ]
         },
         events: {
@@ -6269,6 +6269,7 @@ class Game {
         this.dm = new DungeonMaster(this.character, this.selectedCampaign);
         
         // Switch to game screen
+        document.getElementById("titleScreen").classList.add("hidden");
         document.getElementById("creationScreen").classList.add("hidden");
         document.getElementById("gameScreen").classList.remove("hidden");
         document.getElementById("characterPanel").classList.remove("hidden");
@@ -6667,7 +6668,10 @@ class Game {
         }
         
         gameLog.appendChild(entry);
-        gameLog.scrollTop = gameLog.scrollHeight;
+        // Ensure scroll happens after the DOM has rendered the new entry
+        requestAnimationFrame(() => {
+            gameLog.scrollTop = gameLog.scrollHeight;
+        });
         
         // Add visual effects based on message content
         if (type === "danger" || type === "combat") {
@@ -7477,6 +7481,17 @@ class Game {
         document.getElementById("enemyDescription").textContent = monster.description || "A dangerous foe!";
         document.getElementById("enemyHp").textContent = monster.hp;
         document.getElementById("enemyAc").textContent = monster.ac;
+        
+        // Show enemy image if available
+        const imageContainer = document.getElementById("enemyImageContainer");
+        const imageElement = document.getElementById("enemyImage");
+        if (monster.image) {
+            imageElement.src = monster.image;
+            imageElement.alt = monster.name;
+            imageContainer.style.display = "block";
+        } else {
+            imageContainer.style.display = "none";
+        }
         
         // Show/hide spell button based on whether character is a spellcaster
         const spellBtn = document.getElementById("spellCombatBtn");
@@ -9938,6 +9953,11 @@ class Game {
         }
         
         mapContent.innerHTML = mapHtml;
+        
+        // Auto-scroll map to the bottom like the story window
+        requestAnimationFrame(() => {
+            mapContainer.scrollTop = mapContainer.scrollHeight;
+        });
     }
     
     quickTravel(locationIndex) {
@@ -13663,6 +13683,7 @@ class Game {
             this.dm.questFlags = saveData.questFlags || this.dm.questFlags;
             
             // Switch to game screen
+            document.getElementById("titleScreen").classList.add("hidden");
             document.getElementById("campaignSelectScreen").classList.add("hidden");
             document.getElementById("creationScreen").classList.add("hidden");
             document.getElementById("gameScreen").classList.remove("hidden");
