@@ -3935,7 +3935,6 @@ class DungeonMaster {
                 enteredXitaqasLair: false,
                 rescuedTaras: false,
                 defeatedXitaqa: false,
-                foundIronRing: false,
                 foundLostValley: false,
                 defeatedGolthar: false,
                 goblinsKilled: 0,
@@ -3956,6 +3955,7 @@ class DungeonMaster {
                 foundTome: false,
                 foundAlly: false,
                 defeatedStrahd: false,
+                clearedDeathHouse: false,
                 undeadKilled: 0,
                 villagersRescued: 0
             };
@@ -3984,7 +3984,6 @@ class DungeonMaster {
                 foundCaves: false,
                 enteredKobolds: false,
                 enteredGoblins: false,
-                enteredOrcs: false,
                 outerCavesKills: 0,
                 outerCavesCleared: false,
                 enteredBugbears: false,
@@ -3992,7 +3991,7 @@ class DungeonMaster {
                 innerCavesKills: 0,
                 innerCavesCleared: false,
                 defeatedMinotaur: false,
-                foundTemple: false,
+                enteredTemple: false,
                 defeatedHighPriest: false
             };
         } else if (campaignId === "lost_mine_of_phandelver") {
@@ -4012,6 +4011,7 @@ class DungeonMaster {
                 enteredWaveEchoCave: false,
                 foundForgeOfSpells: false,
                 defeatedBlackSpider: false,
+                defeatedFlameskull: false,
                 goblinsKilled: 0,
                 townsfolkHelped: 0
             };
@@ -9862,16 +9862,6 @@ class Game {
                     }
                 }
             }
-        } else if (this.dm.campaignId === "keep_on_borderlands") {
-            const monsterNameLower = monster.name.toLowerCase();
-            if (monsterNameLower.includes("kobold") || monsterNameLower.includes("goblin") || monsterNameLower.includes("orc")) {
-                if (!this.dm.questFlags.outerMonstersKilled) this.dm.questFlags.outerMonstersKilled = 0;
-                this.dm.questFlags.outerMonstersKilled++;
-            }
-            if (monsterNameLower.includes("bugbear") || monsterNameLower.includes("gnoll") || monsterNameLower.includes("hobgoblin")) {
-                if (!this.dm.questFlags.innerMonstersKilled) this.dm.questFlags.innerMonstersKilled = 0;
-                this.dm.questFlags.innerMonstersKilled++;
-            }
         } else if (this.dm.campaignId === "curse_of_strahd") {
             const undeadNames = ["zombie", "ghoul", "wight", "specter", "vampire", "skeleton"];
             if (undeadNames.some(name => monster.name.toLowerCase().includes(name))) {
@@ -9904,6 +9894,9 @@ class Game {
                 }
             }
         }
+        
+        // Refresh the chapter hint (e.g. kill counters like "2/5 goblins defeated")
+        this.updateChapterDisplay();
         
         // Check for boss defeat
         this.checkBossDefeat(monster);
@@ -13471,7 +13464,8 @@ class Game {
                 this.startCombat(atropal);
             }
             
-            // Acererak - final boss (after Soulmonger)
+            // Acererak - final boss (now triggered immediately after Atropal defeat in defeatAtropal event)
+            // Re-travel fallback: if player somehow left before Acererak fight, trigger it here
             if (location.name === "Tomb - Cradle of the Death God" && flags.destroyedSoulmonger && !flags.defeatedAcererak) {
                 this.log("Acererak materializes, fury in his empty eye sockets. 'You have destroyed my masterpiece. Now you will suffer for eternity!'", "danger");
                 const acererak = { ...this.dm.campaign.monsters[5].find(m => m.name === "Acererak") };
@@ -13508,7 +13502,7 @@ class Game {
             }
             
             // Chapter 3: Enter Kobold Caves - kobold warriors defend their lair
-            if (location.name === "Kobold Caves" && !flags.clearedKobolds) {
+            if (location.name === "Kobold Caves" && !flags.enteredKobolds) {
                 this.log("Kobold warriors screech and charge from the cave mouth, crude weapons raised in defense of their tunnels!", "danger");
                 this.dm.pendingStoryEvent = "enterKoboldCaves";
                 const kobold = { ...this.dm.campaign.monsters[1].find(m => m.name === "Kobold") };
@@ -13517,7 +13511,7 @@ class Game {
             }
             
             // Chapter 3: Enter Goblin Caves - goblin ambush
-            if (location.name === "Goblin Caves" && !flags.clearedGoblins) {
+            if (location.name === "Goblin Caves" && !flags.enteredGoblins) {
                 this.log("Goblins drop from concealed ledges above the cave entrance! Arrows fly as they spring their ambush!", "danger");
                 this.dm.pendingStoryEvent = "enterGoblinCaves";
                 const goblin = { ...this.dm.campaign.monsters[1].find(m => m.name === "Goblin") };
@@ -15104,6 +15098,12 @@ class Game {
                 this.log("📜 <strong>The Death Curse is BROKEN!</strong>", "loot");
                 this.log("But the tomb shakes... Someone is very angry...", "danger");
                 this.updateUI();
+                // Immediately trigger Acererak fight (no re-travel needed)
+                setTimeout(() => {
+                    this.log("Acererak materializes, fury in his empty eye sockets. 'You have destroyed my masterpiece. Now you will suffer for eternity!'", "danger");
+                    const acererak = { ...this.dm.campaign.monsters[5].find(m => m.name === "Acererak") };
+                    this.startCombat(acererak);
+                }, 2000);
                 break;
             
             case "defeatAcererak":
@@ -15467,10 +15467,13 @@ class Game {
                 break;
             
             case "defeatFlameskull":
-                this.grantExperience(500);
-                this.log("💀 <strong>THE FLAMESKULL IS DESTROYED!</strong>", "success");
-                this.log(`The flaming skull shatters! Its green fire dissipates, revealing a hidden passage deeper into the mine.`, "dm");
-                this.updateUI();
+                if (!this.dm.questFlags.defeatedFlameskull) {
+                    this.dm.questFlags.defeatedFlameskull = true;
+                    this.grantExperience(500);
+                    this.log("💀 <strong>THE FLAMESKULL IS DESTROYED!</strong>", "success");
+                    this.log(`The flaming skull shatters! Its green fire dissipates, revealing a hidden passage deeper into the mine.`, "dm");
+                    this.updateUI();
+                }
                 break;
             
             case "defeatBlackSpider":
