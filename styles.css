@@ -779,15 +779,6 @@ button:disabled:hover {
 
 /* ==================== RESPONSIVE DESIGN ==================== */
 @media (max-width: 1024px) {
-    .container {
-        grid-template-columns: 1fr;
-    }
-    
-    .character-panel {
-        position: relative;
-        top: 0;
-    }
-    
     .landing-logo {
         font-size: 3rem;
     }

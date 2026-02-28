@@ -1,6 +1,37 @@
 // D&D 5e Web-Based Game Engine
 
 // ==================== GAME SETTINGS ====================
+
+// Official D&D 5e XP thresholds — cumulative XP needed to reach each level
+// Index = level you're advancing TO (e.g., XP_THRESHOLDS[2] = 300 means you need 300 XP to reach level 2)
+const XP_THRESHOLDS = {
+    2: 300,
+    3: 900,
+    4: 2700,
+    5: 6500,
+    6: 14000,
+    7: 23000,
+    8: 34000,
+    9: 48000,
+    10: 64000,
+    11: 85000,
+    12: 100000,
+    13: 120000,
+    14: 140000,
+    15: 165000,
+    16: 195000,
+    17: 225000,
+    18: 265000,
+    19: 305000,
+    20: 355000
+};
+
+function getXpThreshold(level) {
+    // Returns cumulative XP needed to advance from 'level' to 'level + 1'
+    // At level 20 (max), return Infinity
+    return XP_THRESHOLDS[level + 1] || Infinity;
+}
+
 const SOUND_ENABLED = true;
 const SOUND_VOLUME = 0.5;
 const MUSIC_VOLUME = 0.3;
@@ -1917,6 +1948,7 @@ const CAMPAIGNS = {
                 { name: "Redbrand Ruffian", hp: 12, ac: 12, damage: "1d6", xp: 50, attackBonus: 3, damageType: "slashing", description: "A common thug wearing a tattered red cloak.", image: "images/monsters/redbrand-ruffian.jpg" }
             ],
             2: [
+                { name: "Redbrand Guard", hp: 16, ac: 13, damage: "1d8", xp: 75, attackBonus: 4, damageType: "slashing", description: "A veteran Redbrand thug guarding the hideout with a longsword.", image: "images/monsters/redbrand-ruffian.jpg" },
                 { name: "Hobgoblin", hp: 15, ac: 16, damage: "1d8", xp: 100, attackBonus: 3, damageType: "slashing", description: "A disciplined goblinoid warrior in chainmail.", image: "images/monsters/hobgoblin.jpg" },
                 { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, attackBonus: 4, damageType: "slashing", description: "A massive, hairy goblinoid that excels at stealth ambushes.", image: "images/monsters/bugbear.jpg" },
                 { name: "Skeleton", hp: 13, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", immunities: ["poison"], vulnerabilities: ["bludgeoning"], description: "The animated bones of a long-dead Phandelver warrior.", image: "images/monsters/skeleton.jpg" },
@@ -5513,7 +5545,7 @@ class Game {
     completeSideQuest(quest) {
         quest.completed = true;
         this.character.gold += quest.reward.gold;
-        this.character.experience += quest.reward.xp;
+        this.grantExperience(quest.reward.xp);
         this.stats.goldEarned += quest.reward.gold;
         
         soundManager.playAchievement();
@@ -6374,11 +6406,11 @@ class Game {
         document.getElementById("maxHp").textContent = this.character.maxHp;
         
         // Update XP bar
-        const xpNeeded = this.character.level * 300;
+        const xpNeeded = getXpThreshold(this.character.level);
         const xpPercent = (this.character.experience / xpNeeded) * 100;
         document.getElementById("xpBar").style.width = Math.min(xpPercent, 100) + "%";
         document.getElementById("currentXp").textContent = this.character.experience;
-        document.getElementById("nextLevelXp").textContent = xpNeeded;
+        document.getElementById("nextLevelXp").textContent = xpNeeded === Infinity ? 'MAX' : xpNeeded;
         
         // Update stats
         const statsGrid = document.getElementById("statsGrid");
@@ -6845,7 +6877,7 @@ class Game {
                             const check = this.dm.skillCheck("int", 12);
                             if (check.success) {
                                 this.log("The text reveals ancient knowledge! +50 XP", "success");
-                                char.experience += 50;
+                                this.grantExperience(50);
                                 this.character.addJournalEntry('lore', { title: "Ancient Text", text: "Scholarly findings of historical significance." });
                             } else {
                                 this.log("The text is too damaged to decipher.", "dm");
@@ -7164,7 +7196,12 @@ class Game {
                     this.log("🏃 You leap back just in time as the trap springs harmlessly!", "success");
                     break;
                 case "info":
-                    this.log("💡 You learn valuable information about what lies ahead.", "success");
+                    const infoXp = Math.floor(Math.random() * 10) + 10;
+                    const infoTipGold = Math.floor(Math.random() * 8) + 3;
+                    char.experience += infoXp;
+                    char.gold += infoTipGold;
+                    this.log(`💡 You learn valuable information about what lies ahead. (+${infoXp} XP, +${infoTipGold} gold)`, "loot");
+                    if (char.experience >= getXpThreshold(char.level)) this.levelUp();
                     break;
                 case "knowledge":
                     this.log("📚 Your knowledge reveals this is an ancient warning - treasure may be nearby!", "success");
@@ -7197,7 +7234,12 @@ class Game {
                     this.log(`🗣️ The merchant shares useful information and gives you ${infoGold} gold for your kindness.`, "loot");
                     break;
                 case "secret_info":
-                    this.log("👁️ You notice they're watching the Iron Ring warehouse. Valuable intel!", "success");
+                    const intelXp = Math.floor(Math.random() * 15) + 15;
+                    const intelGold = Math.floor(Math.random() * 12) + 8;
+                    char.experience += intelXp;
+                    char.gold += intelGold;
+                    this.log(`👁️ You notice they're watching the Iron Ring warehouse. Valuable intel! (+${intelXp} XP, +${intelGold} gold)`, "loot");
+                    if (char.experience >= getXpThreshold(char.level)) this.levelUp();
                     break;
                 case "gambling_win":
                     const winnings = Math.floor(Math.random() * 20) + 15;
@@ -7216,7 +7258,16 @@ class Game {
                     soundManager.playGold();
                     break;
                 case "quest_info":
-                    this.log("🗣️ A contact reveals important quest information!", "success");
+                    const questXp = Math.floor(Math.random() * 20) + 20;
+                    const questGold = Math.floor(Math.random() * 15) + 10;
+                    char.experience += questXp;
+                    char.gold += questGold;
+                    this.log(`🗣️ A contact reveals important quest information! (+${questXp} XP, +${questGold} gold)`, "loot");
+                    if (Math.random() < 0.35) {
+                        char.inventory.push("Healing Potion");
+                        this.log("🧴 They also slip you a healing potion for the road.", "loot");
+                    }
+                    if (char.experience >= getXpThreshold(char.level)) this.levelUp();
                     break;
                 default:
                     this.log("✓ Your skill serves you well!", "success");
@@ -7477,6 +7528,7 @@ class Game {
         const init = this.dm.rollInitiative(monsterDexMod);
         
         document.getElementById("combatPanel").classList.remove("hidden");
+        document.getElementById("gameScreen").classList.add("in-combat");
         document.getElementById("enemyName").textContent = monster.name;
         document.getElementById("enemyDescription").textContent = monster.description || "A dangerous foe!";
         document.getElementById("enemyHp").textContent = monster.hp;
@@ -7973,6 +8025,34 @@ class Game {
                 } else {
                     this.log(`🐺 ${companion.name}'s attack misses!`, "combat");
                 }
+                // Monster may retaliate against the wolf (25% chance)
+                if (Math.random() < 0.25 && monster.hp > 0 && companion.hp > 0) {
+                    this.monsterAttacksBeastCompanion(monster, companion);
+                }
+                this.updateCombatPartyDisplay();
+            }
+            
+            // Battle Smith: Steel Defender attacks
+            if (char.subclass === 'BattleSmith' && char.subclassFeatures.companion && char.subclassFeatures.companion.hp > 0 && monster.hp > 0) {
+                const defender = char.subclassFeatures.companion;
+                const defenderAttackMod = char.getModifier("int") + char.getProficiencyBonus();
+                const defenderAttack = await this.dm.rollAttackAnimated(defenderAttackMod, false, false);
+                if (defenderAttack.isCrit) {
+                    const defDmg = this.dm.rollDice(defender.damage) + this.dm.rollDice(defender.damage);
+                    this.applyDamageToMonster(monster, defDmg, "force");
+                    this.log(`⚙️ ${defender.name} scores a CRITICAL strike for ${defDmg} force damage!`, "success");
+                } else if (defenderAttack.total >= monster.ac) {
+                    const defDmg = this.dm.rollDice(defender.damage);
+                    this.applyDamageToMonster(monster, defDmg, "force");
+                    this.log(`⚙️ ${defender.name} strikes for ${defDmg} force damage!`, "combat");
+                } else {
+                    this.log(`⚙️ ${defender.name}'s attack misses!`, "combat");
+                }
+                // Monster may retaliate against the defender (25% chance)
+                if (Math.random() < 0.25 && monster.hp > 0 && defender.hp > 0) {
+                    this.monsterAttacksBeastCompanion(monster, defender);
+                }
+                this.updateCombatPartyDisplay();
             }
             
             this.dm.defendingThisTurn = false;
@@ -8135,7 +8215,9 @@ class Game {
     }
     
     companionTakesDamage(companion, monster) {
-        const monsterAttack = Math.floor(Math.random() * 20) + 1 + 2; // +2 is basic attack bonus
+        if (companion.currentHp <= 0) return; // Already down
+        const attackBonus = monster.attackBonus || 3;
+        const monsterAttack = Math.floor(Math.random() * 20) + 1 + attackBonus;
         
         if (monsterAttack >= companion.ac) {
             const damage = this.dm.rollDice(monster.damage);
@@ -8256,31 +8338,37 @@ class Game {
         }
         
         // Decide target: player or companion?
-        // 40% chance to target a companion if there are conscious companions
+        // Build list of all possible companion targets (party NPCs + Beast Master wolf/Steel Defender)
         const activeCompanions = (this.dm.party || []).filter(c => c.currentHp > 0);
-        const targetCompanion = activeCompanions.length > 0 && Math.random() < 0.4;
-        
-        if (targetCompanion) {
-            // Monster attacks a random companion
-            const companion = activeCompanions[Math.floor(Math.random() * activeCompanions.length)];
-            this.monsterAttacksCompanion(monster, companion);
-            this.dm.resetActions();
-            this.updateCombatPartyDisplay();
-            this.updateUI();
-            return;
-        }
+        const beastComp = ((char.subclass === 'BeastMaster' || char.subclass === 'BattleSmith') && char.subclassFeatures.companion && char.subclassFeatures.companion.hp > 0) ? char.subclassFeatures.companion : null;
+        const hasCompanionTargets = activeCompanions.length > 0 || beastComp;
         
         // Determine number of attacks (multiattack)
         const numAttacks = monster.multiattack || 1;
         
+        if (numAttacks > 1) {
+            this.log(`⚔️ The ${monster.name} uses Multiattack! (${numAttacks} attacks)`, "combat");
+        }
+        
         for (let attackNum = 0; attackNum < numAttacks; attackNum++) {
-            if (char.hp <= 0 && char.deathSaves.failures >= 3) break; // Already dead
+            if (char.hp <= 0 && char.deathSaves.failures >= 3) break; // Player already dead
             
-            if (numAttacks > 1 && attackNum === 0) {
-                this.log(`⚔️ The ${monster.name} uses Multiattack! (${numAttacks} attacks)`, "combat");
+            // Each attack picks its own target: 45% chance per attack to go after a companion
+            const attackCompanion = hasCompanionTargets && Math.random() < 0.45;
+            
+            if (attackCompanion) {
+                const targets = [...activeCompanions];
+                if (beastComp) targets.push({ _isBeastMasterWolf: true });
+                const target = targets[Math.floor(Math.random() * targets.length)];
+                
+                if (target._isBeastMasterWolf) {
+                    this.monsterAttacksBeastCompanion(monster, char.subclassFeatures.companion);
+                } else {
+                    this.monsterAttacksCompanion(monster, target);
+                }
+            } else {
+                this.monsterSingleAttack(monster, char, attackNum > 0);
             }
-            
-            this.monsterSingleAttack(monster, char, attackNum > 0);
         }
         
         // Clear prone after being attacked (you can stand up)
@@ -8467,7 +8555,7 @@ class Game {
         
         switch (ability.type) {
             case "breath":
-                // Breath weapon (dragon-type): DEX save for half damage
+                // Breath weapon (dragon-type): DEX save for half damage — hits all allies too
                 const breathDmg = this.dm.rollDice(ability.damage);
                 const saveDC = ability.dc || this.getMonsterSaveDC(monster);
                 const dexSave = this.dm.rollDice("1d20") + char.getModifier("dex");
@@ -8479,6 +8567,8 @@ class Game {
                     this.log(`🔥 ${monster.name} uses ${abilityName}! (DEX save ${dexSave} vs DC ${saveDC}) — ${breathDmg} ${ability.damageType || 'fire'} damage!`, "danger");
                     this.applyMonsterDamageToPlayer(char, breathDmg);
                 }
+                // AoE hits companions too
+                this.applyAoEToCompanions(monster, abilityName, breathDmg, ability.damageType || 'fire', saveDC, 'dex');
                 break;
                 
             case "frighten":
@@ -8491,10 +8581,15 @@ class Game {
                 } else {
                     this.log(`💪 ${monster.name} uses ${abilityName}! (WIS save ${wisSave} vs DC ${frightDC}) You resist the fear!`, "success");
                 }
+                // Frighten abilities with damage also hit companions
+                if (ability.damage) {
+                    const frightAoeDmg = this.dm.rollDice(ability.damage);
+                    this.applyAoEToCompanions(monster, abilityName, frightAoeDmg, ability.damageType || 'psychic', frightDC, 'wis');
+                }
                 break;
                 
             case "poison":
-                // Poison attack: CON save or take poison damage + poisoned condition
+                // Poison attack: CON save or take poison damage + poisoned condition — hits companions too
                 const conSave = this.dm.rollDice("1d20") + char.getModifier("con");
                 const poisonDC = ability.dc || this.getMonsterSaveDC(monster);
                 const poisonDmg = this.dm.rollDice(ability.damage || "2d6");
@@ -8507,6 +8602,7 @@ class Game {
                     this.log(`💪 ${monster.name} uses ${abilityName}! (CON save ${conSave} vs DC ${poisonDC}) You resist! ${halfPoison} poison damage.`, "success");
                     this.applyMonsterDamageToPlayer(char, halfPoison);
                 }
+                this.applyAoEToCompanions(monster, abilityName, poisonDmg, 'poison', poisonDC, 'con');
                 break;
                 
             case "heal":
@@ -8540,9 +8636,81 @@ class Game {
         }
     }
 
-    monsterAttacksCompanion(monster, companion) {
+    applyAoEToCompanions(monster, abilityName, baseDmg, dmgType, dc, saveType) {
+        // AoE abilities hit all companions — each makes a save for half damage
+        const char = this.character;
+        
+        // Hit NPC party companions
+        for (const comp of (this.dm.party || [])) {
+            if (comp.currentHp <= 0) continue;
+            const saveRoll = Math.floor(Math.random() * 20) + 1 + 2; // companions get +2 save bonus
+            const dmg = saveRoll >= dc ? Math.floor(baseDmg / 2) : baseDmg;
+            comp.currentHp -= dmg;
+            if (comp.currentHp <= 0) {
+                comp.currentHp = 0;
+                this.log(`💔 ${comp.name} is hit by ${abilityName} for ${dmg} ${dmgType} damage and falls unconscious!`, "danger");
+            } else {
+                this.log(`💥 ${comp.name} takes ${dmg} ${dmgType} damage from ${abilityName}!${saveRoll >= dc ? ' (saved)' : ''}`, "danger");
+            }
+        }
+        
+        // Hit Beast Master wolf / Steel Defender
+        if ((char.subclass === 'BeastMaster' || char.subclass === 'BattleSmith') && char.subclassFeatures.companion && char.subclassFeatures.companion.hp > 0) {
+            const wolf = char.subclassFeatures.companion;
+            const icon = wolf.type === 'construct' ? '⚙️' : '🐺';
+            const wSave = Math.floor(Math.random() * 20) + 1 + 2;
+            const wDmg = wSave >= dc ? Math.floor(baseDmg / 2) : baseDmg;
+            wolf.hp -= wDmg;
+            if (wolf.hp <= 0) {
+                wolf.hp = 0;
+                this.log(`💔 ${icon} ${wolf.name} is hit by ${abilityName} for ${wDmg} ${dmgType} damage and goes down!`, "danger");
+            } else {
+                this.log(`💥 ${icon} ${wolf.name} takes ${wDmg} ${dmgType} damage from ${abilityName}!${wSave >= dc ? ' (saved)' : ''}`, "danger");
+            }
+        }
+        
+        this.updateCombatPartyDisplay();
+    }
+
+    monsterAttacksBeastCompanion(monster, wolf) {
+        // Monster attacks the Beast Master's wolf / Battle Smith's Steel Defender
         const monsterAttack = Math.floor(Math.random() * 20) + 1;
-        const attackBonus = Math.floor((monster.ac - 10) / 4) + 2; // Estimate attack bonus
+        const attackBonus = this.getMonsterAttackBonus(monster);
+        const totalAttack = monsterAttack + attackBonus;
+        const isConstruct = wolf.type === 'construct';
+        const icon = isConstruct ? '⚙️' : '🐺';
+        
+        const isCrit = monsterAttack === 20;
+        const isFumble = monsterAttack === 1;
+        
+        if (isFumble) {
+            this.log(`${icon} The ${monster.name} lunges at ${wolf.name} but misses wildly!`, "success");
+            soundManager.playMiss();
+        } else if (isCrit || totalAttack >= wolf.ac) {
+            let damage = this.dm.rollDice(monster.damage);
+            if (isCrit) {
+                damage *= 2;
+                this.log(`💀 CRITICAL! The ${monster.name} ${isConstruct ? 'smashes' : 'savages'} ${wolf.name} for ${damage} damage!`, "danger");
+            } else {
+                this.log(`💥 The ${monster.name} attacks ${wolf.name} for ${damage} damage!`, "danger");
+            }
+            soundManager.playHit();
+            
+            wolf.hp -= damage;
+            if (wolf.hp <= 0) {
+                wolf.hp = 0;
+                this.log(`💔 ${wolf.name} ${isConstruct ? 'powers down' : 'collapses'}! Your companion is out of action!`, "danger");
+            }
+        } else {
+            soundManager.playMiss();
+            this.log(`${icon} ${wolf.name} ${isConstruct ? 'deflects' : 'dodges'} the ${monster.name}'s attack!`, "dm");
+        }
+    }
+    
+    monsterAttacksCompanion(monster, companion) {
+        if (companion.currentHp <= 0) return; // Already down
+        const monsterAttack = Math.floor(Math.random() * 20) + 1;
+        const attackBonus = monster.attackBonus || 3; // Use actual monster attack bonus
         const totalAttack = monsterAttack + attackBonus;
         
         const isCrit = monsterAttack === 20;
@@ -8577,26 +8745,31 @@ class Game {
         // Update party status display during combat
         let partyDisplay = document.getElementById("combatPartyStatus");
         
-        if (!this.dm.party || this.dm.party.length === 0) {
+        // Check for Beast Master wolf OR Battle Smith defender companion
+        const char = this.character;
+        const beastCompanion = (char && (char.subclass === 'BeastMaster' || char.subclass === 'BattleSmith') && char.subclassFeatures.companion) ? char.subclassFeatures.companion : null;
+        const hasParty = (this.dm.party && this.dm.party.length > 0) || beastCompanion;
+        
+        if (!hasParty) {
             if (partyDisplay) partyDisplay.remove();
             return;
         }
         
         // Create display if it doesn't exist
         if (!partyDisplay) {
-            const combatPanel = document.getElementById("combatPanel");
-            if (!combatPanel) return;
+            const combatPanelInner = document.querySelector("#combatPanel .combat-panel-inner");
+            if (!combatPanelInner) return;
             
             partyDisplay = document.createElement("div");
             partyDisplay.id = "combatPartyStatus";
             partyDisplay.className = "combat-party-status";
             
-            // Insert after enemy info
-            const enemyInfo = combatPanel.querySelector(".enemy-info") || combatPanel.firstChild;
-            if (enemyInfo && enemyInfo.nextSibling) {
-                combatPanel.insertBefore(partyDisplay, enemyInfo.nextSibling);
+            // Insert after enemy stats
+            const enemyStats = combatPanelInner.querySelector(".enemy-stats");
+            if (enemyStats && enemyStats.nextSibling) {
+                combatPanelInner.insertBefore(partyDisplay, enemyStats.nextSibling);
             } else {
-                combatPanel.appendChild(partyDisplay);
+                combatPanelInner.appendChild(partyDisplay);
             }
         }
         
@@ -8604,7 +8777,26 @@ class Game {
         let html = '<div class="party-combat-header">👥 Party Status</div>';
         html += '<div class="party-combat-list">';
         
-        for (const companion of this.dm.party) {
+        // Show Beast Master wolf / Battle Smith defender first
+        if (beastCompanion) {
+            const icon = beastCompanion.type === 'construct' ? '⚙️' : '🐺';
+            const wolfHpPercent = Math.max(0, (beastCompanion.hp / beastCompanion.maxHp) * 100);
+            const wolfStatus = beastCompanion.hp <= 0 ? 'unconscious' : 
+                              beastCompanion.hp <= beastCompanion.maxHp / 4 ? 'critical' :
+                              beastCompanion.hp <= beastCompanion.maxHp / 2 ? 'wounded' : 'healthy';
+            html += `
+                <div class="party-combat-member ${wolfStatus}">
+                    <span class="pcm-name">${icon} ${beastCompanion.name}</span>
+                    <div class="pcm-hp-bar">
+                        <div class="pcm-hp-fill ${wolfStatus}" style="width: ${wolfHpPercent}%"></div>
+                    </div>
+                    <span class="pcm-hp-text">${beastCompanion.hp}/${beastCompanion.maxHp}</span>
+                </div>
+            `;
+        }
+        
+        // Show NPC party companions
+        for (const companion of (this.dm.party || [])) {
             const hpPercent = Math.max(0, (companion.currentHp / companion.maxHp) * 100);
             const status = companion.currentHp <= 0 ? 'unconscious' : 
                           companion.currentHp <= companion.maxHp / 4 ? 'critical' :
@@ -9134,6 +9326,7 @@ class Game {
         this.dm.inCombat = false;
         this.dm.currentEnemy = null;
         document.getElementById("combatPanel").classList.add("hidden");
+        document.getElementById("gameScreen").classList.remove("in-combat");
         
         // Clear dice animation overlay
         diceAnimator.hide();
@@ -9723,7 +9916,7 @@ class Game {
         }
         
         // Level up check
-        if (char.experience >= char.level * 300) {
+        if (char.experience >= getXpThreshold(char.level)) {
             this.levelUp();
         }
         
@@ -9840,7 +10033,7 @@ class Game {
             if (this.dm.questFlags.innerCavesCleared === undefined) this.dm.questFlags.innerCavesCleared = false;
             
             // Track outer caves kills (Chapter 3) - ANY monster counts
-            if (this.dm.currentChapter === 3 && !this.dm.questFlags.outerCavesCleared) {
+            if (this.dm.currentChapter <= 3 && !this.dm.questFlags.outerCavesCleared) {
                 this.dm.questFlags.outerCavesKills++;
                 const kills = this.dm.questFlags.outerCavesKills;
                 const needed = 10;
@@ -9853,7 +10046,7 @@ class Game {
                 this.updateChapterDisplay();
             }
             // Track inner caves kills (Chapter 4) - ANY monster counts
-            if (this.dm.currentChapter === 4 && !this.dm.questFlags.innerCavesCleared) {
+            if (this.dm.currentChapter >= 4 && !this.dm.questFlags.innerCavesCleared) {
                 this.dm.questFlags.innerCavesKills++;
                 const kills = this.dm.questFlags.innerCavesKills;
                 const needed = 8;
@@ -10314,6 +10507,13 @@ class Game {
         
     }
 
+    grantExperience(amount) {
+        this.character.experience += amount;
+        if (this.character.experience >= getXpThreshold(this.character.level)) {
+            this.levelUp();
+        }
+    }
+
     showHpLevelUpChoice(dieRoll, averageHp, conMod, hitDie) {
         const char = this.character;
         const rollTotal = Math.max(1, dieRoll + conMod);
@@ -10638,6 +10838,13 @@ class Game {
             title: `Reached Level ${char.level}`, 
             text: `Grew stronger on Day ${this.dm.day}. Proficiency bonus: +${profBonus}.` 
         });
+
+        // Check for additional level-ups (handles multi-level XP jumps)
+        if (char.experience >= getXpThreshold(char.level)) {
+            this.levelUp();
+        }
+
+        this.updateUI();
     }
 
     showSubclassSelection() {
@@ -10931,6 +11138,7 @@ class Game {
                         ac: 13
                     };
                     this.log(`🐺 A loyal wolf joins you as your animal companion! (HP: ${companionHp})`, "success");
+                    this.character.addJournalEntry('npc', { name: 'Wolf Companion', notes: 'Your loyal beast companion. Fights alongside you in battle. Gained through the Beast Master archetype.' });
                 }
                 break;
 
@@ -10958,6 +11166,28 @@ class Game {
 
             case 'Necromancy':
                 // Grim Harvest: tracked in handleDamageSpell
+                break;
+
+            case 'BattleSmith':
+                if (level === 3) {
+                    const defenderHp = 2 + char.getModifier('int') + (5 * char.level);
+                    char.subclassFeatures.companion = {
+                        name: "Steel Defender",
+                        hp: defenderHp,
+                        maxHp: defenderHp,
+                        damage: "1d8+2",
+                        ac: 15,
+                        type: "construct"
+                    };
+                    this.log(`⚙️ A Steel Defender whirs to life beside you! (HP: ${defenderHp}, AC: 15)`, "success");
+                    this.character.addJournalEntry('npc', { name: 'Steel Defender', notes: 'Your crafted construct companion. Fights alongside you in battle. Created through the Battle Smith specialization.' });
+                } else if (level === 15) {
+                    // Improved Defender: +2 AC
+                    if (char.subclassFeatures.companion) {
+                        char.subclassFeatures.companion.ac += 2;
+                        this.log(`⚙️ Your Steel Defender is improved! AC now ${char.subclassFeatures.companion.ac}.`, "success");
+                    }
+                }
                 break;
         }
     }
@@ -11649,16 +11879,32 @@ class Game {
     }
     
     renderJournalNPCs() {
-        const npcs = this.character.journal.npcs;
+        const npcs = [...this.character.journal.npcs];
+        
+        // Ensure subclass companion appears in NPC list even for old saves
+        const char = this.character;
+        if ((char.subclass === 'BeastMaster' || char.subclass === 'BattleSmith') && char.subclassFeatures.companion) {
+            const comp = char.subclassFeatures.companion;
+            if (!npcs.find(n => n.name === comp.name)) {
+                const icon = comp.type === 'construct' ? '⚙️' : '🐺';
+                const desc = comp.type === 'construct' 
+                    ? 'Your crafted construct companion. Created through the Battle Smith specialization.'
+                    : 'Your loyal beast companion. Gained through the Beast Master archetype.';
+                npcs.unshift({ name: comp.name, notes: `${desc} HP: ${comp.hp}/${comp.maxHp} | AC: ${comp.ac}` });
+            }
+        }
+        
         if (npcs.length === 0) {
             return '<p style="color: #888;">No NPCs recorded yet.</p>';
         }
-        return npcs.map(n => `
+        return npcs.map(n => {
+            const icon = (n.name === 'Wolf Companion') ? '🐺' : (n.name === 'Steel Defender') ? '⚙️' : '👤';
+            return `
             <div class="journal-entry">
-                <div class="journal-title">👤 ${n.name}</div>
+                <div class="journal-title">${icon} ${n.name}</div>
                 <div class="journal-text">${n.notes || n.role || ''}</div>
             </div>
-        `).join('');
+        `}).join('');
     }
     
     renderJournalLore() {
@@ -12005,16 +12251,55 @@ class Game {
         const partyStatus = this.dm.getPartyStatus();
         const availableCompanions = this.getAvailableCompanions();
         
+        // Check for subclass companion (Beast Master wolf, Steel Defender)
+        const char = this.character;
+        const subComp = ((char.subclass === 'BeastMaster' || char.subclass === 'BattleSmith') && char.subclassFeatures.companion) ? char.subclassFeatures.companion : null;
+        
         // Check if player has healing items
         const hasHealingPotion = this.character.inventory.includes("Potion of Healing");
         const hasGreaterHealing = this.character.inventory.includes("Potion of Greater Healing");
+        
+        // Build subclass companion HTML
+        let subCompHtml = '';
+        if (subComp) {
+            const icon = subComp.type === 'construct' ? '⚙️' : '🐺';
+            const subType = subComp.type === 'construct' ? 'Construct' : 'Beast';
+            const hpPercent = Math.max(0, (subComp.hp / subComp.maxHp) * 100);
+            const hpClass = subComp.hp <= 0 ? 'critical' : subComp.hp <= subComp.maxHp / 4 ? 'critical' : subComp.hp <= subComp.maxHp / 2 ? 'wounded' : 'healthy';
+            const status = subComp.hp <= 0 ? 'Unconscious' : subComp.hp <= subComp.maxHp / 4 ? 'Badly Wounded' : subComp.hp <= subComp.maxHp / 2 ? 'Wounded' : 'Healthy';
+            const needsHealing = subComp.hp < subComp.maxHp;
+            subCompHtml = `
+                <div class="party-member ${subComp.hp <= 0 ? 'unconscious' : ''}">
+                    <div class="member-info">
+                        <span class="member-name">${icon} ${subComp.name}</span>
+                        <span class="member-class">${subType} Companion - ${status}</span>
+                    </div>
+                    <div class="member-stats">
+                        <div class="companion-hp-bar-container">
+                            <div class="companion-hp-bar ${hpClass}" style="width: ${hpPercent}%"></div>
+                            <span class="companion-hp-text">HP: ${subComp.hp}/${subComp.maxHp}</span>
+                        </div>
+                        <span>AC: ${subComp.ac} | DMG: ${subComp.damage}</span>
+                    </div>
+                    <div class="member-actions">
+                        ${needsHealing ? `
+                            ${hasHealingPotion ? `<button class="heal-btn" onclick="game.healSubclassCompanion('Potion of Healing')">\ud83e\uddf4 Heal (2d4+2)</button>` : ''}
+                            ${hasGreaterHealing ? `<button class="heal-btn" onclick="game.healSubclassCompanion('Potion of Greater Healing')">\ud83e\uddf4 Greater (4d4+4)</button>` : ''}
+                            ${!hasHealingPotion && !hasGreaterHealing ? '<span class="no-heals">No healing potions</span>' : ''}
+                        ` : '<span class="full-hp">\u2713 Full HP</span>'}
+                    </div>
+                </div>
+            `;
+        }
+        
+        const totalParty = this.dm.party.length + 1 + (subComp ? 1 : 0);
         
         modal.innerHTML = `
             <div class="modal-content" style="max-width: 650px;">
                 <h2>👥 Party Management</h2>
                 
                 <div class="party-section">
-                    <h3>⚔️ Current Party (${this.dm.party.length + 1}/${this.dm.maxPartySize})</h3>
+                    <h3>⚔️ Current Party (${totalParty}/${this.dm.maxPartySize})</h3>
                     <div class="party-member leader">
                         <div class="member-info">
                             <span class="member-name">👑 ${this.character.name} (You)</span>
@@ -12024,6 +12309,7 @@ class Game {
                             HP: ${this.character.hp}/${this.character.maxHp}
                         </div>
                     </div>
+                    ${subCompHtml}
                     ${partyStatus.map(c => {
                         const needsHealing = c.hp < c.maxHp;
                         const hpPercent = (c.hp / c.maxHp) * 100;
@@ -12119,6 +12405,48 @@ class Game {
         soundManager.playHeal();
         
         // Refresh UI
+        this.closePartyPanel();
+        this.openPartyPanel();
+        this.updateCombatPartyDisplay();
+        this.updateUI();
+    }
+    
+    healSubclassCompanion(potionType) {
+        // Heal Beast Master wolf / Steel Defender with a potion
+        const char = this.character;
+        const comp = char.subclassFeatures.companion;
+        if (!comp) {
+            this.log("You don't have a companion!", "danger");
+            return;
+        }
+        
+        const potionIndex = char.inventory.indexOf(potionType);
+        if (potionIndex === -1) {
+            this.log(`You don't have a ${potionType}!`, "danger");
+            return;
+        }
+        
+        let healing = 0;
+        if (potionType === "Potion of Healing") {
+            healing = this.dm.rollDice("2d4") + 2;
+        } else if (potionType === "Potion of Greater Healing") {
+            healing = this.dm.rollDice("4d4") + 4;
+        }
+        
+        const oldHp = comp.hp;
+        comp.hp = Math.min(comp.maxHp, comp.hp + healing);
+        const actualHealing = comp.hp - oldHp;
+        
+        char.inventory.splice(potionIndex, 1);
+        
+        const icon = comp.type === 'construct' ? '⚙️' : '🐺';
+        if (oldHp <= 0 && comp.hp > 0) {
+            this.log(`${icon} You revive ${comp.name} with a ${potionType}! They regain ${actualHealing} HP!`, "success");
+        } else {
+            this.log(`${icon} You give ${comp.name} a ${potionType}. They recover ${actualHealing} HP! (${comp.hp}/${comp.maxHp})`, "success");
+        }
+        
+        soundManager.playHeal();
         this.closePartyPanel();
         this.openPartyPanel();
         this.updateCombatPartyDisplay();
@@ -12966,8 +13294,8 @@ class Game {
         // Story triggers based on location
         this.checkStoryTriggers(newLocation);
         
-        // Random encounter while traveling
-        if (Math.random() < 0.35 && newLocation.danger > 0) {
+        // Random encounter while traveling (skip if story trigger already started combat)
+        if (!this.dm.inCombat && Math.random() < 0.35 && newLocation.danger > 0) {
             this.log("You encounter enemies!", "danger");
             const tier = Math.min(newLocation.danger, 3);
             const monsters = this.dm.campaign.monsters[tier];
@@ -13204,6 +13532,24 @@ class Game {
                 const hobgoblin = { ...this.dm.campaign.monsters[2].find(m => m.name === "Hobgoblin") };
                 hobgoblin.name = "Hobgoblin Patrol Leader";
                 this.startCombat(hobgoblin);
+            }
+
+            // Chapter 4: Bugbear Caves - bugbear ambush
+            if (location.name === "Bugbear Caves" && !flags.enteredBugbears) {
+                this.log("A massive bugbear drops from a ledge above the entrance! 'Tiny thing comes to die!'", "danger");
+                this.dm.pendingStoryEvent = "enterBugbearCaves";
+                const bugbear = { ...this.dm.campaign.monsters[3].find(m => m.name === "Bugbear") };
+                bugbear.name = "Bugbear Sentry";
+                this.startCombat(bugbear);
+            }
+
+            // Chapter 4: Gnoll Caves - gnoll pack attack
+            if (location.name === "Gnoll Caves" && !flags.enteredGnolls) {
+                this.log("Cackling gnolls charge from the cave mouth, brandishing spears and axes! Their hyena companions howl!", "danger");
+                this.dm.pendingStoryEvent = "enterGnollCaves";
+                const gnoll = { ...this.dm.campaign.monsters[3].find(m => m.name === "Gnoll") };
+                gnoll.name = "Gnoll Pack Leader";
+                this.startCombat(gnoll);
             }
             
             // Chapter 4: Minotaur boss
@@ -13625,6 +13971,22 @@ class Game {
                 }
             }
         }
+        
+        // Heal Beast Master wolf / Battle Smith defender on long rest
+        if ((char.subclass === 'BeastMaster' || char.subclass === 'BattleSmith') && char.subclassFeatures.companion) {
+            const wolf = char.subclassFeatures.companion;
+            // Update max HP based on current level
+            if (char.subclass === 'BeastMaster') {
+                wolf.maxHp = 4 * char.level;
+            } else {
+                wolf.maxHp = 2 + char.getModifier('int') + (5 * char.level);
+            }
+            if (wolf.hp < wolf.maxHp) {
+                wolf.hp = wolf.maxHp;
+                const icon = wolf.type === 'construct' ? '⚙️' : '🐺';
+                this.log(`${icon} ${wolf.name} is fully rested and restored! (${wolf.hp}/${wolf.maxHp} HP)`, "success");
+            }
+        }
 
         // Advance time if not already done
         if (showTime) {
@@ -13665,6 +14027,7 @@ class Game {
             turn: this.dm.turn,
             currentChapter: this.dm.currentChapter,
             questFlags: this.dm.questFlags,
+            party: this.dm.party || [],
             saveTime: Date.now()
         };
         localStorage.setItem(saveKey, JSON.stringify(saveData));
@@ -13681,6 +14044,7 @@ class Game {
             this.dm.turn = saveData.turn;
             this.dm.currentChapter = saveData.currentChapter || 0;
             this.dm.questFlags = saveData.questFlags || this.dm.questFlags;
+            this.dm.party = saveData.party || [];
             
             // Switch to game screen
             document.getElementById("titleScreen").classList.add("hidden");
@@ -14386,7 +14750,7 @@ class Game {
                 this.dm.questFlags.survivedSiege = true;
                 this.dm.currentChapter = 2;
                 this.character.gold += 25;
-                this.character.experience += 200;
+                this.grantExperience(200);
                 this.log("🎉 <strong>SIEGE BROKEN!</strong> The goblins retreat into the forest!", "success");
                 this.log(`Pyotr Sukiskyn clasps your hand: <em>"You saved us, friend. But my brother Taras... they took him during the attack! Please, you must rescue him!"</em>`, "dm");
                 this.log("📜 <strong>CHAPTER 2: THE KIDNAPPING</strong>", "danger");
@@ -14408,7 +14772,7 @@ class Game {
             case "rescueTaras":
                 this.dm.questFlags.rescuedTaras = true;
                 this.dm.questFlags.prisonersRescued++;
-                this.character.experience += 300;
+                this.grantExperience(300);
                 this.log("⛓️ You free Taras from his chains!", "success");
                 this.log(`<em>"Thank the Immortals! The goblins spoke of the Iron Ring - slavers who paid them to capture prisoners. Their leader, a wizard called Golthar, seeks something in the mountains..."</em>`, "dm");
                 this.log("📜 <strong>CLUE:</strong> The Iron Ring is behind the goblin attacks!", "loot");
@@ -14418,7 +14782,7 @@ class Game {
             case "defeatXitaqa":
                 this.dm.questFlags.defeatedXitaqa = true;
                 this.dm.currentChapter = 4;
-                this.character.experience += 500;
+                this.grantExperience(500);
                 this.character.gold += 100;
                 this.log("👑 <strong>KING XITAQA IS DEFEATED!</strong>", "success");
                 this.log(`Among his possessions, you find letters from the Iron Ring, detailing their operations in Threshold and a 'Lost Valley' in the mountains.`, "dm");
@@ -14441,7 +14805,7 @@ class Game {
             case "defeatGolthar":
                 this.dm.questFlags.defeatedGolthar = true;
                 this.dm.currentChapter = 6;
-                this.character.experience += 1000;
+                this.grantExperience(1000);
                 this.character.gold += 500;
                 this.log("💀 <strong>GOLTHAR IS DEFEATED!</strong>", "success");
                 this.log(`The wizard's dark magic dissipates. The Iron Ring's plot is foiled!`, "dm");
@@ -14485,7 +14849,7 @@ class Game {
             case "meetIsmark":
                 this.dm.questFlags.metIsmark = true;
                 this.dm.currentChapter = 1;
-                this.character.experience += 100;
+                this.grantExperience(100);
                 
                 // Add NPC to journal
                 this.character.addJournalEntry('npc', { 
@@ -14522,7 +14886,7 @@ class Game {
                 
             case "meetIreena":
                 this.dm.questFlags.metIreena = true;
-                this.character.experience += 100;
+                this.grantExperience(100);
                 
                 // Add NPC to journal
                 this.character.addJournalEntry('npc', { 
@@ -14539,7 +14903,7 @@ class Game {
             case "visitMadamEva":
                 this.dm.questFlags.visitedMadamEva = true;
                 this.dm.currentChapter = 2;
-                this.character.experience += 200;
+                this.grantExperience(200);
                 
                 // Add NPC to journal
                 this.character.addJournalEntry('npc', { 
@@ -14558,7 +14922,7 @@ class Game {
             case "reachVallaki":
                 this.dm.questFlags.reachedVallaki = true;
                 this.dm.currentChapter = 3;
-                this.character.experience += 200;
+                this.grantExperience(200);
                 this.log("🏰 <strong>CHAPTER 3: THE TOWN OF VALLAKI</strong>", "danger");
                 this.log(`Vallaki's walls offer some protection from the horrors outside. The Baron insists that 'All Will Be Well' and holds weekly festivals to prove it. But darkness festers beneath the cheerful facade.`, "dm");
                 this.log("📜 <strong>OBJECTIVE:</strong> Investigate the troubles in Vallaki!", "loot");
@@ -14568,7 +14932,7 @@ class Game {
             case "findVanRichten":
                 this.dm.questFlags.foundVanRichten = true;
                 this.dm.currentChapter = 4;
-                this.character.experience += 300;
+                this.grantExperience(300);
                 this.log("🗼 <strong>CHAPTER 4: THE WIZARD'S TOWER</strong>", "danger");
                 this.log(`You discover the hidden tower of Rudolph van Richten, the legendary vampire hunter. He has spent decades preparing to destroy Strahd.`, "dm");
                 this.log(`<em>"You seek to challenge the Devil? Then you will need allies and artifacts of great power. The Amber Temple holds dark secrets..."</em>`, "dm");
@@ -14580,7 +14944,7 @@ class Game {
             case "reachAmberTemple":
                 this.dm.questFlags.reachedAmberTemple = true;
                 this.dm.currentChapter = 5;
-                this.character.experience += 500;
+                this.grantExperience(500);
                 this.log("💎 <strong>CHAPTER 5: THE AMBER TEMPLE</strong>", "danger");
                 this.log(`High in the frozen mountains, you find the Amber Temple - an ancient prison for dark vestiges. Here, Strahd first made his pact with the powers of darkness.`, "dm");
                 this.log(`The vestiges whisper offers of forbidden power... Will you resist their temptation?`, "dm");
@@ -14591,7 +14955,7 @@ class Game {
             case "enterRavenloft":
                 this.dm.questFlags.enteredRavenloft = true;
                 this.dm.currentChapter = 6;
-                this.character.experience += 500;
+                this.grantExperience(500);
                 this.log("🏰 <strong>CHAPTER 6: CASTLE RAVENLOFT</strong>", "danger");
                 this.log(`The gates of Castle Ravenloft creak open as if expecting you. Lightning illuminates the towering spires above. Somewhere within, Strahd awaits.`, "dm");
                 this.log(`<em>"Welcome to my home. I have been expecting you..."</em> Strahd's voice echoes from everywhere and nowhere.`, "dm");
@@ -14602,7 +14966,7 @@ class Game {
             case "defeatStrahd":
                 this.dm.questFlags.defeatedStrahd = true;
                 this.dm.currentChapter = 7;
-                this.character.experience += 5000;
+                this.grantExperience(5000);
                 this.character.gold += 1000;
                 this.log("🧛 <strong>STRAHD VON ZAROVICH IS DESTROYED!</strong>", "success");
                 this.log(`As the ancient vampire crumbles to dust, a ray of sunlight breaks through the eternal clouds for the first time in centuries.`, "dm");
@@ -14652,7 +15016,7 @@ class Game {
             case "arrivePort":
                 this.dm.questFlags.arrivedPort = true;
                 this.dm.currentChapter = 1;
-                this.character.experience += 100;
+                this.grantExperience(100);
                 this.log("⚓ <strong>CHAPTER 1: PORT NYANZARU</strong>", "danger");
                 this.log(`The ship pulls into the harbor of Port Nyanzaru, the greatest city in Chult. The air is thick with humidity, spices, and the calls of exotic birds. Dinosaurs walk the streets alongside merchants!`, "dm");
                 this.log("📜 <strong>OBJECTIVE:</strong> Gather supplies and find a guide!", "loot");
@@ -14661,7 +15025,7 @@ class Game {
                 
             case "meetGuide":
                 this.dm.questFlags.hiredGuide = true;
-                this.character.experience += 100;
+                this.grantExperience(100);
                 this.log("👤 You find a guide willing to lead you into the jungle.", "success");
                 await this.showChoice(
                     "🐯 Azaka Stormfang",
@@ -14683,7 +15047,7 @@ class Game {
             case "enterJungle":
                 this.dm.questFlags.enteredJungle = true;
                 this.dm.currentChapter = 2;
-                this.character.experience += 200;
+                this.grantExperience(200);
                 this.log("🌿 <strong>CHAPTER 2: THE JUNGLE</strong>", "danger");
                 this.log(`The jungle of Chult is like nothing you've ever experienced. Ancient ruins peek through the canopy, and the calls of dinosaurs echo all around. Somewhere in this green hell lies the source of the Death Curse.`, "dm");
                 this.log("📜 <strong>OBJECTIVE:</strong> Navigate the jungle and find clues to Omu!", "loot");
@@ -14694,7 +15058,7 @@ class Game {
             case "findOmu":
                 this.dm.questFlags.foundOmu = true;
                 this.dm.currentChapter = 3;
-                this.character.experience += 500;
+                this.grantExperience(500);
                 this.log("🚪 <strong>CHAPTER 3: OMU, THE FORBIDDEN CITY</strong>", "danger");
                 this.log(`After weeks of travel, you finally gaze upon Omu - the lost city of the Omuans. Crumbling buildings and overgrown streets stretch before you. Yuan-ti patrol the ruins, and nine shrines dedicated to the Trickster Gods dot the landscape.`, "dm");
                 this.log("📜 <strong>OBJECTIVE:</strong> Collect the puzzle cubes from the Nine Shrines!", "loot");
@@ -14704,7 +15068,7 @@ class Game {
             case "enterFane":
                 this.dm.questFlags.enteredFane = true;
                 this.dm.currentChapter = 4;
-                this.character.experience += 400;
+                this.grantExperience(400);
                 this.log("🐍 <strong>CHAPTER 4: THE FANE OF THE NIGHT SERPENT</strong>", "danger");
                 this.log(`You descend into the yuan-ti temple beneath Omu. The air is thick with incense and the hiss of serpents. Ras Nsi, the fallen paladin, rules here in service to a darker master.`, "dm");
                 this.log("📜 <strong>OBJECTIVE:</strong> Find the entrance to the Tomb of the Nine Gods!", "loot");
@@ -14714,7 +15078,7 @@ class Game {
             case "enterTomb":
                 this.dm.questFlags.enteredTomb = true;
                 this.dm.currentChapter = 5;
-                this.character.experience += 500;
+                this.grantExperience(500);
                 this.log("💀 <strong>CHAPTER 5: THE TOMB OF THE NINE GODS</strong>", "danger");
                 this.log(`You descend into Acererak's legendary tomb. The air grows cold, and you sense countless traps waiting to claim the unwary. Ghostly whispers echo through the halls - the spirits of adventurers who died here before you.`, "dm");
                 this.log(`<em>"Many have entered. None have left. Welcome to your grave."</em> - A voice echoes from nowhere.`, "dm");
@@ -14724,7 +15088,7 @@ class Game {
             
             case "defeatRasNsi":
                 this.dm.questFlags.defeatedRasNsi = true;
-                this.character.experience += 2000;
+                this.grantExperience(2000);
                 this.character.gold += 300;
                 this.log("🐍 <strong>RAS NSI IS DEFEATED!</strong>", "success");
                 this.log(`The fallen paladin crumbles. With his dying breath, he gasps: "Acererak... betrayed me... The entrance to the tomb... through the mirror..."`, "dm");
@@ -14734,7 +15098,7 @@ class Game {
             
             case "defeatAtropal":
                 this.dm.questFlags.destroyedSoulmonger = true;
-                this.character.experience += 5000;
+                this.grantExperience(5000);
                 this.log("👶 <strong>THE ATROPAL IS DESTROYED!</strong>", "success");
                 this.log(`The undead godling shrieks as it dissolves. The Soulmonger begins to crack and shatter! Across Faerûn, those afflicted by the Death Curse feel the weight lift from their souls.`, "dm");
                 this.log("📜 <strong>The Death Curse is BROKEN!</strong>", "loot");
@@ -14745,7 +15109,7 @@ class Game {
             case "defeatAcererak":
                 this.dm.questFlags.defeatedAcererak = true;
                 this.dm.currentChapter = 6;
-                this.character.experience += 10000;
+                this.grantExperience(10000);
                 this.character.gold += 5000;
                 this.log("💀 <strong>ACERERAK IS BANISHED!</strong>", "success");
                 this.log(`The archlich screams in fury as his physical form is destroyed. "This is not the end! I am eternal! I will return!"`, "dm");
@@ -14771,7 +15135,7 @@ class Game {
             case "findLodging":
                 this.dm.questFlags.foundLodging = true;
                 this.dm.currentChapter = 1;
-                this.character.experience += 50;
+                this.grantExperience(50);
                 this.log("🍺 <strong>CHAPTER 1: THE KEEP</strong>", "success");
                 this.log(`Wilf the Innkeeper greets you warmly. <em>"A room's 5 silver a night, meals included. You look like an adventurer - if you're looking for excitement, ask the Castellan about the Caves of Chaos."</em>`, "dm");
                 this.log("You've found lodging! Now explore the Keep and meet its inhabitants.", "success");
@@ -14783,7 +15147,7 @@ class Game {
             case "exploreKeep":
                 if (!this.dm.questFlags.exploredKeep) {
                     this.dm.questFlags.exploredKeep = true;
-                    this.character.experience += 25;
+                    this.grantExperience(25);
                     this.log("🏘️ You explore the Outer Bailey of the Keep.", "dm");
                     this.log(`Shops line the streets - a trader sells adventuring supplies, and you spot a chapel and a tavern. Guards patrol regularly.`, "dm");
                     this.updateUI();
@@ -14793,7 +15157,7 @@ class Game {
             case "meetCastellan":
                 this.dm.questFlags.metCastellan = true;
                 this.dm.currentChapter = 2;
-                this.character.experience += 100;
+                this.grantExperience(100);
                 
                 // Add NPC to journal
                 this.character.addJournalEntry('npc', { 
@@ -14830,7 +15194,7 @@ class Game {
             case "findCaves":
                 this.dm.questFlags.foundCaves = true;
                 this.dm.currentChapter = 3;
-                this.character.experience += 100;
+                this.grantExperience(100);
                 this.log("🏔️ <strong>CHAPTER 3: CAVES OF CHAOS - OUTER CAVES</strong>", "danger");
                 this.log(`The ravine opens before you, a wound in the hillside. Dark cave mouths dot the cliff faces on both sides. You can smell smoke and hear distant drums.`, "dm");
                 this.log(`You spot several cave entrances: small ones that might be Kobold warrens, medium ones that could house Goblins or Orcs.`, "dm");
@@ -14853,23 +15217,27 @@ class Game {
             
             case "outerCavesCleared":
                 this.dm.questFlags.outerCavesCleared = true;
-                this.character.experience += 300;
+                this.dm.currentChapter = 4;
+                this.grantExperience(300);
                 this.character.gold += 50;
                 this.log("🎉 <strong>OUTER CAVES CLEARED!</strong>", "success");
                 this.log(`You've driven out the kobolds, goblins, and orcs from the outer caves! The Keep will be pleased with your progress.`, "dm");
                 this.log("📜 <strong>OBJECTIVE COMPLETE:</strong> The outer caves are secure!", "loot");
-                this.log("📜 <strong>NEW OBJECTIVE:</strong> Venture deeper into the inner caves - Bugbear and Gnoll lairs await!", "loot");
+                this.log("⚔️ <strong>CHAPTER 4: CAVES OF CHAOS - INNER CAVES</strong>", "danger");
+                this.log("📜 <strong>NEW OBJECTIVE:</strong> Venture deeper into the inner caves - Bugbear, Gnoll, and Hobgoblin lairs await!", "loot");
                 this.updateChapterDisplay();
                 this.updateUI();
                 break;
                 
             case "innerCavesCleared":
                 this.dm.questFlags.innerCavesCleared = true;
-                this.character.experience += 400;
+                this.dm.currentChapter = 5;
+                this.grantExperience(400);
                 this.character.gold += 75;
                 this.log("🎉 <strong>INNER CAVES CLEARED!</strong>", "success");
                 this.log(`The bugbears and gnolls have been vanquished! But rumors speak of a hidden temple deeper within...`, "dm");
                 this.log("📜 <strong>OBJECTIVE COMPLETE:</strong> The inner caves are secure!", "loot");
+                this.log("💀 <strong>CHAPTER 5: THE TEMPLE OF EVIL CHAOS</strong>", "danger");
                 this.log("📜 <strong>NEW OBJECTIVE:</strong> Find the Temple of Evil Chaos - the source of the monster alliance!", "loot");
                 this.updateChapterDisplay();
                 this.updateUI();
@@ -14877,17 +15245,34 @@ class Game {
                 
             case "enterHobgoblinCaves":
                 this.dm.questFlags.enteredHobgoblins = true;
-                this.dm.currentChapter = 4;
-                this.character.experience += 200;
-                this.log("⚔️ <strong>CHAPTER 4: CAVES OF CHAOS - INNER CAVES</strong>", "danger");
+                if (this.dm.currentChapter < 4) this.dm.currentChapter = 4;
+                this.grantExperience(200);
+                this.log("⚔️ You push into the Hobgoblin Caves.", "danger");
                 this.log(`These caves are different - organized, with guard posts and disciplined patrols. The Hobgoblins run a tight operation.`, "dm");
-                this.log("📜 <strong>OBJECTIVE:</strong> Venture deeper and find the source of the monster alliance!", "loot");
+                this.updateChapterDisplay();
+                break;
+
+            case "enterBugbearCaves":
+                this.dm.questFlags.enteredBugbears = true;
+                if (this.dm.currentChapter < 4) this.dm.currentChapter = 4;
+                this.grantExperience(200);
+                this.log("🐻 You enter the Bugbear Caves.", "danger");
+                this.log(`The acrid smell of unwashed fur fills the air. These tunnels are large - made for creatures that tower over you. Bones crunch underfoot.`, "dm");
+                this.updateChapterDisplay();
+                break;
+
+            case "enterGnollCaves":
+                this.dm.questFlags.enteredGnolls = true;
+                if (this.dm.currentChapter < 4) this.dm.currentChapter = 4;
+                this.grantExperience(200);
+                this.log("🐺 You enter the Gnoll Caves.", "danger");
+                this.log(`Hyena-like cackling echoes from the darkness. Gnawed bones litter the entrance - these savages feast on anything they catch.`, "dm");
                 this.updateChapterDisplay();
                 break;
             
             case "defeatedMinotaur":
                 this.dm.questFlags.defeatedMinotaur = true;
-                this.character.experience += 500;
+                this.grantExperience(500);
                 this.character.gold += 100;
                 this.log("🐂 <strong>THE MINOTAUR IS SLAIN!</strong>", "success");
                 this.log(`The beast falls with a final bellow. In its lair, you find bones of past victims and a hidden passage leading deeper into the ravine.`, "dm");
@@ -14898,7 +15283,7 @@ class Game {
             case "enterTemple":
                 this.dm.questFlags.enteredTemple = true;
                 this.dm.currentChapter = 5;
-                this.character.experience += 300;
+                this.grantExperience(300);
                 this.log("💀 <strong>CHAPTER 5: THE TEMPLE OF EVIL CHAOS</strong>", "danger");
                 this.log(`Behind a hidden door, you discover a temple dedicated to dark gods. Evil acolytes chant in shadowy alcoves. This is the source of the monster alliance!`, "dm");
                 this.log("📜 <strong>OBJECTIVE:</strong> Destroy the Temple and defeat the High Priest!", "loot");
@@ -14908,7 +15293,7 @@ class Game {
             case "defeatedHighPriest":
                 this.dm.questFlags.defeatedHighPriest = true;
                 this.dm.currentChapter = 6;
-                this.character.experience += 1000;
+                this.grantExperience(1000);
                 this.character.gold += 500;
                 this.log("💀 <strong>THE HIGH PRIEST IS DEFEATED!</strong>", "success");
                 this.log(`With the High Priest's death, his dark magic fades. The remaining monsters flee into the wilderness, their unnatural alliance broken.`, "dm");
@@ -14923,7 +15308,7 @@ class Game {
             // Lost Mine of Phandelver events
             case "clearAmbushSite":
                 this.dm.questFlags.clearedAmbushSite = true;
-                this.character.experience += 50;
+                this.grantExperience(50);
                 this.log("You clear out the remaining goblins at the ambush site. Tracks lead north toward the Cragmaw Hideout.", "success");
                 this.updateUI();
                 break;
@@ -14940,7 +15325,7 @@ class Game {
                         this.log("You ready your weapons just as goblins leap from the bushes!", "danger");
                     } else {
                         this.log("You spot crude snare traps hidden in the underbrush. But the goblins notice you and attack!", "danger");
-                        this.character.experience += 25;
+                        this.grantExperience(25);
                     }
                     this.log("📜 <strong>CHAPTER 1: GOBLIN TROUBLE</strong>", "danger");
                     this.log("📜 <strong>OBJECTIVE:</strong> Follow the goblin trail to find Gundren and Sildar!", "loot");
@@ -14961,7 +15346,7 @@ class Game {
             
             case "rescueSildar":
                 this.dm.questFlags.rescuedSildar = true;
-                this.character.experience += 200;
+                this.grantExperience(200);
                 this.character.gold += 10;
                 this.log("⛓️ You free Sildar Hallwinter from the goblins!", "success");
                 this.log(`<em>"Thank the gods you found me! Those filthy goblins ambushed us on the road. They took Gundren and his map to somewhere called Cragmaw Castle - their chieftain King Grol has him. But first, we should head to Phandalin. I can tell you more there."</em>`, "dm");
@@ -14973,7 +15358,7 @@ class Game {
             case "arrivePhandalin":
                 this.dm.questFlags.arrivedPhandalin = true;
                 this.dm.currentChapter = 2;
-                this.character.experience += 100;
+                this.grantExperience(100);
                 this.log("🏘️ <strong>CHAPTER 2: PHANDALIN</strong>", "success");
                 this.log(`You arrive in the small frontier town of Phandalin. It's a rough-and-tumble settlement of miners, farmers, and shopkeepers. But something is wrong - the townsfolk cast nervous glances at rough-looking thugs in tattered red cloaks who swagger through the streets.`, "dm");
                 this.log(`<em>"The Redbrands," a merchant whispers. "They've been terrorizing the town for weeks. Their hideout is somewhere near the old Tresendar Manor."</em>`, "dm");
@@ -15004,7 +15389,7 @@ class Game {
             case "enterRedbrandHideout":
                 this.dm.questFlags.enteredRedbrandHideout = true;
                 this.dm.currentChapter = 3;
-                this.character.experience += 100;
+                this.grantExperience(100);
                 this.log("🏚️ <strong>CHAPTER 3: SECRETS OF TRESENDAR MANOR</strong>", "danger");
                 this.log(`You descend into the cellar beneath the ruined manor. The Redbrand hideout sprawls through ancient crypts and storerooms. You can hear voices echoing through the stone corridors.`, "dm");
                 this.log("📜 <strong>OBJECTIVE:</strong> Clear out the Redbrands and confront Glasstaff!", "loot");
@@ -15013,7 +15398,7 @@ class Game {
             
             case "redbrandsCleared":
                 this.dm.questFlags.clearedRedbrands = true;
-                this.character.experience += 200;
+                this.grantExperience(200);
                 this.character.gold += 50;
                 this.dm.questFlags.townsfolkHelped += 3;
                 this.log("🎉 <strong>REDBRANDS DRIVEN OUT!</strong>", "success");
@@ -15025,7 +15410,7 @@ class Game {
             
             case "defeatGlassstaff":
                 this.dm.questFlags.defeatedGlassstaff = true;
-                this.character.experience += 400;
+                this.grantExperience(400);
                 this.character.gold += 75;
                 this.log("🪄 <strong>GLASSTAFF IS DEFEATED!</strong>", "success");
                 this.log(`Among his belongings, you find a letter signed with a black spider symbol: <em>"Lord Albrek, my spies have located Wave Echo Cave. Secure the area around Phandalin and prevent anyone from interfering. - The Black Spider"</em>`, "dm");
@@ -15041,7 +15426,7 @@ class Game {
             case "enterCragmawCastle":
                 this.dm.questFlags.enteredCragmawCastle = true;
                 this.dm.currentChapter = 4;
-                this.character.experience += 150;
+                this.grantExperience(150);
                 this.log("🏰 <strong>CHAPTER 4: CRAGMAW CASTLE</strong>", "danger");
                 this.log(`The crumbling castle looms ahead - towers collapsed, walls breached, but still formidable. Goblins patrol the ramparts and a bugbear's roar echoes from within. Gundren is somewhere inside!`, "dm");
                 this.log("📜 <strong>OBJECTIVE:</strong> Storm Cragmaw Castle and rescue Gundren!", "loot");
@@ -15051,7 +15436,7 @@ class Game {
             case "defeatKingGrol":
                 this.dm.questFlags.defeatedKingGrol = true;
                 this.dm.questFlags.rescuedGundren = true;
-                this.character.experience += 500;
+                this.grantExperience(500);
                 this.character.gold += 100;
                 this.log("👑 <strong>KING GROL IS DEFEATED!</strong>", "success");
                 this.log(`You find Gundren chained in the bugbear's chamber, battered but alive!`, "dm");
@@ -15065,7 +15450,7 @@ class Game {
             
             case "enterWaveEchoCave":
                 this.dm.questFlags.enteredWaveEchoCave = true;
-                this.character.experience += 200;
+                this.grantExperience(200);
                 this.log("⛏️ You enter the legendary Wave Echo Cave!", "dm");
                 this.log(`The sound of crashing waves echoes through the tunnels despite being miles from the sea - the source of the cave's name. Ancient mining tunnels branch in every direction. Skeletons of dwarves and orcs from the battle five hundred years ago still litter the passages.`, "dm");
                 this.log("📜 <strong>OBJECTIVE:</strong> Find the Forge of Spells and stop Nezznar!", "loot");
@@ -15074,7 +15459,7 @@ class Game {
             
             case "findForgeOfSpells":
                 this.dm.questFlags.foundForgeOfSpells = true;
-                this.character.experience += 300;
+                this.grantExperience(300);
                 this.log("🔨 <strong>THE FORGE OF SPELLS!</strong>", "success");
                 this.log(`You discover the legendary Forge of Spells - a great stone brazier that burns with an eerie green flame. A spectator beholder-kin hovers nearby, still guarding the forge after five centuries!`, "dm");
                 this.log(`The magical energy here is palpable. Weapons and armor placed in the forge could be imbued with magical power!`, "dm");
@@ -15082,7 +15467,7 @@ class Game {
                 break;
             
             case "defeatFlameskull":
-                this.character.experience += 500;
+                this.grantExperience(500);
                 this.log("💀 <strong>THE FLAMESKULL IS DESTROYED!</strong>", "success");
                 this.log(`The flaming skull shatters! Its green fire dissipates, revealing a hidden passage deeper into the mine.`, "dm");
                 this.updateUI();
@@ -15091,7 +15476,7 @@ class Game {
             case "defeatBlackSpider":
                 this.dm.questFlags.defeatedBlackSpider = true;
                 this.dm.currentChapter = 6;
-                this.character.experience += 1500;
+                this.grantExperience(1500);
                 this.character.gold += 500;
                 this.log("🕷️ <strong>THE BLACK SPIDER IS DEFEATED!</strong>", "success");
                 this.log(`Nezznar crumples to the ground, his spider staff clattering beside him. <em>"Impossible... I was so close..."</em> The drow's schemes are finally over.`, "dm");
@@ -15142,7 +15527,7 @@ class Game {
                 const kills = flags.outerCavesKills || 0;
                 return `💡 EXPLORE the caves! Clear monsters (${kills}/10) to progress`;
             }
-            if (chapter === 3 && flags.outerCavesCleared) return "💡 TRAVEL to Bugbear or Gnoll Caves (inner caves)";
+            if (chapter === 3 && flags.outerCavesCleared) return "💡 TRAVEL to Bugbear, Gnoll, or Hobgoblin Caves (inner caves)";
             if (chapter === 4 && !flags.innerCavesCleared) {
                 const kills = flags.innerCavesKills || 0;
                 return `💡 EXPLORE inner caves! Clear monsters (${kills}/8) to progress`;
