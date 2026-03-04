@@ -722,7 +722,7 @@ const DISCOVERABLE_RECIPES = {
     "Cloak of Shadows": { ingredients: ["Fine Cloak", "Shadow Essence", "Onyx"], result: "Cloak of Shadows", description: "+2 to Stealth" },
     "Boots of Speed": { ingredients: ["Leather Boots", "Quicksilver", "Emerald"], result: "Boots of Speed", description: "Double movement" },
     "Ring of Protection": { ingredients: ["Gold Ring", "Diamond Dust", "Holy Water"], result: "Ring of Protection", description: "+1 AC" },
-    "Potion of Giant Strength": { ingredients: ["Health Potion", "Giant's Toe", "Bear Fur"], result: "Potion of Giant Strength", description: "STR becomes 21 for 1 hour" }
+    "Potion of Giant Strength": { ingredients: ["Healing Potion", "Giant's Toe", "Bear Fur"], result: "Potion of Giant Strength", description: "STR becomes 21 for 1 hour" }
 };
 
 // ==================== SOUND & MUSIC SYSTEM ====================
@@ -2353,7 +2353,10 @@ const GAME_DATA = {
         // +3 Magic Weapons
         "+3 Longsword": { damage: "1d8", type: "slashing", category: "martial", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 3, requiresAttunement: true },
         "+3 Greatsword": { damage: "2d6", type: "slashing", category: "martial", properties: ["two-handed", "heavy"], stat: "str", magicBonus: 3, requiresAttunement: true },
-        "+3 Rapier": { damage: "1d8", type: "piercing", category: "martial", properties: ["finesse"], stat: "dex", magicBonus: 3, requiresAttunement: true }
+        "+3 Rapier": { damage: "1d8", type: "piercing", category: "martial", properties: ["finesse"], stat: "dex", magicBonus: 3, requiresAttunement: true },
+        // Crafted rare weapons
+        "Flaming Sword": { damage: "1d8", type: "slashing", category: "martial", properties: ["versatile"], versatileDamage: "1d10", stat: "str", magicBonus: 1, bonusDamageDice: "1d6", bonusDamageType: "fire", requiresAttunement: true, description: "A longsword wreathed in magical flame. +1d6 fire damage." },
+        "Frost Bow": { damage: "1d8", type: "piercing", category: "martial", properties: ["two-handed", "ranged"], stat: "dex", range: 150, magicBonus: 1, bonusDamageDice: "1d6", bonusDamageType: "cold", requiresAttunement: true, description: "A longbow that chills the air. +1d6 cold damage." }
     },
     armor: {
         "Robes": { ac: 10, type: "none", maxDex: 99, stealthDisadvantage: false },
@@ -2578,6 +2581,24 @@ const GAME_DATA = {
         "Torch": 1,
         "Rope (50 ft)": 1,
         "Rations (1 day)": 1,
+        // Crafting Materials
+        "Empty Vial": 2,
+        "Healing Herbs": 5,
+        "Antitoxin Root": 8,
+        "Venom Sac": 15,
+        "Oil Flask": 3,
+        "Sulfur": 10,
+        "Silver Dust": 25,
+        // Crafted Items
+        "Basic Poison": 50,
+        "Alchemist's Fire": 50,
+        // Crafted Rare Items (sellable only - not buyable from shops since price is high)
+        "Flaming Sword": 1000,
+        "Frost Bow": 1000,
+        "Cloak of Shadows": 500,
+        "Boots of Speed": 500,
+        "Ring of Protection": 500,
+        "Potion of Giant Strength": 300,
         // Campaign-specific items - Night's Dark Terror
         "Karameikan Saber": 40,
         "Goblin Cleaver": 30,
@@ -2699,6 +2720,25 @@ const GAME_DATA = {
         "Torch": "Provides light in dark places. Burns for 1 hour.",
         "Rope (50 ft)": "Useful for climbing, tying, and various adventuring needs.",
         "Rations (1 day)": "A day's worth of dried food. Keeps you fed on the road.",
+        // Crafting Materials
+        "Empty Vial": "A small glass vial. Used in potion crafting.",
+        "Healing Herbs": "Fragrant herbs with restorative properties. Used to craft healing potions.",
+        "Antitoxin Root": "A bitter root that neutralizes toxins. Used to craft antidotes.",
+        "Venom Sac": "A venom gland harvested from venomous creatures. Used to craft poisons.",
+        "Oil Flask": "A flask of volatile oil. Used to craft alchemist's fire.",
+        "Sulfur": "A pungent yellow mineral. Used in alchemical crafting.",
+        "Silver Dust": "Fine silver powder. Used to create silvered weapon coatings.",
+        // Crafted Items
+        "Basic Poison": "Apply to your weapon for +1d4 poison damage on your next 3 attacks.",
+        "Alchemist's Fire": "Throw at an enemy for 2d6 fire damage. Use in combat for best effect.",
+        "Silvered (weapon)": "Apply to your equipped weapon. Silvered weapons deal full damage to werewolves and undead.",
+        // Crafted Rare Items
+        "Flaming Sword": "A longsword wreathed in magical flame. +1 weapon, +1d6 fire damage.",
+        "Frost Bow": "A longbow that chills the air. +1 weapon, +1d6 cold damage.",
+        "Cloak of Shadows": "A shadowy cloak that bends light. +2 to Stealth checks.",
+        "Boots of Speed": "Enchanted boots that quicken your step. Halves travel time.",
+        "Ring of Protection": "A gold ring inscribed with protective runes. +1 AC.",
+        "Potion of Giant Strength": "A bubbling potion infused with giant essence. Sets STR to 21.",
         // Campaign items - Night's Dark Terror
         "Karameikan Saber": "A curved cavalry blade from Karameikos. Favored by horse traders.",
         "Goblin Cleaver": "A brutal weapon designed to dispatch goblins efficiently.",
@@ -3800,7 +3840,15 @@ class Character {
             darkvisionRange: this.darkvisionRange,
             hpRollHistory: this.hpRollHistory || [],
             toolProficiencies: this.toolProficiencies || [],
-            languages: this.languages || []
+            languages: this.languages || [],
+            exhaustion: this.exhaustion || 0,
+            poisonedWeaponCharges: this.poisonedWeaponCharges || 0,
+            silveredWeapon: this.silveredWeapon || false,
+            giantStrengthActive: this.giantStrengthActive || false,
+            giantStrengthOldStr: this.giantStrengthOldStr || 0,
+            cloakOfShadows: this.cloakOfShadows || false,
+            bootsOfSpeed: this.bootsOfSpeed || false,
+            ringOfProtection: this.ringOfProtection || false
         };
     }
 
@@ -3863,6 +3911,7 @@ class Character {
         if (!char.hpRollHistory) char.hpRollHistory = [];
         if (!char.toolProficiencies) char.toolProficiencies = [];
         if (!char.languages) char.languages = ["Common"];
+        if (char.exhaustion === undefined) char.exhaustion = 0;
         // Short rest resource defaults for older saves
         if (char.charClass === 'Fighter' && char.actionSurgeUsed === undefined) char.actionSurgeUsed = false;
         if ((char.charClass === 'Cleric' || char.charClass === 'Paladin') && char.channelDivinityUsed === undefined) char.channelDivinityUsed = false;
@@ -3908,6 +3957,7 @@ class DungeonMaster {
         // Short/Long rest tracking
         this.shortRestsTaken = 0;
         this.maxShortRests = 2; // Per long rest
+        this.hoursWithoutLongRest = 0; // Track hours awake for forced march exhaustion
         
         // Party system - companions
         this.party = [];
@@ -4047,6 +4097,17 @@ class DungeonMaster {
             if (roll2 === 1) roll2 = Math.floor(Math.random() * 20) + 1;
         }
         
+        // Exhaustion Level 1+: Disadvantage on ability checks
+        if (this.character.exhaustion >= 1) {
+            disadvantage = true;
+        }
+
+        // Heavily Encumbered: Disadvantage on STR/DEX/CON ability checks
+        const enc = this.calculateEncumbrance();
+        if (enc.heavilyEncumbered && ['str', 'dex', 'con'].includes(stat)) {
+            disadvantage = true;
+        }
+        
         let roll = roll1;
         let advType = null;
         
@@ -4085,6 +4146,17 @@ class DungeonMaster {
     }
 
     async skillCheckAnimated(stat, dc, advantage = false, disadvantage = false, skillName = null) {
+        // Exhaustion Level 1+: Disadvantage on ability checks
+        if (this.character.exhaustion >= 1) {
+            disadvantage = true;
+        }
+
+        // Heavily Encumbered: Disadvantage on STR/DEX/CON ability checks
+        const enc = this.calculateEncumbrance();
+        if (enc.heavilyEncumbered && ['str', 'dex', 'con'].includes(stat)) {
+            disadvantage = true;
+        }
+        
         let roll1 = Math.floor(Math.random() * 20) + 1;
         let roll2 = Math.floor(Math.random() * 20) + 1;
         
@@ -4183,6 +4255,7 @@ class DungeonMaster {
     // Time management
     advanceTime(hours) {
         this.hour += hours;
+        this.hoursWithoutLongRest += hours;
         while (this.hour >= 24) {
             this.hour -= 24;
             this.day++;
@@ -4713,7 +4786,7 @@ const CRAFTING_RECIPES = {
         materials: { "Healing Herbs": 2, "Empty Vial": 1 },
         skill: "Nature",
         dc: 12,
-        result: "Potion of Healing"
+        result: "Healing Potion"
     },
     "Antidote": {
         materials: { "Antitoxin Root": 1, "Empty Vial": 1 },
@@ -4743,15 +4816,15 @@ const CRAFTING_RECIPES = {
 
 // Material drop tables by monster type
 const MATERIAL_DROPS = {
-    "beast": ["Hide", "Fangs", "Claws", "Meat"],
-    "undead": ["Bone Dust", "Ectoplasm", "Death Essence"],
-    "humanoid": ["Cloth Scraps", "Empty Vial", "Coin Pouch"],
-    "dragon": ["Dragon Scale", "Dragon Tooth", "Dragon Blood"],
-    "plant": ["Healing Herbs", "Poisonous Spores", "Bark"],
-    "aberration": ["Strange Ichor", "Eye", "Tentacle"],
-    "fiend": ["Sulfur", "Brimstone", "Infernal Essence"],
-    "goblinoid": ["Crude Tools", "Wolf Fangs", "Tribal Fetish"],
-    "default": ["Monster Parts", "Salvage"]
+    "beast": ["Hide", "Fangs", "Claws", "Meat", "Venom Sac"],
+    "undead": ["Bone Dust", "Ectoplasm", "Death Essence", "Empty Vial"],
+    "humanoid": ["Cloth Scraps", "Empty Vial", "Coin Pouch", "Oil Flask"],
+    "dragon": ["Dragon Scale", "Dragon Tooth", "Dragon Blood", "Silver Dust"],
+    "plant": ["Healing Herbs", "Poisonous Spores", "Bark", "Antitoxin Root"],
+    "aberration": ["Strange Ichor", "Eye", "Tentacle", "Venom Sac"],
+    "fiend": ["Sulfur", "Brimstone", "Infernal Essence", "Oil Flask"],
+    "goblinoid": ["Crude Tools", "Wolf Fangs", "Tribal Fetish", "Oil Flask"],
+    "default": ["Monster Parts", "Salvage", "Empty Vial"]
 };
 
 // Companion NPCs available to recruit
@@ -5179,6 +5252,14 @@ const ITEM_WEIGHTS = {
     // Consumables
     "Healing Potion": 0.5, "Greater Healing Potion": 0.5, "Antidote": 0.5,
     "Holy Water": 1, "Wolfsbane Potion": 0.5,
+    "Basic Poison": 0.5, "Alchemist's Fire": 1, "Silvered (weapon)": 0.5,
+    "Potion of Giant Strength": 0.5,
+    // Crafting Materials
+    "Empty Vial": 0.25, "Healing Herbs": 0.25, "Antitoxin Root": 0.25,
+    "Venom Sac": 0.5, "Oil Flask": 1, "Sulfur": 0.5, "Silver Dust": 0.25,
+    // Crafted Rare Items
+    "Flaming Sword": 3, "Frost Bow": 2, "Cloak of Shadows": 1,
+    "Boots of Speed": 1, "Ring of Protection": 0,
     // Adventuring Gear
     "Torch": 1, "Rope (50 ft)": 10, "Rations (1 day)": 2, "Spellbook": 3,
     // Tools
@@ -6399,11 +6480,19 @@ class Game {
             }
         }
         
-        // Update HP bar
-        const hpPercent = (this.character.hp / this.character.maxHp) * 100;
+        // Update HP bar (Exhaustion level 4 halves HP maximum)
+        let displayMaxHp = this.character.maxHp;
+        if (this.character.exhaustion >= 4) {
+            displayMaxHp = Math.floor(this.character.maxHp / 2);
+            // Enforce HP cap at halved max
+            if (this.character.hp > displayMaxHp) {
+                this.character.hp = displayMaxHp;
+            }
+        }
+        const hpPercent = (this.character.hp / displayMaxHp) * 100;
         document.getElementById("hpBar").style.width = hpPercent + "%";
         document.getElementById("currentHp").textContent = this.character.hp;
-        document.getElementById("maxHp").textContent = this.character.maxHp;
+        document.getElementById("maxHp").textContent = displayMaxHp;
         
         // Update XP bar
         const xpNeeded = getXpThreshold(this.character.level);
@@ -6423,7 +6512,7 @@ class Game {
                 <div class="stat-box">
                     <div class="stat-name">${stat}</div>
                     <div class="stat-value">${value}</div>
-                    <div class="stat-mod">${sign}${mod}</div>
+                    <div class="stat-mod">(${sign}${mod})</div>
                 </div>
             `;
         }
@@ -6431,6 +6520,27 @@ class Game {
         // Update other stats
         document.getElementById("charAC").textContent = this.character.ac;
         document.getElementById("charGold").textContent = this.character.gold;
+        
+        // Update exhaustion display
+        let exhaustEl = document.getElementById("exhaustionDisplay");
+        if (!exhaustEl) {
+            exhaustEl = document.createElement("div");
+            exhaustEl.id = "exhaustionDisplay";
+            exhaustEl.style.cssText = "font-size:0.8rem;margin:4px 0;";
+            const acGoldLine = document.getElementById("charGold")?.parentElement;
+            if (acGoldLine) acGoldLine.parentElement.insertBefore(exhaustEl, acGoldLine.nextSibling);
+        }
+        if (this.character.exhaustion > 0) {
+            const lvl = this.character.exhaustion;
+            const pips = Array.from({length: 6}, (_, i) => 
+                `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;margin:0 1px;border:1px solid #c9a227;${i < lvl ? 'background:' + (i < 3 ? '#FF9800' : i < 5 ? '#dc143c' : '#8b0000') : 'background:transparent'}"></span>`
+            ).join("");
+            const effectName = EXHAUSTION_EFFECTS[lvl] ? EXHAUSTION_EFFECTS[lvl].name : "Death";
+            exhaustEl.innerHTML = `<span style="color:#FF9800;">😰 Exhaustion ${lvl}/6</span> ${pips}<br><span style="color:#aaa;font-size:0.7rem;">${effectName}</span>`;
+            exhaustEl.style.display = "";
+        } else {
+            exhaustEl.style.display = "none";
+        }
         
         // Update passive scores (Perception, Insight, Investigation)
         const passivesEl = document.getElementById("charPassives");
@@ -6657,6 +6767,11 @@ class Game {
                 itemHtml += ` <button class="use-btn" onclick="game.useItem('${item}')">Use</button>`;
             }
             
+            // Drop button (not for equipped items)
+            if (!isEquipped) {
+                itemHtml += ` <button class="drop-btn" onclick="game.dropItem('${item.replace(/'/g, "\\'")}')">Drop</button>`;
+            }
+            
             itemHtml += `</div>`;
             inventoryList.innerHTML += itemHtml;
         }
@@ -6675,7 +6790,7 @@ class Game {
         // Update action buttons state
         const actionsPanel = document.getElementById("actionsPanel");
         const isUnconsciousOrInCombat = this.dm.inCombat || this.character.hp <= 0;
-        actionsPanel.querySelectorAll("button").forEach(btn => {
+        actionsPanel.querySelectorAll("button:not(.menu-dropdown-item)").forEach(btn => {
             // Only Rest button should be enabled when unconscious
             if (this.character.hp <= 0) {
                 btn.disabled = !btn.textContent.includes("Rest");
@@ -7110,7 +7225,14 @@ class Game {
         
         // Determine if character has advantage (from skills, class features, etc.)
         const hasAdvantage = this.checkForAdvantage(approach.skill);
-        const hasDisadvantage = false; // Could add conditions that cause this
+        let hasDisadvantage = false;
+        // Heavily encumbered gives disadvantage on STR/DEX/CON checks
+        if (this.dm) {
+            const enc = this.dm.calculateEncumbrance();
+            if (enc.heavilyEncumbered && ['str', 'dex', 'con'].includes(approach.skill)) {
+                hasDisadvantage = true;
+            }
+        }
         
         // Roll the skill check
         const check = await this.dm.skillCheckAnimated(approach.skill, approach.dc, hasAdvantage, hasDisadvantage);
@@ -7482,6 +7604,16 @@ class Game {
         this.dm.currentEnemy = monster;
         this.dm.defendingThisTurn = false;
         
+        // Clean up any stale death save state from previous combat
+        const oldDeathBtn = document.getElementById("deathSaveBtn");
+        if (oldDeathBtn) oldDeathBtn.remove();
+        const combatActionsEl = document.querySelector(".combat-actions");
+        if (combatActionsEl) {
+            combatActionsEl.querySelectorAll(".action-btn").forEach(btn => btn.style.display = "");
+        }
+        const tacticsEl = document.querySelector(".tactics-panel");
+        if (tacticsEl) tacticsEl.style.display = "";
+        
         // Apply difficulty settings to monster
         const diffSettings = DIFFICULTY_SETTINGS[this.difficulty];
         monster.hp = Math.floor(monster.hp * diffSettings.enemyHpMod);
@@ -7533,6 +7665,7 @@ class Game {
         document.getElementById("enemyDescription").textContent = monster.description || "A dangerous foe!";
         document.getElementById("enemyHp").textContent = monster.hp;
         document.getElementById("enemyAc").textContent = monster.ac;
+        this.updateEnemyHpBar(monster.hp, monster.hp);
         
         // Show enemy image if available
         const imageContainer = document.getElementById("enemyImageContainer");
@@ -7687,6 +7820,15 @@ class Game {
             // Check for advantage/disadvantage from various sources
             let hasAdvantage = char.buffs.guidingBolt || false;
             let hasDisadvantage = false;
+            
+            // Exhaustion Level 3+: Disadvantage on attack rolls
+            if (char.exhaustion >= 3) hasDisadvantage = true;
+
+            // Heavily Encumbered: Disadvantage on attack rolls
+            if (this.dm) {
+                const enc = this.dm.calculateEncumbrance();
+                if (enc.heavilyEncumbered) hasDisadvantage = true;
+            }
             
             // Conditions affecting attacks
             if (char.hasCondition("blinded")) hasDisadvantage = true;
@@ -8153,6 +8295,7 @@ class Game {
         
         // Update enemy HP display
         document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+        this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp);
         
         // Check if enemy is dead
         if (monster.hp <= 0) {
@@ -8194,6 +8337,7 @@ class Game {
                 if (result.hit) {
                     monster.hp -= result.damage;
                     document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+                    this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp);
                     
                     if (monster.hp <= 0) {
                         this.log(`${companion.name} deals the finishing blow!`, "success");
@@ -8552,13 +8696,19 @@ class Game {
     
     executeMonsterAbility(monster, ability, char) {
         const abilityName = ability.name || "Special Ability";
+
+        // Check if heavily encumbered for save disadvantage on STR/DEX/CON
+        const enc = this.dm ? this.dm.calculateEncumbrance() : { heavilyEncumbered: false };
+        const heavyEnc = enc.heavilyEncumbered;
         
         switch (ability.type) {
             case "breath":
                 // Breath weapon (dragon-type): DEX save for half damage — hits all allies too
                 const breathDmg = this.dm.rollDice(ability.damage);
                 const saveDC = ability.dc || this.getMonsterSaveDC(monster);
-                const dexSave = this.dm.rollDice("1d20") + char.getModifier("dex");
+                let dexRoll1 = this.dm.rollDice("1d20");
+                let dexRoll2 = this.dm.rollDice("1d20");
+                const dexSave = ((char.exhaustion >= 3 || heavyEnc) ? Math.min(dexRoll1, dexRoll2) : dexRoll1) + char.getModifier("dex");
                 if (dexSave >= saveDC) {
                     const halfDmg = Math.floor(breathDmg / 2);
                     this.log(`🔥 ${monster.name} uses ${abilityName}! You dodge (DEX save ${dexSave} vs DC ${saveDC}) — ${halfDmg} ${ability.damageType || 'fire'} damage!`, "danger");
@@ -8573,7 +8723,9 @@ class Game {
                 
             case "frighten":
                 // Frightful Presence: WIS save or become frightened
-                const wisSave = this.dm.rollDice("1d20") + char.getModifier("wis");
+                let wisRoll1 = this.dm.rollDice("1d20");
+                let wisRoll2 = this.dm.rollDice("1d20");
+                const wisSave = (char.exhaustion >= 3 ? Math.min(wisRoll1, wisRoll2) : wisRoll1) + char.getModifier("wis");
                 const frightDC = ability.dc || this.getMonsterSaveDC(monster);
                 if (wisSave < frightDC) {
                     char.addCondition("frightened");
@@ -8590,7 +8742,9 @@ class Game {
                 
             case "poison":
                 // Poison attack: CON save or take poison damage + poisoned condition — hits companions too
-                const conSave = this.dm.rollDice("1d20") + char.getModifier("con");
+                let conRoll1 = this.dm.rollDice("1d20");
+                let conRoll2 = this.dm.rollDice("1d20");
+                const conSave = ((char.exhaustion >= 3 || heavyEnc) ? Math.min(conRoll1, conRoll2) : conRoll1) + char.getModifier("con");
                 const poisonDC = ability.dc || this.getMonsterSaveDC(monster);
                 const poisonDmg = this.dm.rollDice(ability.damage || "2d6");
                 if (conSave < poisonDC) {
@@ -8614,6 +8768,7 @@ class Game {
                 if (healed > 0) {
                     this.log(`💚 ${monster.name} ${abilityName}! Recovers ${healed} HP. (${monster.hp} HP)`, "danger");
                     document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+                    this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp);
                 }
                 break;
                 
@@ -8625,6 +8780,7 @@ class Game {
                 if (monster.maxHp) monster.maxHp += bonusHp;
                 this.log(`Reinforcements arrive! (+${bonusHp} HP)`, "danger");
                 document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+                this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp);
                 break;
                 
             default:
@@ -8764,17 +8920,17 @@ class Game {
             partyDisplay.id = "combatPartyStatus";
             partyDisplay.className = "combat-party-status";
             
-            // Insert after enemy stats
-            const enemyStats = combatPanelInner.querySelector(".enemy-stats");
-            if (enemyStats && enemyStats.nextSibling) {
-                combatPanelInner.insertBefore(partyDisplay, enemyStats.nextSibling);
+            // Insert after combat controls section (below action buttons)
+            const controlsSection = combatPanelInner.querySelector(".combat-controls-section");
+            if (controlsSection && controlsSection.nextSibling) {
+                combatPanelInner.insertBefore(partyDisplay, controlsSection.nextSibling);
             } else {
                 combatPanelInner.appendChild(partyDisplay);
             }
         }
         
         // Build party status HTML
-        let html = '<div class="party-combat-header">👥 Party Status</div>';
+        let html = '<div class="party-combat-header">👥 Party</div>';
         html += '<div class="party-combat-list">';
         
         // Show Beast Master wolf / Battle Smith defender first
@@ -8818,12 +8974,19 @@ class Game {
     }
 
     showDeathSaveButton() {
-        // Add death save button to combat panel
+        // Add death save button to combat panel — hide other action buttons while dying
         const combatActions = document.querySelector(".combat-actions");
         if (combatActions && !document.getElementById("deathSaveBtn")) {
+            // Hide other combat buttons (can't act while unconscious)
+            combatActions.querySelectorAll(".action-btn").forEach(btn => btn.style.display = "none");
+            // Also hide tactics panel
+            const tactics = document.querySelector(".tactics-panel");
+            if (tactics) tactics.style.display = "none";
+            
             const btn = document.createElement("button");
             btn.id = "deathSaveBtn";
             btn.className = "action-btn danger";
+            btn.style.cssText = "width: 100%; min-width: unset; flex: 1 1 100%;";
             btn.innerHTML = '<span class="icon">💀</span>Death Save';
             btn.onclick = () => this.combatAction("deathSave");
             combatActions.appendChild(btn);
@@ -9075,7 +9238,9 @@ class Game {
             this.dm.cunningDisengage = true;
         } else {
             // Hide: gain advantage on next attack
-            const stealthCheck = this.dm.rollDice("1d20") + char.getModifier("dex");
+            let stealthBonus = char.getModifier("dex");
+            if (char.cloakOfShadows) stealthBonus += 2;
+            const stealthCheck = this.dm.rollDice("1d20") + stealthBonus;
             if (stealthCheck >= (this.dm.currentEnemy?.ac || 12)) {
                 this.log(`🫥 Cunning Action: Hide! You melt into the shadows. (Stealth: ${stealthCheck}) Next attack has advantage!`, "success");
                 char.buffs.hiddenStrike = true;
@@ -9121,6 +9286,7 @@ class Game {
         }
         
         document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+        this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp);
         if (monster.hp <= 0) {
             this.handleMonsterDeath(monster);
         }
@@ -9222,6 +9388,7 @@ class Game {
         }
         
         document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+        this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp);
         if (monster.hp <= 0) {
             this.handleMonsterDeath(monster);
         }
@@ -9254,6 +9421,7 @@ class Game {
         }
         
         document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+        this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp);
         if (monster.hp <= 0) {
             this.handleMonsterDeath(monster);
         }
@@ -9273,6 +9441,16 @@ class Game {
     applyDamageToMonster(monster, damage, damageType = "physical") {
         let finalDamage = damage;
         let message = "";
+        
+        // Apply poisoned weapon bonus damage
+        if (this.character && this.character.poisonedWeaponCharges > 0 && 
+            !["fire", "cold", "lightning", "radiant", "necrotic", "force", "psychic", "thunder", "acid"].includes((damageType || "").toLowerCase())) {
+            const poisonDmg = this.dm.rollDice("1d4");
+            finalDamage += poisonDmg;
+            this.character.poisonedWeaponCharges--;
+            const remaining = this.character.poisonedWeaponCharges;
+            message += `🧪 Poison coating adds ${poisonDmg} damage! (${remaining} charge${remaining !== 1 ? 's' : ''} left) `;
+        }
         
         // Normalize damage type
         const dtype = (damageType || "physical").toLowerCase();
@@ -9297,7 +9475,10 @@ class Game {
         
         // Update enemy HP display
         const hpEl = document.getElementById("enemyHp");
-        if (hpEl) hpEl.textContent = Math.max(0, monster.hp);
+        if (hpEl) {
+            hpEl.textContent = Math.max(0, monster.hp);
+            this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp);
+        }
         
         return { finalDamage, message };
     }
@@ -9322,11 +9503,37 @@ class Game {
     
     // ===== END MONSTER STAT BLOCKS =====
 
+    updateEnemyHpBar(currentHp, maxHp) {
+        const bar = document.getElementById("enemyHpBar");
+        if (bar) {
+            const pct = Math.max(0, Math.min(100, (currentHp / maxHp) * 100));
+            bar.style.width = pct + "%";
+            // Color shifts: green > yellow > red as HP drops
+            if (pct > 50) {
+                bar.style.background = "linear-gradient(to right, #dc143c, #ff4d6d)";
+            } else if (pct > 25) {
+                bar.style.background = "linear-gradient(to right, #ff6600, #ff9800)";
+            } else {
+                bar.style.background = "linear-gradient(to right, #4CAF50, #66BB6A)";
+            }
+        }
+    }
+
     endCombat(victory) {
         this.dm.inCombat = false;
         this.dm.currentEnemy = null;
         document.getElementById("combatPanel").classList.add("hidden");
         document.getElementById("gameScreen").classList.remove("in-combat");
+        
+        // Clean up death save button and restore combat action buttons
+        const deathBtn = document.getElementById("deathSaveBtn");
+        if (deathBtn) deathBtn.remove();
+        const combatActionsEl = document.querySelector(".combat-actions");
+        if (combatActionsEl) {
+            combatActionsEl.querySelectorAll(".action-btn").forEach(btn => btn.style.display = "");
+        }
+        const tacticsEl = document.querySelector(".tactics-panel");
+        if (tacticsEl) tacticsEl.style.display = "";
         
         // Clear dice animation overlay
         diceAnimator.hide();
@@ -9339,7 +9546,20 @@ class Game {
         this.character.buffs.guidingBolt = false;
         // Hunter's Mark persists
         // Bless persists until rest
-        // End Rage on combat end
+        // End Rage on combat end — Berserker Frenzy causes exhaustion
+        if (this.character.raging && this.character.subclass === 'Berserker' && this.character.level >= 3) {
+            const result = this.addExhaustion(1);
+            this.log(`😰 Berserker Frenzy ends — you gain 1 level of exhaustion! (Level ${result.exhaustion})`, "danger");
+            if (result.exhaustion >= 6) {
+                this.log(`💀 You collapse from total exhaustion... DEATH!`, "danger");
+                this.character.hp = 0;
+                soundManager.playDeath();
+                this.gameOver();
+                return;
+            } else if (EXHAUSTION_EFFECTS[result.exhaustion]) {
+                this.log(`⚠️ Exhaustion effect: ${EXHAUSTION_EFFECTS[result.exhaustion].name}`, "danger");
+            }
+        }
         this.character.raging = false;
         // Reset rage button
         const rageBtn = document.getElementById("rageCombatBtn");
@@ -9592,6 +9812,7 @@ class Game {
         
         // Update UI and proceed with combat
         document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+        this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp);
         
         // Check if enemy is dead
         if (monster.hp <= 0) {
@@ -9931,6 +10152,14 @@ class Game {
         this.log(`📜 <strong>RECIPE DISCOVERED:</strong> ${recipe}!`, 'loot');
         this.log(`Ingredients: ${recipeData.ingredients.join(', ')}`, 'dm');
         soundManager.playAchievement();
+
+        // Boss also drops 1–2 exotic crafting ingredients from the recipe
+        const exoticIngredients = recipeData.ingredients.filter(i => !["Longsword", "Longbow", "Fine Cloak", "Leather Boots", "Gold Ring", "Health Potion", "Healing Potion"].includes(i));
+        if (exoticIngredients.length > 0) {
+            const drop = exoticIngredients[Math.floor(Math.random() * exoticIngredients.length)];
+            this.character.addMaterial(drop, 1);
+            this.log(`✨ You also find exotic material: ${drop}!`, 'loot');
+        }
     }
 
     rollMaterialDrop(monster) {
@@ -9960,6 +10189,14 @@ class Game {
         
         this.character.addMaterial(material, 1);
         this.log(`📦 You salvage: ${material}`, "loot");
+
+        // Bosses drop an extra exotic crafting ingredient (60% chance)
+        if (monster.boss && Math.random() < 0.6) {
+            const EXOTIC_MATERIALS = ["Fire Essence", "Ice Crystal", "Shadow Essence", "Quicksilver", "Diamond Dust", "Giant's Toe", "Bear Fur", "Ruby", "Sapphire", "Onyx", "Emerald", "Holy Water"];
+            const exotic = EXOTIC_MATERIALS[Math.floor(Math.random() * EXOTIC_MATERIALS.length)];
+            this.character.addMaterial(exotic, 1);
+            this.log(`✨ Rare material: ${exotic}!`, "loot");
+        }
     }
     
     adjustReputationForKill(monster) {
@@ -10070,11 +10307,18 @@ class Game {
             mapContainer = document.createElement("div");
             mapContainer.id = "miniMapContainer";
             mapContainer.className = "mini-map-container";
+            mapContainer.onclick = function(e) {
+                // If collapsed, clicking anywhere on it expands
+                if (!mapContainer.classList.contains('expanded')) {
+                    game.toggleMapExpand();
+                }
+            };
             mapContainer.innerHTML = `
                 <div class="mini-map-header">
-                    <h4>🗺️ Map</h4>
-                    <button class="map-toggle-btn" onclick="game.toggleMapExpand()">⊞</button>
+                    <h4>🗺️ Map <span class="map-expand-hint">(click to expand)</span></h4>
+                    <button class="map-toggle-btn" onclick="event.stopPropagation(); game.toggleMapExpand()">⊞</button>
                 </div>
+                <div id="miniMapPreview" class="mini-map-preview"></div>
                 <div id="miniMapContent" class="mini-map-content"></div>
             `;
             
@@ -10140,10 +10384,16 @@ class Game {
         
         mapContent.innerHTML = mapHtml;
         
-        // Auto-scroll map to the bottom like the story window
-        requestAnimationFrame(() => {
-            mapContainer.scrollTop = mapContainer.scrollHeight;
-        });
+        // Update collapsed preview with the last visible item (objective or current location)
+        const preview = document.getElementById("miniMapPreview");
+        if (preview) {
+            const chapter = this.dm.campaign.chapters[currentChapter];
+            if (chapter && chapter.objective) {
+                preview.innerHTML = `🎯 ${chapter.objective}`;
+            } else if (currentLoc) {
+                preview.innerHTML = `📍 ${currentLoc.icon} ${currentLoc.name}`;
+            }
+        }
     }
     
     quickTravel(locationIndex) {
@@ -10170,14 +10420,32 @@ class Game {
     toggleMapExpand() {
         const mapContainer = document.getElementById("miniMapContainer");
         const btn = mapContainer.querySelector(".map-toggle-btn");
+        const hint = mapContainer.querySelector(".map-expand-hint");
         
         if (mapContainer.classList.contains("expanded")) {
             mapContainer.classList.remove("expanded");
             btn.textContent = "⊞";
+            if (hint) hint.style.display = "";
         } else {
             mapContainer.classList.add("expanded");
             btn.textContent = "⊟";
+            if (hint) hint.style.display = "none";
+            // Scroll to show current location in expanded view
+            requestAnimationFrame(() => {
+                const current = mapContainer.querySelector(".map-location.current");
+                if (current) current.scrollIntoView({ block: "center", behavior: "smooth" });
+            });
         }
+    }
+
+    toggleMenuDropdown() {
+        const dropdown = document.getElementById("menuDropdown");
+        dropdown.classList.toggle("hidden");
+    }
+
+    closeMenuDropdown() {
+        const dropdown = document.getElementById("menuDropdown");
+        if (dropdown) dropdown.classList.add("hidden");
     }
     
     getItemInfo(itemName) {
@@ -11831,6 +12099,7 @@ class Game {
                     <button class="journal-tab" onclick="game.showJournalTab('npcs')">NPCs</button>
                     <button class="journal-tab" onclick="game.showJournalTab('lore')">Lore</button>
                     <button class="journal-tab" onclick="game.showJournalTab('reputation')">Reputation</button>
+                    <button class="journal-tab" onclick="game.showJournalTab('status')">Status</button>
                 </div>
                 
                 <div id="journalContent" class="journal-content">
@@ -11855,6 +12124,7 @@ class Game {
             case 'npcs': content.innerHTML = this.renderJournalNPCs(); break;
             case 'lore': content.innerHTML = this.renderJournalLore(); break;
             case 'reputation': content.innerHTML = this.renderJournalReputation(); break;
+            case 'status': content.innerHTML = this.renderJournalStatus(); break;
         }
     }
     
@@ -11940,6 +12210,65 @@ class Game {
     closeJournal() {
         const modal = document.getElementById("journalModal");
         if (modal) modal.classList.remove("active");
+    }
+
+    renderJournalStatus() {
+        const char = this.character;
+        const hasInspiration = char.inspiration;
+        const personality = char.personality || {};
+        const exhaustion = char.exhaustion || 0;
+
+        let html = `
+            <div class="journal-entry" style="border-left: 3px solid ${hasInspiration ? '#ffd700' : '#555'}; padding-left: 10px;">
+                <div class="journal-title">${hasInspiration ? '⭐' : '☆'} Inspiration</div>
+                <div class="journal-text" style="color: ${hasInspiration ? '#ffd700' : '#888'};">${hasInspiration ? 'Available — spend to gain advantage on a roll!' : 'None currently'}</div>
+            </div>
+
+            <div class="journal-entry" style="border-left: 3px solid #9b59b6; padding-left: 10px;">
+                <div class="journal-title">🎭 Personality</div>
+                <div class="journal-text">
+                    <div style="margin: 3px 0;"><strong style="color:#c9a227;">Trait:</strong> ${personality.trait || 'Unknown'}</div>
+                    <div style="margin: 3px 0;"><strong style="color:#c9a227;">Ideal:</strong> ${personality.ideal || 'Unknown'}</div>
+                    <div style="margin: 3px 0;"><strong style="color:#c9a227;">Bond:</strong> ${personality.bond || 'Unknown'}</div>
+                    <div style="margin: 3px 0;"><strong style="color:#c9a227;">Flaw:</strong> ${personality.flaw || 'Unknown'}</div>
+                </div>
+            </div>
+
+            <div class="journal-entry" style="border-left: 3px solid ${exhaustion > 0 ? '#e74c3c' : '#2ecc71'}; padding-left: 10px;">
+                <div class="journal-title">😓 Exhaustion: ${exhaustion}/6</div>
+                <div style="display:flex;gap:4px;margin:6px 0;">
+                    ${[1,2,3,4,5,6].map(i => 
+                        `<div style="width:20px;height:8px;border-radius:3px;background:${exhaustion >= i ? (i <= 2 ? '#f39c12' : i <= 4 ? '#e67e22' : '#e74c3c') : 'rgba(255,255,255,0.1)'};"></div>`
+                    ).join('')}
+                </div>`;
+
+        if (exhaustion > 0 && this.dm) {
+            const penalties = this.dm.getExhaustionPenalties();
+            html += `<div class="journal-text" style="color: #e74c3c;">${penalties.map(p => `• ${p.name}`).join('<br>')}</div>`;
+        } else {
+            html += `<div class="journal-text" style="color: #2ecc71;">No exhaustion effects.</div>`;
+        }
+
+        html += `</div>`;
+
+        // Encumbrance status
+        if (this.dm) {
+            const enc = this.dm.calculateEncumbrance();
+            const pct = Math.min(100, Math.round((enc.current / enc.capacity) * 100));
+            const encColor = enc.heavilyEncumbered ? '#e74c3c' : enc.encumbered ? '#f39c12' : '#2ecc71';
+            const encStatus = enc.heavilyEncumbered ? '⚠️ Heavily Encumbered' : enc.encumbered ? '⚠️ Encumbered' : '✅ OK';
+            html += `
+                <div class="journal-entry" style="border-left: 3px solid ${encColor}; padding-left: 10px;">
+                    <div class="journal-title">⚖️ Carrying Capacity</div>
+                    <div class="journal-text">${enc.current} / ${enc.capacity} lbs — <span style="color:${encColor};">${encStatus}</span></div>
+                    <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin-top:4px;">
+                        <div style="height:100%;width:${pct}%;background:${encColor};border-radius:3px;transition:width 0.3s;"></div>
+                    </div>
+                    ${enc.heavilyEncumbered ? '<div class="journal-text" style="color:#e74c3c;margin-top:4px;">Speed -20ft, disadvantage on STR/DEX/CON checks, attacks, and saves</div>' : enc.encumbered ? '<div class="journal-text" style="color:#f39c12;margin-top:4px;">Speed -10ft</div>' : ''}
+                </div>`;
+        }
+
+        return html;
     }
     
     // ==================== NPC TALK SYSTEM ====================
@@ -12167,7 +12496,8 @@ class Game {
     }
     
     renderRecipes() {
-        return Object.entries(CRAFTING_RECIPES).map(([name, recipe]) => {
+        // Standard recipes
+        let html = Object.entries(CRAFTING_RECIPES).map(([name, recipe]) => {
             const canCraft = this.canCraftRecipe(recipe);
             const materialsText = Object.entries(recipe.materials)
                 .map(([mat, count]) => `${count}x ${mat}`)
@@ -12187,6 +12517,40 @@ class Game {
                 </div>
             `;
         }).join('');
+
+        // Discovered recipes (rare/special)
+        const discovered = Array.from(this.discoveredRecipes);
+        if (discovered.length > 0) {
+            html += '<h3 style="margin-top: 12px; color: #ffd700;">⭐ Rare Recipes</h3>';
+            html += discovered.map(name => {
+                const recipe = DISCOVERABLE_RECIPES[name];
+                if (!recipe) return '';
+                // Check if player has all ingredients (from inventory + materials)
+                const canCraft = this.canCraftDiscoverable(recipe);
+                const ingredientsList = recipe.ingredients.map(ing => {
+                    const hasMat = (this.character.materials[ing] || 0) >= 1;
+                    const hasItem = this.character.inventory.includes(ing);
+                    const has = hasMat || hasItem;
+                    return `<span style="color: ${has ? '#4CAF50' : '#ff4d4d'}">${ing}</span>`;
+                }).join(', ');
+                
+                return `
+                    <div class="recipe-item ${canCraft ? '' : 'disabled'}" style="border-left: 2px solid #ffd700;">
+                        <div class="recipe-header">
+                            <span class="recipe-name" style="color: #ffd700;">⭐ ${name}</span>
+                            <span class="recipe-dc">DC 16 Arcana</span>
+                        </div>
+                        <div class="recipe-materials">${ingredientsList}</div>
+                        <div class="recipe-result" style="color: #ccc;">${recipe.description}</div>
+                        <button class="craft-btn" ${canCraft ? `onclick="game.craftDiscoverableItem('${name}')"` : 'disabled'}>
+                            ${canCraft ? 'Craft ⭐' : 'Missing Ingredients'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        return html;
     }
     
     canCraftRecipe(recipe) {
@@ -12216,6 +12580,8 @@ class Game {
         
         if (check.success) {
             this.character.inventory.push(recipe.result);
+            this.stats.itemsCrafted++;
+            this.checkAchievements();
             this.log(`✅ Crafting success! (${check.total} vs DC ${recipe.dc}) Created: ${recipe.result}`, "success");
         } else {
             this.log(`❌ Crafting failed! (${check.total} vs DC ${recipe.dc}) Materials lost.`, "danger");
@@ -12229,6 +12595,49 @@ class Game {
     closeCrafting() {
         const modal = document.getElementById("craftingModal");
         if (modal) modal.classList.remove("active");
+    }
+
+    canCraftDiscoverable(recipe) {
+        for (const ing of recipe.ingredients) {
+            const hasMat = (this.character.materials[ing] || 0) >= 1;
+            const hasItem = this.character.inventory.includes(ing);
+            if (!hasMat && !hasItem) return false;
+        }
+        return true;
+    }
+
+    craftDiscoverableItem(recipeName) {
+        const recipe = DISCOVERABLE_RECIPES[recipeName];
+        if (!recipe || !this.canCraftDiscoverable(recipe)) {
+            this.log("You don't have all the required ingredients!", "danger");
+            return;
+        }
+        
+        // Consume ingredients (from materials first, then inventory)
+        for (const ing of recipe.ingredients) {
+            if ((this.character.materials[ing] || 0) >= 1) {
+                this.character.useMaterial(ing, 1);
+            } else {
+                const idx = this.character.inventory.indexOf(ing);
+                if (idx !== -1) this.character.inventory.splice(idx, 1);
+            }
+        }
+        
+        // Arcana check DC 16 for rare recipes
+        const check = this.dm.skillCheck("int", 16);
+        
+        if (check.success) {
+            this.character.inventory.push(recipe.result);
+            this.stats.itemsCrafted++;
+            this.checkAchievements();
+            this.log(`⭐ Masterwork crafting success! (${check.total} vs DC 16) Created: ${recipe.result} — ${recipe.description}`, "success");
+            soundManager.playAchievement();
+        } else {
+            this.log(`❌ Rare crafting failed! (${check.total} vs DC 16) Ingredients lost.`, "danger");
+        }
+        
+        this.openCrafting();
+        this.updateUI();
     }
     
     // ==================== PARTY MANAGEMENT ====================
@@ -12492,62 +12901,17 @@ class Game {
     
     // ==================== INSPIRATION SYSTEM ====================
     openInspirationPanel() {
-        let modal = document.getElementById("inspirationModal");
-        if (!modal) {
-            modal = document.createElement("div");
-            modal.id = "inspirationModal";
-            modal.className = "modal";
-            document.body.appendChild(modal);
-        }
-        
-        const hasInspiration = this.character.inspiration;
-        const personality = this.character.personality;
-        
-        modal.innerHTML = `
-            <div class="modal-content" style="max-width: 500px;">
-                <h2>✨ Inspiration & Personality</h2>
-                
-                <div class="inspiration-status">
-                    <span class="inspiration-icon">${hasInspiration ? '⭐' : '☆'}</span>
-                    <span>Inspiration: ${hasInspiration ? 'Available!' : 'None'}</span>
-                </div>
-                
-                <div class="personality-section">
-                    <h3>🎭 Your Personality</h3>
-                    <div class="personality-trait">
-                        <strong>Trait:</strong> ${personality.trait || 'Unknown'}
-                    </div>
-                    <div class="personality-trait">
-                        <strong>Ideal:</strong> ${personality.ideal || 'Unknown'}
-                    </div>
-                    <div class="personality-trait">
-                        <strong>Bond:</strong> ${personality.bond || 'Unknown'}
-                    </div>
-                    <div class="personality-trait">
-                        <strong>Flaw:</strong> ${personality.flaw || 'Unknown'}
-                    </div>
-                </div>
-                
-                <div class="exhaustion-section">
-                    <h3>😓 Exhaustion Level: ${this.character.exhaustion}/6</h3>
-                    <div class="exhaustion-bar">
-                        ${[1,2,3,4,5,6].map(i => 
-                            `<div class="exhaust-pip ${this.character.exhaustion >= i ? 'active' : ''}"></div>`
-                        ).join('')}
-                    </div>
-                    ${this.character.exhaustion > 0 ? `
-                        <div class="exhaustion-effects">
-                            <strong>Effects:</strong>
-                            ${this.dm.getExhaustionPenalties().map(p => `<div>• ${p.name}</div>`).join('')}
-                        </div>
-                    ` : '<p style="color: #2ecc71;">No exhaustion effects.</p>'}
-                </div>
-                
-                <button class="close-modal" onclick="game.closeInspirationPanel()">Close</button>
-            </div>
-        `;
-        
-        modal.classList.add("active");
+        // Redirect to Journal → Status tab
+        this.openJournal();
+        // Switch to status tab after modal is rendered
+        setTimeout(() => {
+            const tabs = document.querySelectorAll('.journal-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            const statusTab = Array.from(tabs).find(t => t.textContent === 'Status');
+            if (statusTab) statusTab.classList.add('active');
+            const content = document.getElementById("journalContent");
+            if (content) content.innerHTML = this.renderJournalStatus();
+        }, 50);
     }
     
     closeInspirationPanel() {
@@ -13109,9 +13473,143 @@ class Game {
             removeItem();
             this.log(`🦟 You apply the ${item}. Jungle insects will leave you alone for 8 hours!`, "success");
             this.updateUI();
+        } else if (item === "Basic Poison") {
+            removeItem();
+            this.character.poisonedWeaponCharges = (this.character.poisonedWeaponCharges || 0) + 3;
+            this.log(`🧪 You coat your weapon with poison! Next 3 attacks deal +1d4 poison damage.`, "success");
+            this.updateUI();
+        } else if (item === "Alchemist's Fire") {
+            if (this.inCombat && this.currentEnemy) {
+                const dmg = this.dm.rollDice("2d6");
+                this.currentEnemy.hp -= dmg;
+                removeItem();
+                this.log(`🔥 You hurl Alchemist's Fire at ${this.currentEnemy.name} for ${dmg} fire damage!`, "success");
+                const hpDisplay = document.getElementById("enemyHp");
+                if (hpDisplay) {
+                    hpDisplay.textContent = `HP: ${Math.max(0, this.currentEnemy.hp)}/${this.currentEnemy.maxHp}`;
+                    this.updateEnemyHpBar(Math.max(0, this.currentEnemy.hp), this.currentEnemy.maxHp);
+                }
+                if (this.currentEnemy.hp <= 0) {
+                    this.handleEnemyDefeat(this.currentEnemy);
+                }
+            } else {
+                removeItem();
+                this.log(`🔥 You throw the Alchemist's Fire! It explodes in a burst of flame. (Use in combat for 2d6 fire damage)`, "warning");
+            }
+            this.updateUI();
+        } else if (item === "Silvered (weapon)") {
+            const weapon = this.character.equipment.weapon;
+            if (weapon && weapon !== "Unarmed") {
+                removeItem();
+                if (!this.character.silveredWeapon) {
+                    this.character.silveredWeapon = true;
+                    this.log(`⚔️✨ You coat your ${weapon} with silver! It now deals full damage to werewolves and undead.`, "success");
+                } else {
+                    this.log(`⚔️✨ You reapply silver coating to your ${weapon}.`, "success");
+                }
+            } else {
+                this.log(`❌ You need a weapon equipped to apply silver coating!`, "danger");
+            }
+            this.updateUI();
+        } else if (item === "Potion of Giant Strength") {
+            removeItem();
+            const oldStr = this.character.stats.str;
+            this.character.giantStrengthActive = true;
+            this.character.giantStrengthOldStr = oldStr;
+            this.character.stats.str = 21;
+            this.log(`💪 You drink the Potion of Giant Strength! Your STR is now 21! (was ${oldStr})`, "success");
+            this.updateUI();
+        } else if (item === "Cloak of Shadows") {
+            removeItem();
+            this.character.cloakOfShadows = true;
+            this.log(`🌑 You don the Cloak of Shadows! +2 to Stealth checks.`, "success");
+            this.updateUI();
+        } else if (item === "Boots of Speed") {
+            removeItem();
+            this.character.bootsOfSpeed = true;
+            this.log(`👢 You lace up the Boots of Speed! Travel time is halved.`, "success");
+            this.updateUI();
+        } else if (item === "Ring of Protection") {
+            removeItem();
+            this.character.ringOfProtection = true;
+            this.character.ac = (this.character.ac || 10) + 1;
+            this.log(`💍 You put on the Ring of Protection! +1 AC. (Now AC ${this.character.ac})`, "success");
+            this.updateUI();
         }
     }
     
+    dropItem(item) {
+        // Check if item is equipped
+        const isEquipped = item === this.character.equipped.weapon || 
+                          item === this.character.equipped.armor || 
+                          item === this.character.equipped.shield;
+        if (isEquipped) {
+            this.log(`⚠️ Cannot drop ${item} — unequip it first!`, "warning");
+            return;
+        }
+        
+        // Check if it's a quest/campaign key item that shouldn't be dropped
+        const campaignId = this.dm ? this.dm.campaignId : null;
+        const campaignItems = campaignId ? (GAME_DATA.campaignItems ? GAME_DATA.campaignItems[campaignId] : null) : null;
+        const isKeyItem = campaignItems && campaignItems.keyItems && campaignItems.keyItems.includes(item);
+        if (isKeyItem) {
+            this.log(`⚠️ Cannot drop ${item} — it's a quest item!`, "warning");
+            return;
+        }
+        
+        // Check item value for confirmation on expensive items
+        const weight = ITEM_WEIGHTS[item];
+        const isValuable = item.includes("Greater") || item.includes("+1") || item.includes("+2") || item.includes("+3") || 
+                          item.includes("Adamantine") || item.includes("Mithral") || item.includes("Dragon");
+        
+        if (isValuable) {
+            // Show confirmation modal for valuable items
+            this.showDropConfirmation(item);
+            return;
+        }
+        
+        this.confirmDrop(item);
+    }
+    
+    showDropConfirmation(item) {
+        let modal = document.getElementById("dropConfirmModal");
+        if (!modal) {
+            modal = document.createElement("div");
+            modal.id = "dropConfirmModal";
+            modal.className = "modal";
+            document.body.appendChild(modal);
+        }
+        
+        const weight = ITEM_WEIGHTS[item] || 1;
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 400px; text-align: center;">
+                <h3 style="color: #e74c3c;">⚠️ Drop Item?</h3>
+                <p style="margin: 15px 0;">Are you sure you want to drop <strong style="color: #c9a227;">${item}</strong>?</p>
+                <p style="font-size: 0.85rem; color: #999;">Weight: ${weight} lb${weight !== 1 ? 's' : ''} — This item will be lost forever.</p>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                    <button class="close-modal" style="background: #e74c3c; flex: 1;" onclick="game.confirmDrop('${item.replace(/'/g, "\\'")}')">Drop It</button>
+                    <button class="close-modal" style="flex: 1;" onclick="document.getElementById('dropConfirmModal').classList.remove('active')">Keep It</button>
+                </div>
+            </div>
+        `;
+        modal.classList.add("active");
+    }
+    
+    confirmDrop(item) {
+        // Close confirmation modal if open
+        const modal = document.getElementById("dropConfirmModal");
+        if (modal) modal.classList.remove("active");
+        
+        // Remove one instance of the item from inventory
+        const index = this.character.inventory.indexOf(item);
+        if (index > -1) {
+            this.character.inventory.splice(index, 1);
+            const weight = ITEM_WEIGHTS[item] || 1;
+            this.log(`🗑️ Dropped ${item} (${weight} lb${weight !== 1 ? 's' : ''}).`, "dm");
+            this.updateUI();
+        }
+    }
+
     equipItem(item) {
         const campaignId = this.dm ? this.dm.campaignId : null;
         const result = this.character.equipItem(item, campaignId);
@@ -13272,6 +13770,19 @@ class Game {
             return;
         }
         
+        // Exhaustion Level 5: Speed reduced to 0 — can't travel
+        if (this.character.exhaustion >= 5) {
+            this.log("⚠️ You are too exhausted to travel! (Exhaustion level 5: Speed reduced to 0). You must rest.", "danger");
+            return;
+        }
+
+        // Check encumbrance — over capacity means can't move
+        const enc = this.dm.calculateEncumbrance();
+        if (enc.current >= enc.capacity) {
+            this.log(`⚠️ You are carrying ${enc.current} lbs — over your ${enc.capacity} lbs capacity! Drop items before traveling.`, "danger");
+            return;
+        }
+        
         const newLocation = this.dm.campaign.locations[locationIndex];
         const oldLocation = this.dm.currentLocation;
         this.dm.currentLocation = newLocation;
@@ -13282,6 +13793,52 @@ class Game {
         this.log(`You travel to ${newLocation.name}...`, "dm");
         if (newLocation.description) {
             this.log(`<em>${newLocation.description}</em>`, "dm");
+        }
+        
+        // Travel takes time (2-4 hours base). Exhaustion Level 2+: speed halved = double travel time.
+        let travelHours = 2 + Math.floor(Math.random() * 3);
+        if (this.character.exhaustion >= 2) {
+            travelHours *= 2;
+            this.log(`⚠️ Exhaustion slows your pace — travel takes ${travelHours} hours instead of ${travelHours / 2}.`, "danger");
+        }
+        // Encumbered: +1 hour, Heavily Encumbered: +2 hours
+        if (enc.heavilyEncumbered) {
+            travelHours += 2;
+            this.log(`⚠️ Heavily encumbered — travel takes ${travelHours > 2 ? travelHours - 2 + '+2=' : ''}${travelHours} hours.`, "danger");
+        } else if (enc.encumbered) {
+            travelHours += 1;
+            this.log(`⚠️ Encumbered — travel takes an extra hour (${travelHours} hours).`, "warning");
+        }
+        // Boots of Speed halve travel time
+        if (this.character.bootsOfSpeed) {
+            travelHours = Math.max(1, Math.floor(travelHours / 2));
+            this.log(`👢 Boots of Speed quicken your journey!`, "success");
+        }
+        this.dm.advanceTime(travelHours);
+        
+        // Forced march exhaustion: after 16 hours without a long rest, each hour of travel requires a CON save
+        // DC 10 + 1 for each hour past 16. Failure = +1 exhaustion level.
+        if (this.dm.hoursWithoutLongRest > 16) {
+            const hoursPast = Math.floor(this.dm.hoursWithoutLongRest - 16);
+            const dc = 10 + hoursPast;
+            const conMod = this.character.getModifier("con");
+            const roll = Math.floor(Math.random() * 20) + 1;
+            const total = roll + conMod;
+            if (total < dc) {
+                const result = this.addExhaustion(1);
+                this.log(`😰 Forced march! CON save: ${total} vs DC ${dc} — Failed! You gain 1 level of exhaustion (Level ${result.exhaustion}).`, "danger");
+                if (result.exhaustion >= 6) {
+                    this.log(`💀 You collapse from total exhaustion... DEATH!`, "danger");
+                    this.character.hp = 0;
+                    soundManager.playDeath();
+                    this.gameOver();
+                    return;
+                } else if (EXHAUSTION_EFFECTS[result.exhaustion]) {
+                    this.log(`⚠️ ${EXHAUSTION_EFFECTS[result.exhaustion].name}`, "danger");
+                }
+            } else {
+                this.log(`💪 Forced march! CON save: ${total} vs DC ${dc} — You push through the fatigue.`, "dm");
+            }
         }
         
         // Story triggers based on location
@@ -13890,8 +14447,23 @@ class Game {
     performLongRest(showTime = true) {
         const char = this.character;
 
-        // Full HP restore
+        // Exhaustion: Long rest reduces exhaustion by 1 level (per 5e rules)
+        if (char.exhaustion > 0) {
+            this.removeExhaustion(1);
+            if (char.exhaustion > 0) {
+                this.log(`😮‍💨 Exhaustion reduced to level ${char.exhaustion}. (${EXHAUSTION_EFFECTS[char.exhaustion].name})`, "success");
+            } else {
+                this.log(`✅ You are no longer exhausted!`, "success");
+            }
+        }
+
+        // Full HP restore (Exhaustion level 4 halves max HP — applied after heal)
         char.hp = char.maxHp;
+        if (char.exhaustion >= 4) {
+            const halvedMax = Math.floor(char.maxHp / 2);
+            char.hp = Math.min(char.hp, halvedMax);
+            this.log(`⚠️ Exhaustion level 4: Your HP maximum is halved to ${halvedMax}!`, "danger");
+        }
 
         // Restore all hit dice
         char.hitDice.current = char.hitDice.max;
@@ -13906,6 +14478,9 @@ class Game {
 
         // Reset short rest counter
         this.dm.shortRestsTaken = 0;
+        
+        // Reset forced march tracker
+        this.dm.hoursWithoutLongRest = 0;
 
         // Restore subclass long rest resources
         if (char.subclass === 'BattleMaster') {
@@ -14022,6 +14597,7 @@ class Game {
             currentChapter: this.dm.currentChapter,
             questFlags: this.dm.questFlags,
             party: this.dm.party || [],
+            hoursWithoutLongRest: this.dm.hoursWithoutLongRest || 0,
             saveTime: Date.now()
         };
         localStorage.setItem(saveKey, JSON.stringify(saveData));
@@ -14039,6 +14615,7 @@ class Game {
             this.dm.currentChapter = saveData.currentChapter || 0;
             this.dm.questFlags = saveData.questFlags || this.dm.questFlags;
             this.dm.party = saveData.party || [];
+            this.dm.hoursWithoutLongRest = saveData.hoursWithoutLongRest || 0;
             
             // Switch to game screen
             document.getElementById("titleScreen").classList.add("hidden");
@@ -14318,7 +14895,7 @@ class Game {
         const classData = GAME_DATA.classes[char.charClass] || {};
 
         const exportData = {
-            formatVersion: "3.3",
+            formatVersion: "3.4",
             exportType: "dnd-character",
             system: "dnd5e",
             generator: "dnd-text-adventure",
@@ -16088,21 +16665,52 @@ document.addEventListener("DOMContentLoaded", () => {
         .mini-map-container {
             background: rgba(0,0,0,0.4);
             border-radius: 8px;
-            padding: 8px;
+            padding: 0;
             margin: 8px 0;
             border: 1px solid rgba(255,255,255,0.1);
-            max-height: 150px;
-            overflow-y: auto;
+            max-height: 62px;
+            overflow: hidden;
             transition: max-height 0.3s ease;
+            cursor: pointer;
         }
         .mini-map-container.expanded {
             max-height: 400px;
+            cursor: default;
+            overflow-y: auto;
+            padding: 0;
         }
         .mini-map-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            padding: 6px 8px;
+            margin-bottom: 0;
+        }
+        .mini-map-preview {
+            padding: 4px 10px 6px;
+            font-size: 0.8rem;
+            color: #ffd700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .mini-map-container.expanded .mini-map-preview {
+            display: none;
+        }
+        .mini-map-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 6px 8px 8px;
+        }
+        .map-expand-hint {
+            font-size: 0.65rem;
+            color: #888;
+            font-weight: normal;
+            margin-left: 6px;
+        }
+        .mini-map-container.expanded .map-expand-hint {
+            display: none;
         }
         .mini-map-header h4 {
             margin: 0;
@@ -16120,11 +16728,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         .map-toggle-btn:hover {
             background: rgba(255,255,255,0.2);
-        }
-        .mini-map-content {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
         }
         .map-chapter {
             background: rgba(255,255,255,0.03);
@@ -16279,46 +16882,51 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         /* Combat Party Status Display */
         .combat-party-status {
-            background: rgba(0,0,0,0.4);
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3);
+            border-radius: 6px;
+            padding: 5px 8px;
+            margin: 6px 0;
+            border: 1px solid rgba(255,255,255,0.12);
         }
         .party-combat-header {
             font-weight: bold;
             color: #ffd700;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
+            margin-bottom: 4px;
+            font-size: 0.72rem;
         }
         .party-combat-list {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 2px;
         }
         .party-combat-member {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 6px 8px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 4px;
+            gap: 5px;
+            padding: 2px 4px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 3px;
         }
         .party-combat-member.unconscious {
             opacity: 0.5;
             background: rgba(139, 0, 0, 0.3);
         }
         .pcm-name {
-            min-width: 100px;
-            font-weight: bold;
-            font-size: 0.85rem;
+            min-width: 0;
+            max-width: 120px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .pcm-hp-bar {
             flex: 1;
-            height: 12px;
+            height: 6px;
             background: rgba(0,0,0,0.5);
-            border-radius: 6px;
+            border-radius: 3px;
             overflow: hidden;
+            min-width: 40px;
         }
         .pcm-hp-fill {
             height: 100%;
@@ -16328,10 +16936,10 @@ document.addEventListener("DOMContentLoaded", () => {
         .pcm-hp-fill.wounded { background: linear-gradient(to right, #ff9800, #ffb74d); }
         .pcm-hp-fill.critical { background: linear-gradient(to right, #f44336, #ef5350); }
         .pcm-hp-text {
-            min-width: 55px;
+            min-width: 38px;
             text-align: right;
-            font-size: 0.8rem;
-            color: #ccc;
+            font-size: 0.68rem;
+            color: #aaa;
         }
         /* Party Panel Heal Buttons */
         .companion-hp-bar-container {
@@ -16423,6 +17031,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         });
+    });
+
+    // Close menu dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        const wrapper = document.querySelector('.menu-dropdown-wrapper');
+        const dropdown = document.getElementById('menuDropdown');
+        if (dropdown && wrapper && !wrapper.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
     });
 });
 

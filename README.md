@@ -2,7 +2,7 @@
 
 ### *An Epic D&D 5th Edition Web RPG Experience*
 
-![Version](https://img.shields.io/badge/version-3.3-gold)
+![Version](https://img.shields.io/badge/version-3.4-gold)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![D&D](https://img.shields.io/badge/D%26D-5e-red)
 
@@ -27,7 +27,8 @@
 - ✅ **Short Rest Features** - Action Surge, Channel Divinity, and Arcane Recovery with proper recharge
 - ✅ **Tool Proficiencies** - Thieves' Tools, Herbalism Kit, and more granted by class, race, and background
 - ✅ **Languages** - 16 D&D languages (8 standard + 8 exotic) from race and background
-- ✅ **Variant Encumbrance** - 60+ real item weights with STR-based carry thresholds
+- ✅ **Variant Encumbrance** - 60+ real item weights with STR-based carry thresholds, enforced penalties
+- ✅ **Drop Items** - Discard unwanted inventory items with safeguards for equipped/quest/valuable items
 
 ### **Epic Campaign Content**
 - 🛡️ **Keep on the Borderlands** ★ Recommended Start — Defend against chaos (Levels 1-3)
@@ -47,7 +48,7 @@
 - ⚔️ **Boss Encounters** - Legendary Resistances, phase transitions, Last Stand, Heroic Sacrifice, Fail-Forward
 - 🗺️ **5 Campaign Settings** - Each with unique economy, loot tables, and magic items
 - 🎒 **Inventory Management** - Equipment, consumables, quest items
-- 📖 **Journal System** - Track your adventure history
+- 📖 **Journal System** - Quests, NPCs, Lore, Reputation, and Character Status in one codex
 - ⚔️ **Combat Tactics** - Defensive, balanced, or aggressive strategies
 - 💾 **Save Manager** - View, load, and delete saved games with detailed metadata
 - 🎯 **Death Saves** - Roll to survive at 0 HP with D&D 5e death saving throws
@@ -266,6 +267,7 @@ The game supports various settings:
 ## 📝 Development
 
 ### **Version History**
+- **v3.4** - "Quality of Life" — Drop items from inventory, encumbrance penalties actually enforced (was broken), professional button redesign, Journal Status tab, decluttered action bar
 - **v3.3** - "Tabletop Fidelity" — Proper HP on level up (roll vs average choice), short rest class features (Action Surge, Channel Divinity, Arcane Recovery), tool proficiencies, 16 D&D languages, real item-weight encumbrance (60+ items)
 - **v3.2** - "Realism & Depth" — 8 D&D 5e realism systems (Skill Proficiency, Opportunity Attacks, Passive Perception, Ritual Casting, Equipment Proficiency, Attunement, Darkvision, Racial Abilities), Half-Orc race, character panel UI overhaul
 - **v3.1** - "Combat Gates" — Lost Mine of Phandelver campaign, combat-gated story progression across all 5 campaigns, full 15-point integration audit

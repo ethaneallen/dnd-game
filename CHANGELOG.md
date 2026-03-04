@@ -4,6 +4,68 @@ All notable changes to the D&D: Realms of Adventure web game.
 
 ---
 
+## [3.4.0] - 2026-03-03 - "Quality of Life" 🛠️
+
+### 🎉 UPDATE - UI Polish, Encumbrance Fixes, Inventory Management & Info Architecture
+
+This release focuses on polish and fixing broken systems — the encumbrance penalties that were never applied are now fully functional, buttons got a professional redesign, the action bar was decluttered, and players can finally drop items from their inventory.
+
+### ✨ Added
+
+#### **Drop Items from Inventory** (NEW)
+- Drop button on every non-equipped inventory item
+- Equipped items must be unequipped before dropping (with warning message)
+- Quest/campaign key items are protected from being dropped
+- Valuable items (Greater potions, +1/+2/+3 gear, Adamantine, Mithral, Dragon items) trigger a confirmation modal
+- Weight freed is logged to the adventure log
+- Styled with subtle red button to distinguish from Equip/Use actions
+
+#### **Journal Status Tab** (NEW)
+- 5th tab added to Journal: Status (alongside Quests, NPCs, Lore, Reputation)
+- Displays Inspiration status with gold/grey visual indicator
+- Shows Personality traits (Trait, Ideal, Bond, Flaw) with purple accent
+- Exhaustion level with 6 color-coded pips and active effects list
+- Encumbrance capacity bar with percentage, color-coded status, and penalty descriptions
+- `openInspirationPanel()` now redirects to Journal → Status tab
+
+### 🔧 Changed
+
+#### **Encumbrance Penalties Now Actually Applied** (BUGFIX — was completely broken)
+- `skillCheck()`: Heavily encumbered now gives disadvantage on STR/DEX/CON ability checks
+- `skillCheckAnimated()`: Same disadvantage applied to animated skill checks
+- `combatAction()`: Heavily encumbered now gives disadvantage on attack rolls
+- `executeMonsterAbility()`: Heavily encumbered now gives disadvantage on DEX saves (breath weapons) and CON saves (poison)
+- Exploration skill checks: Changed from hardcoded `false` to actual encumbrance check for STR/DEX/CON
+- `travel()`: Over-capacity now blocks travel entirely ("Drop items before traveling"); encumbered adds +1 hour; heavily encumbered adds +2 hours
+
+#### **Button Bar Redesign** (UI POLISH)
+- Reduced from 9 buttons to 7 — removed redundant Quests (already in Journal) and Status (moved to Journal tab)
+- Actions panel: background gradient, rounded corners, subtle border
+- Buttons: thinner borders, uppercase text, letter-spacing, subtler hover effects
+- Primary button (Explore): warm gold accent with distinct styling
+- Hover: `translateY(-1px)` with soft gold glow instead of harsh lift
+- Menu dropdown: backdrop-filter blur, softer colors, refined hover states
+- Ripple effect: reduced to 15% opacity with larger 200% spread
+- Responsive breakpoints updated for smaller screens
+
+#### **Combat UI Cleanup**
+- Removed red `border-left` accent from monster description text (`.enemy-description`)
+
+### 🗑️ Removed
+- Quests button from action bar (redundant — Quests is first tab in Journal)
+- Status button from action bar (moved to Journal as 5th tab)
+- Standalone inspiration/status modal (functionality preserved via Journal redirect)
+
+### 📊 Statistics
+- game.js: ~17,050 lines (+1,030 from v3.3)
+- 1 critical bugfix (encumbrance penalties never applied — 6 locations patched)
+- 1 new inventory action (Drop)
+- 1 new Journal tab (Status)
+- 2 buttons removed from action bar
+- Full button CSS redesign
+
+---
+
 ## [3.3.0] - 2026-02-27 - "Tabletop Fidelity" 🎯
 
 ### 🎉 MAJOR UPDATE - 5 Nice-to-Have D&D 5e Systems
@@ -574,35 +636,39 @@ Modified:
 
 ## 📊 Version Comparison
 
-| Feature | v1.0 | v1.5 | v2.0 | v3.0 | v3.1 | v3.2 | v3.3 |
-|---------|------|------|------|------|------|------|------|
-| Core D&D Mechanics | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Campaigns | 4 | 4 | 4 | 5 settings | 5 full | 5 full | 5 full |
-| Character Options | Basic | Advanced | Advanced | Advanced | Advanced | Advanced | Advanced |
-| Achievements | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Crafting | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Companions | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Professional UI | ❌ | ⚠️ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Landing Page | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Full Economy System | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Black Market | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Artifact Favors | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Boss Depth (LR/LS) | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Exhaustion System | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Campaign Magic Items | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Bounty/Guard System | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Combat-Gated Progress | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| Lost Mine of Phandelver | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| Skill Proficiency (18) | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Racial Abilities | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Darkvision | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Tool Proficiencies | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Languages | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Short Rest Features | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Proper Encumbrance | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| HP Roll vs Average | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Lines of Code (py) | — | — | — | ~6,850 | ~6,850 | ~6,850 | ~6,870 |
-| Lines of Code (js) | ~6,000 | ~9,000 | ~11,000 | ~11,000 | ~13,000 | ~15,700 | ~16,020 |
+| Feature | v1.0 | v1.5 | v2.0 | v3.0 | v3.1 | v3.2 | v3.3 | v3.4 |
+|---------|------|------|------|------|------|------|------|------|
+| Core D&D Mechanics | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Campaigns | 4 | 4 | 4 | 5 settings | 5 full | 5 full | 5 full | 5 full |
+| Character Options | Basic | Advanced | Advanced | Advanced | Advanced | Advanced | Advanced | Advanced |
+| Achievements | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Crafting | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Companions | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Professional UI | ❌ | ⚠️ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅+ |
+| Landing Page | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Full Economy System | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Black Market | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Artifact Favors | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Boss Depth (LR/LS) | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Exhaustion System | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Campaign Magic Items | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Bounty/Guard System | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Combat-Gated Progress | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Lost Mine of Phandelver | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Skill Proficiency (18) | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Racial Abilities | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Darkvision | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Tool Proficiencies | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Languages | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Short Rest Features | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Proper Encumbrance | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| HP Roll vs Average | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Encumbrance Penalties | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Drop Items | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Journal Status Tab | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Polished Button Bar | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Lines of Code (py) | — | — | — | ~6,850 | ~6,850 | ~6,850 | ~6,870 | ~6,870 |
+| Lines of Code (js) | ~6,000 | ~9,000 | ~11,000 | ~11,000 | ~13,000 | ~15,700 | ~16,020 | ~17,050 |
 
 ---
 
@@ -669,5 +735,5 @@ The version number is displayed in:
 
 ---
 
-**Last Updated:** February 27, 2026  
-**Current Stable Version:** 3.3.0
+**Last Updated:** March 3, 2026  
+**Current Stable Version:** 3.4.0

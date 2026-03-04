@@ -1,5 +1,5 @@
-# D&D 5e Text Adventure Engine  v3.3.0
-# "Tabletop Fidelity" — HP Choices, Short Rest Features, Tools, Languages, Encumbrance, February 2026
+# D&D 5e Text Adventure Engine  v3.4.0
+# "Quality of Life" — Drop Items, Encumbrance Fixes, Button Polish, Journal Status Tab, March 2026
 import random
 import json
 import os
