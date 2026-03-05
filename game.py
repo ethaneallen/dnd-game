@@ -1,5 +1,5 @@
-# D&D 5e Text Adventure Engine  v3.4.0
-# "Quality of Life" — Drop Items, Encumbrance Fixes, Button Polish, Journal Status Tab, March 2026
+# D&D 5e Text Adventure Engine  v4.0.0
+# "Immersive Experience" — 59 new monsters, premium visual/audio polish, bestiary, campaign map, March 2026
 import random
 import json
 import os

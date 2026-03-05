@@ -4,6 +4,129 @@ All notable changes to the D&D: Realms of Adventure web game.
 
 ---
 
+## [4.0.0] - 2026-03-04 - "Immersive Experience" ✨
+
+### 🎉 MAJOR UPDATE - 59 New Monsters, Premium Visual & Audio Polish, Bestiary, Campaign Map
+
+This is the biggest visual and content update yet — 59 new monsters across all 5 campaigns for greater encounter variety, plus 15 premium polish features that transform the game from a text adventure into a cinematic tabletop experience. Every interaction now has visual feedback, sound, and animation.
+
+### ✨ Added
+
+#### **59 New Monsters** (CONTENT)
+- **Keep on the Borderlands** (+12): Shrieker, Gelatinous Cube, Rust Monster, Carrion Crawler, Piercer, Gnoll Fang of Yeenoghu, Hobgoblin Warlord, Bugbear Chief, Ogre, Kobold Dragonshield, Fire Beetle, Giant Centipede
+- **Night's Dark Terror** (+11): Dire Wolf, Worg, Shadow, Ghoul, Doppelganger, Werewolf, Harpy, Basilisk, Gargoyle, Wraith, Troll
+- **Curse of Strahd** (+13): Shadow, Death Dog, Ghast, Phantom Warrior, Broom of Animated Attack, Boneless, Scarecrow, Mongrelfolk, Tree Blight, Vampire Spawn Knight, Barovian Witch, Night Hag, Banshee
+- **Tomb of Annihilation** (+11): Almiraj, Flying Monkey, Jaculi, Grung, Su-monster, Aldani (Lobsterfolk), Tabaxi Hunter, Froghemoth, Kamadan, Flail Snail, Atropal
+- **Lost Mine of Phandelver** (+12): Nothic, Ochre Jelly, Grick, Spectator, Flameskull, Mormesk the Wraith, Sildar Hallwinter (enemy), Drip (Ooze), Giant Spider, Doppelganger Assassin, Young Green Dragon, Stirge
+
+#### **D20 Favicon** (UI)
+- Custom SVG data-URI favicon with D20 die shape and "20" text
+- Displays in browser tab without any external file
+
+#### **Google Fonts Integration** (UI)
+- Cinzel for headings — elegant medieval serif
+- Crimson Text for body/buttons/log — readable fantasy body font
+- Applied consistently across all UI elements
+
+#### **Typewriter Effect for DM Narration** (IMMERSION)
+- DM messages type out character by character with blinking cursor
+- Messages over 200 characters display instantly to avoid delays
+- Cursor auto-removes after typing completes
+
+#### **HP Bar Flash Animations** (COMBAT)
+- Player HP bar flashes red on damage taken
+- Enemy HP bar flashes red when hit
+- Heal flash (green) on HP restoration
+- Uses CSS keyframe animations with reflow trigger for re-triggering
+
+#### **Combat Image Entrance Animation** (COMBAT)
+- Enemy images scale in from 80% with fade and blur on combat start
+- 0.6s cubic-bezier eased animation for cinematic feel
+
+#### **Upgraded Synthesized Sound Effects** (AUDIO)
+- Complete SoundManager rewrite with multi-oscillator layered synthesis
+- `createNoise()` helper for filtered noise bursts (sword swings, impacts)
+- Richer attack, spell, defend, heal, levelUp, death, hit, and miss sounds
+- New `playLootDrop()` — sparkling coin sound
+- New `playTransition()` — deep atmospheric whoosh
+
+#### **Enemy Shake & Floating Damage Numbers** (COMBAT)
+- Enemy image shakes on player hit via CSS animation
+- Floating damage number appears over enemy image and fades upward
+- Bright red text with text shadow for visibility
+
+#### **Parchment Game Log** (UI)
+- Game log restyled with warm parchment gradient background
+- Repeating horizontal line texture via `repeating-linear-gradient`
+- Aged paper edges via `::before` and `::after` pseudo-elements
+- Top fade for scroll overflow
+
+#### **Location Transition Overlay** (IMMERSION)
+- Full-screen fade-to-black overlay when traveling to new locations
+- Displays location name and type with cinematic timing
+- `showLocationTransition()` returns a Promise for async flow
+- Transition sound plays during overlay
+
+#### **Loot Drop Animations** (IMMERSION)
+- Floating icons (💰, 🎒, ⭐) appear when gold, items, or XP are earned
+- CSS keyframe animation: drop in, bounce, fade out
+- Color-coded glow: gold for coins, green for items, purple for XP
+
+#### **Campaign Progress Map** (FEATURE)
+- Accessible via Menu → Campaign Map
+- Displays all locations grouped by chapter
+- Nodes colored: green (visited), gold pulsing (current), grey (undiscovered)
+- Progress bar showing percentage of locations explored
+- Stored in save data
+
+#### **Character Portrait** (UI)
+- Race-based emoji portrait in circular gold border on character panel
+- Displays above character name
+- Title line under name showing "Level X [Class]"
+
+#### **Bestiary / Monster Journal** (FEATURE)
+- Accessible via Menu → Bestiary
+- Automatically tracks every monster encountered during gameplay
+- Shows monster image, name, HP, AC, and description
+- Sorted alphabetically with discovery count
+- Stored in save data
+
+#### **Day/Night Theme Cycling** (IMMERSION)
+- Body background subtly shifts based on in-game time of day
+- Dawn: warm sunrise gradient
+- Day: bright sky tones
+- Dusk: amber/purple sunset
+- Night: deep dark blue
+- Smooth 2-second CSS transitions between themes
+
+#### **Keyboard Shortcut Labels** (UI)
+- All exploration buttons now show shortcut hints: [E]xplore, [T]ravel, [R]est, [P]arty, [J]ournal, [F]orge/Craft, [M]enu
+- Combat buttons already had [A]ttack, [S]pell, [B]onus, [D]efend, [R]etreat
+- New keyboard handlers for E, J, P, F, M keys
+- Styled as subtle keyboard-key badges (monospace, bordered, hover-brighten)
+
+### 🔧 Changed
+
+#### **Combat Images** (CSS FIX)
+- Changed `object-fit: contain` to `object-fit: cover` with `object-position: center top`
+- Fixes tall/narrow images showing whitespace on sides
+
+#### **Save/Load System**
+- Save data now includes `visitedLocations` and `discoveredMonsters` arrays
+- Load restores them as Sets for campaign map and bestiary tracking
+
+### 📊 Statistics
+- game.js: ~18,200 lines (+1,150 from v3.4)
+- 59 new monsters added across all 5 campaigns (~210 total)
+- 15 premium polish features
+- 6 new keyboard shortcuts (E, J, P, F, M, 6)
+- 5 new CSS animation systems
+- 2 new game modals (Campaign Map, Bestiary)
+- 2 new SoundManager methods
+- 1 new full-screen overlay system
+
+---
+
 ## [3.4.0] - 2026-03-03 - "Quality of Life" 🛠️
 
 ### 🎉 UPDATE - UI Polish, Encumbrance Fixes, Inventory Management & Info Architecture
@@ -636,39 +759,52 @@ Modified:
 
 ## 📊 Version Comparison
 
-| Feature | v1.0 | v1.5 | v2.0 | v3.0 | v3.1 | v3.2 | v3.3 | v3.4 |
-|---------|------|------|------|------|------|------|------|------|
-| Core D&D Mechanics | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Campaigns | 4 | 4 | 4 | 5 settings | 5 full | 5 full | 5 full | 5 full |
-| Character Options | Basic | Advanced | Advanced | Advanced | Advanced | Advanced | Advanced | Advanced |
-| Achievements | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Crafting | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Companions | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Professional UI | ❌ | ⚠️ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅+ |
-| Landing Page | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Full Economy System | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Black Market | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Artifact Favors | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Boss Depth (LR/LS) | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Exhaustion System | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Campaign Magic Items | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Bounty/Guard System | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Combat-Gated Progress | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Lost Mine of Phandelver | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Skill Proficiency (18) | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| Racial Abilities | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| Darkvision | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| Tool Proficiencies | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Languages | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Short Rest Features | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Proper Encumbrance | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| HP Roll vs Average | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Encumbrance Penalties | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Drop Items | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Journal Status Tab | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Polished Button Bar | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Lines of Code (py) | — | — | — | ~6,850 | ~6,850 | ~6,850 | ~6,870 | ~6,870 |
-| Lines of Code (js) | ~6,000 | ~9,000 | ~11,000 | ~11,000 | ~13,000 | ~15,700 | ~16,020 | ~17,050 |
+| Feature | v1.0 | v1.5 | v2.0 | v3.0 | v3.1 | v3.2 | v3.3 | v3.4 | **v4.0** |
+|---------|------|------|------|------|------|------|------|------|------|
+| Core D&D Mechanics | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Campaigns | 4 | 4 | 4 | 5 settings | 5 full | 5 full | 5 full | 5 full | 5 full |
+| Total Monsters | ~80 | ~100 | ~120 | ~130 | ~140 | ~145 | ~148 | ~151 | **~210** |
+| Character Options | Basic | Advanced | Advanced | Advanced | Advanced | Advanced | Advanced | Advanced | Advanced |
+| Achievements | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Crafting | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Companions | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Professional UI | ❌ | ⚠️ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅+ | ✅++ |
+| Landing Page | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Full Economy System | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Black Market | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Artifact Favors | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Boss Depth (LR/LS) | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Exhaustion System | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Campaign Magic Items | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Bounty/Guard System | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Combat-Gated Progress | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Lost Mine of Phandelver | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Skill Proficiency (18) | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Racial Abilities | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Darkvision | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Tool Proficiencies | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Languages | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Short Rest Features | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Proper Encumbrance | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| HP Roll vs Average | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Encumbrance Penalties | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Drop Items | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Journal Status Tab | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Polished Button Bar | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Google Fonts | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Typewriter Narration | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Combat Animations | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Layered Sound Synthesis | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Parchment Game Log | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Location Transitions | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Loot Drop Animations | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Campaign Map | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Bestiary Journal | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Character Portrait | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Day/Night Themes | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Keyboard Shortcut Labels | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Lines of Code (py) | — | — | — | ~6,850 | ~6,850 | ~6,850 | ~6,870 | ~6,870 | ~6,870 |
+| Lines of Code (js) | ~6,000 | ~9,000 | ~11,000 | ~11,000 | ~13,000 | ~15,700 | ~16,020 | ~17,050 | **~18,200** |
 
 ---
 
@@ -680,8 +816,8 @@ Modified:
 - Achievement notifications may stack if many unlocked simultaneously
 
 ### In Progress
-- Cloud save synchronization (planned for 2.2.0)
-- Audio system (planned for 2.1.0)
+- Cloud save synchronization
+- Voice narration for key story moments
 
 ---
 
@@ -735,5 +871,5 @@ The version number is displayed in:
 
 ---
 
-**Last Updated:** March 3, 2026  
-**Current Stable Version:** 3.4.0
+**Last Updated:** March 4, 2026  
+**Current Stable Version:** 4.0.0

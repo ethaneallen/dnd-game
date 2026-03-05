@@ -587,7 +587,44 @@ Campaign content inspired by official D&D adventures:
                       COMPLETE VERSION HISTORY
 ================================================================================
 
-VERSION 1.9.5 - PARTY COMBAT OVERHAUL (Latest)
+VERSION 4.0 - IMMERSIVE EXPERIENCE (Latest)
+--------------------------------------------------------------------------------
+  🐉 59 NEW MONSTERS ACROSS ALL 5 CAMPAIGNS (~210 total):
+     - Keep on the Borderlands: +12 (Gelatinous Cube, Rust Monster, etc.)
+     - Night's Dark Terror: +11 (Dire Wolf, Werewolf, Troll, etc.)
+     - Curse of Strahd: +13 (Banshee, Night Hag, Scarecrow, etc.)
+     - Tomb of Annihilation: +11 (Froghemoth, Atropal, Kamadan, etc.)
+     - Lost Mine of Phandelver: +12 (Nothic, Flameskull, Young Green Dragon, etc.)
+
+  ✨ 15 PREMIUM POLISH FEATURES:
+     - D20 SVG favicon in browser tab
+     - Google Fonts (Cinzel headings, Crimson Text body)
+     - Typewriter effect for DM narration messages
+     - HP bar flash animations (red on damage, green on heal)
+     - Combat image entrance animation (scale + fade + blur)
+     - Upgraded synthesized sound effects (multi-oscillator layered)
+     - Enemy shake + floating damage numbers on player hits
+     - Parchment-styled game log with aged paper texture
+     - Cinematic location transition overlay when traveling
+     - Loot drop animations (floating gold/item/XP icons)
+     - Campaign progress map (Menu > Campaign Map)
+     - Character portrait with race-based emoji
+     - Bestiary journal tracking discovered monsters (Menu > Bestiary)
+     - Day/night theme cycling based on in-game time
+     - Keyboard shortcut labels on all action buttons
+
+  ⌨️ NEW KEYBOARD SHORTCUTS:
+     - [E] Explore, [T] Travel, [R] Rest, [P] Party
+     - [J] Journal, [F] Craft, [M] Menu
+     - [1]-[6] Action buttons by position
+
+  🔧 FIXES:
+     - Combat images: object-fit changed to cover (fixes whitespace on tall images)
+     - Save/load now preserves campaign map and bestiary data
+
+--------------------------------------------------------------------------------
+
+VERSION 1.9.5 - PARTY COMBAT OVERHAUL
 --------------------------------------------------------------------------------
   ⚔️ COMPANIONS NOW FULLY PARTICIPATE IN COMBAT:
      - Party members actively attack enemies each combat round

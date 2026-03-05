@@ -703,14 +703,20 @@ const KEYBOARD_SHORTCUTS = {
     '3': 'action3',
     '4': 'action4',
     '5': 'action5',
+    '6': 'action6',
     'a': 'attack',
     's': 'spell',
     'd': 'defend',
     'b': 'bonusAction',
     'r': 'retreat_or_rest',
+    'e': 'explore',
+    'j': 'journal',
+    'p': 'party',
+    'f': 'craft',
     'i': 'inventory',
     'c': 'character',
     't': 'travel',
+    'm': 'menu',
     'Escape': 'closeModal',
     ' ': 'continue'
 };
@@ -725,9 +731,179 @@ const DISCOVERABLE_RECIPES = {
     "Potion of Giant Strength": { ingredients: ["Healing Potion", "Giant's Toe", "Bear Fur"], result: "Potion of Giant Strength", description: "STR becomes 21 for 1 hour" }
 };
 
+// ==================== WEATHER EFFECTS SYSTEM ====================
+class WeatherRenderer {
+    constructor() {
+        this.canvas = null;
+        this.ctx = null;
+        this.particles = [];
+        this.currentWeather = 'clear';
+        this.animationId = null;
+        this.lightningTimer = null;
+        this.initialized = false;
+    }
+
+    init() {
+        this.canvas = document.getElementById('weatherCanvas');
+        if (!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        this.initialized = true;
+    }
+
+    resize() {
+        if (!this.canvas) return;
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+    }
+
+    setWeather(weather) {
+        if (weather === this.currentWeather && this.initialized) return;
+        this.currentWeather = weather;
+
+        if (!this.initialized) this.init();
+        if (!this.canvas) return;
+
+        // Remove all weather classes from body
+        document.body.classList.remove('weather-clear', 'weather-cloudy', 'weather-rain', 'weather-storm', 'weather-fog');
+        document.body.classList.add(`weather-${weather}`);
+
+        // Stop existing animation
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+        if (this.lightningTimer) {
+            clearInterval(this.lightningTimer);
+            this.lightningTimer = null;
+        }
+
+        // Clear particles
+        this.particles = [];
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Start particle effects
+        switch (weather) {
+            case 'rain':
+                this.startRain(120);
+                break;
+            case 'storm':
+                this.startRain(200);
+                this.startLightning();
+                break;
+            case 'fog':
+            case 'cloudy':
+            case 'clear':
+                // CSS-only effects, no canvas particles needed
+                break;
+        }
+    }
+
+    startRain(count) {
+        // Seed initial particles across screen
+        for (let i = 0; i < count; i++) {
+            this.particles.push(this.createRaindrop(true));
+        }
+        this.animateRain();
+    }
+
+    createRaindrop(randomY = false) {
+        const isStorm = this.currentWeather === 'storm';
+        return {
+            x: Math.random() * (this.canvas.width + 100) - 50,
+            y: randomY ? Math.random() * this.canvas.height : -10,
+            length: 10 + Math.random() * 15,
+            speed: 8 + Math.random() * (isStorm ? 10 : 5),
+            wind: isStorm ? 3 + Math.random() * 4 : 0.5 + Math.random() * 1,
+            opacity: 0.15 + Math.random() * 0.2,
+            thickness: 1 + Math.random() * 0.5
+        };
+    }
+
+    animateRain() {
+        if (!this.ctx) return;
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+            const p = this.particles[i];
+            p.y += p.speed;
+            p.x += p.wind;
+
+            // Draw raindrop as a line
+            this.ctx.beginPath();
+            this.ctx.moveTo(p.x, p.y);
+            this.ctx.lineTo(p.x + p.wind * 0.5, p.y + p.length);
+            this.ctx.strokeStyle = `rgba(174, 194, 224, ${p.opacity})`;
+            this.ctx.lineWidth = p.thickness;
+            this.ctx.stroke();
+
+            // Reset if off screen
+            if (p.y > this.canvas.height + 20) {
+                this.particles[i] = this.createRaindrop(false);
+            }
+        }
+
+        this.animationId = requestAnimationFrame(() => this.animateRain());
+    }
+
+    startLightning() {
+        const flash = () => {
+            if (this.currentWeather !== 'storm') return;
+            const overlay = document.getElementById('weatherOverlay');
+            if (!overlay) return;
+
+            // Flash white
+            overlay.style.transition = 'none';
+            overlay.style.background = 'rgba(255, 255, 255, 0.6)';
+            
+            setTimeout(() => {
+                overlay.style.background = 'rgba(255, 255, 255, 0)';
+                setTimeout(() => {
+                    // Optional double flash
+                    if (Math.random() > 0.5) {
+                        overlay.style.background = 'rgba(255, 255, 255, 0.3)';
+                        setTimeout(() => {
+                            overlay.style.transition = 'background 2s ease';
+                            overlay.style.background = 'linear-gradient(180deg, rgba(20, 25, 40, 0.25) 0%, rgba(30, 35, 50, 0.12) 100%)';
+                        }, 80);
+                    } else {
+                        overlay.style.transition = 'background 2s ease';
+                        overlay.style.background = 'linear-gradient(180deg, rgba(20, 25, 40, 0.25) 0%, rgba(30, 35, 50, 0.12) 100%)';
+                    }
+                }, 100);
+            }, 60);
+        };
+
+        // Random lightning every 4-12 seconds
+        const scheduleFlash = () => {
+            const delay = 4000 + Math.random() * 8000;
+            this.lightningTimer = setTimeout(() => {
+                flash();
+                if (this.currentWeather === 'storm') scheduleFlash();
+            }, delay);
+        };
+        scheduleFlash();
+    }
+
+    stop() {
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+        if (this.lightningTimer) {
+            clearTimeout(this.lightningTimer);
+            this.lightningTimer = null;
+        }
+        this.particles = [];
+        if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        document.body.classList.remove('weather-clear', 'weather-cloudy', 'weather-rain', 'weather-storm', 'weather-fog');
+    }
+}
+
 // ==================== SOUND & MUSIC SYSTEM ====================
 
-// Sound effect URLs (using Web Audio API for generated sounds)
+// Sound effect URLs (using Web Audio API for rich synthesized sounds)
 class SoundManager {
     constructor() {
         this.enabled = SOUND_ENABLED;
@@ -741,153 +917,266 @@ class SoundManager {
         }
     }
 
+    // Helper: create a filtered noise burst (for impacts, swooshes)
+    createNoise(duration, startGain, filterFreq, filterType = 'lowpass') {
+        const ctx = this.audioContext;
+        const bufferSize = ctx.sampleRate * duration;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = filterType;
+        filter.frequency.value = filterFreq;
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(startGain * this.volume, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        source.start(ctx.currentTime);
+        source.stop(ctx.currentTime + duration);
+    }
+
     playDiceRoll() {
         if (!this.enabled) return;
         this.init();
-        // Generate dice roll sound
-        const oscillator = this.audioContext.createOscillator();
-        const gainNode = this.audioContext.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
-        oscillator.frequency.setValueAtTime(200, this.audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(100, this.audioContext.currentTime + 0.2);
-        gainNode.gain.setValueAtTime(this.volume * 0.3, this.audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
-        oscillator.start(this.audioContext.currentTime);
-        oscillator.stop(this.audioContext.currentTime + 0.3);
-    }
-
-    playDiceSpinning() {
-        if (!this.enabled) return;
-        this.init();
-        // Generate a spinning dice sound - rapid wobbling effect with chirps
-        for (let i = 0; i < 4; i++) {
+        // Dice rattling on table - multiple short noise bursts
+        for (let i = 0; i < 6; i++) {
+            const t = i * 0.06;
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
             osc.connect(gain);
             gain.connect(this.audioContext.destination);
             osc.type = 'triangle';
-            // Frequencies that create a spinning/wobbling effect
-            osc.frequency.setValueAtTime(180 + i * 40, this.audioContext.currentTime + i * 0.08);
-            osc.frequency.exponentialRampToValueAtTime(220 + i * 40, this.audioContext.currentTime + i * 0.08 + 0.15);
-            gain.gain.setValueAtTime(this.volume * 0.25, this.audioContext.currentTime + i * 0.08);
-            gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + i * 0.08 + 0.2);
-            osc.start(this.audioContext.currentTime + i * 0.08);
-            osc.stop(this.audioContext.currentTime + i * 0.08 + 0.2);
+            osc.frequency.setValueAtTime(300 + Math.random() * 400, this.audioContext.currentTime + t);
+            osc.frequency.exponentialRampToValueAtTime(100, this.audioContext.currentTime + t + 0.04);
+            gain.gain.setValueAtTime(this.volume * 0.15, this.audioContext.currentTime + t);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + t + 0.05);
+            osc.start(this.audioContext.currentTime + t);
+            osc.stop(this.audioContext.currentTime + t + 0.05);
+        }
+        this.createNoise(0.35, 0.12, 3000);
+        // Final thud
+        setTimeout(() => {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(this.audioContext.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(150, this.audioContext.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(60, this.audioContext.currentTime + 0.08);
+            gain.gain.setValueAtTime(this.volume * 0.3, this.audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.12);
+            osc.start();
+            osc.stop(this.audioContext.currentTime + 0.12);
+        }, 350);
+    }
+
+    playDiceSpinning() {
+        if (!this.enabled) return;
+        this.init();
+        for (let i = 0; i < 8; i++) {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(this.audioContext.destination);
+            osc.type = 'triangle';
+            const t = i * 0.055;
+            osc.frequency.setValueAtTime(200 + i * 30 + Math.random() * 60, this.audioContext.currentTime + t);
+            osc.frequency.exponentialRampToValueAtTime(250 + i * 40, this.audioContext.currentTime + t + 0.12);
+            gain.gain.setValueAtTime(this.volume * 0.18, this.audioContext.currentTime + t);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + t + 0.14);
+            osc.start(this.audioContext.currentTime + t);
+            osc.stop(this.audioContext.currentTime + t + 0.14);
         }
     }
 
     playHit() {
         if (!this.enabled) return;
         this.init();
-        const oscillator = this.audioContext.createOscillator();
-        const gainNode = this.audioContext.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
-        oscillator.type = 'sawtooth';
-        oscillator.frequency.setValueAtTime(150, this.audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(50, this.audioContext.currentTime + 0.15);
-        gainNode.gain.setValueAtTime(this.volume * 0.4, this.audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.15);
-        oscillator.start(this.audioContext.currentTime);
-        oscillator.stop(this.audioContext.currentTime + 0.15);
+        // Metallic sword impact = noise burst + low thump + high ring
+        this.createNoise(0.12, 0.3, 2500);
+        // Low impact thump
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+        osc.connect(gain);
+        gain.connect(this.audioContext.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, this.audioContext.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, this.audioContext.currentTime + 0.12);
+        gain.gain.setValueAtTime(this.volume * 0.4, this.audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.15);
+        osc.start(this.audioContext.currentTime);
+        osc.stop(this.audioContext.currentTime + 0.15);
+        // Metallic ring
+        const ring = this.audioContext.createOscillator();
+        const ringGain = this.audioContext.createGain();
+        ring.connect(ringGain);
+        ringGain.connect(this.audioContext.destination);
+        ring.type = 'sine';
+        ring.frequency.value = 1200;
+        ringGain.gain.setValueAtTime(this.volume * 0.08, this.audioContext.currentTime);
+        ringGain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.25);
+        ring.start(this.audioContext.currentTime);
+        ring.stop(this.audioContext.currentTime + 0.25);
     }
 
     playCritical() {
         if (!this.enabled) return;
         this.init();
-        // Triumphant sound for crits
-        [523, 659, 784].forEach((freq, i) => {
+        // Epic critical hit: metallic crash + triumphant chord
+        this.createNoise(0.2, 0.35, 4000);
+        // Heavy impact
+        const bass = this.audioContext.createOscillator();
+        const bassGain = this.audioContext.createGain();
+        bass.connect(bassGain);
+        bassGain.connect(this.audioContext.destination);
+        bass.type = 'sawtooth';
+        bass.frequency.setValueAtTime(100, this.audioContext.currentTime);
+        bass.frequency.exponentialRampToValueAtTime(30, this.audioContext.currentTime + 0.2);
+        bassGain.gain.setValueAtTime(this.volume * 0.35, this.audioContext.currentTime);
+        bassGain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.25);
+        bass.start(this.audioContext.currentTime);
+        bass.stop(this.audioContext.currentTime + 0.25);
+        // Triumphant chord
+        [523, 659, 784, 1047].forEach((freq, i) => {
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
             osc.connect(gain);
             gain.connect(this.audioContext.destination);
+            osc.type = 'sine';
             osc.frequency.value = freq;
-            gain.gain.setValueAtTime(this.volume * 0.2, this.audioContext.currentTime + i * 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + i * 0.1 + 0.3);
-            osc.start(this.audioContext.currentTime + i * 0.1);
-            osc.stop(this.audioContext.currentTime + i * 0.1 + 0.3);
+            gain.gain.setValueAtTime(this.volume * 0.15, this.audioContext.currentTime + 0.05 + i * 0.06);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.05 + i * 0.06 + 0.4);
+            osc.start(this.audioContext.currentTime + 0.05 + i * 0.06);
+            osc.stop(this.audioContext.currentTime + 0.05 + i * 0.06 + 0.4);
         });
     }
 
     playMiss() {
         if (!this.enabled) return;
         this.init();
+        // Whoosh sound - sweeping noise
+        this.createNoise(0.25, 0.15, 1500, 'bandpass');
         const osc = this.audioContext.createOscillator();
         const gain = this.audioContext.createGain();
         osc.connect(gain);
         gain.connect(this.audioContext.destination);
-        osc.frequency.setValueAtTime(300, this.audioContext.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(100, this.audioContext.currentTime + 0.2);
-        gain.gain.setValueAtTime(this.volume * 0.2, this.audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, this.audioContext.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(80, this.audioContext.currentTime + 0.25);
+        gain.gain.setValueAtTime(this.volume * 0.12, this.audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.25);
         osc.start(this.audioContext.currentTime);
-        osc.stop(this.audioContext.currentTime + 0.2);
+        osc.stop(this.audioContext.currentTime + 0.25);
     }
 
     playMagic() {
         if (!this.enabled) return;
         this.init();
-        // Magical shimmer sound
-        for (let i = 0; i < 5; i++) {
+        // Magical shimmer: layered sparkle with rising pitch
+        for (let i = 0; i < 8; i++) {
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
-            osc.connect(gain);
+            const filter = this.audioContext.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 800 + i * 200;
+            filter.Q.value = 5;
+            osc.connect(filter);
+            filter.connect(gain);
             gain.connect(this.audioContext.destination);
-            osc.frequency.value = 400 + Math.random() * 800;
-            gain.gain.setValueAtTime(this.volume * 0.1, this.audioContext.currentTime + i * 0.05);
-            gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + i * 0.05 + 0.2);
-            osc.start(this.audioContext.currentTime + i * 0.05);
-            osc.stop(this.audioContext.currentTime + i * 0.05 + 0.2);
+            osc.type = 'sine';
+            osc.frequency.value = 500 + Math.random() * 1500;
+            const t = i * 0.04;
+            gain.gain.setValueAtTime(this.volume * 0.1, this.audioContext.currentTime + t);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + t + 0.3);
+            osc.start(this.audioContext.currentTime + t);
+            osc.stop(this.audioContext.currentTime + t + 0.3);
         }
+        // Underlying magical hum
+        const hum = this.audioContext.createOscillator();
+        const humGain = this.audioContext.createGain();
+        hum.connect(humGain);
+        humGain.connect(this.audioContext.destination);
+        hum.type = 'sine';
+        hum.frequency.setValueAtTime(220, this.audioContext.currentTime);
+        hum.frequency.exponentialRampToValueAtTime(440, this.audioContext.currentTime + 0.4);
+        humGain.gain.setValueAtTime(this.volume * 0.08, this.audioContext.currentTime);
+        humGain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.5);
+        hum.start(this.audioContext.currentTime);
+        hum.stop(this.audioContext.currentTime + 0.5);
     }
 
     playDeath() {
         if (!this.enabled) return;
         this.init();
-        const osc = this.audioContext.createOscillator();
-        const gain = this.audioContext.createGain();
-        osc.connect(gain);
-        gain.connect(this.audioContext.destination);
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(200, this.audioContext.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(30, this.audioContext.currentTime + 0.5);
-        gain.gain.setValueAtTime(this.volume * 0.3, this.audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
-        osc.start(this.audioContext.currentTime);
-        osc.stop(this.audioContext.currentTime + 0.5);
-    }
-
-    playLevelUp() {
-        if (!this.enabled) return;
-        this.init();
-        const notes = [262, 330, 392, 523, 659, 784];
+        // Dramatic death: descending chord + impact thud
+        this.createNoise(0.3, 0.2, 600);
+        const notes = [200, 160, 120, 80];
         notes.forEach((freq, i) => {
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
             osc.connect(gain);
             gain.connect(this.audioContext.destination);
+            osc.type = 'sawtooth';
             osc.frequency.value = freq;
-            gain.gain.setValueAtTime(this.volume * 0.15, this.audioContext.currentTime + i * 0.08);
-            gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + i * 0.08 + 0.3);
+            gain.gain.setValueAtTime(this.volume * 0.2, this.audioContext.currentTime + i * 0.12);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + i * 0.12 + 0.4);
+            osc.start(this.audioContext.currentTime + i * 0.12);
+            osc.stop(this.audioContext.currentTime + i * 0.12 + 0.4);
+        });
+    }
+
+    playLevelUp() {
+        if (!this.enabled) return;
+        this.init();
+        // Triumphant fanfare with ascending arpeggio
+        const notes = [262, 330, 392, 523, 659, 784, 1047];
+        notes.forEach((freq, i) => {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(this.audioContext.destination);
+            osc.type = i < 4 ? 'sine' : 'triangle';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(this.volume * 0.18, this.audioContext.currentTime + i * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + i * 0.08 + 0.5);
             osc.start(this.audioContext.currentTime + i * 0.08);
-            osc.stop(this.audioContext.currentTime + i * 0.08 + 0.3);
+            osc.stop(this.audioContext.currentTime + i * 0.08 + 0.5);
+        });
+        // Sustain chord at the end
+        [523, 659, 784].forEach(freq => {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(this.audioContext.destination);
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(this.volume * 0.1, this.audioContext.currentTime + 0.6);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 1.5);
+            osc.start(this.audioContext.currentTime + 0.6);
+            osc.stop(this.audioContext.currentTime + 1.5);
         });
     }
 
     playGold() {
         if (!this.enabled) return;
         this.init();
-        for (let i = 0; i < 3; i++) {
+        // Coin clink sounds - high metallic pings
+        for (let i = 0; i < 4; i++) {
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
             osc.connect(gain);
             gain.connect(this.audioContext.destination);
-            osc.frequency.value = 800 + i * 200;
-            gain.gain.setValueAtTime(this.volume * 0.1, this.audioContext.currentTime + i * 0.05);
-            gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + i * 0.05 + 0.1);
-            osc.start(this.audioContext.currentTime + i * 0.05);
-            osc.stop(this.audioContext.currentTime + i * 0.05 + 0.1);
+            osc.type = 'sine';
+            osc.frequency.value = 2000 + i * 300 + Math.random() * 200;
+            const t = i * 0.07;
+            gain.gain.setValueAtTime(this.volume * 0.12, this.audioContext.currentTime + t);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + t + 0.15);
+            osc.start(this.audioContext.currentTime + t);
+            osc.stop(this.audioContext.currentTime + t + 0.15);
         }
     }
 
@@ -896,6 +1185,7 @@ class SoundManager {
         if (!this.enabled) return;
         this.init();
         for (let i = 0; i < 4; i++) {
+            this.createNoise(0.08, 0.12, 300 + Math.random() * 200);
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
             osc.connect(gain);
@@ -912,58 +1202,91 @@ class SoundManager {
     playDoorOpen() {
         if (!this.enabled) return;
         this.init();
+        // Creaky door: low freq sweep + noise
+        this.createNoise(0.4, 0.1, 400);
         const osc = this.audioContext.createOscillator();
         const gain = this.audioContext.createGain();
         osc.connect(gain);
         gain.connect(this.audioContext.destination);
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(100, this.audioContext.currentTime);
-        osc.frequency.linearRampToValueAtTime(50, this.audioContext.currentTime + 0.3);
-        gain.gain.setValueAtTime(this.volume * 0.2, this.audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
+        osc.frequency.setValueAtTime(120, this.audioContext.currentTime);
+        osc.frequency.linearRampToValueAtTime(40, this.audioContext.currentTime + 0.4);
+        gain.gain.setValueAtTime(this.volume * 0.15, this.audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.4);
         osc.start(this.audioContext.currentTime);
-        osc.stop(this.audioContext.currentTime + 0.3);
+        osc.stop(this.audioContext.currentTime + 0.4);
+        // Second creak overtone
+        const osc2 = this.audioContext.createOscillator();
+        const gain2 = this.audioContext.createGain();
+        osc2.connect(gain2);
+        gain2.connect(this.audioContext.destination);
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(250, this.audioContext.currentTime + 0.05);
+        osc2.frequency.linearRampToValueAtTime(80, this.audioContext.currentTime + 0.35);
+        gain2.gain.setValueAtTime(this.volume * 0.08, this.audioContext.currentTime + 0.05);
+        gain2.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.35);
+        osc2.start(this.audioContext.currentTime + 0.05);
+        osc2.stop(this.audioContext.currentTime + 0.35);
     }
 
     playAchievement() {
         if (!this.enabled) return;
         this.init();
+        // Glorious achievement fanfare
         const notes = [523, 659, 784, 1047];
         notes.forEach((freq, i) => {
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
             osc.connect(gain);
             gain.connect(this.audioContext.destination);
-            osc.type = 'sine';
+            osc.type = i < 2 ? 'triangle' : 'sine';
             osc.frequency.value = freq;
-            gain.gain.setValueAtTime(this.volume * 0.2, this.audioContext.currentTime + i * 0.15);
-            gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + i * 0.15 + 0.4);
-            osc.start(this.audioContext.currentTime + i * 0.15);
-            osc.stop(this.audioContext.currentTime + i * 0.15 + 0.4);
+            gain.gain.setValueAtTime(this.volume * 0.2, this.audioContext.currentTime + i * 0.12);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + i * 0.12 + 0.5);
+            osc.start(this.audioContext.currentTime + i * 0.12);
+            osc.stop(this.audioContext.currentTime + i * 0.12 + 0.5);
         });
+        // Shimmer overlay
+        for (let j = 0; j < 5; j++) {
+            const sparkle = this.audioContext.createOscillator();
+            const sGain = this.audioContext.createGain();
+            sparkle.connect(sGain);
+            sGain.connect(this.audioContext.destination);
+            sparkle.type = 'sine';
+            sparkle.frequency.value = 2000 + Math.random() * 2000;
+            const t = 0.3 + j * 0.06;
+            sGain.gain.setValueAtTime(this.volume * 0.06, this.audioContext.currentTime + t);
+            sGain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + t + 0.2);
+            sparkle.start(this.audioContext.currentTime + t);
+            sparkle.stop(this.audioContext.currentTime + t + 0.2);
+        }
     }
 
     playPoison() {
         if (!this.enabled) return;
         this.init();
-        for (let i = 0; i < 3; i++) {
+        // Bubbling poison
+        for (let i = 0; i < 5; i++) {
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
             osc.connect(gain);
             gain.connect(this.audioContext.destination);
             osc.type = 'sine';
-            osc.frequency.value = 200 - i * 30;
-            gain.gain.setValueAtTime(this.volume * 0.15, this.audioContext.currentTime + i * 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + i * 0.1 + 0.2);
-            osc.start(this.audioContext.currentTime + i * 0.1);
-            osc.stop(this.audioContext.currentTime + i * 0.1 + 0.2);
+            const t = i * 0.08;
+            osc.frequency.setValueAtTime(150 + Math.random() * 100, this.audioContext.currentTime + t);
+            osc.frequency.exponentialRampToValueAtTime(80, this.audioContext.currentTime + t + 0.15);
+            gain.gain.setValueAtTime(this.volume * 0.12, this.audioContext.currentTime + t);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + t + 0.18);
+            osc.start(this.audioContext.currentTime + t);
+            osc.stop(this.audioContext.currentTime + t + 0.18);
         }
     }
 
     playHeal() {
         if (!this.enabled) return;
         this.init();
-        const notes = [392, 494, 587, 784];
+        // Warm ascending heal tones + shimmer
+        const notes = [392, 494, 587, 784, 988];
         notes.forEach((freq, i) => {
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
@@ -971,18 +1294,19 @@ class SoundManager {
             gain.connect(this.audioContext.destination);
             osc.type = 'sine';
             osc.frequency.value = freq;
-            gain.gain.setValueAtTime(this.volume * 0.12, this.audioContext.currentTime + i * 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + i * 0.1 + 0.25);
-            osc.start(this.audioContext.currentTime + i * 0.1);
-            osc.stop(this.audioContext.currentTime + i * 0.1 + 0.25);
+            gain.gain.setValueAtTime(this.volume * 0.12, this.audioContext.currentTime + i * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + i * 0.08 + 0.35);
+            osc.start(this.audioContext.currentTime + i * 0.08);
+            osc.stop(this.audioContext.currentTime + i * 0.08 + 0.35);
         });
     }
 
     playBossAppear() {
         if (!this.enabled) return;
         this.init();
-        // Ominous deep tones
-        const notes = [110, 82, 65, 55];
+        // Ominous deep tones with rumbling noise
+        this.createNoise(1.0, 0.15, 200);
+        const notes = [110, 82, 65, 55, 41];
         notes.forEach((freq, i) => {
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
@@ -990,27 +1314,82 @@ class SoundManager {
             gain.connect(this.audioContext.destination);
             osc.type = 'sawtooth';
             osc.frequency.value = freq;
-            gain.gain.setValueAtTime(this.volume * 0.25, this.audioContext.currentTime + i * 0.3);
-            gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + i * 0.3 + 0.5);
-            osc.start(this.audioContext.currentTime + i * 0.3);
-            osc.stop(this.audioContext.currentTime + i * 0.3 + 0.5);
+            gain.gain.setValueAtTime(this.volume * 0.3, this.audioContext.currentTime + i * 0.25);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + i * 0.25 + 0.6);
+            osc.start(this.audioContext.currentTime + i * 0.25);
+            osc.stop(this.audioContext.currentTime + i * 0.25 + 0.6);
         });
+        // Dissonant high stinger
+        setTimeout(() => {
+            [311, 370, 466].forEach((freq, i) => {
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                osc.connect(gain);
+                gain.connect(this.audioContext.destination);
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(this.volume * 0.1, this.audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.6);
+                osc.start(this.audioContext.currentTime);
+                osc.stop(this.audioContext.currentTime + 0.6);
+            });
+        }, 800);
     }
 
     playRetreat() {
         if (!this.enabled) return;
         this.init();
+        // Quick descending flee sound with urgency
+        this.createNoise(0.15, 0.1, 2000, 'bandpass');
         const osc = this.audioContext.createOscillator();
         const gain = this.audioContext.createGain();
         osc.connect(gain);
         gain.connect(this.audioContext.destination);
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(400, this.audioContext.currentTime);
-        osc.frequency.linearRampToValueAtTime(200, this.audioContext.currentTime + 0.3);
+        osc.frequency.setValueAtTime(500, this.audioContext.currentTime);
+        osc.frequency.linearRampToValueAtTime(150, this.audioContext.currentTime + 0.25);
         gain.gain.setValueAtTime(this.volume * 0.2, this.audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.3);
         osc.start(this.audioContext.currentTime);
         osc.stop(this.audioContext.currentTime + 0.3);
+    }
+
+    playLootDrop() {
+        if (!this.enabled) return;
+        this.init();
+        // Sparkling loot reveal
+        for (let i = 0; i < 6; i++) {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(this.audioContext.destination);
+            osc.type = 'sine';
+            osc.frequency.value = 1200 + i * 250 + Math.random() * 200;
+            const t = i * 0.05;
+            gain.gain.setValueAtTime(this.volume * 0.1, this.audioContext.currentTime + t);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + t + 0.2);
+            osc.start(this.audioContext.currentTime + t);
+            osc.stop(this.audioContext.currentTime + t + 0.2);
+        }
+        this.playGold();
+    }
+
+    playTransition() {
+        if (!this.enabled) return;
+        this.init();
+        // Whooshing location transition
+        this.createNoise(0.5, 0.15, 800, 'bandpass');
+        const sweep = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+        sweep.connect(gain);
+        gain.connect(this.audioContext.destination);
+        sweep.type = 'sine';
+        sweep.frequency.setValueAtTime(200, this.audioContext.currentTime);
+        sweep.frequency.exponentialRampToValueAtTime(80, this.audioContext.currentTime + 0.5);
+        gain.gain.setValueAtTime(this.volume * 0.1, this.audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.5);
+        sweep.start(this.audioContext.currentTime);
+        sweep.stop(this.audioContext.currentTime + 0.5);
     }
 }
 
@@ -1517,32 +1896,51 @@ const CAMPAIGNS = {
                 { name: "Kobold", hp: 5, ac: 12, damage: "1d4", xp: 25, attackBonus: 4, damageType: "slashing", description: "A small, reptilian humanoid. Weak alone, dangerous in groups.", image: "images/monsters/kobold.jpg" },
                 { name: "Giant Rat", hp: 7, ac: 12, damage: "1d4", xp: 25, attackBonus: 2, damageType: "piercing", description: "An oversized rodent with diseased fangs.", image: "images/monsters/giant-rat.jpg" },
                 { name: "Goblin", hp: 7, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", description: "A small, malicious humanoid with a wicked grin.", image: "images/monsters/goblin.jpg" },
-                { name: "Stirge", hp: 2, ac: 14, damage: "1d4", xp: 25, attackBonus: 5, damageType: "piercing", description: "A bat-like creature that drinks blood!", image: "images/monsters/stirge.jpg" }
+                { name: "Stirge", hp: 2, ac: 14, damage: "1d4", xp: 25, attackBonus: 5, damageType: "piercing", description: "A bat-like creature that drinks blood!", image: "images/monsters/stirge.jpg" },
+                { name: "Fire Beetle", hp: 4, ac: 13, damage: "1d4", xp: 10, attackBonus: 3, damageType: "fire", description: "A giant beetle with glowing glands that shed light in the dark caves.", image: "images/monsters/fire-beetle.jpg" },
+                { name: "Shrieker", hp: 13, ac: 5, damage: "0", xp: 10, attackBonus: 0, damageType: "bludgeoning", description: "A fungus that shrieks when disturbed, alerting nearby monsters!", image: "images/monsters/shrieker.jpg" },
+                { name: "Giant Centipede", hp: 4, ac: 13, damage: "1d4", xp: 25, attackBonus: 5, damageType: "piercing", specialAbilities: [{ name: "Venom", type: "poison", triggerChance: 0.3, damage: "1d6", damageType: "poison", dc: 11 }], description: "A yard-long centipede with venomous pincers that lurks in cave crevices.", image: "images/monsters/giant-centipede.jpg" },
+                { name: "Pit Viper", hp: 8, ac: 13, damage: "1d4", xp: 25, attackBonus: 5, damageType: "piercing", specialAbilities: [{ name: "Snake Venom", type: "poison", triggerChance: 0.35, damage: "2d6", damageType: "poison", dc: 11 }], description: "A heat-sensing serpent coiled in the dark caves, its bite delivers deadly venom.", image: "images/monsters/pit-viper.jpg" },
+                { name: "Giant Crayfish", hp: 10, ac: 14, damage: "1d6", xp: 25, attackBonus: 3, damageType: "bludgeoning", description: "A large crustacean lurking in the underground streams of the caves.", image: "images/monsters/giant-crayfish.jpg" }
             ],
             2: [
                 { name: "Orc", hp: 15, ac: 13, damage: "1d8", xp: 100, attackBonus: 5, damageType: "slashing", description: "A brutish humanoid with a thirst for battle.", image: "images/monsters/orc.jpg" },
                 { name: "Hobgoblin", hp: 11, ac: 16, damage: "1d8", xp: 100, attackBonus: 3, damageType: "slashing", description: "A disciplined goblinoid warrior in chain mail.", image: "images/monsters/hobgoblin.jpg" },
                 { name: "Giant Spider", hp: 18, ac: 13, damage: "1d8", xp: 200, attackBonus: 5, damageType: "piercing", saveDC: 11, specialAbilities: [{ name: "Poison Bite", type: "poison", triggerChance: 0.3, damage: "2d8", damageType: "poison", dc: 11 }], description: "A horse-sized spider with venomous fangs!", image: "images/monsters/giant-spider.jpg" },
                 { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A shambling undead animated by dark magic.", image: "images/monsters/zombie.jpg" },
-                { name: "Skeleton", hp: 13, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", immunities: ["poison"], vulnerabilities: ["bludgeoning"], description: "The animated bones of the dead, armed with rusty weapons.", image: "images/monsters/skeleton.jpg" }
+                { name: "Skeleton", hp: 13, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", immunities: ["poison"], vulnerabilities: ["bludgeoning"], description: "The animated bones of the dead, armed with rusty weapons.", image: "images/monsters/skeleton.jpg" },
+                { name: "Lizardfolk", hp: 22, ac: 15, damage: "1d8", xp: 100, attackBonus: 4, damageType: "piercing", description: "A reptilian humanoid wielding a crude shield and javelin.", image: "images/monsters/lizardfolk.jpg" },
+                { name: "Gray Ooze", hp: 22, ac: 8, damage: "1d6", xp: 100, attackBonus: 3, damageType: "bludgeoning", immunities: ["fire", "cold"], specialAbilities: [{ name: "Corrode Metal", type: "poison", triggerChance: 0.3, damage: "1d8", damageType: "bludgeoning", dc: 12 }], description: "A pool of gray slime that corrodes metal armor and weapons!", image: "images/monsters/gray-ooze.jpg" },
+                { name: "Piercer", hp: 15, ac: 15, damage: "2d6", xp: 100, attackBonus: 5, damageType: "piercing", description: "A stalactite-like creature that drops from cave ceilings onto unsuspecting prey!", image: "images/monsters/piercer.jpg" },
+                { name: "Carrion Crawler", hp: 27, ac: 13, damage: "1d6", xp: 200, attackBonus: 4, damageType: "bludgeoning", specialAbilities: [{ name: "Paralyzing Tentacles", type: "frighten", triggerChance: 0.3, dc: 13 }], description: "A giant caterpillar-like scavenger with paralytic tentacles. It feeds on the dead.", image: "images/monsters/carrion-crawler.jpg" },
+                { name: "Berserker", hp: 18, ac: 13, damage: "1d10", xp: 100, attackBonus: 5, damageType: "slashing", description: "A wild-eyed human warrior driven mad by the Caves of Chaos. Fights in a blind rage.", image: "images/monsters/berserker.jpg" }
             ],
             3: [
                 { name: "Gnoll", hp: 22, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "piercing", description: "A savage hyena-headed humanoid that cackles as it fights.", image: "images/monsters/gnoll.jpg" },
                 { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, attackBonus: 4, damageType: "slashing", description: "A massive, hairy goblinoid that strikes from ambush.", image: "images/monsters/bugbear.jpg" },
                 { name: "Ogre", hp: 32, ac: 11, damage: "2d8", xp: 450, attackBonus: 6, damageType: "bludgeoning", description: "A towering brute with a very small brain and very big club.", image: "images/monsters/ogre.jpg" },
                 { name: "Orc Chieftain", hp: 30, ac: 15, damage: "1d10", xp: 200, attackBonus: 5, damageType: "slashing", multiattack: 2, description: "The leader of an orc tribe, stronger than his followers.", image: "images/monsters/orc-chieftain.jpg" },
-                { name: "Acolyte of Chaos", hp: 20, ac: 12, damage: "1d8", xp: 150, attackBonus: 4, damageType: "necrotic", saveDC: 13, specialAbilities: [{ name: "Dark Bolt", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "necrotic", dc: 13 }], description: "A lesser priest of the evil temple with dark magic.", image: "images/monsters/acolyte-of-chaos.jpg" }
+                { name: "Acolyte of Chaos", hp: 20, ac: 12, damage: "1d8", xp: 150, attackBonus: 4, damageType: "necrotic", saveDC: 13, specialAbilities: [{ name: "Dark Bolt", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "necrotic", dc: 13 }], description: "A lesser priest of the evil temple with dark magic.", image: "images/monsters/acolyte-of-chaos.jpg" },
+                { name: "Gelatinous Cube", hp: 84, ac: 6, damage: "2d6", xp: 450, attackBonus: 4, damageType: "bludgeoning", immunities: ["lightning", "slashing"], specialAbilities: [{ name: "Engulf", type: "poison", triggerChance: 0.25, damage: "3d6", damageType: "bludgeoning", dc: 12 }], description: "A nearly invisible 10-foot cube of digestive jelly that fills a corridor!", image: "images/monsters/gelatinous-cube.jpg" },
+                { name: "Cultist Warrior", hp: 25, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "slashing", description: "A fanatical warrior devoted to the Temple of Evil Chaos.", image: "images/monsters/cultist-warrior.jpg" },
+                { name: "Gnoll Fang of Yeenoghu", hp: 32, ac: 14, damage: "2d6", xp: 450, attackBonus: 5, damageType: "piercing", multiattack: 2, description: "A fearsome gnoll champion blessed by the demon lord Yeenoghu.", image: "images/monsters/gnoll-fang-of-yeenoghu.jpg" },
+                { name: "Orc Eye of Gruumsh", hp: 22, ac: 14, damage: "1d8", xp: 150, attackBonus: 5, damageType: "slashing", saveDC: 12, specialAbilities: [{ name: "Spiritual Weapon", type: "poison", triggerChance: 0.3, damage: "1d8", damageType: "necrotic", dc: 12 }], description: "A one-eyed orc priest of Gruumsh who channels dark divine fury.", image: "images/monsters/orc-eye-of-gruumsh.jpg" }
             ],
             4: [
                 { name: "Minotaur", hp: 45, ac: 14, damage: "2d10", xp: 700, attackBonus: 6, damageType: "slashing", multiattack: 2, description: "A bull-headed monster that charges with its horns!", boss: true, image: "images/monsters/minotaur.jpg" },
                 { name: "Owlbear", hp: 38, ac: 13, damage: "2d8", xp: 700, attackBonus: 7, damageType: "slashing", multiattack: 2, description: "A terrifying hybrid of owl and bear with a vicious beak.", image: "images/monsters/owlbear.jpg" },
                 { name: "Troll", hp: 52, ac: 15, damage: "2d6", xp: 1800, attackBonus: 7, damageType: "slashing", multiattack: 3, vulnerabilities: ["fire", "acid"], specialAbilities: [{ name: "Regeneration", type: "heal", triggerChance: 0.5, healing: "1d10" }], description: "A regenerating horror. Fire and acid stop its healing!", image: "images/monsters/troll.jpg" },
-                { name: "Hobgoblin Captain", hp: 35, ac: 17, damage: "2d8", xp: 450, attackBonus: 4, damageType: "slashing", multiattack: 2, description: "A veteran hobgoblin leader in gleaming armor.", image: "images/monsters/hobgoblin-captain.jpg" }
+                { name: "Hobgoblin Captain", hp: 35, ac: 17, damage: "2d8", xp: 450, attackBonus: 4, damageType: "slashing", multiattack: 2, description: "A veteran hobgoblin leader in gleaming armor.", image: "images/monsters/hobgoblin-captain.jpg" },
+                { name: "Medusa", hp: 58, ac: 15, damage: "2d6", xp: 1800, attackBonus: 5, damageType: "piercing", multiattack: 2, saveDC: 14, specialAbilities: [{ name: "Petrifying Gaze", type: "frighten", triggerChance: 0.2, damage: "2d8", damageType: "bludgeoning", dc: 14 }], description: "A creature with living snakes for hair whose gaze turns flesh to stone!", image: "images/monsters/medusa.jpg" },
+                { name: "Wyvern", hp: 52, ac: 13, damage: "2d8", xp: 1800, attackBonus: 7, damageType: "piercing", multiattack: 2, specialAbilities: [{ name: "Stinger", type: "poison", triggerChance: 0.3, damage: "2d8", damageType: "poison", dc: 15 }], description: "A dragon-like beast with a scorpion tail that nests in the ravine above the caves.", image: "images/monsters/wyvern.jpg" },
+                { name: "Ettin", hp: 52, ac: 12, damage: "2d8", xp: 1100, attackBonus: 7, damageType: "bludgeoning", multiattack: 2, description: "A two-headed giant that can never be surprised — one head is always awake!", image: "images/monsters/ettin.jpg" }
             ],
             5: [
                 { name: "High Priest of Chaos", hp: 55, ac: 14, damage: "2d10", xp: 1100, attackBonus: 5, damageType: "necrotic", multiattack: 2, saveDC: 15, specialAbilities: [{ name: "Unholy Blight", type: "poison", triggerChance: 0.3, damage: "3d6", damageType: "necrotic", dc: 15 }], description: "The leader of the evil cult, wielding dark divine magic!", boss: true, legendaryResistances: 1, image: "images/monsters/high-priest-of-chaos.jpg" },
                 { name: "Temple Guardian", hp: 40, ac: 18, damage: "2d8", xp: 700, attackBonus: 6, damageType: "slashing", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], description: "An undead warrior bound to protect the temple.", image: "images/monsters/temple-guardian.jpg" },
-                { name: "Shadow Demon", hp: 38, ac: 13, damage: "2d6", xp: 1100, attackBonus: 5, damageType: "psychic", resistances: ["cold", "fire", "lightning"], immunities: ["poison"], vulnerabilities: ["radiant"], description: "A demon of pure darkness summoned by the priests.", image: "images/monsters/shadow-demon.jpg" }
+                { name: "Shadow Demon", hp: 38, ac: 13, damage: "2d6", xp: 1100, attackBonus: 5, damageType: "psychic", resistances: ["cold", "fire", "lightning"], immunities: ["poison"], vulnerabilities: ["radiant"], description: "A demon of pure darkness summoned by the priests.", image: "images/monsters/shadow-demon.jpg" },
+                { name: "Chaos Chimera", hp: 68, ac: 14, damage: "2d8", xp: 2300, attackBonus: 7, damageType: "slashing", multiattack: 3, specialAbilities: [{ name: "Fire Breath", type: "breath", triggerChance: 0.25, damage: "3d8", damageType: "fire", dc: 15 }], description: "A three-headed horror — lion, goat, and dragon — bound to the temple by dark rituals.", image: "images/monsters/chimera.jpg" },
+                { name: "Wraith", hp: 45, ac: 13, damage: "2d8", xp: 1800, attackBonus: 6, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], specialAbilities: [{ name: "Life Drain", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "necrotic", dc: 14 }], description: "The vengeful spirit of a priest who died in the temple, draining life from the living.", image: "images/monsters/wraith.jpg" }
             ]
         },
         events: {
@@ -1553,7 +1951,11 @@ const CAMPAIGNS = {
                 "Torchlight flickers ahead - another adventuring party, or something else?",
                 "You discover a cache of supplies - some previous adventurer wasn't so lucky.",
                 "Strange chanting echoes from somewhere deep within the caves.",
-                "A crude alarm - bones hanging from strings - blocks the passage ahead."
+                "A crude alarm - bones hanging from strings - blocks the passage ahead.",
+                "Dripping water has eroded strange shapes in the cavern ceiling. They look almost like faces.",
+                "You find a tattered holy symbol of an evil deity ground into the dust.",
+                "The passage narrows ahead. You hear something large breathing around the corner.",
+                "A half-eaten meal sits abandoned. Whatever was eating left in a hurry... or was eaten itself."
             ],
             wilderness: [
                 "You find merchant wagon tracks that veer suddenly off the road. Signs of a struggle.",
@@ -1562,7 +1964,10 @@ const CAMPAIGNS = {
                 "Smoke rises in the distance - a campfire or a burning homestead?",
                 "Animal tracks cross your path, but something larger has been following them.",
                 "The forest grows quiet. Too quiet. Something has frightened the wildlife.",
-                "You find a trail marker carved into a tree - other adventurers have been this way."
+                "You find a trail marker carved into a tree - other adventurers have been this way.",
+                "A cold stream blocks your path. Stepping stones look deliberately placed.",
+                "You spot a hunting hawk circling overhead - trained, judging by its jesses.",
+                "Wild berries grow near the path. They look edible, but are they safe?"
             ],
             town: [
                 "Guards eye you suspiciously as you enter. 'No trouble, adventurer.'",
@@ -1625,29 +2030,51 @@ const CAMPAIGNS = {
             1: [
                 { name: "Goblin Scout", hp: 7, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "piercing", description: "A sneaky goblin with a crude shortbow.", image: "images/monsters/goblin-scout.jpg" },
                 { name: "Wolf", hp: 11, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "piercing", description: "A grey wolf, common in the Karameikan wilderness.", image: "images/monsters/wolf.jpg" },
-                { name: "Bandit", hp: 11, ac: 12, damage: "1d6", xp: 25, attackBonus: 3, damageType: "slashing", description: "A desperate outlaw preying on travelers.", image: "images/monsters/bandit.jpg" }
+                { name: "Bandit", hp: 11, ac: 12, damage: "1d6", xp: 25, attackBonus: 3, damageType: "slashing", description: "A desperate outlaw preying on travelers.", image: "images/monsters/bandit.jpg" },
+                { name: "Giant Ferret", hp: 5, ac: 13, damage: "1d4", xp: 25, attackBonus: 4, damageType: "piercing", description: "An oversized ferret with sharp teeth, common in Karameikan burrows.", image: "images/monsters/giant-ferret.jpg" },
+                { name: "Rock Baboon", hp: 12, ac: 12, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", description: "An aggressive primate that hurls rocks and attacks in packs.", image: "images/monsters/rock-baboon.jpg" },
+                { name: "Giant Bat", hp: 8, ac: 13, damage: "1d4", xp: 25, attackBonus: 4, damageType: "piercing", description: "A large bat with a wingspan of five feet, common in Karameikan caves.", image: "images/monsters/giant-bat.jpg" },
+                { name: "Robber Fly", hp: 6, ac: 13, damage: "1d6", xp: 25, attackBonus: 4, damageType: "piercing", description: "A horse-sized insect that ambushes prey from the Dymrak treetops.", image: "images/monsters/robber-fly.jpg" },
+                { name: "Stirge", hp: 2, ac: 14, damage: "1d4", xp: 25, attackBonus: 5, damageType: "piercing", description: "A bat-like bloodsucker nesting in the rafters of ruined homesteads.", image: "images/monsters/stirge.jpg" }
             ],
             2: [
                 { name: "Goblin Wolf-Rider", hp: 12, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "slashing", description: "An elite goblin mounted on a dire wolf!", image: "images/monsters/goblin-wolf-rider.jpg" },
                 { name: "Goblin Warrior", hp: 15, ac: 15, damage: "1d8", xp: 75, attackBonus: 4, damageType: "slashing", description: "A well-armed goblin soldier of Xitaqa's army.", image: "images/monsters/goblin-warrior.jpg" },
                 { name: "Dire Wolf", hp: 22, ac: 13, damage: "2d6", xp: 100, attackBonus: 5, damageType: "piercing", description: "A massive wolf with glowing red eyes.", image: "images/monsters/dire-wolf.jpg" },
-                { name: "Iron Ring Thug", hp: 18, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "bludgeoning", description: "A brutal enforcer for the Iron Ring slavers.", image: "images/monsters/iron-ring-thug.jpg" }
+                { name: "Iron Ring Thug", hp: 18, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "bludgeoning", description: "A brutal enforcer for the Iron Ring slavers.", image: "images/monsters/iron-ring-thug.jpg" },
+                { name: "Boar", hp: 11, ac: 11, damage: "1d6", xp: 50, attackBonus: 3, damageType: "slashing", description: "A wild boar that charges recklessly when threatened.", image: "images/monsters/boar.jpg" },
+                { name: "Swarm of Bats", hp: 10, ac: 12, damage: "1d6", xp: 25, attackBonus: 4, damageType: "piercing", description: "A screeching cloud of cave bats disturbed by your passage.", image: "images/monsters/swarm-of-bats.jpg" },
+                { name: "Gnoll", hp: 22, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "piercing", description: "A hyena-headed raider prowling the Karameikan wilderness.", image: "images/monsters/gnoll.jpg" },
+                { name: "Thoul", hp: 22, ac: 14, damage: "1d6", xp: 100, attackBonus: 4, damageType: "slashing", specialAbilities: [{ name: "Paralyzing Touch", type: "frighten", triggerChance: 0.25, dc: 12 }, { name: "Regeneration", type: "heal", triggerChance: 0.3, healing: "1d6" }], description: "A magical hybrid of ghoul, troll, and hobgoblin. It paralyzes and regenerates!", image: "images/monsters/thoul.jpg" },
+                { name: "Giant Lizard", hp: 19, ac: 12, damage: "1d8", xp: 50, attackBonus: 4, damageType: "piercing", description: "A large reptile basking on warm rocks in the Karameikan wilderness.", image: "images/monsters/giant-lizard.jpg" },
+                { name: "Goblin Archer", hp: 10, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "piercing", description: "A goblin sniper positioned in the trees, raining arrows from above.", image: "images/monsters/goblin-archer.jpg" }
             ],
             3: [
                 { name: "Goblin Shaman", hp: 20, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "fire", saveDC: 13, specialAbilities: [{ name: "Dark Fire", type: "breath", triggerChance: 0.3, damage: "2d6", damageType: "fire", dc: 13 }], description: "A goblin witch-doctor wielding dark magic!", image: "images/monsters/goblin-shaman.jpg" },
                 { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, attackBonus: 4, damageType: "slashing", description: "A massive, hairy goblinoid. Xitaqa's elite guard.", image: "images/monsters/bugbear.jpg" },
                 { name: "Werewolf", hp: 35, ac: 12, damage: "2d6", xp: 450, attackBonus: 4, damageType: "slashing", multiattack: 2, description: "A cursed shapeshifter prowling the Dymrak.", image: "images/monsters/werewolf.jpg" },
-                { name: "Iron Ring Assassin", hp: 25, ac: 15, damage: "2d6", xp: 250, attackBonus: 6, damageType: "piercing", multiattack: 2, specialAbilities: [{ name: "Poison Blade", type: "poison", triggerChance: 0.25, damage: "2d6", damageType: "poison", dc: 13 }], description: "A deadly killer in service of the Iron Ring.", image: "images/monsters/iron-ring-assassin.jpg" }
+                { name: "Iron Ring Assassin", hp: 25, ac: 15, damage: "2d6", xp: 250, attackBonus: 6, damageType: "piercing", multiattack: 2, specialAbilities: [{ name: "Poison Blade", type: "poison", triggerChance: 0.25, damage: "2d6", damageType: "poison", dc: 13 }], description: "A deadly killer in service of the Iron Ring.", image: "images/monsters/iron-ring-assassin.jpg" },
+                { name: "Brown Bear", hp: 34, ac: 11, damage: "2d6", xp: 200, attackBonus: 5, damageType: "slashing", multiattack: 2, description: "A massive brown bear defending its territory in the Dymrak.", image: "images/monsters/brown-bear.jpg" },
+                { name: "Pixie", hp: 1, ac: 15, damage: "1d4", xp: 100, attackBonus: 2, damageType: "piercing", saveDC: 12, specialAbilities: [{ name: "Confusion Dust", type: "frighten", triggerChance: 0.3, dc: 12 }], description: "A tiny, mischievous fey creature of the Dymrak Forest.", image: "images/monsters/pixie.jpg" },
+                { name: "Wyvern", hp: 52, ac: 13, damage: "2d8", xp: 1800, attackBonus: 7, damageType: "piercing", multiattack: 2, specialAbilities: [{ name: "Stinger", type: "poison", triggerChance: 0.3, damage: "2d8", damageType: "poison", dc: 15 }], description: "A dragon-like beast soaring above the Dymrak, snatching prey with its venomous tail.", image: "images/monsters/wyvern.jpg" },
+                { name: "Decapus", hp: 25, ac: 12, damage: "1d8", xp: 200, attackBonus: 4, damageType: "bludgeoning", description: "A ten-tentacled horror that lives in trees, disguising itself as branches before striking.", image: "images/monsters/decapus.jpg" },
+                { name: "Troglodyte", hp: 13, ac: 11, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", specialAbilities: [{ name: "Stench", type: "frighten", triggerChance: 0.25, dc: 12 }], description: "A cave-dwelling reptilian humanoid whose revolting stench sickens all who approach.", image: "images/monsters/troglodyte.jpg" }
             ],
             4: [
                 { name: "King Xitaqa", hp: 45, ac: 16, damage: "2d8", xp: 700, attackBonus: 5, damageType: "slashing", multiattack: 2, description: "The cunning goblin king! He wears a crown of bones.", boss: true, image: "images/monsters/king-xitaqa.jpg" },
                 { name: "Xitaqa's Warg", hp: 30, ac: 14, damage: "2d6", xp: 200, attackBonus: 5, damageType: "piercing", description: "Xitaqa's personal mount - a massive black warg.", image: "images/monsters/xitaqas-warg.jpg" },
-                { name: "Iron Ring Captain", hp: 40, ac: 16, damage: "2d8", xp: 450, attackBonus: 5, damageType: "slashing", multiattack: 2, description: "A high-ranking officer of the Iron Ring.", image: "images/monsters/iron-ring-captain.jpg" }
+                { name: "Iron Ring Captain", hp: 40, ac: 16, damage: "2d8", xp: 450, attackBonus: 5, damageType: "slashing", multiattack: 2, description: "A high-ranking officer of the Iron Ring.", image: "images/monsters/iron-ring-captain.jpg" },
+                { name: "Troll", hp: 52, ac: 15, damage: "2d6", xp: 1800, attackBonus: 7, damageType: "slashing", multiattack: 3, vulnerabilities: ["fire", "acid"], specialAbilities: [{ name: "Regeneration", type: "heal", triggerChance: 0.5, healing: "1d10" }], description: "A regenerating horror lurking in the Karameikan wilderness.", image: "images/monsters/troll.jpg" },
+                { name: "Hill Giant", hp: 59, ac: 13, damage: "2d8", xp: 1100, attackBonus: 8, damageType: "bludgeoning", multiattack: 2, description: "A dim-witted but enormously powerful giant from the mountains.", image: "images/monsters/hill-giant.jpg" },
+                { name: "Chevall", hp: 40, ac: 15, damage: "2d8", xp: 700, attackBonus: 6, damageType: "bludgeoning", multiattack: 2, description: "A centaur-like fey guardian of the Dymrak Forest, fierce in defense of the wild.", image: "images/monsters/chevall.jpg" },
+                { name: "Sasquatch", hp: 45, ac: 12, damage: "2d6", xp: 450, attackBonus: 6, damageType: "bludgeoning", multiattack: 2, description: "A reclusive forest giant covered in dark fur. Territorial and immensely strong.", image: "images/monsters/sasquatch.jpg" }
             ],
             5: [
                 { name: "Golthar the Wizard", hp: 55, ac: 14, damage: "3d6", xp: 1100, attackBonus: 5, damageType: "fire", multiattack: 2, saveDC: 15, specialAbilities: [{ name: "Fireball", type: "breath", triggerChance: 0.3, damage: "3d6", damageType: "fire", dc: 15 }], description: "The Iron Ring's wizard! He crackles with dark energy.", boss: true, legendaryResistances: 1, image: "images/monsters/golthar-the-wizard.jpg" },
                 { name: "Hutaakan Guardian", hp: 45, ac: 17, damage: "2d8", xp: 450, attackBonus: 6, damageType: "bludgeoning", immunities: ["poison", "psychic"], description: "An ancient construct guarding the temple.", image: "images/monsters/hutaakan-guardian.jpg" },
-                { name: "Shadow", hp: 30, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], vulnerabilities: ["radiant"], description: "A creature of pure darkness from the temple depths.", image: "images/monsters/shadow.jpg" }
+                { name: "Shadow", hp: 30, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], vulnerabilities: ["radiant"], description: "A creature of pure darkness from the temple depths.", image: "images/monsters/shadow.jpg" },
+                { name: "Living Statue", hp: 50, ac: 17, damage: "2d8", xp: 700, attackBonus: 6, damageType: "bludgeoning", multiattack: 2, immunities: ["poison", "psychic"], description: "An ancient Hutaakan stone guardian, awakened to crush intruders in the Lost Valley.", image: "images/monsters/living-statue.jpg" },
+                { name: "Iron Ring Slaver Lord", hp: 60, ac: 16, damage: "2d10", xp: 1100, attackBonus: 7, damageType: "slashing", multiattack: 2, specialAbilities: [{ name: "Whip of Domination", type: "frighten", triggerChance: 0.25, dc: 14 }], description: "The cruel overlord of the Iron Ring's Karameikan operations. His enchanted whip breaks wills.", image: "images/monsters/iron-ring-slaver-lord.jpg" }
             ]
         },
         events: {
@@ -1658,7 +2085,10 @@ const CAMPAIGNS = {
                 "You hear the clinking of chains - prisoners nearby?",
                 "Ancient Hutaakan carvings show dog-headed figures performing rituals.",
                 "A goblin horn sounds in the distance - have you been spotted?",
-                "You find the remains of a previous adventurer... their journal mentions the Iron Ring."
+                "You find the remains of a previous adventurer... their journal mentions the Iron Ring.",
+                "Claw marks gouge the stone walls. Something much bigger than a goblin made these.",
+                "A crude idol of a wolf deity sits in an alcove, splattered with dark stains.",
+                "Iron manacles hang from the walls - this was once a prison. The Iron Ring's work."
             ],
             wilderness: [
                 "Wolf howls echo through the Dymrak Forest. The goblins are near.",
@@ -1667,7 +2097,10 @@ const CAMPAIGNS = {
                 "Smoke rises in the distance. Another homestead burning?",
                 "You discover a goblin camp, recently abandoned. They left in a hurry.",
                 "The forest grows darker. Local legends say evil spirits dwell here.",
-                "You find a torn piece of cloth - the Sukiskyn family colors!"
+                "You find a torn piece of cloth - the Sukiskyn family colors!",
+                "A white horse gallops past - one of the Sukiskyn steeds, escaped from the goblins.",
+                "Strange mushrooms glow faintly in a fairy ring. The Dymrak hides many secrets.",
+                "You hear the distant beating of goblin war drums echoing through the trees."
             ],
             town: [
                 "The townsfolk speak nervously of increased goblin raids.",
@@ -1731,29 +2164,53 @@ const CAMPAIGNS = {
             1: [
                 { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A shambling corpse animated by dark magic.", image: "images/monsters/zombie.jpg" },
                 { name: "Swarm of Bats", hp: 10, ac: 12, damage: "1d6", xp: 25, attackBonus: 4, damageType: "piercing", description: "A cloud of chittering bats with glowing red eyes.", image: "images/monsters/swarm-of-bats.jpg" },
-                { name: "Strahd Zombie", hp: 28, ac: 8, damage: "1d8", xp: 75, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A zombie enhanced by Strahd's dark power.", image: "images/monsters/strahd-zombie.jpg" }
+                { name: "Strahd Zombie", hp: 28, ac: 8, damage: "1d8", xp: 75, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A zombie enhanced by Strahd's dark power.", image: "images/monsters/strahd-zombie.jpg" },
+                { name: "Twig Blight", hp: 4, ac: 13, damage: "1d4", xp: 25, attackBonus: 3, damageType: "piercing", vulnerabilities: ["fire"], description: "A small plant creature animated by dark magic, lurking in the dead gardens.", image: "images/monsters/twig-blight.jpg" },
+                { name: "Scarecrow", hp: 36, ac: 11, damage: "2d6", xp: 200, attackBonus: 3, damageType: "slashing", vulnerabilities: ["fire"], immunities: ["poison"], saveDC: 11, specialAbilities: [{ name: "Terrifying Glare", type: "frighten", triggerChance: 0.3, dc: 11 }], description: "A magically animated scarecrow with a terrifying stare!", image: "images/monsters/scarecrow.jpg" },
+                { name: "Shadow", hp: 16, ac: 12, damage: "2d6", xp: 100, attackBonus: 4, damageType: "necrotic", resistances: ["acid", "cold", "fire", "lightning"], immunities: ["poison", "necrotic"], vulnerabilities: ["radiant"], description: "A dark undead shade that drains the strength of the living.", image: "images/monsters/shadow.jpg" },
+                { name: "Crawling Claw", hp: 2, ac: 12, damage: "1d4", xp: 10, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], description: "A severed hand animated by necromancy, skittering across the floor of Death House.", image: "images/monsters/crawling-claw.jpg" },
+                { name: "Swarm of Rats", hp: 7, ac: 10, damage: "1d6", xp: 25, attackBonus: 2, damageType: "piercing", description: "A writhing mass of plague-ridden rats infesting the cellars of Barovia.", image: "images/monsters/swarm-of-rats.jpg" }
             ],
             2: [
                 { name: "Ghoul", hp: 22, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "slashing", immunities: ["poison"], saveDC: 10, specialAbilities: [{ name: "Paralyzing Touch", type: "frighten", triggerChance: 0.3, dc: 10 }], description: "An undead creature that feeds on corpses. Its claws can paralyze!", image: "images/monsters/ghoul.jpg" },
                 { name: "Dire Wolf", hp: 37, ac: 14, damage: "2d6", xp: 200, attackBonus: 5, damageType: "piercing", description: "A massive wolf serving the dark powers of Barovia.", image: "images/monsters/dire-wolf-barovia.jpg" },
                 { name: "Wight", hp: 45, ac: 14, damage: "1d8", xp: 700, attackBonus: 4, damageType: "slashing", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], specialAbilities: [{ name: "Life Drain", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "necrotic", dc: 13 }], description: "An undead warrior whose touch drains life force.", image: "images/monsters/wight.jpg" },
-                { name: "Specter", hp: 22, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], description: "A vengeful spirit bound to the land of Barovia.", image: "images/monsters/specter.jpg" }
+                { name: "Specter", hp: 22, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], description: "A vengeful spirit bound to the land of Barovia.", image: "images/monsters/specter.jpg" },
+                { name: "Ghast", hp: 36, ac: 13, damage: "2d8", xp: 450, attackBonus: 5, damageType: "slashing", immunities: ["poison"], saveDC: 10, specialAbilities: [{ name: "Stench", type: "frighten", triggerChance: 0.25, dc: 10 }], description: "A more powerful ghoul whose stench sickens the living!", image: "images/monsters/ghast.jpg" },
+                { name: "Animated Armor", hp: 33, ac: 18, damage: "1d8", xp: 200, attackBonus: 4, damageType: "bludgeoning", immunities: ["poison", "psychic"], description: "A suit of armor animated by Castle Ravenloft's dark magic.", image: "images/monsters/animated-armor.jpg" },
+                { name: "Needle Blight", hp: 11, ac: 12, damage: "2d4", xp: 50, attackBonus: 4, damageType: "piercing", vulnerabilities: ["fire"], description: "A plant creature that fires volleys of needles from its body.", image: "images/monsters/needle-blight.jpg" },
+                { name: "Vistani Thug", hp: 16, ac: 13, damage: "1d8", xp: 100, attackBonus: 4, damageType: "slashing", description: "A Vistani enforcer loyal to Strahd, skilled with a blade.", image: "images/monsters/vistani-thug.jpg" },
+                { name: "Rug of Smothering", hp: 33, ac: 12, damage: "2d6", xp: 200, attackBonus: 5, damageType: "bludgeoning", immunities: ["poison", "psychic"], description: "A magically animated rug that wraps around victims and suffocates them!", image: "images/monsters/rug-of-smothering.jpg" },
+                { name: "Mongrelfolk", hp: 15, ac: 11, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", description: "A deformed creature stitched together from mismatched body parts at the Abbey of Saint Markovia.", image: "images/monsters/mongrelfolk.jpg" },
+                { name: "Vine Blight", hp: 22, ac: 12, damage: "2d6", xp: 100, attackBonus: 4, damageType: "bludgeoning", vulnerabilities: ["fire"], description: "A shambling plant creature with grasping vines, lurking in the Barovian wilds.", image: "images/monsters/vine-blight.jpg" }
             ],
             3: [
                 { name: "Vampire Spawn", hp: 52, ac: 15, damage: "2d8", xp: 1100, attackBonus: 6, damageType: "slashing", multiattack: 2, resistances: ["necrotic"], immunities: ["poison"], description: "A lesser vampire, bound to serve Strahd's will.", image: "images/monsters/vampire-spawn.jpg" },
                 { name: "Werewolf", hp: 58, ac: 12, damage: "2d6", xp: 700, attackBonus: 4, damageType: "slashing", multiattack: 2, description: "A cursed shapeshifter prowling the forests of Barovia.", image: "images/monsters/werewolf-barovia.jpg" },
                 { name: "Revenant", hp: 75, ac: 13, damage: "2d6", xp: 1800, attackBonus: 6, damageType: "bludgeoning", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], description: "An undead knight sworn to destroy Strahd.", image: "images/monsters/revenant.jpg" },
-                { name: "Phantom Warrior", hp: 45, ac: 16, damage: "2d6", xp: 450, attackBonus: 5, damageType: "slashing", resistances: ["cold", "necrotic"], immunities: ["poison"], description: "A ghostly warrior from the Order of the Silver Dragon.", image: "images/monsters/phantom-warrior.jpg" }
+                { name: "Phantom Warrior", hp: 45, ac: 16, damage: "2d6", xp: 450, attackBonus: 5, damageType: "slashing", resistances: ["cold", "necrotic"], immunities: ["poison"], description: "A ghostly warrior from the Order of the Silver Dragon.", image: "images/monsters/phantom-warrior.jpg" },
+                { name: "Will-o'-Wisp", hp: 22, ac: 19, damage: "2d8", xp: 450, attackBonus: 4, damageType: "lightning", immunities: ["lightning", "poison"], resistances: ["cold", "fire", "necrotic"], description: "A flickering ball of light that lures travelers to their doom in the Barovian swamps.", image: "images/monsters/will-o-wisp.jpg" },
+                { name: "Banshee", hp: 58, ac: 12, damage: "2d8", xp: 1100, attackBonus: 4, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], saveDC: 13, specialAbilities: [{ name: "Wail", type: "frighten", triggerChance: 0.2, damage: "3d6", damageType: "psychic", dc: 13 }], description: "The wailing spirit of a woman cursed in death. Her scream can kill!", image: "images/monsters/banshee.jpg" },
+                { name: "Night Hag", hp: 82, ac: 17, damage: "2d8", xp: 1800, attackBonus: 7, damageType: "necrotic", resistances: ["cold", "fire"], immunities: ["poison"], saveDC: 14, specialAbilities: [{ name: "Nightmare Haunting", type: "poison", triggerChance: 0.25, damage: "2d10", damageType: "psychic", dc: 14 }], description: "A fiendish hag that invades dreams and steals souls.", image: "images/monsters/night-hag.jpg" },
+                { name: "Izek Strazni", hp: 75, ac: 14, damage: "2d10", xp: 1800, attackBonus: 6, damageType: "fire", multiattack: 2, specialAbilities: [{ name: "Fiery Arm", type: "breath", triggerChance: 0.3, damage: "2d8", damageType: "fire", dc: 14 }], description: "The Baron's deranged enforcer with a demonic arm that hurls fire!", image: "images/monsters/izek-strazni.jpg" },
+                { name: "Druid of Yester Hill", hp: 27, ac: 11, damage: "1d8", xp: 450, attackBonus: 5, damageType: "bludgeoning", saveDC: 12, specialAbilities: [{ name: "Thunderwave", type: "breath", triggerChance: 0.3, damage: "2d8", damageType: "thunder", dc: 12 }], description: "A twisted druid worshipping Strahd atop Yester Hill, calling storms in his name.", image: "images/monsters/druid-of-yester-hill.jpg" },
+                { name: "Guardian Portrait", hp: 30, ac: 5, damage: "2d6", xp: 200, attackBonus: 0, damageType: "psychic", immunities: ["poison", "psychic"], saveDC: 12, specialAbilities: [{ name: "Frightful Visage", type: "frighten", triggerChance: 0.4, dc: 12 }], description: "A haunted painting in Castle Ravenloft that assaults the minds of those who look upon it.", image: "images/monsters/guardian-portrait.jpg" }
             ],
             4: [
                 { name: "Baba Lysaga", hp: 75, ac: 15, damage: "3d6", xp: 2900, attackBonus: 6, damageType: "necrotic", multiattack: 2, saveDC: 16, specialAbilities: [{ name: "Finger of Death", type: "poison", triggerChance: 0.25, damage: "3d8", damageType: "necrotic", dc: 16 }], description: "The ancient witch of Berez who considers Strahd her son!", boss: true, legendaryResistances: 1, image: "images/monsters/baba-lysaga.jpg" },
                 { name: "Rahadin", hp: 85, ac: 17, damage: "2d8", xp: 2900, attackBonus: 7, damageType: "slashing", multiattack: 3, specialAbilities: [{ name: "Deathly Choir", type: "frighten", triggerChance: 0.3, damage: "2d10", damageType: "psychic", dc: 14 }], description: "Strahd's loyal chamberlain, surrounded by the screams of those he killed.", boss: true, legendaryResistances: 1, image: "images/monsters/rahadin.jpg" },
-                { name: "Nightmare", hp: 68, ac: 13, damage: "2d8", xp: 700, attackBonus: 6, damageType: "fire", resistances: ["fire"], description: "A fiery steed from the lower planes.", image: "images/monsters/nightmare.jpg" }
+                { name: "Nightmare", hp: 68, ac: 13, damage: "2d8", xp: 700, attackBonus: 6, damageType: "fire", resistances: ["fire"], description: "A fiery steed from the lower planes.", image: "images/monsters/nightmare.jpg" },
+                { name: "Flesh Golem", hp: 93, ac: 9, damage: "2d8", xp: 1800, attackBonus: 7, damageType: "bludgeoning", multiattack: 2, immunities: ["lightning", "poison"], description: "A grotesque construct of stitched flesh, animated by lightning in the Abbey of Saint Markovia.", image: "images/monsters/flesh-golem.jpg" },
+                { name: "Strahd's Animated Armor", hp: 45, ac: 18, damage: "2d8", xp: 450, attackBonus: 6, damageType: "slashing", multiattack: 2, immunities: ["poison", "psychic"], description: "Strahd's own enchanted suit of plate armor that fights on its own!", image: "images/monsters/strahds-animated-armor.jpg" },
+                { name: "Wintersplinter", hp: 92, ac: 16, damage: "3d8", xp: 2900, attackBonus: 9, damageType: "bludgeoning", multiattack: 2, vulnerabilities: ["fire"], description: "A colossal tree blight summoned by the druids of Yester Hill to destroy the Wizard of Wines!", image: "images/monsters/wintersplinter.jpg" },
+                { name: "Strahd's Bride", hp: 65, ac: 15, damage: "2d8", xp: 1800, attackBonus: 6, damageType: "necrotic", multiattack: 2, resistances: ["necrotic"], immunities: ["poison"], specialAbilities: [{ name: "Charm Gaze", type: "frighten", triggerChance: 0.25, dc: 15 }], description: "One of Strahd's vampire brides, beautiful and deadly, stalking Castle Ravenloft's halls.", image: "images/monsters/strahds-bride.jpg" }
             ],
             5: [
                 { name: "Strahd von Zarovich", hp: 144, ac: 16, damage: "3d8", xp: 10000, attackBonus: 9, damageType: "slashing", multiattack: 3, resistances: ["necrotic"], immunities: ["poison"], vulnerabilities: ["radiant"], saveDC: 18, specialAbilities: [{ name: "Charm", type: "frighten", triggerChance: 0.3, dc: 17 }, { name: "Children of the Night", type: "summon", triggerChance: 0.2 }], description: "The ancient vampire lord of Barovia! He regenerates and controls the very land.", boss: true, legendaryResistances: 3, image: "images/monsters/strahd-von-zarovich.jpg" },
                 { name: "Amber Golem", hp: 95, ac: 17, damage: "3d6", xp: 2300, attackBonus: 8, damageType: "bludgeoning", multiattack: 2, immunities: ["poison", "psychic"], description: "A construct guarding the Amber Temple's darkest secrets.", image: "images/monsters/amber-golem.jpg" },
-                { name: "Death Knight", hp: 95, ac: 18, damage: "3d8", xp: 8400, attackBonus: 8, damageType: "slashing", multiattack: 3, immunities: ["poison"], resistances: ["necrotic"], specialAbilities: [{ name: "Hellfire Orb", type: "breath", triggerChance: 0.25, damage: "4d6", damageType: "fire", dc: 18 }], description: "A fallen paladin serving dark powers.", image: "images/monsters/death-knight.jpg" }
+                { name: "Death Knight", hp: 95, ac: 18, damage: "3d8", xp: 8400, attackBonus: 8, damageType: "slashing", multiattack: 3, immunities: ["poison"], resistances: ["necrotic"], specialAbilities: [{ name: "Hellfire Orb", type: "breath", triggerChance: 0.25, damage: "4d6", damageType: "fire", dc: 18 }], description: "A fallen paladin serving dark powers.", image: "images/monsters/death-knight.jpg" },
+                { name: "Beucephalus", hp: 93, ac: 13, damage: "3d6", xp: 1800, attackBonus: 6, damageType: "fire", multiattack: 2, resistances: ["fire"], description: "Strahd's nightmare steed, wreathed in hellfire. It can ride through the Ethereal Plane.", image: "images/monsters/beucephalus.jpg" },
+                { name: "Ezmerelda's Revenant", hp: 85, ac: 14, damage: "2d10", xp: 2300, attackBonus: 7, damageType: "slashing", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], description: "A powerful revenant knight hunting Strahd through Barovia with unwavering vengeance.", image: "images/monsters/ezmereldas-revenant.jpg" }
             ]
         },
         events: {
@@ -1764,7 +2221,10 @@ const CAMPAIGNS = {
                 "You find scratch marks on the inside of a coffin lid.",
                 "Organ music echoes faintly through the halls. It sounds like a funeral dirge.",
                 "Bats scatter from the ceiling as you disturb their rest.",
-                "A cold hand seems to touch your shoulder, but when you turn, nothing is there."
+                "A cold hand seems to touch your shoulder, but when you turn, nothing is there.",
+                "A mirror on the wall shows your reflection... but something stands behind you that isn't really there.",
+                "The temperature drops sharply. Your breath mists in the air as candles flicker and die.",
+                "Animated armor stands in an alcove. Is it watching you, or just a decoration?"
             ],
             wilderness: [
                 "The mists curl around you, never quite letting you see ahead.",
@@ -1773,7 +2233,10 @@ const CAMPAIGNS = {
                 "A black carriage passes you on the road. The curtains are drawn.",
                 "You find a child's doll abandoned in the mud. It seems to be crying.",
                 "Ravens watch you from dead trees. Are they Strahd's spies?",
-                "The sun never seems to break through the perpetual clouds."
+                "The sun never seems to break through the perpetual clouds.",
+                "A scarecrow in a field slowly turns its head to watch you pass.",
+                "You find wildflowers growing around a grave marker. Someone still visits.",
+                "The road forks. Both paths look equally foreboding in the gloom."
             ],
             town: [
                 "The locals avoid your gaze. Trust is rare in Barovia.",
@@ -1837,30 +2300,59 @@ const CAMPAIGNS = {
             1: [
                 { name: "Velociraptor", hp: 10, ac: 13, damage: "1d6", xp: 25, attackBonus: 4, damageType: "slashing", description: "A pack-hunting dinosaur with razor-sharp claws.", image: "images/monsters/velociraptor.jpg" },
                 { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "One of Ras Nsi's endless undead soldiers.", image: "images/monsters/zombie.jpg" },
-                { name: "Grung", hp: 11, ac: 12, damage: "1d4", xp: 50, attackBonus: 4, damageType: "piercing", specialAbilities: [{ name: "Poisonous Skin", type: "poison", triggerChance: 0.3, damage: "1d6", damageType: "poison", dc: 12 }], description: "A poisonous frog-like humanoid native to Chult.", image: "images/monsters/grung.jpg" }
+                { name: "Grung", hp: 11, ac: 12, damage: "1d4", xp: 50, attackBonus: 4, damageType: "piercing", specialAbilities: [{ name: "Poisonous Skin", type: "poison", triggerChance: 0.3, damage: "1d6", damageType: "poison", dc: 12 }], description: "A poisonous frog-like humanoid native to Chult.", image: "images/monsters/grung.jpg" },
+                { name: "Deinonychus", hp: 26, ac: 13, damage: "1d8", xp: 100, attackBonus: 4, damageType: "slashing", multiattack: 2, description: "A fast, feathered raptor that hunts in deadly packs.", image: "images/monsters/deinonychus.jpg" },
+                { name: "Giant Wasp", hp: 13, ac: 12, damage: "1d6", xp: 100, attackBonus: 4, damageType: "piercing", specialAbilities: [{ name: "Sting Poison", type: "poison", triggerChance: 0.3, damage: "1d6", damageType: "poison", dc: 11 }], description: "An oversized wasp with a lethal venomous sting.", image: "images/monsters/giant-wasp.jpg" },
+                { name: "Jaculi", hp: 16, ac: 14, damage: "2d6", xp: 100, attackBonus: 4, damageType: "piercing", description: "A camouflaged serpent that launches itself from trees like a javelin!", image: "images/monsters/jaculi.jpg" },
+                { name: "Batiri Goblin", hp: 7, ac: 14, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", description: "A Chultan jungle goblin that stacks on others' shoulders to form a battle totem.", image: "images/monsters/batiri-goblin.jpg" },
+                { name: "Zorbo", hp: 18, ac: 10, damage: "1d8", xp: 100, attackBonus: 3, damageType: "slashing", description: "A koala-like creature that absorbs the properties of whatever material it touches!", image: "images/monsters/zorbo.jpg" },
+                { name: "Flying Snake", hp: 5, ac: 14, damage: "1d4", xp: 25, attackBonus: 6, damageType: "piercing", specialAbilities: [{ name: "Venom", type: "poison", triggerChance: 0.3, damage: "1d6", damageType: "poison", dc: 10 }], description: "A brightly colored winged serpent sacred to Chultans, but deadly when provoked.", image: "images/monsters/flying-snake.jpg" },
+                { name: "Chwinga", hp: 1, ac: 15, damage: "0", xp: 50, attackBonus: 0, damageType: "bludgeoning", description: "A tiny elemental spirit of the jungle. Curious and elusive, it may grant a boon.", image: "images/monsters/chwinga.jpg" }
             ],
             2: [
                 { name: "Allosaurus", hp: 51, ac: 13, damage: "2d8", xp: 450, attackBonus: 6, damageType: "piercing", multiattack: 2, description: "A massive predatory dinosaur, the terror of the jungle.", image: "images/monsters/allosaurus.jpg" },
                 { name: "Ghoul", hp: 22, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "slashing", immunities: ["poison"], saveDC: 10, specialAbilities: [{ name: "Paralyzing Claws", type: "frighten", triggerChance: 0.3, dc: 10 }], description: "An undead creature with paralyzing claws.", image: "images/monsters/ghoul.jpg" },
                 { name: "Su-monster", hp: 27, ac: 12, damage: "2d6", xp: 450, attackBonus: 4, damageType: "bludgeoning", saveDC: 11, specialAbilities: [{ name: "Psychic Crush", type: "frighten", triggerChance: 0.25, damage: "2d6", damageType: "psychic", dc: 11 }], description: "A psionic ape-like creature that hunts in packs.", image: "images/monsters/su-monster.jpg" },
-                { name: "Pterafolk", hp: 26, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "slashing", description: "Cruel flying humanoids that raid from above.", image: "images/monsters/pterafolk.jpg" }
+                { name: "Pterafolk", hp: 26, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "slashing", description: "Cruel flying humanoids that raid from above.", image: "images/monsters/pterafolk.jpg" },
+                { name: "Giant Constrictor Snake", hp: 60, ac: 12, damage: "2d6", xp: 450, attackBonus: 6, damageType: "bludgeoning", description: "A massive snake that crushes its prey in powerful coils.", image: "images/monsters/giant-constrictor-snake.jpg" },
+                { name: "Hadrosaurus", hp: 19, ac: 11, damage: "1d8", xp: 25, attackBonus: 4, damageType: "bludgeoning", description: "A duck-billed herbivore dinosaur. Normally docile, dangerous when startled.", image: "images/monsters/hadrosaurus.jpg" },
+                { name: "Vegepygmy", hp: 9, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", resistances: ["lightning", "piercing"], description: "A small plant creature spawned from russet mold in the jungle.", image: "images/monsters/vegepygmy.jpg" },
+                { name: "Mantrap", hp: 45, ac: 12, damage: "2d6", xp: 450, attackBonus: 4, damageType: "piercing", description: "A giant carnivorous plant that lures prey with sweet scent then snaps shut!", image: "images/monsters/mantrap.jpg" },
+                { name: "Aldani", hp: 27, ac: 14, damage: "1d8", xp: 200, attackBonus: 4, damageType: "bludgeoning", description: "A lobster-like humanoid cursed by Ubtao, lurking in Chult's rivers and swamps.", image: "images/monsters/aldani.jpg" },
+                { name: "Crocodile", hp: 19, ac: 12, damage: "1d8", xp: 100, attackBonus: 4, damageType: "piercing", description: "A massive saltwater crocodile basking on the banks of Chultan rivers.", image: "images/monsters/crocodile.jpg" },
+                { name: "Swarm of Poisonous Snakes", hp: 18, ac: 14, damage: "2d6", xp: 200, attackBonus: 6, damageType: "piercing", specialAbilities: [{ name: "Mass Venom", type: "poison", triggerChance: 0.35, damage: "2d6", damageType: "poison", dc: 10 }], description: "A writhing knot of venomous vipers disturbed on the jungle floor.", image: "images/monsters/swarm-of-snakes.jpg" }
             ],
             3: [
                 { name: "Tyrannosaurus Rex", hp: 136, ac: 13, damage: "3d12", xp: 3900, attackBonus: 10, damageType: "piercing", multiattack: 2, description: "The king of dinosaurs! Its massive jaws can swallow prey whole.", boss: true, image: "images/monsters/tyrannosaurus-rex.jpg" },
                 { name: "Yuan-ti Malison", hp: 66, ac: 12, damage: "2d8", xp: 700, attackBonus: 5, damageType: "piercing", immunities: ["poison"], saveDC: 13, specialAbilities: [{ name: "Suggestion", type: "frighten", triggerChance: 0.25, dc: 13 }], description: "A snake-human hybrid with dark magic.", image: "images/monsters/yuan-ti-malison.jpg" },
                 { name: "Girallon Zombie", hp: 59, ac: 11, damage: "2d8", xp: 450, attackBonus: 5, damageType: "slashing", multiattack: 2, immunities: ["poison"], resistances: ["necrotic"], description: "An undead four-armed ape, savage and relentless.", image: "images/monsters/girallon-zombie.jpg" },
-                { name: "Eblis", hp: 13, ac: 13, damage: "1d8", xp: 200, attackBonus: 3, damageType: "piercing", description: "Crane-like creatures that bargain for information.", image: "images/monsters/eblis.jpg" }
+                { name: "Eblis", hp: 13, ac: 13, damage: "1d8", xp: 200, attackBonus: 3, damageType: "piercing", description: "Crane-like creatures that bargain for information.", image: "images/monsters/eblis.jpg" },
+                { name: "Kamadan", hp: 67, ac: 13, damage: "2d6", xp: 700, attackBonus: 5, damageType: "piercing", multiattack: 2, saveDC: 12, specialAbilities: [{ name: "Sleep Breath", type: "frighten", triggerChance: 0.25, dc: 12 }], description: "A leopard with snakes growing from its shoulders. Its breath puts foes to sleep!", image: "images/monsters/kamadan.jpg" },
+                { name: "Assassin Vine", hp: 85, ac: 13, damage: "2d6", xp: 450, attackBonus: 6, damageType: "bludgeoning", description: "A predatory plant that strangles prey with its animate vines.", image: "images/monsters/assassin-vine.jpg" },
+                { name: "Triceratops", hp: 95, ac: 13, damage: "3d8", xp: 1100, attackBonus: 9, damageType: "bludgeoning", description: "A massive three-horned dinosaur that charges in a fury!", image: "images/monsters/triceratops.jpg" },
+                { name: "Ankylosaurus", hp: 68, ac: 15, damage: "3d6", xp: 700, attackBonus: 7, damageType: "bludgeoning", description: "An armored dinosaur with a devastating tail club.", image: "images/monsters/ankylosaurus.jpg" },
+                { name: "King of Feathers", hp: 136, ac: 15, damage: "3d12", xp: 5000, attackBonus: 10, damageType: "piercing", multiattack: 2, specialAbilities: [{ name: "Feather Burst", type: "breath", triggerChance: 0.25, damage: "3d8", damageType: "radiant", dc: 15 }], description: "A legendary T-Rex covered in brilliant feathers, worshipped by the Omu denizens!", boss: true, image: "images/monsters/king-of-feathers.jpg" },
+                { name: "Girallon", hp: 59, ac: 13, damage: "2d6", xp: 450, attackBonus: 5, damageType: "slashing", multiattack: 3, description: "A four-armed carnivorous ape, incredibly strong and aggressive.", image: "images/monsters/girallon.jpg" },
+                { name: "Firenewt", hp: 22, ac: 13, damage: "1d8", xp: 100, attackBonus: 4, damageType: "fire", specialAbilities: [{ name: "Spit Fire", type: "breath", triggerChance: 0.25, damage: "1d8", damageType: "fire", dc: 12 }], description: "A fire-breathing newt humanoid that rides giant striders through the jungle.", image: "images/monsters/firenewt.jpg" }
             ],
             4: [
                 { name: "Ras Nsi", hp: 127, ac: 15, damage: "3d6", xp: 5000, attackBonus: 9, damageType: "fire", multiattack: 3, immunities: ["poison"], saveDC: 16, specialAbilities: [{ name: "Flame Blade", type: "breath", triggerChance: 0.3, damage: "3d6", damageType: "fire", dc: 16 }], description: "The fallen paladin, now a yuan-ti abomination with a flaming sword!", boss: true, legendaryResistances: 2, image: "images/monsters/ras-nsi.jpg" },
                 { name: "Yuan-ti Abomination", hp: 127, ac: 15, damage: "2d10", xp: 2900, attackBonus: 7, damageType: "piercing", multiattack: 3, immunities: ["poison"], saveDC: 14, specialAbilities: [{ name: "Fear Aura", type: "frighten", triggerChance: 0.25, dc: 14 }], description: "The most powerful form of yuan-ti, more snake than human.", image: "images/monsters/yuan-ti-abomination.jpg" },
-                { name: "Bodak", hp: 58, ac: 15, damage: "2d8", xp: 2300, attackBonus: 5, damageType: "necrotic", immunities: ["poison"], resistances: ["necrotic"], vulnerabilities: ["radiant"], saveDC: 13, specialAbilities: [{ name: "Death Gaze", type: "frighten", triggerChance: 0.3, damage: "3d6", damageType: "necrotic", dc: 13 }], description: "An undead whose gaze can kill.", image: "images/monsters/bodak.jpg" }
+                { name: "Bodak", hp: 58, ac: 15, damage: "2d8", xp: 2300, attackBonus: 5, damageType: "necrotic", immunities: ["poison"], resistances: ["necrotic"], vulnerabilities: ["radiant"], saveDC: 13, specialAbilities: [{ name: "Death Gaze", type: "frighten", triggerChance: 0.3, damage: "3d6", damageType: "necrotic", dc: 13 }], description: "An undead whose gaze can kill.", image: "images/monsters/bodak.jpg" },
+                { name: "Froghemoth", hp: 184, ac: 14, damage: "3d8", xp: 5900, attackBonus: 9, damageType: "bludgeoning", multiattack: 3, resistances: ["fire", "lightning"], description: "A massive amphibious monstrosity with tentacles and a gaping maw!", image: "images/monsters/froghemoth.jpg" },
+                { name: "Nycaloth", hp: 123, ac: 18, damage: "2d10", xp: 5000, attackBonus: 9, damageType: "slashing", multiattack: 2, resistances: ["cold", "fire", "lightning"], immunities: ["poison"], description: "A winged yugoloth demon wielding a massive greataxe.", image: "images/monsters/nycaloth.jpg" },
+                { name: "Flail Snail", hp: 52, ac: 16, damage: "2d6", xp: 700, attackBonus: 5, damageType: "bludgeoning", multiattack: 2, immunities: ["poison"], description: "A giant snail with flail-like tentacles and a shell that reflects magic!", image: "images/monsters/flail-snail.jpg" },
+                { name: "Sewn Sister", hp: 68, ac: 16, damage: "2d8", xp: 1800, attackBonus: 6, damageType: "necrotic", multiattack: 2, resistances: ["cold", "fire"], immunities: ["poison"], saveDC: 14, specialAbilities: [{ name: "Nightmare Plague", type: "poison", triggerChance: 0.3, damage: "2d10", damageType: "psychic", dc: 14 }], description: "One of the three night hag sisters bound to the Soulmonger, stitching souls into her quilt.", image: "images/monsters/sewn-sister.jpg" },
+                { name: "Tomb Dwarf", hp: 30, ac: 16, damage: "1d8", xp: 200, attackBonus: 5, damageType: "slashing", immunities: ["poison"], description: "An undead dwarven servant of Acererak, maintaining the tomb's deadly traps for eternity.", image: "images/monsters/tomb-dwarf.jpg" }
             ],
             5: [
                 { name: "Acererak", hp: 285, ac: 21, damage: "4d8", xp: 25000, attackBonus: 12, damageType: "necrotic", multiattack: 2, immunities: ["poison", "necrotic"], resistances: ["cold"], saveDC: 23, specialAbilities: [{ name: "Sphere of Annihilation", type: "breath", triggerChance: 0.3, damage: "4d10", damageType: "necrotic", dc: 22 }], description: "The legendary archlich! He toys with adventurers before destroying them.", boss: true, legendaryResistances: 3, image: "images/monsters/acererak.jpg" },
                 { name: "Atropal", hp: 225, ac: 7, damage: "4d8", xp: 13000, attackBonus: 8, damageType: "necrotic", immunities: ["poison", "necrotic"], resistances: ["cold"], saveDC: 19, specialAbilities: [{ name: "Life Drain Aura", type: "poison", triggerChance: 0.4, damage: "3d8", damageType: "necrotic", dc: 19 }], description: "An undead godling, fed by the Soulmonger. Its wail can kill instantly!", boss: true, legendaryResistances: 2, image: "images/monsters/atropal.jpg" },
                 { name: "Tomb Guardian", hp: 75, ac: 17, damage: "2d10", xp: 1800, attackBonus: 7, damageType: "bludgeoning", multiattack: 2, immunities: ["poison", "psychic"], description: "A construct defending the tomb's deepest levels.", image: "images/monsters/tomb-guardian.jpg" },
-                { name: "Soulmonger", hp: 200, ac: 15, damage: "3d10", xp: 8000, attackBonus: 8, damageType: "necrotic", immunities: ["poison", "psychic"], saveDC: 17, specialAbilities: [{ name: "Soul Drain", type: "poison", triggerChance: 0.3, damage: "3d10", damageType: "necrotic", dc: 17 }], description: "The source of the Death Curse! Destroy it to save countless souls.", boss: true, legendaryResistances: 1, image: "images/monsters/soulmonger.jpg" }
+                { name: "Soulmonger", hp: 200, ac: 15, damage: "3d10", xp: 8000, attackBonus: 8, damageType: "necrotic", immunities: ["poison", "psychic"], saveDC: 17, specialAbilities: [{ name: "Soul Drain", type: "poison", triggerChance: 0.3, damage: "3d10", damageType: "necrotic", dc: 17 }], description: "The source of the Death Curse! Destroy it to save countless souls.", boss: true, legendaryResistances: 1, image: "images/monsters/soulmonger.jpg" },
+                { name: "Beholder Zombie", hp: 93, ac: 15, damage: "2d10", xp: 1800, attackBonus: 6, damageType: "necrotic", multiattack: 2, immunities: ["poison"], specialAbilities: [{ name: "Eye Ray", type: "breath", triggerChance: 0.3, damage: "3d8", damageType: "necrotic", dc: 16 }], description: "The reanimated corpse of a beholder, its dead eye rays still deadly!", image: "images/monsters/beholder-zombie.jpg" },
+                { name: "Withers", hp: 45, ac: 14, damage: "2d6", xp: 1100, attackBonus: 5, damageType: "necrotic", immunities: ["poison", "necrotic"], saveDC: 14, specialAbilities: [{ name: "Animate Dead", type: "summon", triggerChance: 0.2 }], description: "Acererak's wight superintendent, maintaining the Tomb of the Nine Gods for all eternity.", image: "images/monsters/withers.jpg" },
+                { name: "Gray Slaad", hp: 75, ac: 18, damage: "2d10", xp: 2900, attackBonus: 7, damageType: "slashing", multiattack: 3, resistances: ["cold", "fire", "lightning"], description: "A powerful chaos frog summoned by Acererak to guard the tomb's innermost chambers.", image: "images/monsters/gray-slaad.jpg" }
             ]
         },
         events: {
@@ -1871,7 +2363,10 @@ const CAMPAIGNS = {
                 "Green gas seeps from cracks in the floor. Best not to breathe deeply.",
                 "A ghostly laugh echoes through the chamber. Acererak is watching.",
                 "Strange symbols glow on the walls - the marks of the Trickster Gods.",
-                "You find a journal entry: 'Day 47 in the tomb. We are the last two. One more trap...'"
+                "You find a journal entry: 'Day 47 in the tomb. We are the last two. One more trap...'",
+                "Vines have crept through cracks in the ceiling, tangling ancient mechanisms.",
+                "A giant centipede skitters across the ceiling and vanishes into a crack.",
+                "The air is thick with humidity and the sweet smell of jungle rot."
             ],
             wilderness: [
                 "Dinosaur calls echo through the jungle. Something big is hunting nearby.",
@@ -1880,7 +2375,10 @@ const CAMPAIGNS = {
                 "Colorful birds scatter as you approach. At least something here isn't trying to kill you.",
                 "A massive snake watches from the branches. Yuan-ti spy or just wildlife?",
                 "You discover an ancient Chultan shrine, overgrown but still standing.",
-                "The buzzing of insects is deafening. Something in the swamp smells of death."
+                "The buzzing of insects is deafening. Something in the swamp smells of death.",
+                "Rain hammers down suddenly, turning the trail to mud within minutes.",
+                "You spot a Batiri goblin totem pole. Their territory is nearby.",
+                "A quetzalcoatlus soars overhead, its shadow darkening the canopy."
             ],
             town: [
                 "A merchant tries to sell you a 'guaranteed genuine' map to Omu. Third one today.",
@@ -1945,7 +2443,12 @@ const CAMPAIGNS = {
             1: [
                 { name: "Goblin", hp: 7, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", description: "A sneaky Cragmaw goblin with a shortbow and a nasty attitude.", image: "images/monsters/goblin-cragmaw.jpg" },
                 { name: "Wolf", hp: 11, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "piercing", description: "A grey wolf trained by the Cragmaw tribe to attack intruders.", image: "images/monsters/wolf.jpg" },
-                { name: "Redbrand Ruffian", hp: 12, ac: 12, damage: "1d6", xp: 50, attackBonus: 3, damageType: "slashing", description: "A common thug wearing a tattered red cloak.", image: "images/monsters/redbrand-ruffian.jpg" }
+                { name: "Redbrand Ruffian", hp: 12, ac: 12, damage: "1d6", xp: 50, attackBonus: 3, damageType: "slashing", description: "A common thug wearing a tattered red cloak.", image: "images/monsters/redbrand-ruffian.jpg" },
+                { name: "Stirge", hp: 2, ac: 14, damage: "1d4", xp: 25, attackBonus: 5, damageType: "piercing", description: "A bat-like bloodsucker lurking in Wave Echo Cave.", image: "images/monsters/stirge.jpg" },
+                { name: "Giant Frog", hp: 18, ac: 11, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", description: "A large amphibian that can swallow small prey whole.", image: "images/monsters/giant-frog.jpg" },
+                { name: "Twig Blight", hp: 4, ac: 13, damage: "1d4", xp: 25, attackBonus: 3, damageType: "piercing", vulnerabilities: ["fire"], description: "A tiny plant creature animated by corrupted druidic magic near Thundertree.", image: "images/monsters/twig-blight.jpg" },
+                { name: "Cragmaw Rat", hp: 5, ac: 11, damage: "1d4", xp: 10, attackBonus: 2, damageType: "piercing", description: "A mangy oversized rat infesting the Cragmaw hideout, feeding on scraps.", image: "images/monsters/giant-rat.jpg" },
+                { name: "Needle Blight", hp: 11, ac: 12, damage: "2d4", xp: 50, attackBonus: 4, damageType: "piercing", vulnerabilities: ["fire"], description: "A plant creature near Thundertree that fires volleys of needles from its body.", image: "images/monsters/needle-blight.jpg" }
             ],
             2: [
                 { name: "Redbrand Guard", hp: 16, ac: 13, damage: "1d8", xp: 75, attackBonus: 4, damageType: "slashing", description: "A veteran Redbrand thug guarding the hideout with a longsword.", image: "images/monsters/redbrand-ruffian.jpg" },
@@ -1953,25 +2456,39 @@ const CAMPAIGNS = {
                 { name: "Bugbear", hp: 27, ac: 16, damage: "2d8", xp: 200, attackBonus: 4, damageType: "slashing", description: "A massive, hairy goblinoid that excels at stealth ambushes.", image: "images/monsters/bugbear.jpg" },
                 { name: "Skeleton", hp: 13, ac: 13, damage: "1d6", xp: 50, attackBonus: 4, damageType: "slashing", immunities: ["poison"], vulnerabilities: ["bludgeoning"], description: "The animated bones of a long-dead Phandelver warrior.", image: "images/monsters/skeleton.jpg" },
                 { name: "Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A shambling corpse from the ancient battle at Wave Echo Cave.", image: "images/monsters/zombie.jpg" },
-                { name: "Ochre Jelly", hp: 45, ac: 8, damage: "2d6", xp: 200, attackBonus: 4, damageType: "bludgeoning", immunities: ["lightning", "slashing"], description: "An acidic ooze that splits when struck by lightning or slashing weapons!", image: "images/monsters/ochre-jelly.jpg" }
+                { name: "Ochre Jelly", hp: 45, ac: 8, damage: "2d6", xp: 200, attackBonus: 4, damageType: "bludgeoning", immunities: ["lightning", "slashing"], description: "An acidic ooze that splits when struck by lightning or slashing weapons!", image: "images/monsters/ochre-jelly.jpg" },
+                { name: "Ghoul", hp: 22, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "slashing", immunities: ["poison"], saveDC: 10, specialAbilities: [{ name: "Paralyzing Touch", type: "frighten", triggerChance: 0.3, dc: 10 }], description: "An undead corpse-eater haunting the ruins of Thundertree.", image: "images/monsters/ghoul.jpg" },
+                { name: "Orc", hp: 15, ac: 13, damage: "1d12", xp: 100, attackBonus: 5, damageType: "slashing", description: "A savage Wyvern Tor orc raider threatening the Triboar Trail.", image: "images/monsters/orc.jpg" },
+                { name: "Ash Zombie", hp: 22, ac: 8, damage: "1d6", xp: 50, attackBonus: 3, damageType: "bludgeoning", immunities: ["poison"], resistances: ["necrotic"], description: "A zombie coated in volcanic ash from the ruins of Thundertree.", image: "images/monsters/ash-zombie.jpg" },
+                { name: "Giant Spider", hp: 18, ac: 13, damage: "1d8", xp: 200, attackBonus: 5, damageType: "piercing", saveDC: 11, specialAbilities: [{ name: "Poison Bite", type: "poison", triggerChance: 0.3, damage: "2d8", damageType: "poison", dc: 11 }], description: "A massive spider lurking in webs throughout the Cragmaw caverns.", image: "images/monsters/giant-spider.jpg" },
+                { name: "Cragmaw Goblin Boss", hp: 16, ac: 15, damage: "1d8", xp: 100, attackBonus: 4, damageType: "slashing", description: "A crafty goblin leader in the Cragmaw hideout who hides behind his minions.", image: "images/monsters/goblin-boss.jpg" },
+                { name: "Vine Blight", hp: 22, ac: 12, damage: "2d6", xp: 100, attackBonus: 4, damageType: "bludgeoning", vulnerabilities: ["fire"], description: "A shambling plant creature with grasping vines near the ruins of Thundertree.", image: "images/monsters/vine-blight.jpg" }
             ],
             3: [
                 { name: "Glasstaff", hp: 32, ac: 12, damage: "2d8", xp: 700, attackBonus: 5, damageType: "fire", saveDC: 13, specialAbilities: [{ name: "Staff Blast", type: "breath", triggerChance: 0.3, damage: "2d6", damageType: "fire", dc: 13 }], description: "The wizard leader of the Redbrands, wielding his signature glass staff!", boss: true, image: "images/monsters/glasstaff.jpg" },
                 { name: "Nothic", hp: 45, ac: 15, damage: "2d6", xp: 450, attackBonus: 4, damageType: "slashing", saveDC: 12, specialAbilities: [{ name: "Rotting Gaze", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "necrotic", dc: 12 }], description: "A bizarre one-eyed aberration cursed by dark magic. It can see through lies!", image: "images/monsters/nothic.jpg" },
                 { name: "Grick", hp: 27, ac: 14, damage: "2d6", xp: 450, attackBonus: 4, damageType: "slashing", description: "A worm-like predator with stone-hard skin and tentacles.", image: "images/monsters/grick.jpg" },
-                { name: "Owlbear", hp: 59, ac: 13, damage: "2d8", xp: 700, attackBonus: 7, damageType: "slashing", multiattack: 2, description: "A ferocious hybrid creature with the temperament of a wounded bear.", image: "images/monsters/owlbear-phandelver.jpg" }
+                { name: "Owlbear", hp: 59, ac: 13, damage: "2d8", xp: 700, attackBonus: 7, damageType: "slashing", multiattack: 2, description: "A ferocious hybrid creature with the temperament of a wounded bear.", image: "images/monsters/owlbear-phandelver.jpg" },
+                { name: "Young Green Dragon", hp: 136, ac: 18, damage: "2d10", xp: 3900, attackBonus: 7, damageType: "piercing", multiattack: 3, immunities: ["poison"], saveDC: 14, specialAbilities: [{ name: "Poison Breath", type: "breath", triggerChance: 0.3, damage: "6d6", damageType: "poison", dc: 14 }], description: "Venomfang! A young green dragon nesting in the ruins of Thundertree!", boss: true, image: "images/monsters/young-green-dragon.jpg" },
+                { name: "Ogre", hp: 59, ac: 11, damage: "2d8", xp: 450, attackBonus: 6, damageType: "bludgeoning", description: "A dim-witted brute working alongside the Cragmaw goblins.", image: "images/monsters/ogre.jpg" },
+                { name: "Druid of the Circle", hp: 27, ac: 11, damage: "1d8", xp: 450, attackBonus: 5, damageType: "bludgeoning", saveDC: 12, specialAbilities: [{ name: "Thunderwave", type: "breath", triggerChance: 0.3, damage: "2d8", damageType: "thunder", dc: 12 }], description: "A corrupted druid dwelling in the ruins of Thundertree, allied with the blights.", image: "images/monsters/druid-of-the-circle.jpg" },
+                { name: "Redbrand Captain", hp: 30, ac: 15, damage: "2d6", xp: 450, attackBonus: 5, damageType: "slashing", multiattack: 2, description: "A veteran Redbrand lieutenant commanding the thugs beneath Tresendar Manor.", image: "images/monsters/redbrand-captain.jpg" }
             ],
             4: [
                 { name: "King Grol", hp: 45, ac: 16, damage: "2d8", xp: 700, attackBonus: 5, damageType: "bludgeoning", multiattack: 2, description: "The brutish bugbear king of Cragmaw Castle. His morningstar has crushed many skulls!", boss: true, image: "images/monsters/king-grol.jpg" },
                 { name: "Doppelganger", hp: 52, ac: 14, damage: "1d8", xp: 700, attackBonus: 6, damageType: "bludgeoning", description: "A shapeshifter working for the Black Spider. Who can you trust?", image: "images/monsters/doppelganger.jpg" },
                 { name: "Flameskull", hp: 40, ac: 13, damage: "3d6", xp: 1100, attackBonus: 5, damageType: "fire", immunities: ["poison", "cold"], resistances: ["necrotic"], specialAbilities: [{ name: "Fireball", type: "breath", triggerChance: 0.3, damage: "3d6", damageType: "fire", dc: 13 }], description: "A floating skull wreathed in green flames! It guards the Forge of Spells with deadly magic.", boss: true, image: "images/monsters/flameskull.jpg" },
-                { name: "Wraith", hp: 67, ac: 13, damage: "3d8", xp: 1800, attackBonus: 6, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], specialAbilities: [{ name: "Life Drain", type: "poison", triggerChance: 0.35, damage: "3d6", damageType: "necrotic", dc: 14 }], description: "A powerful undead spirit whose touch drains life and creates specters!", image: "images/monsters/wraith.jpg" }
+                { name: "Wraith", hp: 67, ac: 13, damage: "3d8", xp: 1800, attackBonus: 6, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], specialAbilities: [{ name: "Life Drain", type: "poison", triggerChance: 0.35, damage: "3d6", damageType: "necrotic", dc: 14 }], description: "A powerful undead spirit whose touch drains life and creates specters!", image: "images/monsters/wraith.jpg" },
+                { name: "Hobgoblin Captain", hp: 35, ac: 17, damage: "2d8", xp: 450, attackBonus: 4, damageType: "slashing", multiattack: 2, description: "A veteran hobgoblin commander in Cragmaw Castle, disciplined and cunning.", image: "images/monsters/hobgoblin-captain.jpg" },
+                { name: "Mormesk the Wraith", hp: 75, ac: 14, damage: "3d8", xp: 2300, attackBonus: 7, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], multiattack: 2, specialAbilities: [{ name: "Life Drain", type: "poison", triggerChance: 0.35, damage: "3d6", damageType: "necrotic", dc: 15 }], description: "The ancient wraith of a Phandelver wizard, guarding his hoard in Wave Echo Cave.", boss: true, image: "images/monsters/mormesk-the-wraith.jpg" }
             ],
             5: [
                 { name: "Nezznar the Black Spider", hp: 55, ac: 14, damage: "3d6", xp: 2000, attackBonus: 6, damageType: "poison", multiattack: 2, saveDC: 14, specialAbilities: [{ name: "Darkness", type: "frighten", triggerChance: 0.25, dc: 14 }, { name: "Spider Staff Venom", type: "poison", triggerChance: 0.3, damage: "2d6", damageType: "poison", dc: 14 }], description: "The drow mastermind behind everything! His spider staff channels dark magic!", boss: true, legendaryResistances: 2, image: "images/monsters/nezznar-black-spider.jpg" },
                 { name: "Giant Spider", hp: 26, ac: 14, damage: "1d8", xp: 200, attackBonus: 5, damageType: "piercing", saveDC: 11, specialAbilities: [{ name: "Poison Bite", type: "poison", triggerChance: 0.3, damage: "2d8", damageType: "poison", dc: 11 }], description: "One of the Black Spider's loyal pets. Its venom can paralyze!", image: "images/monsters/giant-spider-minion.jpg" },
                 { name: "Drow", hp: 13, ac: 15, damage: "1d6", xp: 100, attackBonus: 4, damageType: "slashing", description: "A dark elf warrior serving Nezznar. Sunlight hurts their eyes.", image: "images/monsters/drow.jpg" },
-                { name: "Spectator", hp: 39, ac: 14, damage: "1d8", xp: 700, attackBonus: 5, damageType: "fire", specialAbilities: [{ name: "Eye Ray", type: "breath", triggerChance: 0.35, damage: "2d8", damageType: "fire", dc: 13 }], description: "A beholder-kin with four eyestalks guarding the Forge of Spells.", image: "images/monsters/spectator.jpg" }
+                { name: "Spectator", hp: 39, ac: 14, damage: "1d8", xp: 700, attackBonus: 5, damageType: "fire", specialAbilities: [{ name: "Eye Ray", type: "breath", triggerChance: 0.35, damage: "2d8", damageType: "fire", dc: 13 }], description: "A beholder-kin with four eyestalks guarding the Forge of Spells.", image: "images/monsters/spectator.jpg" },
+                { name: "Black Spider's Drow Elite", hp: 22, ac: 16, damage: "2d6", xp: 200, attackBonus: 5, damageType: "slashing", multiattack: 2, specialAbilities: [{ name: "Poison Bolt", type: "poison", triggerChance: 0.25, damage: "2d6", damageType: "poison", dc: 13 }], description: "A drow elite warrior fiercely loyal to Nezznar, wielding twin swords and hand crossbow.", image: "images/monsters/drow-elite.jpg" },
+                { name: "Wave Echo Specter", hp: 22, ac: 12, damage: "2d6", xp: 200, attackBonus: 4, damageType: "necrotic", resistances: ["cold", "necrotic"], immunities: ["poison"], description: "The restless spirit of a miner killed in the ancient battle for Wave Echo Cave.", image: "images/monsters/wave-echo-specter.jpg" }
             ]
         },
         events: {
@@ -1982,7 +2499,10 @@ const CAMPAIGNS = {
                 "You find old mining equipment, rusted and abandoned for centuries.",
                 "Scratch marks on the walls show where something large was dragged through.",
                 "A skeleton wearing ancient dwarven armor lies against the wall, still clutching a pickaxe.",
-                "The air smells of mold, earth, and something else... something dangerous."
+                "The air smells of mold, earth, and something else... something dangerous.",
+                "Phosphorescent fungi cast an eerie green glow along the tunnel walls.",
+                "You step in a puddle of something sticky. It's not water.",
+                "A draft of fresh air from above suggests a secret exit nearby."
             ],
             wilderness: [
                 "The Sword Mountains loom to the east, their peaks often shrouded in clouds.",
@@ -1991,7 +2511,10 @@ const CAMPAIGNS = {
                 "You discover an old trail marker pointing toward Phandalin.",
                 "Animal tracks cross your path - deer, wolves, and something larger.",
                 "The Neverwinter Wood stretches to the west, dark and forbidding.",
-                "You pass abandoned homesteads, victims of orc raids years ago."
+                "You pass abandoned homesteads, victims of orc raids years ago.",
+                "A falcon circles overhead, then dives into the tall grass after prey.",
+                "Storm clouds gather over Wyvern Tor. Lightning flashes on the distant peak.",
+                "You find a Redbrand red cloak snagged on a branch along the trail."
             ],
             town: [
                 "Townsfolk whisper nervously when Redbrands swagger past.",
@@ -3784,6 +4307,49 @@ class Character {
         return "Hostile";
     }
 
+    getReputationBonuses() {
+        const bonuses = {
+            shopDiscount: 0,       // % discount at shops (merchants faction)
+            combatBonus: 0,        // bonus to attack rolls (military faction)
+            healingBonus: 0,       // bonus HP on rest healing (church faction)
+            xpBonus: 0,            // % bonus XP (commoners faction)
+            persuasionBonus: 0,    // bonus to persuasion/CHA checks (nobility faction)
+            stealthBonus: 0        // bonus to stealth/initiative (thieves_guild faction)
+        };
+        
+        const merchants = this.reputation.merchants || 0;
+        if (merchants >= 50) bonuses.shopDiscount = 15;
+        else if (merchants >= 25) bonuses.shopDiscount = 10;
+        else if (merchants >= 10) bonuses.shopDiscount = 5;
+        else if (merchants <= -25) bonuses.shopDiscount = -10; // price increase
+        
+        const military = this.reputation.military || 0;
+        if (military >= 50) bonuses.combatBonus = 2;
+        else if (military >= 25) bonuses.combatBonus = 1;
+        else if (military <= -25) bonuses.combatBonus = -1;
+        
+        const church = this.reputation.church || 0;
+        if (church >= 50) bonuses.healingBonus = 4;
+        else if (church >= 25) bonuses.healingBonus = 2;
+        else if (church <= -25) bonuses.healingBonus = -2;
+        
+        const commoners = this.reputation.commoners || 0;
+        if (commoners >= 50) bonuses.xpBonus = 10;
+        else if (commoners >= 25) bonuses.xpBonus = 5;
+        
+        const nobility = this.reputation.nobility || 0;
+        if (nobility >= 50) bonuses.persuasionBonus = 2;
+        else if (nobility >= 25) bonuses.persuasionBonus = 1;
+        else if (nobility <= -25) bonuses.persuasionBonus = -1;
+        
+        const thieves = this.reputation.thieves_guild || 0;
+        if (thieves >= 50) bonuses.stealthBonus = 2;
+        else if (thieves >= 25) bonuses.stealthBonus = 1;
+        else if (thieves <= -25) bonuses.stealthBonus = -1;
+        
+        return bonuses;
+    }
+
     // Material/crafting management
     addMaterial(material, amount = 1) {
         this.materials[material] = (this.materials[material] || 0) + amount;
@@ -3926,6 +4492,8 @@ class DungeonMaster {
         this.campaignId = campaignId;
         this.campaign = CAMPAIGNS[campaignId];
         this.currentLocation = this.campaign.locations[0]; // Start at first location
+        this.visitedLocations = new Set();
+        this.visitedLocations.add(this.campaign.locations[0].name);
         this.turn = 0;
         this.inCombat = false;
         this.currentEnemy = null;
@@ -3979,8 +4547,12 @@ class DungeonMaster {
     initQuestFlags(campaignId) {
         if (campaignId === "nights_dark_terror") {
             return {
+                intro: false,
                 metStephan: false,
+                reachedFerry: false,
+                clearedWildernessRoad: false,
                 reachedSukiskyn: false,
+                survivedJourney: false,
                 survivedSiege: false,
                 enteredXitaqasLair: false,
                 rescuedTaras: false,
@@ -4017,6 +4589,8 @@ class DungeonMaster {
                 enteredJungle: false,
                 foundOmu: false,
                 collectedCubes: 0,
+                azakaMaskQuest: false,
+                recoveredAzakaMask: false,
                 enteredFane: false,
                 defeatedRasNsi: false,
                 enteredTomb: false,
@@ -4038,6 +4612,7 @@ class DungeonMaster {
                 outerCavesCleared: false,
                 enteredBugbears: false,
                 enteredGnolls: false,
+                enteredHobgoblins: false,
                 innerCavesKills: 0,
                 innerCavesCleared: false,
                 defeatedMinotaur: false,
@@ -4047,6 +4622,7 @@ class DungeonMaster {
         } else if (campaignId === "lost_mine_of_phandelver") {
             return {
                 ambushed: false,
+                clearedAmbushSite: false,
                 rescuedSildar: false,
                 arrivedPhandalin: false,
                 metBarthen: false,
@@ -4315,6 +4891,18 @@ class DungeonMaster {
         return effects;
     }
 
+    // Get weather effects as a short summary string
+    getWeatherEffectsSummary() {
+        const effects = this.getWeatherEffects();
+        if (!effects.rangedDisadvantage && !effects.perceptionDisadvantage) {
+            return ""; // No effects
+        }
+        const parts = [];
+        if (effects.rangedDisadvantage) parts.push("Ranged -1");
+        if (effects.perceptionDisadvantage) parts.push("Perception -1");
+        return parts.length > 0 ? ` (⚠️ ${parts.join(", ")})` : "";
+    }
+
     // Initiative system
     rollInitiative(monsterDexMod = 0) {
         const playerDex = this.character.getModifier("dex");
@@ -4571,19 +5159,25 @@ class DungeonMaster {
         // 50 coins = 1 lb (standard 5e)
         currentWeight += Math.floor(this.character.gold / 50);
         
-        // Variant encumbrance thresholds (5e SRD)
-        // Encumbered: STR × 5 — speed -10ft
-        // Heavily Encumbered: STR × 10 — speed -20ft, disadvantage on ability checks/attacks/saves using STR/DEX/CON
-        // Over capacity: STR × 15 — can't move
-        const encumbered = currentWeight > str * 5;
-        const heavilyEncumbered = currentWeight > str * 10;
+        // Variant Encumbrance thresholds (PHB p.176)
+        // Encumbered: > STR × 5 — speed -10 ft
+        // Heavily Encumbered: > STR × 10 — speed -20 ft, disadvantage on STR/DEX/CON checks, attacks & saves
+        // Over capacity: > STR × 15 — speed drops to 0
+        const encThreshold = str * 5;
+        const heavyThreshold = str * 10;
+        const encumbered = currentWeight > encThreshold;
+        const heavilyEncumbered = currentWeight > heavyThreshold;
+        const overCapacity = currentWeight > this.character.carryCapacity;
         
         return {
             current: Math.round(currentWeight * 10) / 10, // Round to 1 decimal
             capacity: this.character.carryCapacity,
+            encThreshold,
+            heavyThreshold,
             encumbered,
             heavilyEncumbered,
-            penalty: heavilyEncumbered ? -20 : (encumbered ? -10 : 0) // Speed penalty in feet
+            overCapacity,
+            penalty: overCapacity ? -Infinity : (heavilyEncumbered ? -20 : (encumbered ? -10 : 0)) // Speed penalty in feet
         };
     }
 
@@ -5292,6 +5886,14 @@ class Game {
         this.enemyStatusEffects = [];
         this.processingCombatAction = false; // Prevent combat action spam exploit
         
+        // Bestiary - track discovered monsters
+        this.discoveredMonsters = new Set();
+        this.monsterDetails = {}; // Store monster info for bestiary display
+        
+        // Weather effects renderer
+        this.weatherRenderer = new WeatherRenderer();
+        this.weatherEnabled = true;
+        
         // Statistics for achievements
         this.stats = {
             enemiesKilled: 0,
@@ -5361,6 +5963,7 @@ class Game {
             case 'action3':
             case 'action4':
             case 'action5':
+            case 'action6':
                 const btnIndex = parseInt(action.slice(-1)) - 1;
                 const actionBtns = document.querySelectorAll('.actions-panel .action-btn:not([disabled])');
                 if (actionBtns[btnIndex]) {
@@ -5409,6 +6012,36 @@ class Game {
                 this.openStatus();
                 event.preventDefault();
                 break;
+            case 'explore':
+                if (!inCombat) {
+                    this.explore();
+                    event.preventDefault();
+                }
+                break;
+            case 'journal':
+                if (!inCombat) {
+                    this.openJournal();
+                    event.preventDefault();
+                }
+                break;
+            case 'party':
+                if (!inCombat) {
+                    this.openPartyPanel();
+                    event.preventDefault();
+                }
+                break;
+            case 'craft':
+                if (!inCombat) {
+                    this.openCrafting();
+                    event.preventDefault();
+                }
+                break;
+            case 'menu':
+                if (!inCombat) {
+                    this.toggleMenuDropdown();
+                    event.preventDefault();
+                }
+                break;
 
             case 'closeModal':
                 const modals = document.querySelectorAll('.modal.active, .modal-overlay');
@@ -5434,6 +6067,7 @@ class Game {
             this.difficulty = parsed.difficulty || 'normal';
             this.theme = parsed.theme || 'dark';
             this.fontSize = parsed.fontSize || 'medium';
+            this.weatherEnabled = parsed.weatherEnabled !== undefined ? parsed.weatherEnabled : true;
             this.unlockedAchievements = new Set(parsed.achievements || []);
             this.discoveredRecipes = new Set(parsed.recipes || []);
             this.stats = { ...this.stats, ...parsed.stats };
@@ -5450,6 +6084,7 @@ class Game {
             difficulty: this.difficulty,
             theme: this.theme,
             fontSize: this.fontSize,
+            weatherEnabled: this.weatherEnabled,
             achievements: Array.from(this.unlockedAchievements),
             recipes: Array.from(this.discoveredRecipes),
             stats: this.stats
@@ -5468,6 +6103,7 @@ class Game {
         currentTheme = this.theme;
         this.applyTheme();
         this.saveSettings();
+        this.updateUI();
         this.log(`🎨 Theme changed to ${this.theme} mode`, 'dm');
     }
     
@@ -5538,6 +6174,36 @@ class Game {
         }, 4000);
     }
     
+    openCampaignMap() {
+        this.openJournal();
+        // Switch to map tab after modal renders
+        setTimeout(() => {
+            const tabs = document.querySelectorAll('.journal-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            const mapTab = [...tabs].find(t => t.textContent.includes('Map'));
+            if (mapTab) {
+                mapTab.classList.add('active');
+                const content = document.getElementById('journalContent');
+                if (content) content.innerHTML = this.renderJournalMap();
+            }
+        }, 50);
+    }
+
+    openBestiary() {
+        this.openJournal();
+        // Switch to bestiary tab after modal renders
+        setTimeout(() => {
+            const tabs = document.querySelectorAll('.journal-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            const bestiaryTab = [...tabs].find(t => t.textContent.includes('Bestiary'));
+            if (bestiaryTab) {
+                bestiaryTab.classList.add('active');
+                const content = document.getElementById('journalContent');
+                if (content) content.innerHTML = this.renderJournalBestiary();
+            }
+        }, 50);
+    }
+    
     openAchievements() {
         let html = '<h2>🏆 Achievements</h2><div class="achievements-grid">';
         
@@ -5572,13 +6238,31 @@ class Game {
     
     // Side Quest System
     generateSideQuest() {
-        const template = SIDE_QUEST_TEMPLATES[Math.floor(Math.random() * SIDE_QUEST_TEMPLATES.length)];
-        const locations = this.dm.campaign?.locations || ['the wilderness', 'a dark cave', 'the forest'];
-        const location = locations[Math.floor(Math.random() * locations.length)];
-        const enemies = this.dm.campaign?.enemies || { Bandit: {} };
-        const target = Object.keys(enemies)[Math.floor(Math.random() * Object.keys(enemies).length)];
+        // Only generate kill and explore quests (the types that can actually be completed)
+        const completableTemplates = SIDE_QUEST_TEMPLATES.filter(t => t.type === 'kill' || t.type === 'explore');
+        const template = completableTemplates[Math.floor(Math.random() * completableTemplates.length)];
+        
+        // Get real locations from current campaign
+        const campaignLocations = this.dm.campaign?.locations || [];
+        const locationNames = campaignLocations.map(l => l.name);
+        const location = locationNames.length > 0 ? locationNames[Math.floor(Math.random() * locationNames.length)] : 'the wilderness';
+        
+        // Get real monster names from current chapter's monsters
+        const chapter = this.dm.currentChapter || 0;
+        const chapterMonsters = this.dm.campaign?.monsters?.[chapter] || this.dm.campaign?.monsters?.[0] || [];
+        const monsterNames = chapterMonsters.map(m => m.name).filter(n => !n.includes('King') && !n.includes('Strahd') && !n.includes('Acererak'));
+        const target = monsterNames.length > 0 ? monsterNames[Math.floor(Math.random() * monsterNames.length)] : 'Bandit';
+        
         const items = ['Ancient Scroll', 'Golden Chalice', 'Family Ring', 'Enchanted Gem'];
         const item = items[Math.floor(Math.random() * items.length)];
+        
+        // Don't generate duplicate quests for the same target/location
+        const isDuplicate = this.sideQuests.some(q => !q.completed && ((q.type === 'kill' && q.target === target) || (q.type === 'explore' && q.location === location)));
+        if (isDuplicate) return null;
+        
+        // Limit active side quests to 3
+        const activeQuests = this.sideQuests.filter(q => !q.completed);
+        if (activeQuests.length >= 3) return null;
         
         const quest = {
             id: Date.now(),
@@ -5600,7 +6284,18 @@ class Game {
         };
         
         this.sideQuests.push(quest);
+        this.log(`📋 <strong>NEW SIDE QUEST:</strong> ${quest.title}`, 'loot');
+        this.log(`${quest.description} (Reward: ${quest.reward.gold} gold, ${quest.reward.xp} XP)`, 'dm');
         return quest;
+    }
+    
+    completeJournalQuest(questId) {
+        const quest = this.character.journal.quests.find(q => q.id === questId);
+        if (quest && !quest.completed) {
+            quest.completed = true;
+            soundManager.playAchievement();
+            this.log(`🎉 <strong>QUEST COMPLETE:</strong> ${quest.name}!`, 'success');
+        }
     }
     
     checkSideQuestProgress(eventType, target) {
@@ -5754,6 +6449,14 @@ class Game {
                                 <span style="display: block; text-align: center; margin-top: 5px;">${Math.round(musicManager.ambientVolume * 100)}%</span>
                             </div>
                         ` : ''}
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>Visual Effects</h3>
+                        <div class="settings-buttons">
+                            <button class="setting-btn ${this.weatherEnabled ? 'active' : ''}" onclick="game.weatherEnabled = !game.weatherEnabled; game.saveSettings(); game.updateUI(); game.openSettings();">🌧️ Weather: ${this.weatherEnabled ? 'ON' : 'OFF'}</button>
+                        </div>
+                        <p class="setting-desc">Toggle rain, fog, storms, and other weather visual effects</p>
                     </div>
                     
                     <div class="settings-section">
@@ -6135,9 +6838,11 @@ class Game {
     
     // Quick Start - pre-built characters
     quickStart(characterClass) {
-        // Set default campaign
-        this.selectedCampaign = "nights_dark_terror";
-        ACTIVE_CAMPAIGN = CAMPAIGNS["nights_dark_terror"];
+        // Randomize campaign selection
+        const campaignKeys = Object.keys(CAMPAIGNS);
+        const randomCampaign = campaignKeys[Math.floor(Math.random() * campaignKeys.length)];
+        this.selectedCampaign = randomCampaign;
+        ACTIVE_CAMPAIGN = CAMPAIGNS[randomCampaign];
         
         // Pre-defined quick start characters
         const quickCharacters = {
@@ -6187,15 +6892,18 @@ class Game {
     }
     
     showQuickStartIntro() {
+        const campaign = ACTIVE_CAMPAIGN;
+        const firstObjective = campaign.chapters[0].objective;
+        
         const html = `
             <h2>⚡ Quick Start</h2>
             <div style="text-align: center; margin-bottom: 20px;">
                 <div style="font-size: 3rem; margin-bottom: 15px;">🎮</div>
                 <p style="color: #ccc; margin-bottom: 15px;">
-                    You've jumped right into <strong>Night's Dark Terror</strong>!
+                    You've jumped right into <strong>${campaign.icon} ${campaign.name}</strong>!
                 </p>
                 <p style="color: #888; font-size: 0.9rem; margin-bottom: 20px;">
-                    Your mission: Escort Stephan to his family homestead at Sukiskyn.<br>
+                    ${firstObjective}<br>
                     Use <strong>Explore</strong> to investigate and <strong>Travel</strong> to move.
                 </p>
                 <div style="background: rgba(201, 162, 39, 0.15); border-left: 4px solid #c9a227; padding: 15px; text-align: left; border-radius: 0 8px 8px 0;">
@@ -6248,6 +6956,65 @@ class Game {
             el.classList.add(cls);
             setTimeout(() => el.classList.remove(cls), 300);
         }
+    }
+
+    flashHpBar(elementId, type = 'damage') {
+        const el = document.getElementById(elementId);
+        if (el) {
+            const cls = type === 'damage' ? 'flash-damage' : 'flash-heal';
+            el.classList.remove(cls);
+            void el.offsetWidth; // Force reflow to re-trigger animation
+            el.classList.add(cls);
+            setTimeout(() => el.classList.remove(cls), 500);
+        }
+    }
+
+    showLocationTransition(locationName, locationType) {
+        const overlay = document.getElementById('locationTransition');
+        const nameEl = document.getElementById('transitionLocationName');
+        const typeEl = document.getElementById('transitionLocationType');
+        if (!overlay) return Promise.resolve();
+        
+        const typeIcons = { town: '🏰 Town', forest: '🌲 Forest', dungeon: '🏚️ Dungeon', cave: '⛰️ Cave', swamp: '🌿 Swamp', mountain: '⛰️ Mountain', castle: '🏰 Castle', ruins: '🏛️ Ruins', village: '🏘️ Village', wilderness: '🌲 Wilderness' };
+        nameEl.textContent = locationName;
+        typeEl.textContent = typeIcons[locationType] || locationType || '';
+        
+        soundManager.playTransition();
+        
+        return new Promise(resolve => {
+            overlay.classList.add('active');
+            // Reset text animations
+            nameEl.style.animation = 'none';
+            typeEl.style.animation = 'none';
+            void nameEl.offsetWidth;
+            nameEl.style.animation = '';
+            typeEl.style.animation = '';
+            
+            setTimeout(() => {
+                overlay.classList.remove('active');
+                setTimeout(resolve, 400);
+            }, 1200);
+        });
+    }
+
+    showLootDrop(icon, type = 'gold', label = '') {
+        const el = document.createElement('div');
+        el.className = `loot-drop ${type}`;
+        el.textContent = icon + (label ? ' ' + label : '');
+        
+        // Position near the center of the game log
+        const log = document.getElementById('gameLog');
+        if (log) {
+            const rect = log.getBoundingClientRect();
+            el.style.left = `${rect.left + rect.width / 2 - 30 + (Math.random() - 0.5) * 80}px`;
+            el.style.top = `${rect.top + rect.height / 3 + (Math.random() - 0.5) * 40}px`;
+        } else {
+            el.style.left = '50%';
+            el.style.top = '40%';
+        }
+        
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1300);
     }
 
     initCreation() {
@@ -6411,18 +7178,18 @@ class Game {
         if (this.selectedCampaign === "nights_dark_terror") {
             this.log(`You begin your adventure in the frontier town of Kelven, in the Grand Duchy of Karameikos.`, "dm");
             this.log("Your stats have been rolled: " + Object.entries(this.character.stats).map(([k,v]) => `${k.toUpperCase()}: ${v}`).join(", "), "success");
-            this.log(`<em>A horse trader named Stephan approaches you in the tavern...</em>`, "dm");
-            setTimeout(() => this.triggerStoryEvent("intro"), 1500);
+            this.log(`<em>Word in town: a horse trader named Stephan waits at Misha's Ferry seeking an escort...</em>`, "dm");
+            this.log(`💡 TRAVEL to Misha's Ferry to meet Stephan the horse trader.`, "loot");
         } else if (this.selectedCampaign === "curse_of_strahd") {
             this.log(`Mysterious mists have surrounded you and your companions. When they clear, you find yourselves in a dark, unfamiliar land.`, "dm");
             this.log("Your stats have been rolled: " + Object.entries(this.character.stats).map(([k,v]) => `${k.toUpperCase()}: ${v}`).join(", "), "success");
             this.log(`<em>The iron gates of Barovia loom before you. There is no going back...</em>`, "dm");
-            setTimeout(() => this.triggerStoryEvent("intro_strahd"), 1500);
+            this.log(`💡 Click TALK at the top to begin your dark journey.`, "loot");
         } else if (this.selectedCampaign === "tomb_of_annihilation") {
             this.log(`A mysterious summons has brought you to the tower of an archmage. Something terrible is happening across Faerûn...`, "dm");
             this.log("Your stats have been rolled: " + Object.entries(this.character.stats).map(([k,v]) => `${k.toUpperCase()}: ${v}`).join(", "), "success");
             this.log(`<em>Syndra Silvane, visibly weakened by some curse, beckons you closer...</em>`, "dm");
-            setTimeout(() => this.triggerStoryEvent("intro_toa"), 1500);
+            this.log(`💡 Click TALK at the top to learn of your mission.`, "loot");
         } else if (this.selectedCampaign === "keep_on_borderlands") {
             this.log(`You are a fledgling adventurer seeking fame and fortune on the frontier. The Keep on the Borderlands offers shelter and opportunity for those brave enough to face the wilderness beyond.`, "dm");
             this.log("Your stats have been rolled: " + Object.entries(this.character.stats).map(([k,v]) => `${k.toUpperCase()}: ${v}`).join(", "), "success");
@@ -6433,7 +7200,7 @@ class Game {
             this.log(`You've been hired by a dwarf named Gundren Rockseeker to escort a wagonload of supplies to the rough-and-tumble settlement of Phandalin, a couple of days' travel southeast of the city of Neverwinter.`, "dm");
             this.log("Your stats have been rolled: " + Object.entries(this.character.stats).map(([k,v]) => `${k.toUpperCase()}: ${v}`).join(", "), "success");
             this.log(`<em>Gundren rode ahead with his bodyguard Sildar Hallwinter, promising to meet you in Phandalin. The Triboar Trail stretches before you...</em>`, "dm");
-            setTimeout(() => this.triggerStoryEvent("intro_lmop"), 1500);
+            this.log(`💡 Click TRAVEL to head down the Triboar Trail toward Phandalin.`, "loot");
         }
     }
     
@@ -6470,6 +7237,73 @@ class Game {
         document.getElementById("charClass").textContent = this.character.charClass;
         document.getElementById("charLevel").textContent = this.character.level;
         document.getElementById("charBackground").textContent = this.character.background;
+        
+        // Update character portrait (use image if available, emoji fallback)
+        const portraitEl = document.getElementById("charPortrait");
+        if (portraitEl) {
+            const racePortraits = {
+                "Human": "🧑", "Elf": "🧝", "Dwarf": "🧔", "Halfling": "🧒",
+                "Dragonborn": "🐉", "Tiefling": "😈", "Half-Orc": "👹"
+            };
+            const raceKey = this.character.race.toLowerCase().replace(/\s+/g, '-');
+            const imgPath = `images/species/${raceKey}.jpg`;
+            const imgPathAlt = `images/species/${raceKey}.png`;
+            
+            // Only attempt image load if we haven't already set it for this race
+            if (!portraitEl.dataset.loadedRace || portraitEl.dataset.loadedRace !== this.character.race) {
+                portraitEl.dataset.loadedRace = this.character.race;
+                const img = new Image();
+                img.onload = () => {
+                    portraitEl.textContent = '';
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'cover';
+                    img.style.objectPosition = 'center top';
+                    img.style.borderRadius = '50%';
+                    img.alt = this.character.race;
+                    portraitEl.appendChild(img);
+                };
+                img.onerror = () => {
+                    // Try .png if .jpg failed
+                    const imgAlt = new Image();
+                    imgAlt.onload = () => {
+                        portraitEl.textContent = '';
+                        imgAlt.style.width = '100%';
+                        imgAlt.style.height = '100%';
+                        imgAlt.style.objectFit = 'cover';
+                        imgAlt.style.objectPosition = 'center top';
+                        imgAlt.style.borderRadius = '50%';
+                        imgAlt.alt = this.character.race;
+                        portraitEl.appendChild(imgAlt);
+                    };
+                    imgAlt.onerror = () => {
+                        // Fallback to emoji
+                        portraitEl.textContent = racePortraits[this.character.race] || "⚔️";
+                    };
+                    imgAlt.src = imgPathAlt;
+                };
+                img.src = imgPath;
+            }
+        }
+        // Update title line under name
+        const titleLine = document.getElementById("charTitleLine");
+        if (titleLine) {
+            titleLine.textContent = `Level ${this.character.level} ${this.character.race} ${this.character.charClass}`;
+        }
+        
+        // Update day/night theme
+        if (this.dm) {
+            document.body.classList.remove('time-dawn', 'time-day', 'time-dusk', 'time-night');
+            document.body.classList.add(`time-${this.dm.timeOfDay}`);
+            
+            // Update weather visual effects
+            if (this.weatherEnabled) {
+                this.weatherRenderer.setWeather(this.dm.weather);
+            } else {
+                this.weatherRenderer.stop();
+                document.body.classList.remove('weather-rain', 'weather-storm', 'weather-fog', 'weather-cloudy', 'weather-clear');
+            }
+        }
         
         // Update subclass display if available
         const charClassEl = document.getElementById("charClass");
@@ -6685,21 +7519,39 @@ class Game {
             const enc = this.dm.calculateEncumbrance();
             let encClass = '';
             let encLabel = '';
-            if (enc.heavilyEncumbered) {
+            let barColor = '#2ecc71';
+            let labelColor = '#2ecc71';
+            if (enc.overCapacity) {
+                encClass = 'enc-over';
+                encLabel = '🚫 Over Capacity (Speed 0)';
+                barColor = '#c0392b';
+                labelColor = '#c0392b';
+            } else if (enc.heavilyEncumbered) {
                 encClass = 'enc-heavy';
-                encLabel = '⚠️ Heavily Encumbered';
+                encLabel = `⚠️ Heavily Encumbered (-20 ft)`;
+                barColor = '#e74c3c';
+                labelColor = '#e74c3c';
             } else if (enc.encumbered) {
                 encClass = 'enc-light';
-                encLabel = '⚠️ Encumbered';
+                encLabel = `⚠️ Encumbered (-10 ft)`;
+                barColor = '#f39c12';
+                labelColor = '#f39c12';
             }
             const pct = Math.min(100, Math.round((enc.current / enc.capacity) * 100));
+            // Show threshold markers for variant encumbrance
+            const encPct = Math.round((enc.encThreshold / enc.capacity) * 100);
+            const heavyPct = Math.round((enc.heavyThreshold / enc.capacity) * 100);
             encumPanel.innerHTML = `
                 <div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:2px;">
                     <span>⚖️ ${enc.current} / ${enc.capacity} lbs</span>
-                    ${encLabel ? `<span class="${encClass}" style="color:#e74c3c;font-weight:bold;">${encLabel}</span>` : '<span style="color:#2ecc71;">OK</span>'}
+                    ${encLabel ? `<span class="${encClass}" style="color:${labelColor};font-weight:bold;">${encLabel}</span>` : '<span style="color:#2ecc71;">OK</span>'}
                 </div>
-                <div style="height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;">
-                    <div style="height:100%;width:${pct}%;background:${enc.heavilyEncumbered ? '#e74c3c' : enc.encumbered ? '#f39c12' : '#2ecc71'};border-radius:2px;transition:width 0.3s;"></div>
+                <div style="position:relative;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;">
+                    <div style="height:100%;width:${pct}%;background:${barColor};border-radius:3px;transition:width 0.3s;"></div>
+                </div>
+                <div style="position:relative;height:8px;margin-top:1px;">
+                    <div style="position:absolute;left:${encPct}%;transform:translateX(-50%);font-size:0.55rem;color:#f39c12;" title="Encumbered: >${enc.encThreshold} lbs">▼${enc.encThreshold}</div>
+                    <div style="position:absolute;left:${heavyPct}%;transform:translateX(-50%);font-size:0.55rem;color:#e74c3c;" title="Heavily Encumbered: >${enc.heavyThreshold} lbs">▼${enc.heavyThreshold}</div>
                 </div>
             `;
             encumPanel.style.display = '';
@@ -6781,6 +7633,9 @@ class Game {
         const typeIcons = { town: "🏠 Town", dungeon: "💀 Dungeon", wilderness: "🌲 Wilderness" };
         document.getElementById("locationType").textContent = typeIcons[this.dm.currentLocation.type];
         
+        // Always refresh chapter display to prevent stale state
+        this.updateChapterDisplay();
+        
         // Add/update shop button for towns
         this.updateShopButton();
         
@@ -6809,12 +7664,38 @@ class Game {
         entry.className = `log-entry ${type}`;
         
         if (type === "dm") {
-            entry.innerHTML = `<div class="speaker">🎭 Dungeon Master</div>${message}`;
+            entry.innerHTML = `<div class="speaker">🎭 Dungeon Master</div><span class="typewriter-text"></span>`;
+            gameLog.appendChild(entry);
+            // Typewriter effect for DM messages
+            const textEl = entry.querySelector('.typewriter-text');
+            const cursor = document.createElement('span');
+            cursor.className = 'typewriter-cursor';
+            entry.appendChild(cursor);
+            const plainText = message.replace(/<[^>]*>/g, '');
+            let i = 0;
+            const speed = 12; // ms per character
+            const typeNext = () => {
+                if (i < plainText.length) {
+                    textEl.textContent += plainText.charAt(i);
+                    i++;
+                    setTimeout(typeNext, speed);
+                } else {
+                    // Replace with full HTML version after typing
+                    textEl.innerHTML = message;
+                    cursor.remove();
+                }
+            };
+            // Only animate if text is short enough, otherwise show instantly
+            if (plainText.length < 200) {
+                typeNext();
+            } else {
+                textEl.innerHTML = message;
+                cursor.remove();
+            }
         } else {
             entry.innerHTML = message;
+            gameLog.appendChild(entry);
         }
-        
-        gameLog.appendChild(entry);
         // Ensure scroll happens after the DOM has rendered the new entry
         requestAnimationFrame(() => {
             gameLog.scrollTop = gameLog.scrollHeight;
@@ -6829,6 +7710,19 @@ class Game {
                 this.showFloatingDamage(damageMatch[1], 'damage');
                 this.shakeElement('characterPanel');
                 this.flashElement('gameLog', 'damage');
+                this.flashHpBar('hpBar', 'damage');
+            }
+            if (damageMatch && (message.includes("You hit") || message.includes("you hit") || message.includes("strikes") || message.includes("damage with"))) {
+                // Player hit enemy - shake enemy image, flash HP bar, show floating damage
+                this.shakeElement('enemyImageContainer');
+                this.flashHpBar('enemyHpBar', 'damage');
+                this.flashElement('combatPanel', 'damage');
+                // Show floating damage on enemy image
+                const enemyImg = document.getElementById('enemyImageContainer');
+                if (enemyImg && enemyImg.style.display !== 'none') {
+                    const rect = enemyImg.getBoundingClientRect();
+                    this.showFloatingDamage(damageMatch[1], 'damage', rect.left + rect.width / 2, rect.top + rect.height / 3);
+                }
             }
             if (message.includes("CRITICAL")) {
                 this.flashElement('combatPanel', message.includes("hits you") ? 'damage' : 'heal');
@@ -6839,6 +7733,7 @@ class Game {
             if (healMatch) {
                 this.showFloatingDamage(healMatch[1], 'heal');
                 this.flashElement('characterPanel', 'heal');
+                this.flashHpBar('hpBar', 'heal');
             }
         }
     }
@@ -6859,12 +7754,20 @@ class Game {
         this.dm.advanceTime(0.5 + Math.random() * 0.5);
         
         // Show time and weather
-        this.log(`${this.dm.getTimeIcon()} ${this.formatTime()} | ${this.dm.getWeatherIcon()} ${this.dm.weather}`, "dm");
+        this.log(`${this.dm.getTimeIcon()} ${this.formatTime()} | ${this.dm.getWeatherIcon()} ${this.dm.weather}${this.dm.getWeatherEffectsSummary()}`, "dm");
         
         // Ambient event - use campaign-specific events
         const campaignEvents = this.dm.campaign.events[locType];
         const event = campaignEvents[Math.floor(Math.random() * campaignEvents.length)];
         this.log(event, "dm");
+        
+        // Side quest generation in towns (15% chance per visit)
+        if (locType === 'town' && Math.random() < 0.15) {
+            this.generateSideQuest();
+        }
+        
+        // Track explore-type side quest progress
+        this.checkSideQuestProgress('explore', this.dm.currentLocation.name);
         
         const danger = this.dm.currentLocation.danger;
         
@@ -6880,7 +7783,7 @@ class Game {
         
         // Skill check events (25% chance) - adds D&D feel
         if (Math.random() < 0.25) {
-            this.triggerSkillCheckEvent();
+            await this.triggerSkillCheckEvent();
             return;
         }
         
@@ -7604,6 +8507,21 @@ class Game {
         this.dm.currentEnemy = monster;
         this.dm.defendingThisTurn = false;
         
+        // Track monster in bestiary
+        if (!this.discoveredMonsters.has(monster.name)) {
+            this.discoveredMonsters.add(monster.name);
+            this.monsterDetails[monster.name] = {
+                name: monster.name,
+                hp: monster.hp,
+                ac: monster.ac,
+                xp: monster.xp,
+                description: monster.description || 'A dangerous foe!',
+                image: monster.image || null,
+                damageType: monster.damageType || 'unknown',
+                firstSeen: this.dm.currentLocation?.name || 'Unknown'
+            };
+        }
+        
         // Clean up any stale death save state from previous combat
         const oldDeathBtn = document.getElementById("deathSaveBtn");
         if (oldDeathBtn) oldDeathBtn.remove();
@@ -7674,6 +8592,10 @@ class Game {
             imageElement.src = monster.image;
             imageElement.alt = monster.name;
             imageContainer.style.display = "block";
+            // Trigger entrance animation
+            imageContainer.classList.remove('combat-enter');
+            void imageContainer.offsetWidth; // Force reflow
+            imageContainer.classList.add('combat-enter');
         } else {
             imageContainer.style.display = "none";
         }
@@ -7876,6 +8798,12 @@ class Game {
             let totalAttackMod = attackMod + magicBonus;
             if (char.isProficientWithWeapon(char.equipped.weapon || "Unarmed")) {
                 totalAttackMod += profBonus;
+            }
+            
+            // Military reputation combat bonus
+            const repBonuses = char.getReputationBonuses();
+            if (repBonuses.combatBonus) {
+                totalAttackMod += repBonuses.combatBonus;
             }
             
             // Equipment proficiency: non-proficient armor causes disadvantage on attacks
@@ -10022,12 +10950,19 @@ class Game {
         const diffSettings = DIFFICULTY_SETTINGS[this.difficulty];
         
         // Apply difficulty modifiers
-        const xpGained = Math.floor(monster.xp * diffSettings.xpMod);
+        let xpGained = Math.floor(monster.xp * diffSettings.xpMod);
+        
+        // Apply commoners reputation XP bonus
+        const repBonuses = char.getReputationBonuses();
+        if (repBonuses.xpBonus > 0) {
+            xpGained = Math.floor(xpGained * (1 + repBonuses.xpBonus / 100));
+        }
         
         soundManager.playDeath(); // Enemy death sound
         this.log(`🎉 Victory! The ${monster.name} is defeated!`, "success");
         char.experience += xpGained;
         this.log(`You gain ${xpGained} XP! (Total: ${char.experience})`, "loot");
+        this.showLootDrop('✨', 'xp', `+${xpGained} XP`);
         
         // Track statistics for achievements
         this.stats.enemiesKilled++;
@@ -10119,6 +11054,9 @@ class Game {
         // Refresh the chapter hint (e.g. kill counters like "2/5 goblins defeated")
         this.updateChapterDisplay();
         
+        // Track side quest kill progress
+        this.checkSideQuestProgress('kill', monster.name);
+        
         // Check for boss defeat
         this.checkBossDefeat(monster);
         
@@ -10202,15 +11140,19 @@ class Game {
     adjustReputationForKill(monster) {
         const name = monster.name.toLowerCase();
         
-        // Killing bandits/goblins helps with common folk
+        // Killing bandits/goblins occasionally helps with common folk and military (20% chance)
         if (name.includes("goblin") || name.includes("bandit") || name.includes("orc")) {
-            this.character.adjustReputation("commoners", 1);
-            this.character.adjustReputation("military", 1);
+            if (Math.random() < 0.2) {
+                this.character.adjustReputation("commoners", 1);
+                this.character.adjustReputation("military", 1);
+            }
         }
         
-        // Killing undead helps with church
+        // Killing undead occasionally helps with church (30% chance)
         if (name.includes("zombie") || name.includes("skeleton") || name.includes("vampire") || name.includes("ghoul")) {
-            this.character.adjustReputation("church", 2);
+            if (Math.random() < 0.3) {
+                this.character.adjustReputation("church", 1);
+            }
         }
     }
     
@@ -10379,7 +11321,18 @@ class Game {
         // Add objective reminder at bottom
         const chapter = this.dm.campaign.chapters[currentChapter];
         if (chapter) {
-            mapHtml += `<div class="map-objective">🎯 ${chapter.objective}</div>`;
+            let objectiveText = chapter.objective;
+            if (this.dm.campaignId === "nights_dark_terror" && currentChapter === 0) {
+                const flags = this.dm.questFlags;
+                if (!flags.metStephan) {
+                    objectiveText = "Meet Stephan at Misha's Ferry";
+                } else if (!flags.clearedWildernessRoad) {
+                    objectiveText = "Escort Stephan down the Wilderness Road";
+                } else {
+                    objectiveText = "Travel to Sukiskyn homestead";
+                }
+            }
+            mapHtml += `<div class="map-objective">🎯 ${objectiveText}</div>`;
         }
         
         mapContent.innerHTML = mapHtml;
@@ -10389,7 +11342,18 @@ class Game {
         if (preview) {
             const chapter = this.dm.campaign.chapters[currentChapter];
             if (chapter && chapter.objective) {
-                preview.innerHTML = `🎯 ${chapter.objective}`;
+                let previewObjective = chapter.objective;
+                if (this.dm.campaignId === "nights_dark_terror" && currentChapter === 0) {
+                    const flags = this.dm.questFlags;
+                    if (!flags.metStephan) {
+                        previewObjective = "Meet Stephan at Misha's Ferry";
+                    } else if (!flags.clearedWildernessRoad) {
+                        previewObjective = "Escort Stephan down the Wilderness Road";
+                    } else {
+                        previewObjective = "Travel to Sukiskyn homestead";
+                    }
+                }
+                preview.innerHTML = `🎯 ${previewObjective}`;
             } else if (currentLoc) {
                 preview.innerHTML = `📍 ${currentLoc.icon} ${currentLoc.name}`;
             }
@@ -11470,6 +12434,7 @@ class Game {
         this.character.gold += gold;
         soundManager.playGold();
         this.log(`💰 You loot ${gold} gold from the ${monster.name}!`, "loot");
+        this.showLootDrop('💰', 'gold', `+${gold}g`);
         
         // Check for equipment drop
         if (Math.random() < lootTable.dropChance) {
@@ -11608,12 +12573,14 @@ class Game {
         if (treasure.usable) {
             this.character.inventory.push(treasure.name);
             this.log(`💎 You found a ${treasure.name}! (Added to inventory)`, "loot");
+            this.showLootDrop('💎', 'item', treasure.name);
         } else {
             const value = treasure.getValue();
             this.character.gold += value;
             this.log(`💰 You found ${treasure.name} worth ${value} gold!`, "loot");
+            this.showLootDrop('💰', 'gold', `+${value}g`);
         }
-        
+        soundManager.playLootDrop();
         this.updateUI();
     }
 
@@ -11623,7 +12590,14 @@ class Game {
             () => this.mysteriousStrangerEvent(),
             () => this.trappedChestEvent(),
             () => this.treasureChestEvent(),
-            () => this.healingSpringEvent()
+            () => this.healingSpringEvent(),
+            () => this.shrineDiscoveryEvent(),
+            () => this.abandonedCampsiteEvent(),
+            () => this.fallenAdventurerEvent(),
+            () => this.wildAnimalEncounterEvent(),
+            () => this.lostTravelerEvent(),
+            () => this.magicalAnomalyEvent(),
+            () => this.naturalHazardEvent()
         ];
 
         await events[Math.floor(Math.random() * events.length)]();
@@ -11968,8 +12942,13 @@ class Game {
         const descriptions = GAME_DATA.itemDescriptions;
         
         inventory.forEach(item => {
-            const price = prices[item];
-            if (!price) return;
+            const basePrice = prices[item];
+            if (!basePrice) return;
+            
+            // Apply merchants reputation discount/markup
+            const repBonuses = this.character.getReputationBonuses();
+            const discount = repBonuses.shopDiscount || 0;
+            const price = Math.max(1, Math.round(basePrice * (1 - discount / 100)));
             
             // Check both standard and campaign-specific items
             const isWeapon = GAME_DATA.weapons[item] || (campaignItems.weapons && campaignItems.weapons[item]);
@@ -12091,22 +13070,24 @@ class Game {
         const journal = this.character.journal;
         
         modal.innerHTML = `
-            <div class="modal-content" style="max-width: 600px;">
-                <h2>📜 Journal</h2>
+            <div class="modal-content" style="max-width: 600px; max-height: 75vh; display: flex; flex-direction: column; overflow: hidden;">
+                <h2 style="flex-shrink: 0;">📜 Journal</h2>
                 
-                <div class="journal-tabs">
-                    <button class="journal-tab active" onclick="game.showJournalTab('quests')">Quests</button>
-                    <button class="journal-tab" onclick="game.showJournalTab('npcs')">NPCs</button>
-                    <button class="journal-tab" onclick="game.showJournalTab('lore')">Lore</button>
-                    <button class="journal-tab" onclick="game.showJournalTab('reputation')">Reputation</button>
-                    <button class="journal-tab" onclick="game.showJournalTab('status')">Status</button>
+                <div class="journal-tabs" style="flex-shrink: 0;">
+                    <button class="journal-tab active" onclick="game.showJournalTab('quests')">📋 Quests</button>
+                    <button class="journal-tab" onclick="game.showJournalTab('npcs')">👥 NPCs</button>
+                    <button class="journal-tab" onclick="game.showJournalTab('lore')">📚 Lore</button>
+                    <button class="journal-tab" onclick="game.showJournalTab('reputation')">⭐ Reputation</button>
+                    <button class="journal-tab" onclick="game.showJournalTab('status')">📊 Status</button>
+                    <button class="journal-tab" onclick="game.showJournalTab('bestiary')">📖 Bestiary</button>
+                    <button class="journal-tab" onclick="game.showJournalTab('map')">🗺️ Map</button>
                 </div>
                 
                 <div id="journalContent" class="journal-content">
                     ${this.renderJournalQuests()}
                 </div>
                 
-                <button class="close-modal" onclick="game.closeJournal()">Close</button>
+                <button class="close-modal" style="flex-shrink: 0; margin-top: 10px;" onclick="game.closeJournal()">Close</button>
             </div>
         `;
         
@@ -12125,6 +13106,8 @@ class Game {
             case 'lore': content.innerHTML = this.renderJournalLore(); break;
             case 'reputation': content.innerHTML = this.renderJournalReputation(); break;
             case 'status': content.innerHTML = this.renderJournalStatus(); break;
+            case 'bestiary': content.innerHTML = this.renderJournalBestiary(); break;
+            case 'map': content.innerHTML = this.renderJournalMap(); break;
         }
     }
     
@@ -12185,23 +13168,43 @@ class Game {
     
     renderJournalReputation() {
         const rep = this.character.reputation;
-        const factionNames = {
-            commoners: "Common Folk",
-            nobility: "Nobility",
-            merchants: "Merchants Guild",
-            thieves_guild: "Thieves Guild",
-            military: "Military",
-            church: "The Church"
+        const repBonuses = this.character.getReputationBonuses();
+        const factionInfo = {
+            commoners: { name: "Common Folk", icon: "🏘️", bonusKey: "xpBonus", bonusLabel: "XP Bonus", bonusSuffix: "%" },
+            nobility: { name: "Nobility", icon: "👑", bonusKey: "persuasionBonus", bonusLabel: "Persuasion", bonusSuffix: "" },
+            merchants: { name: "Merchants Guild", icon: "💰", bonusKey: "shopDiscount", bonusLabel: "Shop Discount", bonusSuffix: "%" },
+            thieves_guild: { name: "Thieves Guild", icon: "🗡️", bonusKey: "stealthBonus", bonusLabel: "Stealth/Initiative", bonusSuffix: "" },
+            military: { name: "Military", icon: "⚔️", bonusKey: "combatBonus", bonusLabel: "Attack Bonus", bonusSuffix: "" },
+            church: { name: "The Church", icon: "⛪", bonusKey: "healingBonus", bonusLabel: "Rest Healing", bonusSuffix: " HP" }
         };
         
         return Object.keys(rep).map(faction => {
             const value = rep[faction];
             const level = this.character.getReputationLevel(faction);
-            const color = value >= 25 ? '#2ecc71' : value >= 0 ? '#f1c40f' : '#e74c3c';
+            const info = factionInfo[faction] || { name: faction, icon: "📋" };
+            const color = value >= 50 ? '#9b59b6' : value >= 25 ? '#2ecc71' : value >= 0 ? '#f1c40f' : value >= -25 ? '#e67e22' : '#e74c3c';
+            const barPct = Math.round(((value + 100) / 200) * 100);
+            
+            // Show active bonus
+            let bonusHtml = '';
+            if (info.bonusKey) {
+                const bonusVal = repBonuses[info.bonusKey] || 0;
+                if (bonusVal !== 0) {
+                    const bonusColor = bonusVal > 0 ? '#2ecc71' : '#e74c3c';
+                    bonusHtml = `<div style="font-size:0.75rem;color:${bonusColor};margin-top:3px;">${bonusVal > 0 ? '+' : ''}${bonusVal}${info.bonusSuffix} ${info.bonusLabel}</div>`;
+                }
+            }
+            
             return `
-                <div class="journal-entry">
-                    <div class="journal-title">${factionNames[faction] || faction}</div>
-                    <div class="journal-text" style="color: ${color};">${level} (${value >= 0 ? '+' : ''}${value})</div>
+                <div class="journal-entry" style="border-left: 3px solid ${color}; padding-left: 12px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                        <div class="journal-title" style="margin-bottom:0;">${info.icon} ${info.name}</div>
+                        <span style="color:${color};font-size:0.85rem;font-weight:bold;">${level} (${value >= 0 ? '+' : ''}${value})</span>
+                    </div>
+                    <div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
+                        <div style="height:100%;width:${barPct}%;background:${color};border-radius:3px;transition:width 0.3s;"></div>
+                    </div>
+                    ${bonusHtml}
                 </div>
             `;
         }).join('');
@@ -12271,6 +13274,77 @@ class Game {
         return html;
     }
     
+    renderJournalBestiary() {
+        const monsters = Object.values(this.monsterDetails);
+        const total = monsters.length;
+        
+        let html = `<p style="color:#aaa;font-size:0.85rem;margin-bottom:12px;">${total} creature${total !== 1 ? 's' : ''} discovered</p>`;
+        
+        if (total === 0) {
+            html += `<p style="color:#888;text-align:center;padding:20px;">No creatures discovered yet. Explore and fight enemies to fill your bestiary!</p>`;
+        } else {
+            monsters.sort((a, b) => a.name.localeCompare(b.name));
+            for (const m of monsters) {
+                html += `<div style="display:flex;gap:10px;padding:8px;margin-bottom:6px;background:rgba(0,0,0,0.25);border-radius:8px;border:1px solid rgba(100,100,100,0.2);align-items:center;">`;
+                if (m.image) {
+                    html += `<img src="${m.image}" alt="${m.name}" style="width:50px;height:50px;object-fit:cover;border-radius:6px;border:1px solid rgba(201,162,39,0.3);">`;
+                } else {
+                    html += `<div style="width:50px;height:50px;display:flex;align-items:center;justify-content:center;background:rgba(30,15,15,0.6);border-radius:6px;font-size:1.5rem;">👹</div>`;
+                }
+                html += `<div style="flex:1;min-width:0;">`;
+                html += `<div style="font-weight:bold;color:#c9a227;font-size:0.9rem;">${m.name}</div>`;
+                html += `<div style="font-size:0.75rem;color:#aaa;font-style:italic;">${m.description}</div>`;
+                html += `<div style="font-size:0.72rem;color:#888;margin-top:3px;">HP: ${m.hp} | AC: ${m.ac} | XP: ${m.xp} | ${m.damageType}</div>`;
+                html += `</div></div>`;
+            }
+        }
+        
+        return html;
+    }
+    
+    renderJournalMap() {
+        if (!this.dm || !this.dm.campaign) {
+            return '<p style="color:#888;text-align:center;padding:20px;">No campaign active.</p>';
+        }
+        
+        const locations = this.dm.campaign.locations;
+        const currentLoc = this.dm.currentLocation;
+        const visitedLocations = this.dm.visitedLocations || new Set();
+        
+        // Group locations by chapter
+        const chapters = {};
+        locations.forEach((loc, idx) => {
+            const ch = loc.chapter ?? 0;
+            if (!chapters[ch]) chapters[ch] = [];
+            chapters[ch].push({ ...loc, index: idx });
+        });
+        
+        // Calculate progress
+        const totalLocs = locations.length;
+        const visitedCount = visitedLocations.size || 0;
+        const progressPct = Math.round((visitedCount / totalLocs) * 100);
+        
+        let html = `<div style="font-size:0.82rem;color:#aaa;margin-bottom:4px;">Explored: ${visitedCount}/${totalLocs} locations (${progressPct}%)</div>`;
+        html += `<div class="map-progress-bar"><div class="map-progress-fill" style="width:${progressPct}%"></div></div>`;
+        
+        for (const [chNum, locs] of Object.entries(chapters)) {
+            html += `<div class="map-chapter-label">Chapter ${chNum}</div>`;
+            html += `<div class="map-chapter-nodes">`;
+            for (const loc of locs) {
+                const isCurrent = currentLoc && currentLoc.name === loc.name;
+                const isVisited = visitedLocations.has(loc.name);
+                const cls = isCurrent ? 'current' : isVisited ? 'visited' : '';
+                html += `<div class="map-node ${cls}" title="${loc.description || loc.name}">
+                    <span class="node-icon">${loc.icon || '📍'}</span>
+                    <span>${loc.name}</span>
+                </div>`;
+            }
+            html += `</div>`;
+        }
+        
+        return html;
+    }
+    
     // ==================== NPC TALK SYSTEM ====================
     getAvailableNPCs() {
         const currentLoc = this.dm.currentLocation;
@@ -12301,7 +13375,7 @@ class Game {
         }
         
         if (campaignId === "nights_dark_terror") {
-            if (npcId === "Stephan" && chapter === 0) return true;
+            if (npcId === "Stephan" && chapter === 0 && !flags.metStephan && locName.includes("misha")) return true;
             if (npcId === "Pyotr" && flags.reachedSukiskyn && locName.includes("sukiskyn")) return true;
             if (npcId === "Taras" && flags.rescuedTaras) return true;
         }
@@ -13345,6 +14419,366 @@ class Game {
         this.updateUI();
     }
 
+    async shrineDiscoveryEvent() {
+        this.log("You discover an ancient shrine, overgrown but still standing.", "dm");
+        
+        const choice = await this.showChoiceWithDC(
+            "⛩️ Ancient Shrine",
+            "An ancient shrine stands before you, its altar covered in moss. Faded runes glow faintly.",
+            [
+                { text: "Pray at the shrine", skill: null },
+                { text: "Study the runes", skill: "int", dc: 13 },
+                { text: "Leave an offering (5 gold)", skill: null },
+                { text: "Walk away", skill: null }
+            ]
+        );
+        
+        if (choice === 0) {
+            if (Math.random() < 0.6) {
+                const heal = Math.floor(Math.random() * 8) + 3;
+                this.character.heal(heal);
+                this.log(`✨ A warm light washes over you. You are healed for ${heal} HP!`, "success");
+            } else {
+                this.log("The shrine is silent. Perhaps the old gods have moved on.", "dm");
+            }
+        } else if (choice === 1) {
+            const check = await this.dm.skillCheckAnimated("int", 13, false, false, "Arcana");
+            if (check.success) {
+                this.log(`You decipher the runes! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 13)`, "success");
+                const xp = Math.floor(Math.random() * 26) + 25;
+                this.character.experience += xp;
+                this.log(`📖 You gain ancient knowledge! +${xp} XP`, "success");
+                if (this.character.experience >= getXpThreshold(this.character.level)) this.levelUp();
+            } else {
+                this.log(`The runes remain a mystery. (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 13)`, "dm");
+            }
+        } else if (choice === 2) {
+            if (this.character.gold >= 5) {
+                this.character.gold -= 5;
+                const heal = Math.floor(Math.random() * 16) + 5;
+                this.character.heal(heal);
+                this.log(`✨ The shrine glows brightly! You are blessed and healed for ${heal} HP!`, "success");
+            } else {
+                this.log("You don't have enough gold for an offering.", "dm");
+            }
+        } else {
+            this.log("You leave the shrine undisturbed.", "dm");
+        }
+        
+        this.updateUI();
+    }
+
+    async abandonedCampsiteEvent() {
+        this.log("You stumble upon an abandoned campsite. The embers are cold.", "dm");
+        
+        const choice = await this.showChoiceWithDC(
+            "🏕️ Abandoned Campsite",
+            "An abandoned campsite lies ahead. Scattered belongings suggest a hasty departure.",
+            [
+                { text: "Search the camp", skill: "wis", dc: 12 },
+                { text: "Rest here briefly", skill: null },
+                { text: "Move on quickly", skill: null }
+            ]
+        );
+        
+        if (choice === 0) {
+            const check = await this.dm.skillCheckAnimated("wis", 12, false, false, "Perception");
+            if (check.success) {
+                this.log(`You search thoroughly! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 12)`, "success");
+                if (Math.random() < 0.5) {
+                    const gold = Math.floor(Math.random() * 16) + 5;
+                    this.character.gold += gold;
+                    this.log(`💰 You find ${gold} gold hidden under a bedroll!`, "loot");
+                } else {
+                    this.character.inventory.push("Healing Potion");
+                    this.log(`🧪 You find an abandoned Healing Potion!`, "loot");
+                }
+            } else {
+                this.log(`You find nothing of value. (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 12)`, "dm");
+            }
+        } else if (choice === 1) {
+            const heal = Math.floor(Math.random() * 4) + 2;
+            this.character.heal(heal);
+            this.log(`You rest briefly by the cold fire. Restored ${heal} HP.`, "success");
+        } else {
+            this.log("You press on, leaving the campsite behind.", "dm");
+        }
+        
+        this.updateUI();
+    }
+
+    async fallenAdventurerEvent() {
+        this.log("You find the remains of a fallen adventurer.", "dm");
+        
+        const choice = await this.showChoiceWithDC(
+            "💀 Fallen Adventurer",
+            "A dead adventurer lies against the wall, their pack still intact. A journal rests in their hand.",
+            [
+                { text: "Search their belongings", skill: null },
+                { text: "Read the journal", skill: "int", dc: 11 },
+                { text: "Pay your respects and move on", skill: null }
+            ]
+        );
+        
+        if (choice === 0) {
+            const roll = Math.random();
+            if (roll < 0.4) {
+                const gold = Math.floor(Math.random() * 26) + 10;
+                this.character.gold += gold;
+                this.log(`💰 You find ${gold} gold in their pack.`, "loot");
+            } else if (roll < 0.7) {
+                this.character.inventory.push("Healing Potion");
+                this.log(`🧪 You find an unused Healing Potion!`, "loot");
+            } else {
+                const damage = Math.floor(Math.random() * 6) + 2;
+                this.character.takeDamage(damage);
+                this.log(`A hidden trap on the body triggers! You take ${damage} damage!`, "danger");
+                if (this.character.hp <= 0) { this.gameOver(); return; }
+            }
+        } else if (choice === 1) {
+            const check = await this.dm.skillCheckAnimated("int", 11, false, false, "Investigation");
+            if (check.success) {
+                const xp = Math.floor(Math.random() * 21) + 15;
+                this.character.experience += xp;
+                this.log(`The journal describes dangers ahead. +${xp} XP from their wisdom!`, "success");
+                if (this.character.experience >= getXpThreshold(this.character.level)) this.levelUp();
+            } else {
+                this.log("The writing is too faded to read.", "dm");
+            }
+        } else {
+            this.log("You offer a moment of silence for a fellow adventurer.", "dm");
+            // Small karma bonus
+            if (Math.random() < 0.3) {
+                const heal = Math.floor(Math.random() * 4) + 1;
+                this.character.heal(heal);
+                this.log(`✨ A sense of peace washes over you. +${heal} HP.`, "success");
+            }
+        }
+        
+        this.updateUI();
+    }
+
+    async wildAnimalEncounterEvent() {
+        const animals = [
+            { name: "a wounded deer", friendly: true, reward: "heal" },
+            { name: "a growling bear", friendly: false, reward: "gold" },
+            { name: "a lost dog", friendly: true, reward: "xp" },
+            { name: "a territorial boar", friendly: false, reward: "gold" },
+            { name: "a magnificent stag", friendly: true, reward: "xp" }
+        ];
+        const animal = animals[Math.floor(Math.random() * animals.length)];
+        
+        this.log(`You encounter ${animal.name} on the path.`, "dm");
+        
+        const choice = await this.showChoiceWithDC(
+            "🐾 Wild Animal",
+            `You encounter ${animal.name}. It watches you warily.`,
+            [
+                { text: "Approach carefully", skill: "wis", dc: 12 },
+                { text: "Back away slowly", skill: null }
+            ]
+        );
+        
+        if (choice === 0) {
+            const check = await this.dm.skillCheckAnimated("wis", 12, false, false, "Animal Handling");
+            if (check.success) {
+                this.log(`The animal calms down. (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 12)`, "success");
+                if (animal.reward === "heal") {
+                    const heal = Math.floor(Math.random() * 6) + 3;
+                    this.character.heal(heal);
+                    this.log(`You help the animal and feel at peace. +${heal} HP.`, "success");
+                } else if (animal.reward === "xp") {
+                    const xp = Math.floor(Math.random() * 16) + 10;
+                    this.character.experience += xp;
+                    this.log(`A meaningful encounter with nature. +${xp} XP.`, "success");
+                    if (this.character.experience >= getXpThreshold(this.character.level)) this.levelUp();
+                } else {
+                    const gold = Math.floor(Math.random() * 11) + 5;
+                    this.character.gold += gold;
+                    this.log(`The animal leads you to a hidden stash! +${gold} gold.`, "loot");
+                }
+            } else {
+                this.log(`The animal is startled! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 12)`, "danger");
+                if (!animal.friendly) {
+                    const damage = Math.floor(Math.random() * 6) + 2;
+                    this.character.takeDamage(damage);
+                    this.log(`It attacks before fleeing! ${damage} damage!`, "danger");
+                    if (this.character.hp <= 0) { this.gameOver(); return; }
+                } else {
+                    this.log("It runs away into the wilderness.", "dm");
+                }
+            }
+        } else {
+            this.log("You give the animal space and continue on your way.", "dm");
+        }
+        
+        this.updateUI();
+    }
+
+    async lostTravelerEvent() {
+        this.log("You hear someone calling for help in the distance.", "dm");
+        
+        const choice = await this.showChoiceWithDC(
+            "🧭 Lost Traveler",
+            "A distressed traveler waves you down. They seem lost and frightened.",
+            [
+                { text: "Help them", skill: null },
+                { text: "Check if it's a trap first", skill: "wis", dc: 13 },
+                { text: "Ignore them", skill: null }
+            ]
+        );
+        
+        if (choice === 0) {
+            if (Math.random() < 0.7) {
+                const gold = Math.floor(Math.random() * 16) + 5;
+                this.character.gold += gold;
+                this.log(`The grateful traveler rewards you with ${gold} gold!`, "success");
+                const xp = Math.floor(Math.random() * 11) + 10;
+                this.character.experience += xp;
+                this.log(`+${xp} XP for your good deed.`, "success");
+                if (this.character.experience >= getXpThreshold(this.character.level)) this.levelUp();
+            } else {
+                this.log("It was a bandit trap!", "danger");
+                const damage = Math.floor(Math.random() * 8) + 3;
+                this.character.takeDamage(damage);
+                this.log(`You take ${damage} damage from ambushers!`, "danger");
+                if (this.character.hp <= 0) { this.gameOver(); return; }
+            }
+        } else if (choice === 1) {
+            const check = await this.dm.skillCheckAnimated("wis", 13, false, false, "Insight");
+            if (check.success) {
+                if (Math.random() < 0.7) {
+                    this.log(`They seem genuine. (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 13)`, "success");
+                    const gold = Math.floor(Math.random() * 16) + 5;
+                    this.character.gold += gold;
+                    this.log(`You help them and receive ${gold} gold as thanks!`, "success");
+                } else {
+                    this.log(`You spot the ambush! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 13)`, "success");
+                    this.log("You avoid the trap and continue safely.", "success");
+                }
+            } else {
+                this.log(`Hard to tell... (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 13)`, "dm");
+                this.log("You decide not to risk it and move on.", "dm");
+            }
+        } else {
+            this.log("You continue on your way, ignoring the cries.", "dm");
+        }
+        
+        this.updateUI();
+    }
+
+    async magicalAnomalyEvent() {
+        const anomalies = [
+            { name: "a shimmering portal", desc: "A translucent portal flickers in and out of existence." },
+            { name: "floating runes", desc: "Glowing runes float in mid-air, pulsing with arcane energy." },
+            { name: "a whispering crystal", desc: "A crystal formation hums with magical resonance." },
+            { name: "a fairy circle", desc: "A ring of mushrooms glows with fey light." }
+        ];
+        const anomaly = anomalies[Math.floor(Math.random() * anomalies.length)];
+        
+        this.log(`You encounter ${anomaly.name}...`, "dm");
+        
+        const choice = await this.showChoiceWithDC(
+            "🔮 Magical Anomaly",
+            anomaly.desc,
+            [
+                { text: "Investigate with magic", skill: "int", dc: 14 },
+                { text: "Touch it", skill: null },
+                { text: "Keep your distance", skill: null }
+            ]
+        );
+        
+        if (choice === 0) {
+            const check = await this.dm.skillCheckAnimated("int", 14, false, false, "Arcana");
+            if (check.success) {
+                this.log(`You harness the magical energy! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 14)`, "success");
+                const roll = Math.random();
+                if (roll < 0.4) {
+                    const xp = Math.floor(Math.random() * 31) + 20;
+                    this.character.experience += xp;
+                    this.log(`🔮 Arcane insight floods your mind! +${xp} XP`, "success");
+                    if (this.character.experience >= getXpThreshold(this.character.level)) this.levelUp();
+                } else if (roll < 0.7) {
+                    const heal = Math.floor(Math.random() * 11) + 5;
+                    this.character.heal(heal);
+                    this.log(`✨ Healing energy washes over you! +${heal} HP`, "success");
+                } else {
+                    const gold = Math.floor(Math.random() * 21) + 10;
+                    this.character.gold += gold;
+                    this.log(`💎 A gemstone materializes! Worth ${gold} gold!`, "loot");
+                }
+            } else {
+                this.log(`The magic is beyond your understanding. (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 14)`, "dm");
+            }
+        } else if (choice === 1) {
+            const roll = Math.random();
+            if (roll < 0.3) {
+                const heal = Math.floor(Math.random() * 11) + 5;
+                this.character.heal(heal);
+                this.log(`✨ Warm energy flows through you! +${heal} HP`, "success");
+            } else if (roll < 0.6) {
+                const damage = Math.floor(Math.random() * 8) + 2;
+                this.character.takeDamage(damage);
+                this.log(`⚡ Wild magic zaps you! ${damage} damage!`, "danger");
+                if (this.character.hp <= 0) { this.gameOver(); return; }
+            } else {
+                this.log("The anomaly fizzles out at your touch. Nothing happens.", "dm");
+            }
+        } else {
+            this.log("You wisely avoid the unknown magic and continue on.", "dm");
+        }
+        
+        this.updateUI();
+    }
+
+    async naturalHazardEvent() {
+        const hazards = [
+            { name: "Quicksand", desc: "The ground gives way beneath your feet! You're sinking!", skill: "str", dc: 13, damage: "1d8" },
+            { name: "Rockslide", desc: "Loose stones cascade down toward you!", skill: "dex", dc: 12, damage: "2d6" },
+            { name: "Poisonous Spores", desc: "A cloud of glowing spores erupts from disturbed fungi!", skill: "con", dc: 13, damage: "1d6" },
+            { name: "Flash Flood", desc: "Water rushes through with terrifying speed!", skill: "str", dc: 14, damage: "2d6" },
+            { name: "Sinkhole", desc: "The ground cracks and begins to collapse!", skill: "dex", dc: 12, damage: "1d10" }
+        ];
+        const hazard = hazards[Math.floor(Math.random() * hazards.length)];
+        
+        this.log(`⚠️ ${hazard.name}!`, "danger");
+        
+        const choice = await this.showChoiceWithDC(
+            `⚠️ ${hazard.name}`,
+            hazard.desc,
+            [
+                { text: "React quickly!", skill: hazard.skill, dc: hazard.dc },
+                { text: "Brace yourself", skill: null }
+            ]
+        );
+        
+        if (choice === 0) {
+            const skillName = hazard.skill === "str" ? "Athletics" : hazard.skill === "dex" ? "Acrobatics" : "Constitution";
+            const check = await this.dm.skillCheckAnimated(hazard.skill, hazard.dc, false, false, skillName);
+            if (check.success) {
+                this.log(`You avoid the hazard! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC ${hazard.dc})`, "success");
+                const xp = Math.floor(Math.random() * 11) + 10;
+                this.character.experience += xp;
+                this.log(`Quick reflexes! +${xp} XP`, "success");
+                if (this.character.experience >= getXpThreshold(this.character.level)) this.levelUp();
+            } else {
+                this.log(`You couldn't escape! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC ${hazard.dc})`, "danger");
+                const damage = this.dm.rollDice(hazard.damage);
+                this.character.takeDamage(damage);
+                this.log(`You take ${damage} damage!`, "danger");
+                if (this.character.hp <= 0) { this.gameOver(); return; }
+            }
+        } else {
+            const damage = this.dm.rollDice(hazard.damage);
+            const reducedDamage = Math.max(1, Math.floor(damage * 0.75));
+            this.character.takeDamage(reducedDamage);
+            this.log(`You brace for impact and take ${reducedDamage} damage (reduced).`, "danger");
+            if (this.character.hp <= 0) { this.gameOver(); return; }
+        }
+        
+        this.updateUI();
+    }
+
     useItem(item) {
         if (this.dm.inCombat) {
             this.log("You can't use items during combat!", "danger");
@@ -13652,7 +15086,7 @@ class Game {
             
             shopBtnContainer.innerHTML = `
                 <button class="shop-btn" onclick="game.openShop('general')">🏺 Visit Shop</button>
-                ${availableNPCs.length > 0 ? `<button class="shop-btn" onclick="game.openTalkMenu()" style="background: linear-gradient(135deg, #9c27b0, #6a1b9a); margin-left: 5px;">💬 Talk</button>` : ''}
+                ${availableNPCs.length > 0 ? `<button class="talk-btn" onclick="game.openTalkMenu()">💬 Talk</button>` : ''}
             `;
             shopBtnContainer.style.display = "block";
         } else if (shopBtnContainer) {
@@ -13740,6 +15174,15 @@ class Game {
         
         availableLocations.forEach((loc) => {
             const dangerStars = loc.danger > 0 ? "⚠️".repeat(loc.danger) : "Safe";
+            const levelRanges = {
+                0: "Lv 1",
+                1: "Lv 1-2",
+                2: "Lv 2-3",
+                3: "Lv 3-4",
+                4: "Lv 4-5",
+                5: "Lv 5+"
+            };
+            const levelLabel = loc.danger > 0 ? (levelRanges[loc.danger] || "Lv ?") : "";
             const originalIndex = this.dm.campaign.locations.indexOf(loc);
             const option = document.createElement("div");
             option.className = "travel-option";
@@ -13748,7 +15191,7 @@ class Game {
                     <span>${loc.icon} ${loc.name}</span>
                     <div style="font-size: 0.8rem; color: #888;">${loc.description || loc.type}</div>
                 </div>
-                <span class="danger-level">${dangerStars}</span>
+                <span class="danger-level">${dangerStars}${levelLabel ? ` <span style="margin-left:6px;font-size:0.75rem;color:#c9a227;">${levelLabel}</span>` : ""}</span>
             `;
             option.onclick = () => this.travel(originalIndex);
             optionsContainer.appendChild(option);
@@ -13785,7 +15228,17 @@ class Game {
         
         const newLocation = this.dm.campaign.locations[locationIndex];
         const oldLocation = this.dm.currentLocation;
-        this.dm.currentLocation = newLocation;
+
+        // Gate Sukiskyn until the wilderness road ambush is cleared
+        if (this.dm.campaignId === "nights_dark_terror" && newLocation.name === "Sukiskyn Homestead" && !this.dm.questFlags.clearedWildernessRoad) {
+            this.log("The road to Sukiskyn is dangerous. Meet Stephan at Misha's Ferry and clear the wilderness road first.", "warning");
+            return;
+        }
+        
+        // Show cinematic transition overlay
+        this.showLocationTransition(newLocation.name, newLocation.type).then(() => {
+            this.dm.currentLocation = newLocation;
+            this.dm.visitedLocations.add(newLocation.name);
         
         // Play ambient soundscape for location
         musicManager.playAmbientForLocation(newLocation);
@@ -13842,7 +15295,11 @@ class Game {
         }
         
         // Story triggers based on location
-        this.checkStoryTriggers(newLocation);
+        try {
+            this.checkStoryTriggers(newLocation);
+        } catch (e) {
+            console.error('Story trigger error:', e);
+        }
         
         // Random encounter while traveling (skip if story trigger already started combat)
         if (!this.dm.inCombat && Math.random() < 0.35 && newLocation.danger > 0) {
@@ -13854,6 +15311,7 @@ class Game {
         }
         
         this.updateUI();
+        }).catch(err => console.error('Travel error:', err)); // End of transition promise
     }
     
     checkStoryTriggers(location) {
@@ -13861,8 +15319,20 @@ class Game {
         const campaignId = this.dm.campaignId;
         
         if (campaignId === "nights_dark_terror") {
+            // Prologue - Wilderness Road ambush
+            if (location.name === "The Wilderness Road" && flags.metStephan && !flags.clearedWildernessRoad) {
+                this.log("⚠️ Goblin scouts emerge from the treeline and charge!", "danger");
+                this.log("Stephan yells, 'Ambush! Draw steel!'", "dm");
+                const scout = this.dm.campaign.monsters[1]?.find(m => m.name === "Goblin Scout") || this.dm.campaign.monsters[1]?.[0];
+                if (scout) {
+                    this.dm.pendingStoryEvent = "survivedJourney";
+                    this.startCombat({ ...scout });
+                    return; // Skip other triggers until combat is done
+                }
+            }
+            
             // Chapter 1 trigger - reaching Sukiskyn (town arrival, siege starts after)
-            if (location.name === "Sukiskyn Homestead" && !flags.reachedSukiskyn) {
+            if (location.name === "Sukiskyn Homestead" && !flags.reachedSukiskyn && flags.clearedWildernessRoad) {
                 this.triggerStoryEvent("reachSukiskyn");
             }
             
@@ -13950,12 +15420,22 @@ class Game {
                 this.startCombat(golem);
             }
             
+            // Amber Temple - find Tome of Strahd and ally
+            if (location.name === "Amber Temple" && flags.reachedAmberTemple && !flags.foundTome) {
+                this.triggerStoryEvent("findTomeAndAlly");
+            }
+            
             // Castle Ravenloft - vampire spawn guard the gates
             if (location.name === "Castle Ravenloft - Gates" && !flags.enteredRavenloft) {
                 this.log("Vampire spawn descend from the castle battlements, their eyes gleaming with hunger! 'The master does not receive uninvited guests!'", "danger");
                 this.dm.pendingStoryEvent = "enterRavenloft";
                 const spawn = { ...this.dm.campaign.monsters[3].find(m => m.name === "Vampire Spawn") };
                 this.startCombat(spawn);
+            }
+            
+            // Castle Ravenloft Tower - find Sun Sword and Holy Symbol
+            if (location.name === "Castle Ravenloft - Tower" && flags.enteredRavenloft && !flags.foundSunSword) {
+                this.triggerStoryEvent("findSunSwordAndSymbol");
             }
             
             // Castle Ravenloft - Crypt - Final boss
@@ -13981,6 +15461,19 @@ class Game {
                 this.dm.pendingStoryEvent = "enterJungle";
                 const dino = { ...this.dm.campaign.monsters[2].find(m => m.name === "Allosaurus") };
                 this.startCombat(dino);
+            }
+            
+            // Firefinger - Azaka's mask quest
+            if (location.name === "Firefinger" && flags.azakaMaskQuest && !flags.recoveredAzakaMask) {
+                this.log("Pterafolk screech from the top of the ancient spire! One dives toward you with talons extended!", "danger");
+                this.dm.pendingStoryEvent = "recoverAzakaMask";
+                const pterafolk = { ...this.dm.campaign.monsters[2].find(m => m.name === "Pterafolk") };
+                this.startCombat(pterafolk);
+            }
+            
+            // Omu Shrines - puzzle cube collection
+            if (location.name === "Omu - Shrines" && flags.foundOmu && flags.collectedCubes < 9) {
+                this.triggerStoryEvent("collectPuzzleCube");
             }
             
             // Find Omu - yuan-ti sentinels guard the ruins
@@ -14309,7 +15802,16 @@ class Game {
 
         // Use hit dice
         const healing = char.useHitDie();
-        this.log(`⏰ You take a short rest and recover ${healing} HP using a hit die.`, "success");
+        
+        // Church reputation healing bonus
+        const repBonuses = char.getReputationBonuses();
+        const churchBonus = repBonuses.healingBonus > 0 ? repBonuses.healingBonus : 0;
+        if (churchBonus > 0) {
+            char.heal(churchBonus);
+        }
+        
+        const totalHealing = healing + churchBonus;
+        this.log(`⏰ You take a short rest and recover ${totalHealing} HP using a hit die.${churchBonus > 0 ? ` (+${churchBonus} divine blessing)` : ''}`, "success");
         this.log(`Hit dice remaining: ${char.hitDice.current}/${char.hitDice.max}`, "dm");
 
         // Restore subclass short rest resources
@@ -14400,7 +15902,7 @@ class Game {
         }
 
         // Show time update
-        this.log(`${this.dm.getTimeIcon()} Time: ${this.formatTime()} | ${this.dm.getWeatherIcon()} ${this.dm.weather}`, "dm");
+        this.log(`${this.dm.getTimeIcon()} Time: ${this.formatTime()} | ${this.dm.getWeatherIcon()} ${this.dm.weather}${this.dm.getWeatherEffectsSummary()}`, "dm");
         
         this.updateUI();
     }
@@ -14560,7 +16062,7 @@ class Game {
         // Advance time if not already done
         if (showTime) {
             this.dm.advanceTime(8);
-            this.log(`${this.dm.getTimeIcon()} Time: ${this.formatTime()} | ${this.dm.getWeatherIcon()} ${this.dm.weather}`, "dm");
+            this.log(`${this.dm.getTimeIcon()} Time: ${this.formatTime()} | ${this.dm.getWeatherIcon()} ${this.dm.weather}${this.dm.getWeatherEffectsSummary()}`, "dm");
         }
 
         this.updateUI();
@@ -14598,6 +16100,8 @@ class Game {
             questFlags: this.dm.questFlags,
             party: this.dm.party || [],
             hoursWithoutLongRest: this.dm.hoursWithoutLongRest || 0,
+            visitedLocations: [...(this.dm.visitedLocations || [])],
+            discoveredMonsters: [...(this.discoveredMonsters || [])],
             saveTime: Date.now()
         };
         localStorage.setItem(saveKey, JSON.stringify(saveData));
@@ -14616,6 +16120,12 @@ class Game {
             this.dm.questFlags = saveData.questFlags || this.dm.questFlags;
             this.dm.party = saveData.party || [];
             this.dm.hoursWithoutLongRest = saveData.hoursWithoutLongRest || 0;
+            if (saveData.visitedLocations) {
+                this.dm.visitedLocations = new Set(saveData.visitedLocations);
+            }
+            if (saveData.discoveredMonsters) {
+                this.discoveredMonsters = new Set(saveData.discoveredMonsters);
+            }
             
             // Switch to game screen
             document.getElementById("titleScreen").classList.add("hidden");
@@ -14895,7 +16405,7 @@ class Game {
         const classData = GAME_DATA.classes[char.charClass] || {};
 
         const exportData = {
-            formatVersion: "3.4",
+            formatVersion: "4.0",
             exportType: "dnd-character",
             system: "dnd5e",
             generator: "dnd-text-adventure",
@@ -15269,6 +16779,7 @@ class Game {
         // Night's Dark Terror events
         switch(eventType) {
             case "intro":
+                this.dm.questFlags.intro = true; // Mark intro as triggered
                 await this.showChoice(
                     "👤 Stephan Approaches",
                     `"Greetings, traveler! I am Stephan Sukiskyn, a horse trader. I need capable warriors to escort me to my family's homestead. The roads have become dangerous - goblins raid with impunity. I can pay 50 gold pieces, and my family will provide food and shelter. What say you?"`,
@@ -15284,13 +16795,15 @@ class Game {
                         this.dm.questFlags.metStephan = true;
                         this.character.gold += 25;
                         this.log("You accept Stephan's offer. He pays you 25 gold upfront.", "success");
-                        this.log(`<em>"Excellent! We leave at dawn. Meet me at Misha's Ferry."</em>`, "dm");
+                        this.log(`<em>"Excellent! We'll cross here and head down the Wilderness Road."</em>`, "dm");
                     } else {
                         this.log(`<em>"My family breeds the finest white horses in Karameikos. But I haven't heard from them in weeks. I fear the worst. Please, I need your help!"</em>`, "dm");
                         this.dm.questFlags.metStephan = true;
                         this.character.gold += 25;
                         this.log("Moved by his plea, you accept. He pays you 25 gold upfront.", "success");
                     }
+
+                    this.dm.questFlags.reachedFerry = true;
                     
                     // Add quest to journal
                     this.character.addJournalEntry('quest', {
@@ -15306,15 +16819,38 @@ class Game {
                 });
                 break;
                 
+            case "survivedJourney":
+                this.dm.questFlags.survivedJourney = true;
+                this.dm.questFlags.clearedWildernessRoad = true;
+                this.grantExperience(75);
+                this.character.gold += 15;
+                this.log("💬 Stephan wipes his blade clean: <em>'Well fought! These goblins are getting bold. Something dark is happening in these lands...'</em>", "dm");
+                this.log("📜 <strong>REWARD:</strong> +75 XP, +15 gold for driving off the ambush.", "loot");
+                this.log("The road ahead is clear. You can now travel to Sukiskyn.", "dm");
+                this.updateChapterDisplay();
+                this.updateUI();
+                break;
+                
             case "reachSukiskyn":
                 this.dm.currentChapter = 1;
+                this.dm.questFlags.reachedSukiskyn = true;
+                this.updateChapterDisplay();
                 this.log("🏠 <strong>CHAPTER 1: SIEGE OF SUKISKYN</strong>", "danger");
                 this.log(`As you approach the homestead, you hear screams and the howl of wolves! The palisade walls are surrounded by goblin wolf-riders!`, "dm");
                 this.log(`Stephan cries out: <em>"No! My family! We must help them!"</em>`, "dm");
                 this.log("📜 <strong>OBJECTIVE:</strong> Defend Sukiskyn from the goblin siege!", "loot");
-                this.dm.questFlags.reachedSukiskyn = true;
+                this.completeJournalQuest('journey_to_sukiskyn');
+                
+                // Add Golthar bounty quest (from the wanted posters)
+                this.character.addJournalEntry('quest', {
+                    id: 'golthar_bounty',
+                    name: 'Wanted: Golthar',
+                    description: 'A 500 gold bounty has been placed on Golthar, an Iron Ring wizard. Defeat him to claim the reward.',
+                    completed: false
+                });
+                this.log("📜 <strong>QUEST STARTED:</strong> Wanted: Golthar (500 gold bounty)", "loot");
+                
                 this.log("👥 <strong>NEW COMPANION AVAILABLE:</strong> Pyotr Sukiskyn can now join your party! Click 'Party' to recruit him.", "success");
-                this.updateChapterDisplay();
                 break;
                 
             case "siegeVictory":
@@ -15378,7 +16914,9 @@ class Game {
                 this.dm.currentChapter = 6;
                 this.grantExperience(1000);
                 this.character.gold += 500;
+                this.completeJournalQuest('golthar_bounty');
                 this.log("💀 <strong>GOLTHAR IS DEFEATED!</strong>", "success");
+                this.log("💰 You claim the 500 gold bounty on Golthar!", "loot");
                 this.log(`The wizard's dark magic dissipates. The Iron Ring's plot is foiled!`, "dm");
                 this.log("🎊 <strong>EPILOGUE: HEROES OF KARAMEIKOS</strong>", "success");
                 this.log(`Word of your deeds spreads across the Grand Duchy. You have become legendary heroes! The Sukiskyn family honors you as friends for life.`, "dm");
@@ -15404,6 +16942,15 @@ class Game {
                         this.log("With no other choice, you press forward into the cursed land.", "dm");
                     }
                     this.log("📜 <strong>QUEST STARTED:</strong> Escape the land of Barovia", "loot");
+                    
+                    // Add quest to journal
+                    this.character.addJournalEntry('quest', {
+                        id: 'escape_barovia',
+                        name: 'Escape the Land of Barovia',
+                        description: 'Survive the cursed land. Confront Strahd von Zarovich and free the people of Barovia.',
+                        completed: false
+                    });
+                    
                     this.updateChapterDisplay();
                     this.updateUI();
                 });
@@ -15438,15 +16985,6 @@ class Game {
                         this.log(`<em>"Strahd von Zarovich is the lord of this land - a vampire who has ruled for centuries. He has become obsessed with my sister. She bears bite marks on her neck... Please, we must act quickly!"</em>`, "dm");
                     }
                     
-                    // Add quest to journal
-                    this.character.addJournalEntry('quest', {
-                        id: 'escape_barovia',
-                        name: 'Escape the Land of Barovia',
-                        description: 'Help Ismark and Ireena escape to Vallaki. Confront Strahd von Zarovich.',
-                        completed: false
-                    });
-                    
-                    this.log("📜 <strong>QUEST STARTED:</strong> Escape the land of Barovia", "loot");
                     this.log("You agree to help Ismark protect his sister.", "success");
                     this.log("📜 <strong>OBJECTIVE:</strong> Meet Ireena and escort her to safety!", "loot");
                     this.log("👥 <strong>NEW COMPANION AVAILABLE:</strong> Ismark Kolyanovich can now join your party! Click 'Party' to recruit him.", "success");
@@ -15519,8 +17057,31 @@ class Game {
                 this.log("💎 <strong>CHAPTER 5: THE AMBER TEMPLE</strong>", "danger");
                 this.log(`High in the frozen mountains, you find the Amber Temple - an ancient prison for dark vestiges. Here, Strahd first made his pact with the powers of darkness.`, "dm");
                 this.log(`The vestiges whisper offers of forbidden power... Will you resist their temptation?`, "dm");
-                this.log("📜 <strong>OBJECTIVE:</strong> Uncover the source of Strahd's power!", "loot");
+                this.log("📜 <strong>OBJECTIVE:</strong> Search the temple for the Tome of Strahd and an ancient ally!", "loot");
                 this.updateChapterDisplay();
+                break;
+            
+            case "findTomeAndAlly":
+                this.dm.questFlags.foundTome = true;
+                this.dm.questFlags.foundAlly = true;
+                this.grantExperience(300);
+                this.log("📖 Deep within the temple, you discover the <strong>Tome of Strahd</strong> — his personal journal, detailing how he murdered his brother Sergei and made a pact with the Dark Powers!", "success");
+                this.log(`The tome reveals Strahd's weakness: <em>"My power comes from the land itself. But the Sun Sword, the Holy Symbol of Ravenkind... these could undo me."</em>`, "dm");
+                this.log("🛡️ In a sealed sarcophagus, you find the spirit of an <strong>ancient warrior</strong> who swears to aid you against Strahd!", "success");
+                this.log("📜 <strong>TREASURE FOUND:</strong> Tome of Strahd ✓ | Ancient Ally ✓", "loot");
+                this.log("📜 <strong>OBJECTIVE:</strong> Find the Sun Sword and Holy Symbol in Castle Ravenloft!", "loot");
+                this.updateUI();
+                break;
+            
+            case "findSunSwordAndSymbol":
+                this.dm.questFlags.foundSunSword = true;
+                this.dm.questFlags.foundHolySymbol = true;
+                this.grantExperience(500);
+                this.log("⚔️ Hidden in a secret chamber, you find the <strong>Sunsword</strong> — its blade blazes with radiant light that burns the undead!", "success");
+                this.log("✝️ Nearby, the <strong>Holy Symbol of Ravenkind</strong> hangs on a dusty altar, its divine power still potent after centuries!", "success");
+                this.log("📜 <strong>ALL TREASURES FOUND!</strong> Sun Sword ✓ | Holy Symbol ✓ | Tome ✓ | Ally ✓", "loot");
+                this.log("📜 <strong>OBJECTIVE:</strong> Descend to the Crypt and confront Strahd!", "loot");
+                this.updateUI();
                 break;
             
             case "enterRavenloft":
@@ -15539,6 +17100,7 @@ class Game {
                 this.dm.currentChapter = 7;
                 this.grantExperience(5000);
                 this.character.gold += 1000;
+                this.completeJournalQuest('escape_barovia');
                 this.log("🧛 <strong>STRAHD VON ZAROVICH IS DESTROYED!</strong>", "success");
                 this.log(`As the ancient vampire crumbles to dust, a ray of sunlight breaks through the eternal clouds for the first time in centuries.`, "dm");
                 this.log("🌅 <strong>EPILOGUE: DAWN OVER BAROVIA</strong>", "success");
@@ -15605,7 +17167,14 @@ class Game {
                 ).then(choice => {
                     if (choice === 0) {
                         this.log("You agree to help Azaka recover her family mask from Firefinger.", "success");
-                        this.log("📜 <strong>SIDE QUEST:</strong> Recover Azaka's mask!", "loot");
+                        this.dm.questFlags.azakaMaskQuest = true;
+                        this.character.addJournalEntry('quest', {
+                            id: 'azaka_mask',
+                            name: "Recover Azaka's Mask",
+                            description: 'Retrieve Azaka\'s family mask from the tower of Firefinger.',
+                            completed: false
+                        });
+                        this.log("📜 <strong>QUEST STARTED:</strong> Recover Azaka's Mask", "loot");
                     } else {
                         this.character.gold -= 20;
                         this.log("You hire Azaka as a guide. (20 gold advance)", "success");
@@ -15615,6 +17184,33 @@ class Game {
                 });
                 break;
                 
+            case "recoverAzakaMask":
+                this.dm.questFlags.recoveredAzakaMask = true;
+                this.grantExperience(200);
+                this.character.gold += 50;
+                this.completeJournalQuest('azaka_mask');
+                this.log("🗼 You climb to the top of Firefinger and find Azaka's family mask among the pterafolk nest!", "success");
+                this.log(`Azaka is overjoyed: <em>"My family's honor is restored! Thank you, friend. As promised, my services are free from now on."</em>`, "dm");
+                this.log("💰 +50 gold, +200 XP", "loot");
+                this.updateUI();
+                break;
+            
+            case "collectPuzzleCube": {
+                const cubeNum = this.dm.questFlags.collectedCubes + 1;
+                const shrineNames = ["I'jin", "Obo'laka", "Papazotl", "Kubazan", "Shagambi", "Moa", "Wongo", "Nangnang", "Unkh"];
+                const shrineName = shrineNames[this.dm.questFlags.collectedCubes] || "a forgotten god";
+                this.dm.questFlags.collectedCubes++;
+                this.grantExperience(100);
+                this.log(`⛩️ You brave the Shrine of ${shrineName} and claim its puzzle cube!`, "success");
+                this.log(`🧩 Puzzle Cubes: ${this.dm.questFlags.collectedCubes}/9`, "loot");
+                if (this.dm.questFlags.collectedCubes >= 9) {
+                    this.log("🎉 <strong>ALL NINE PUZZLE CUBES COLLECTED!</strong> The entrance to the Fane of the Night Serpent is revealed!", "success");
+                    this.log("📜 <strong>OBJECTIVE:</strong> Enter the Fane of the Night Serpent!", "loot");
+                }
+                this.updateUI();
+                break;
+            }
+            
             case "enterJungle":
                 this.dm.questFlags.enteredJungle = true;
                 this.dm.currentChapter = 2;
@@ -15688,6 +17284,7 @@ class Game {
                 this.dm.currentChapter = 6;
                 this.grantExperience(10000);
                 this.character.gold += 5000;
+                this.completeJournalQuest('end_death_curse');
                 this.log("💀 <strong>ACERERAK IS BANISHED!</strong>", "success");
                 this.log(`The archlich screams in fury as his physical form is destroyed. "This is not the end! I am eternal! I will return!"`, "dm");
                 this.log(`His phylactery is elsewhere, but for now, his plans are ruined. The tomb begins to collapse around you!`, "dm");
@@ -15872,6 +17469,7 @@ class Game {
                 this.dm.currentChapter = 6;
                 this.grantExperience(1000);
                 this.character.gold += 500;
+                this.completeJournalQuest('clear_caves_of_chaos');
                 this.log("💀 <strong>THE HIGH PRIEST IS DEFEATED!</strong>", "success");
                 this.log(`With the High Priest's death, his dark magic fades. The remaining monsters flee into the wilderness, their unnatural alliance broken.`, "dm");
                 this.log("🏰 <strong>EPILOGUE: HEROES OF THE BORDERLANDS</strong>", "success");
@@ -16058,6 +17656,7 @@ class Game {
                 this.dm.currentChapter = 6;
                 this.grantExperience(1500);
                 this.character.gold += 500;
+                this.completeJournalQuest('rescue_gundren');
                 this.log("🕷️ <strong>THE BLACK SPIDER IS DEFEATED!</strong>", "success");
                 this.log(`Nezznar crumples to the ground, his spider staff clattering beside him. <em>"Impossible... I was so close..."</em> The drow's schemes are finally over.`, "dm");
                 this.log("⛏️ <strong>EPILOGUE: HEROES OF PHANDALIN</strong>", "success");
@@ -16076,7 +17675,18 @@ class Game {
         const chapter = this.dm.campaign.chapters[this.dm.currentChapter];
         if (chapter) {
             document.getElementById("chapterName").textContent = chapter.name;
-            document.getElementById("chapterObjective").textContent = chapter.objective;
+            let objectiveText = chapter.objective;
+            if (this.dm.campaignId === "nights_dark_terror" && this.dm.currentChapter === 0) {
+                const flags = this.dm.questFlags;
+                if (!flags.metStephan) {
+                    objectiveText = "Meet Stephan at Misha's Ferry";
+                } else if (!flags.clearedWildernessRoad) {
+                    objectiveText = "Escort Stephan down the Wilderness Road";
+                } else {
+                    objectiveText = "Travel to Sukiskyn homestead";
+                }
+            }
+            document.getElementById("chapterObjective").textContent = objectiveText;
             
             // Show hint about where to go next
             const hint = this.getChapterHint();
@@ -16118,8 +17728,9 @@ class Game {
         }
         
         if (campaignId === "nights_dark_terror") {
-            if (chapter === 0 && !flags.metStephan) return "💡 Use EXPLORE to meet Stephan the horse trader";
-            if (chapter === 0 && flags.metStephan) return "💡 TRAVEL to Sukiskyn Homestead";
+            if (chapter === 0 && !flags.metStephan) return "💡 TRAVEL to Misha's Ferry to meet Stephan the horse trader";
+            if (chapter === 0 && flags.metStephan && !flags.clearedWildernessRoad) return "💡 TRAVEL to the Wilderness Road to escort Stephan";
+            if (chapter === 0 && flags.clearedWildernessRoad) return "💡 TRAVEL to Sukiskyn Homestead";
             if (chapter === 1 && !flags.survivedSiege) {
                 const kills = flags.goblinsKilled || 0;
                 return `💡 EXPLORE to defend! Defeat goblins (${kills}/5) to break the siege`;
@@ -16440,80 +18051,93 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         /* Shop Modal Styles */
         .shop-modal-content {
-            max-width: 650px;
-            max-height: 80vh;
+            max-width: 550px;
+            max-height: 75vh;
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
+        .shop-modal-content h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+        }
         .shop-mode-tabs {
             display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid rgba(255,255,255,0.2);
+            gap: 8px;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(201,162,39,0.3);
             flex-shrink: 0;
         }
         .shop-mode-tab {
-            background: rgba(255,255,255,0.1);
-            border: 2px solid transparent;
-            color: #fff;
-            padding: 10px 24px;
-            border-radius: 6px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(201,162,39,0.3);
+            color: #ccc;
+            padding: 6px 18px;
+            border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.85rem;
             transition: all 0.2s;
         }
         .shop-mode-tab:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(201,162,39,0.15);
+            color: #fff;
         }
         .shop-mode-tab.active {
-            background: linear-gradient(135deg, #1e88e5, #1565c0);
-            border-color: #42a5f5;
+            background: rgba(201,162,39,0.25);
+            border-color: #c9a227;
+            color: #c9a227;
         }
         .shop-tabs {
             display: flex;
-            gap: 5px;
-            margin-bottom: 15px;
+            gap: 4px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
             flex-shrink: 0;
         }
         .shop-tab {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: #fff;
-            padding: 8px 16px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(100,100,100,0.3);
+            color: #aaa;
+            padding: 5px 12px;
             border-radius: 4px;
             cursor: pointer;
-            transition: background 0.2s;
+            font-size: 0.8rem;
+            transition: all 0.2s;
         }
         .shop-tab:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.15);
+            color: #fff;
         }
         .shop-tab.active {
-            background: #1e88e5;
+            background: rgba(201,162,39,0.2);
+            border-color: #c9a227;
+            color: #c9a227;
         }
         .shop-items {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             flex: 1;
             min-height: 0;
             overflow-y: auto;
-            padding-right: 10px;
+            padding-right: 6px;
         }
         .shop-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255,255,255,0.05);
-            padding: 12px;
+            background: rgba(255,255,255,0.04);
+            padding: 8px 10px;
             border-radius: 6px;
-            transition: background 0.2s;
+            border: 1px solid rgba(100,100,100,0.15);
+            transition: all 0.2s;
         }
         .shop-item:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(201,162,39,0.1);
+            border-color: rgba(201,162,39,0.3);
         }
         .shop-item.cannot-afford {
             opacity: 0.5;
@@ -16566,16 +18190,19 @@ document.addEventListener("DOMContentLoaded", () => {
             font-weight: bold;
         }
         .sell-btn {
-            background: linear-gradient(135deg, #ff9800, #f57c00);
+            background: linear-gradient(135deg, #f39c12, #e67e22);
             color: white;
             border: none;
             border-radius: 4px;
-            padding: 6px 14px;
+            padding: 5px 12px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 0.8rem;
+            transition: all 0.2s;
         }
         .sell-btn:hover {
-            background: linear-gradient(135deg, #ffa726, #ff9800);
+            background: linear-gradient(135deg, #e67e22, #d35400);
+            transform: translateY(-1px);
         }
         .sell-item.equipped-item {
             border-left: 3px solid #f44336;
@@ -16587,52 +18214,82 @@ document.addEventListener("DOMContentLoaded", () => {
             font-weight: bold;
         }
         .buy-btn {
-            background: #4CAF50;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
             color: white;
             border: none;
             border-radius: 4px;
-            padding: 6px 14px;
+            padding: 5px 12px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 0.8rem;
+            transition: all 0.2s;
         }
         .buy-btn:hover:not(:disabled) {
-            background: #45a049;
+            background: linear-gradient(135deg, #27ae60, #219a52);
+            transform: translateY(-1px);
         }
         .buy-btn:disabled {
-            background: #666;
+            background: #555;
             cursor: not-allowed;
+            opacity: 0.6;
         }
         .owned-badge {
             color: #4CAF50;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: bold;
         }
         .close-btn {
-            margin-top: 15px;
-            background: #666;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            margin-top: 10px;
+            background: rgba(255,255,255,0.1);
+            color: #ccc;
+            border: 1px solid rgba(201,162,39,0.3);
+            padding: 8px 16px;
+            border-radius: 5px;
             cursor: pointer;
             width: 100%;
             flex-shrink: 0;
+            font-size: 0.85rem;
+            transition: all 0.2s;
         }
         .close-btn:hover {
-            background: #777;
+            background: rgba(201,162,39,0.2);
+            color: #c9a227;
+            border-color: #c9a227;
         }
         .shop-btn {
-            background: linear-gradient(135deg, #f5af19, #f12711);
+            background: linear-gradient(135deg, #c9a227, #8b6914);
             color: white;
-            border: none;
+            border: 2px solid #c9a227;
             padding: 8px 16px;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
             margin-top: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
         }
         .shop-btn:hover {
-            opacity: 0.9;
+            background: linear-gradient(135deg, #d4b030, #9e7a18);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+        }
+        .talk-btn {
+            background: linear-gradient(135deg, #5f8ba0, #4a6b7d);
+            color: white;
+            border: 2px solid #5f8ba0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 5px;
+            margin-left: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
+        }
+        .talk-btn:hover {
+            background: linear-gradient(135deg, #6b9ab0, #567a8d);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
         }
         /* Post-Combat Summary Modal Styles */
         .post-combat-modal-content {

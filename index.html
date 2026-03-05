@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D&D: Realms of Adventure - Epic Web RPG Experience</title>
     <meta name="description" content="Embark on epic adventures in this fully-featured D&D 5e web game. Multiple campaigns, character customization, achievements, and authentic tabletop RPG mechanics.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23e8c33a'/%3E%3Cstop offset='100%25' stop-color='%23a07818'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='48' fill='%231a0a0a' stroke='%23c9a227' stroke-width='3'/%3E%3Cpath d='M30 72 Q32 55 38 48 Q42 42 44 35 L42 22 Q44 28 48 32 L50 20 Q52 28 54 32 Q58 28 60 22 L58 35 Q60 42 64 48 Q70 55 72 72 Q65 68 58 66 Q54 72 50 75 Q46 72 42 66 Q36 68 30 72Z' fill='url(%23g)'/%3E%3Ccircle cx='42' cy='46' r='3' fill='%23ff4444'/%3E%3Ccircle cx='58' cy='46' r='3' fill='%23ff4444'/%3E%3Ccircle cx='42' cy='45.5' r='1.5' fill='%231a0a0a'/%3E%3Ccircle cx='58' cy='45.5' r='1.5' fill='%231a0a0a'/%3E%3Cellipse cx='46' cy='58' rx='2' ry='1.5' fill='%231a0a0a'/%3E%3Cellipse cx='54' cy='58' rx='2' ry='1.5' fill='%231a0a0a'/%3E%3Cpath d='M44 64 Q47 67 50 65 Q53 67 56 64' stroke='%23a07818' stroke-width='1.5' fill='none'/%3E%3C/svg%3E">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=MedievalSharp&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>
@@ -15,10 +16,51 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Crimson Text', Georgia, 'Segoe UI', serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             min-height: 100vh;
             color: #e4e4e4;
+            transition: background 2s ease, color 1s ease;
+        }
+
+        /* Day/Night Theme Cycling */
+        body.time-dawn {
+            background: linear-gradient(135deg, #2d1b4e 0%, #1a2a4e 50%, #3d2060 100%);
+        }
+        body.time-day {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+        body.time-dusk {
+            background: linear-gradient(135deg, #2e1520 0%, #1e1830 50%, #301830 100%);
+        }
+        body.time-night {
+            background: linear-gradient(135deg, #0a0a15 0%, #0d0d1a 50%, #05051a 100%);
+        }
+        body.time-night .character-panel,
+        body.time-night .game-panel {
+            filter: brightness(0.85);
+        }
+        body.time-dawn .location-banner,
+        body.time-dusk .location-banner {
+            border-color: rgba(201, 120, 80, 0.3);
+        }
+        body.time-night .location-banner {
+            border-color: rgba(80, 80, 150, 0.3);
+        }
+
+        h1, h2, h3, h4, h5, h6,
+        .chapter-title, .chapter-name, .location-name,
+        .title-tagline, .combat-header h3,
+        .modal-content h2, .creation-screen h2 {
+            font-family: 'Cinzel', 'Cinzel Decorative', Georgia, serif;
+        }
+
+        .log-entry, .game-log, .enemy-description {
+            font-family: 'Crimson Text', Georgia, serif;
+        }
+
+        .action-btn, .tactics-btn, button {
+            font-family: 'Crimson Text', Georgia, serif;
         }
 
         .container {
@@ -127,6 +169,30 @@
             background: linear-gradient(90deg, #8b0000, #dc143c);
             height: 100%;
             transition: width 0.3s ease;
+        }
+
+        /* HP bar flash animations */
+        @keyframes hpBarDamageFlash {
+            0% { filter: brightness(1); }
+            25% { filter: brightness(2.5); background: linear-gradient(90deg, #ff0000, #ff4444); }
+            100% { filter: brightness(1); }
+        }
+        @keyframes hpBarHealFlash {
+            0% { filter: brightness(1); }
+            25% { filter: brightness(2); background: linear-gradient(90deg, #00cc00, #44ff44); }
+            100% { filter: brightness(1); }
+        }
+        .hp-bar-fill.flash-damage {
+            animation: hpBarDamageFlash 0.4s ease;
+        }
+        .hp-bar-fill.flash-heal {
+            animation: hpBarHealFlash 0.5s ease;
+        }
+        .enemy-hp-bar.flash-damage {
+            animation: hpBarDamageFlash 0.4s ease;
+        }
+        .enemy-hp-bar.flash-heal {
+            animation: hpBarHealFlash 0.5s ease;
         }
 
         .hp-bar-text {
@@ -371,13 +437,50 @@
         /* Game Log */
         .game-log {
             flex: 1;
-            background: rgba(0, 0, 0, 0.3);
+            background: 
+                linear-gradient(to bottom, rgba(45, 35, 20, 0.4) 0%, rgba(30, 22, 12, 0.5) 100%),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 28px,
+                    rgba(139, 119, 80, 0.03) 28px,
+                    rgba(139, 119, 80, 0.03) 29px
+                ),
+                rgba(0, 0, 0, 0.3);
             border-radius: 10px;
             padding: 8px;
             overflow-y: auto;
             min-height: 120px;
             margin-bottom: 8px;
-            border: 1px solid #333;
+            border: 1px solid rgba(139, 119, 80, 0.3);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 -2px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        /* Aged parchment edge effect */
+        .game-log::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 12px;
+            background: linear-gradient(to bottom, rgba(30, 22, 12, 0.6), transparent);
+            pointer-events: none;
+            z-index: 1;
+            border-radius: 10px 10px 0 0;
+        }
+        .game-log::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 12px;
+            background: linear-gradient(to top, rgba(30, 22, 12, 0.6), transparent);
+            pointer-events: none;
+            z-index: 1;
+            border-radius: 0 0 10px 10px;
         }
 
         .log-entry {
@@ -893,12 +996,17 @@
             padding: 0;
             margin-bottom: 10px;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .combat-panel-inner {
             padding: 0;
             overflow-y: auto;
-            max-height: 100%;
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
         }
 
         #gameScreen.in-combat .combat-panel-inner {
@@ -929,23 +1037,55 @@
             color: #bbb;
             font-size: 0.78rem;
             font-style: italic;
-            margin: 0 0 4px;
+            margin: 0 0 8px;
             padding: 4px 8px;
             background: rgba(0, 0, 0, 0.25);
             border-radius: 4px;
         }
 
+        .enemy-image-container {
+            position: relative;
+            max-width: 220px;
+            margin: 0 auto 4px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid rgba(220, 20, 60, 0.35);
+            box-shadow:
+                0 4px 16px rgba(0, 0, 0, 0.6),
+                0 0 20px rgba(139, 0, 0, 0.25),
+                inset 0 0 30px rgba(0, 0, 0, 0.3);
+            background: radial-gradient(ellipse at center, rgba(30, 15, 15, 0.8) 0%, rgba(10, 5, 5, 0.95) 100%);
+        }
+
+        /* Combat image entrance animation */
+        @keyframes enemyEntrance {
+            0% { opacity: 0; transform: scale(0.7) translateY(15px); filter: blur(8px) brightness(2); }
+            50% { opacity: 1; filter: blur(0) brightness(1.3); }
+            100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0) brightness(1); }
+        }
+        .enemy-image-container.combat-enter {
+            animation: enemyEntrance 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .enemy-image-container::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 10px;
+            background:
+                radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.45) 100%),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, transparent 15%, transparent 80%, rgba(0, 0, 0, 0.3) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
         #enemyImage {
             width: 100%;
-            max-width: 240px;
-            height: auto;
-            max-height: 150px;
+            max-height: 200px;
             object-fit: contain;
-            object-position: center;
-            border-radius: 6px;
-            margin: 4px auto;
             display: block;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+            filter: saturate(1.1) contrast(1.05);
+            transition: filter 0.3s ease;
         }
 
         .enemy-stats {
@@ -1203,9 +1343,12 @@
                 padding: 10px;
             }
 
+            .enemy-image-container {
+                max-width: 180px;
+            }
+
             #enemyImage {
-                max-width: 200px;
-                max-height: 140px;
+                max-height: 130px;
             }
 
             .enemy-description {
@@ -1344,9 +1487,12 @@
                 min-width: 60px;
             }
 
+            .enemy-image-container {
+                max-width: 190px;
+            }
+
             #enemyImage {
-                max-width: 220px;
-                max-height: 160px;
+                max-height: 140px;
             }
         }
 
@@ -1708,7 +1854,127 @@
             box-shadow: 0 5px 15px rgba(201, 162, 39, 0.4);
         }
 
+        /* ==================== LOCATION TRANSITION OVERLAY ==================== */
+
+        /* Campaign Map Styles */
+        .map-node {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            margin: 3px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            border: 1px solid rgba(100, 100, 100, 0.3);
+            background: rgba(30, 30, 50, 0.6);
+            color: #888;
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+        .map-node.visited {
+            border-color: rgba(201, 162, 39, 0.5);
+            background: rgba(50, 40, 20, 0.6);
+            color: #ddd;
+        }
+        .map-node.current {
+            border-color: #c9a227;
+            background: rgba(201, 162, 39, 0.2);
+            color: #fff;
+            box-shadow: 0 0 12px rgba(201, 162, 39, 0.3);
+            font-weight: bold;
+        }
+        .map-node .node-icon { font-size: 1rem; }
+        .map-chapter-label {
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            color: #c9a227;
+            margin: 10px 0 4px;
+            padding-bottom: 3px;
+            border-bottom: 1px solid rgba(201, 162, 39, 0.2);
+        }
+        .map-chapter-nodes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 6px;
+        }
+        .map-progress-bar {
+            height: 6px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 3px;
+            margin: 8px 0 12px;
+            overflow: hidden;
+        }
+        .map-progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #c9a227, #ffd700);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        .location-transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0f;
+            z-index: 8000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        .location-transition-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .transition-location-name {
+            font-family: 'Cinzel Decorative', 'Cinzel', Georgia, serif;
+            font-size: 2.2rem;
+            color: #c9a227;
+            text-shadow: 0 0 30px rgba(201, 162, 39, 0.5), 0 2px 4px rgba(0, 0, 0, 0.8);
+            letter-spacing: 3px;
+            animation: transitionTextIn 0.6s ease forwards;
+            opacity: 0;
+        }
+        .transition-location-type {
+            font-family: 'Crimson Text', Georgia, serif;
+            font-size: 1rem;
+            color: rgba(228, 228, 228, 0.6);
+            margin-top: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: transitionTextIn 0.6s ease 0.2s forwards;
+            opacity: 0;
+        }
+        @keyframes transitionTextIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
         /* ==================== COMBAT ANIMATIONS ==================== */
+
+        /* Typewriter effect for DM narration */
+        .typewriter-text {
+            overflow: hidden;
+            display: inline;
+        }
+        .typewriter-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: #c9a227;
+            margin-left: 2px;
+            animation: blink 0.7s step-end infinite;
+            vertical-align: text-bottom;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -1775,6 +2041,27 @@
             0% { opacity: 1; transform: translateY(0) scale(1); }
             100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
         }
+
+        /* Loot drop animation */
+        .loot-drop {
+            position: fixed;
+            z-index: 5000;
+            pointer-events: none;
+            font-size: 1.8rem;
+            animation: lootDrop 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+            filter: drop-shadow(0 0 6px rgba(201, 162, 39, 0.6));
+        }
+        @keyframes lootDrop {
+            0% { opacity: 0; transform: translateY(-40px) scale(0.3) rotate(-20deg); }
+            30% { opacity: 1; transform: translateY(0) scale(1.2) rotate(5deg); }
+            50% { transform: translateY(-10px) scale(1) rotate(0deg); }
+            70% { transform: translateY(0) scale(1.05); }
+            100% { opacity: 0; transform: translateY(-30px) scale(0.8); }
+        }
+        .loot-drop.gold { color: #ffd700; }
+        .loot-drop.item { color: #4fc3f7; }
+        .loot-drop.xp { color: #b39ddb; }
 
         /* ==================== ENHANCED BUTTON EFFECTS ==================== */
 
@@ -2047,8 +2334,8 @@
         
         /* Theme System */
         body.theme-light {
-            background: linear-gradient(135deg, #e8e8e8 0%, #d0d0d0 50%, #c0c0c0 100%);
-            color: #333;
+            background: linear-gradient(135deg, #f5e6d3 0%, #e8d4b8 50%, #d9c4a8 100%);
+            color: #2c2416;
         }
         
         body.theme-light .character-panel,
@@ -2057,16 +2344,111 @@
         body.theme-light .option-card,
         body.theme-light .campaign-card,
         body.theme-light .log-entry {
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
+            background: rgba(255, 250, 240, 0.95);
+            color: #2c2416;
+            border-color: #b8956f;
         }
         
         body.theme-light .game-log {
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 250, 240, 0.9);
+            border: 1px solid #c9a868;
         }
         
         body.theme-light .log-entry.dm {
-            background: rgba(201, 162, 39, 0.15);
+            background: rgba(139, 111, 78, 0.12);
+            border-left: 3px solid #8b6f4e;
+        }
+
+        body.theme-light .chapter-banner {
+            background: linear-gradient(135deg, rgba(78, 130, 160, 0.25), rgba(95, 158, 180, 0.25));
+            border: 2px solid #4e82a0;
+            box-shadow: 0 2px 8px rgba(78, 130, 160, 0.15);
+        }
+
+        body.theme-light .chapter-banner .chapter-title {
+            color: #3d6b85;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+        }
+
+        body.theme-light .chapter-banner .chapter-name {
+            color: #2c5166;
+        }
+
+        body.theme-light .chapter-banner .chapter-objective {
+            background: rgba(78, 130, 160, 0.15);
+            border: 1px solid rgba(78, 130, 160, 0.4);
+            color: #2c5166;
+        }
+
+        body.theme-light .chapter-banner .chapter-objective::before {
+            color: #8b6f4e;
+        }
+
+        body.theme-light .chapter-banner .chapter-hint {
+            color: #5a7d3e;
+        }
+
+        body.theme-light h2, 
+        body.theme-light h3,
+        body.theme-light h4 {
+            color: #3d5a47;
+        }
+
+        body.theme-light button {
+            background: linear-gradient(135deg, #5f9ea0, #4e8284);
+            color: #fff;
+            border: 1px solid #4e8284;
+        }
+
+        body.theme-light button:hover {
+            background: linear-gradient(135deg, #4e8284, #3d6b6d);
+        }
+
+        body.theme-light .stat-box {
+            background: rgba(139, 111, 78, 0.08);
+            border: 1px solid #c9a868;
+        }
+
+        body.theme-light .log-entry.combat {
+            background: rgba(160, 82, 45, 0.12);
+            border-left: 3px solid #a0522d;
+        }
+
+        body.theme-light .log-entry.success {
+            background: rgba(90, 125, 62, 0.12);
+            border-left: 3px solid #5a7d3e;
+        }
+
+        body.theme-light .log-entry.danger {
+            background: rgba(178, 34, 34, 0.12);
+            border-left: 3px solid #b22222;
+        }
+
+        body.theme-light .log-entry.loot {
+            background: rgba(184, 149, 111, 0.12);
+            border-left: 3px solid #b8956f;
+        }
+
+        body.theme-light .shop-btn {
+            background: linear-gradient(135deg, #d4a827, #a67f1a);
+            border: 2px solid #c9a227;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        body.theme-light .shop-btn:hover {
+            background: linear-gradient(135deg, #e0b530, #b88d1f);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        body.theme-light .talk-btn {
+            background: linear-gradient(135deg, #5f9ea0, #4e8284);
+            border: 2px solid #4e82a0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        body.theme-light .talk-btn:hover {
+            background: linear-gradient(135deg, #6badb0, #5a9194);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
         }
         
         /* Font Size System */
@@ -2199,12 +2581,85 @@
         .tactics-btn:hover {
             border-color: #c9a227;
         }
-        
+
+        /* ==================== Weather Effects ==================== */
+        .weather-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9998;
+            transition: opacity 1.5s ease, background 2s ease;
+            opacity: 0;
+        }
+        .weather-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Fog effect */
+        .weather-fog .weather-overlay {
+            opacity: 1;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(180, 180, 190, 0.2) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 30%, rgba(170, 175, 185, 0.18) 0%, transparent 55%),
+                radial-gradient(ellipse at 50% 80%, rgba(160, 165, 175, 0.15) 0%, transparent 50%);
+            animation: fogDrift 12s ease-in-out infinite alternate;
+        }
+        @keyframes fogDrift {
+            0% { background-position: 0% 0%, 100% 0%, 50% 100%; }
+            100% { background-position: 5% 3%, 95% 5%, 55% 95%; }
+        }
+
+        /* Cloudy effect */
+        .weather-cloudy .weather-overlay {
+            opacity: 1;
+            background: linear-gradient(180deg, rgba(40, 45, 55, 0.2) 0%, transparent 40%);
+        }
+
+        /* Rain overlay tint */
+        .weather-rain .weather-overlay {
+            opacity: 1;
+            background: linear-gradient(180deg, rgba(30, 40, 60, 0.15) 0%, rgba(40, 50, 70, 0.08) 100%);
+        }
+
+        /* Storm overlay tint + lightning */
+        .weather-storm .weather-overlay {
+            opacity: 1;
+            background: linear-gradient(180deg, rgba(20, 25, 40, 0.25) 0%, rgba(30, 35, 50, 0.12) 100%);
+        }
+        @keyframes lightning {
+            0%, 95%, 100% { opacity: 0; }
+            96% { opacity: 0.7; }
+            97% { opacity: 0; }
+            98% { opacity: 0.4; }
+        }
+
+        /* Clear/sunny subtle warmth */
+        .weather-clear.time-day .weather-overlay {
+            opacity: 1;
+            background: radial-gradient(ellipse at 75% 10%, rgba(255, 220, 100, 0.06) 0%, transparent 60%);
+        }
+
         /* Keyboard Shortcut Hints */
         .shortcut-hint {
-            color: #666;
-            font-size: 0.7rem;
-            margin-left: 5px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.65rem;
+            font-family: 'Courier New', monospace;
+            margin-left: 4px;
+            padding: 1px 4px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+            background: rgba(0, 0, 0, 0.25);
+            vertical-align: middle;
+            letter-spacing: 0.5px;
+            transition: color 0.2s ease, border-color 0.2s ease;
+        }
+        .action-btn:hover .shortcut-hint,
+        .combat-btn:hover .shortcut-hint {
+            color: rgba(255, 255, 255, 0.7);
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
         /* Travel Modal */
@@ -2405,8 +2860,8 @@
         /* Journal Styles */
         .journal-tabs {
             display: flex;
-            gap: 5px;
-            margin-bottom: 15px;
+            gap: 4px;
+            margin-bottom: 12px;
             flex-wrap: wrap;
         }
 
@@ -2414,10 +2869,11 @@
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid #4a4a6a;
             color: #ccc;
-            padding: 8px 15px;
+            padding: 6px 10px;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.2s ease;
+            font-size: 0.8rem;
         }
 
         .journal-tab:hover, .journal-tab.active {
@@ -2427,26 +2883,31 @@
         }
 
         .journal-content {
-            max-height: 300px;
+            flex: 1;
+            min-height: 0;
             overflow-y: auto;
+            padding-right: 4px;
         }
 
         .journal-entry {
             background: rgba(0, 0, 0, 0.2);
             border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 10px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(100,100,100,0.15);
         }
 
         .journal-title {
             color: #c9a227;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
         }
 
         .journal-text {
             color: #aaa;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            line-height: 1.4;
         }
 
         /* Save Manager Modal Styles */
@@ -2948,46 +3409,54 @@
         /* Journal Tabs Styling */
         .journal-tabs {
             display: flex;
-            gap: 5px;
-            margin-bottom: 15px;
+            gap: 4px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
         }
 
         .journal-tab {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid #4a4a6a;
-            color: #fff;
-            padding: 8px 15px;
+            color: #ccc;
+            padding: 6px 10px;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.2s;
+            font-size: 0.8rem;
         }
 
         .journal-tab:hover, .journal-tab.active {
-            background: rgba(201, 162, 39, 0.3);
+            background: rgba(201, 162, 39, 0.25);
             border-color: #c9a227;
+            color: #c9a227;
         }
 
         .journal-content {
-            max-height: 400px;
+            flex: 1;
+            min-height: 0;
             overflow-y: auto;
+            padding-right: 4px;
         }
 
         .journal-entry {
             background: rgba(0, 0, 0, 0.2);
-            padding: 10px;
-            border-radius: 5px;
+            padding: 10px 12px;
+            border-radius: 6px;
             margin-bottom: 8px;
+            border: 1px solid rgba(100,100,100,0.15);
         }
 
         .journal-title {
             font-weight: bold;
             color: #c9a227;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
         }
 
         .journal-text {
             color: #aaa;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            line-height: 1.4;
         }
 
         /* Character Panel - New D&D 5e System Panels */
@@ -3141,7 +3610,13 @@
     <div class="container">
         <!-- Character Panel (hidden during creation) -->
         <div class="character-panel hidden" id="characterPanel">
-            <h2>⚔️ <span id="charName">Character</span></h2>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                <div id="charPortrait" style="font-size:2.2rem;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid #c9a227;background:rgba(201,162,39,0.1);flex-shrink:0;overflow:hidden;">⚔️</div>
+                <div style="flex:1;min-width:0;">
+                    <h2 style="margin:0;font-size:1.1rem;"><span id="charName">Character</span></h2>
+                    <div style="font-size:0.75rem;color:#aaa;" id="charTitleLine"></div>
+                </div>
+            </div>
             <div class="char-info">
                 <p><span class="label">Race:</span> <span class="value" id="charRace">-</span></p>
                 <p><span class="label">Class:</span> <span class="value" id="charClass">-</span></p>
@@ -3422,32 +3897,32 @@
                 <div class="actions-panel" id="actionsPanel">
                     <button class="action-btn primary" onclick="game.explore()">
                         <span class="icon">🔍</span>
-                        Explore
+                        Explore <span class="shortcut-hint">[E]</span>
                     </button>
                     <button class="action-btn" onclick="game.openTravelModal()">
                         <span class="icon">🗺️</span>
-                        Travel
+                        Travel <span class="shortcut-hint">[T]</span>
                     </button>
                     <button class="action-btn" onclick="game.rest()">
                         <span class="icon">🛏️</span>
-                        Rest
+                        Rest <span class="shortcut-hint">[R]</span>
                     </button>
                     <button class="action-btn" onclick="game.openPartyPanel()">
                         <span class="icon">👥</span>
-                        Party
+                        Party <span class="shortcut-hint">[P]</span>
                     </button>
                     <button class="action-btn" onclick="game.openJournal()">
                         <span class="icon">📜</span>
-                        Journal
+                        Journal <span class="shortcut-hint">[J]</span>
                     </button>
                     <button class="action-btn" onclick="game.openCrafting()">
                         <span class="icon">🔨</span>
-                        Craft
+                        Craft <span class="shortcut-hint">[F]</span>
                     </button>
                     <div class="menu-dropdown-wrapper" style="position: relative;">
                         <button class="action-btn" onclick="game.toggleMenuDropdown()" id="menuDropdownBtn">
                             <span class="icon">☰</span>
-                            Menu
+                            Menu <span class="shortcut-hint">[M]</span>
                         </button>
                         <div class="menu-dropdown hidden" id="menuDropdown">
                             <button class="menu-dropdown-item" onclick="game.openSettings(); game.closeMenuDropdown();">⚙️ Settings</button>
@@ -3519,7 +3994,26 @@
 
     <!-- Version Badge -->
     <div class="version-badge">
-        v3.4 | <a href="#" onclick="game.showTutorial(); return false;">Help</a> | <a href="#" onclick="game.openSettings(); return false;">Settings</a>
+        v4.0 | <a href="#" onclick="game.showTutorial(); return false;">Help</a> | <a href="#" onclick="game.openSettings(); return false;">Settings</a>
+    <!-- Weather Effects Overlay -->
+    <div id="weatherOverlay" class="weather-overlay"></div>
+    <canvas id="weatherCanvas" class="weather-canvas"></canvas>
+
+    </div>
+
+    <!-- Location Transition Overlay -->
+    <div class="location-transition-overlay" id="locationTransition">
+        <div class="transition-location-name" id="transitionLocationName"></div>
+        <div class="transition-location-type" id="transitionLocationType"></div>
+    </div>
+
+    <!-- Campaign Map Modal -->
+    <div class="modal" id="campaignMapModal" style="display:none;">
+        <div class="modal-content" style="max-width:700px;max-height:85vh;overflow-y:auto;">
+            <h2 style="font-family:'Cinzel',serif;color:#c9a227;margin-bottom:12px;">🗺️ Campaign Map</h2>
+            <div id="campaignMapContainer" style="position:relative;min-height:200px;"></div>
+            <button class="close-modal" onclick="document.getElementById('campaignMapModal').style.display='none'" style="margin-top:12px;">Close</button>
+        </div>
     </div>
 
     <script src="game.js"></script>

@@ -2,7 +2,7 @@
 
 ### *An Epic D&D 5th Edition Web RPG Experience*
 
-![Version](https://img.shields.io/badge/version-3.4-gold)
+![Version](https://img.shields.io/badge/version-4.0-gold)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![D&D](https://img.shields.io/badge/D%26D-5e-red)
 
@@ -62,14 +62,24 @@
 ### **Professional Polish**
 - 🎨 **Modern UI/UX** - Beautiful gradient designs, smooth animations
 - 💾 **Auto-Save System** - Never lose your progress
-- ⌨️ **Keyboard Shortcuts** - Fast combat and navigation
+- ⌨️ **Keyboard Shortcuts** - Fast combat and navigation with on-screen hint labels
 - 📱 **Responsive Design** - Play on desktop, tablet, or mobile
 - 🎵 **Immersive Experience** - Atmospheric design and feedback
-- 🌓 **Theme Support** - Multiple visual themes
+- 🌓 **Theme Support** - Multiple visual themes + day/night cycle
 - 🎲 **3D Dice Animations** - Spinning dice for ALL rolls with immersive sound effects
 - 🎯 **Landing Page** - Clean, responsive hero interface with optimized spacing
 - 🏅 **Combat Toast Notifications** - Quick victory summaries that auto-dismiss, expandable for full details
 - 🌲 **Ambient Soundscapes** - Immersive background audio that changes based on your location
+- ✨ **Typewriter Narration** - DM messages type out character by character
+- 📜 **Parchment Game Log** - Aged paper styling with warm gradients
+- 🖨️ **Google Fonts** - Cinzel headings + Crimson Text body for medieval atmosphere
+- 💫 **Combat Animations** - Enemy shake, floating damage numbers, HP bar flashes, entrance effects
+- 🌟 **Loot Drop Effects** - Animated floating icons for gold, items, and XP rewards
+- 🌅 **Day/Night Cycle** - Background theme shifts with in-game time of day
+- 📍 **Location Transitions** - Cinematic fade-to-black overlays when traveling
+- 🗺️ **Campaign Progress Map** - Visual chapter-by-chapter exploration tracker
+- 📖 **Bestiary Journal** - Track every monster you encounter with stats and lore
+- 👤 **Character Portrait** - Race-based emoji portrait on character panel
 
 ---
 
@@ -267,6 +277,7 @@ The game supports various settings:
 ## 📝 Development
 
 ### **Version History**
+- **v4.0** - "Immersive Experience" — 59 new monsters (~210 total), 15 premium polish features: Google Fonts, typewriter narration, combat animations, parchment log, location transitions, loot effects, campaign map, bestiary, day/night cycle, keyboard labels, and more
 - **v3.4** - "Quality of Life" — Drop items from inventory, encumbrance penalties actually enforced (was broken), professional button redesign, Journal Status tab, decluttered action bar
 - **v3.3** - "Tabletop Fidelity" — Proper HP on level up (roll vs average choice), short rest class features (Action Surge, Channel Divinity, Arcane Recovery), tool proficiencies, 16 D&D languages, real item-weight encumbrance (60+ items)
 - **v3.2** - "Realism & Depth" — 8 D&D 5e realism systems (Skill Proficiency, Opportunity Attacks, Passive Perception, Ritual Casting, Equipment Proficiency, Attunement, Darkvision, Racial Abilities), Half-Orc race, character panel UI overhaul
