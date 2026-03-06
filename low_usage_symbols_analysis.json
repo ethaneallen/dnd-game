@@ -1,0 +1,199 @@
+{
+  "totalSymbolsScanned": 150,
+  "lowUsageSymbols": 16,
+  "summary": "All 16 symbols appearing 1-2 times are intentional game mechanics, configuration data, or utility classes. None are dead code - they represent core game systems defined once and used in initialization or specific game mechanics.",
+  "symbols": [
+    {
+      "name": "SOUND_ENABLED",
+      "line": 35,
+      "count": 2,
+      "category": "constant",
+      "type": "config",
+      "description": "Boolean flag for enabling/disabling sound effects in the game. Used in SoundManager initialization.",
+      "recommendation": "keep",
+      "reasoning": "Intentional configuration constant that controls sound system functionality."
+    },
+    {
+      "name": "SOUND_VOLUME",
+      "line": 36,
+      "count": 2,
+      "category": "constant",
+      "type": "config",
+      "description": "Audio volume level (0-1) for sound effects. Used in SoundManager constructor to set initial volume.",
+      "recommendation": "keep",
+      "reasoning": "Essential game configuration for audio management."
+    },
+    {
+      "name": "MUSIC_VOLUME",
+      "line": 37,
+      "count": 2,
+      "category": "constant",
+      "type": "config",
+      "description": "Audio volume level (0-1) for background music. Used in MusicManager constructor.",
+      "recommendation": "keep",
+      "reasoning": "Essential game configuration for music management."
+    },
+    {
+      "name": "STATUS_EFFECTS",
+      "line": 94,
+      "count": 2,
+      "category": "constant",
+      "type": "system",
+      "description": "Data structure defining combat status effects (poisoned, burning, blessed, etc.) with damage/duration mechanics. Core to combat system.",
+      "recommendation": "keep",
+      "reasoning": "Fundamental game mechanic for combat status system. Defined once at module init, referenced in combat calculations."
+    },
+    {
+      "name": "DISEASES",
+      "line": 195,
+      "count": 2,
+      "category": "constant",
+      "type": "system",
+      "description": "Data structure for character diseases (plague, leprosy, mummy rot, etc.) with save DC and effects. Implements D&D 5e disease rules.",
+      "recommendation": "keep",
+      "reasoning": "Core gameplay mechanic for disease system. Defined once, used when applying/checking diseases."
+    },
+    {
+      "name": "MADNESS_EFFECTS",
+      "line": 204,
+      "count": 2,
+      "category": "constant",
+      "type": "system",
+      "description": "Data structure with madness effect descriptions (short-term, long-term, indefinite) for sanity mechanics. Implements D&D madness rules.",
+      "recommendation": "keep",
+      "reasoning": "Specialized D&D 5e game mechanic. Defined once, used when applying madness effects."
+    },
+    {
+      "name": "KEYBOARD_SHORTCUTS",
+      "line": 840,
+      "count": 2,
+      "category": "constant",
+      "type": "config",
+      "description": "Maps keyboard keys to in-game actions (attack, spell, defend, inventory, etc.). Used in keyboard event handler.",
+      "recommendation": "keep",
+      "reasoning": "Essential UI input mapping for gameplay controls."
+    },
+    {
+      "name": "DRAMATIC_DESCRIPTIONS",
+      "line": 1901,
+      "count": 2,
+      "category": "constant",
+      "type": "system",
+      "description": "Arrays of flavor text for combat outcomes (critical hits, fumbles, kills). Enhances narrative experience.",
+      "recommendation": "keep",
+      "reasoning": "Intentional flavor/narrative system. Data-driven approach allows adding descriptions without code changes."
+    },
+    {
+      "name": "SoundManager",
+      "line": 1047,
+      "count": 2,
+      "category": "class",
+      "type": "utility",
+      "description": "Class for managing sound effects via Web Audio API. Handles oscillator-based sound synthesis and playback control.",
+      "recommendation": "keep",
+      "reasoning": "Core utility class for game audio. Instantiated once as global singleton at initialization."
+    },
+    {
+      "name": "MusicManager",
+      "line": 1537,
+      "count": 2,
+      "category": "class",
+      "type": "utility",
+      "description": "Class for managing background music and ambient soundscapes via Web Audio API. Controls music volume and state.",
+      "recommendation": "keep",
+      "reasoning": "Core utility class for background music. Instantiated once as global singleton at initialization (line 1725)."
+    },
+    {
+      "name": "DiceAnimator",
+      "line": 1728,
+      "count": 2,
+      "category": "class",
+      "type": "utility",
+      "description": "Class for animating dice rolls in UI. Creates and manages visual dice animation container.",
+      "recommendation": "keep",
+      "reasoning": "Visual effects utility for dice rolling animations. Instantiated once and used for all dice rolls in game."
+    },
+    {
+      "name": "WeatherRenderer",
+      "line": 875,
+      "count": 2,
+      "category": "class",
+      "type": "utility",
+      "description": "Class for rendering weather effects (rain, snow, storms, lightning) on canvas. Manages particle animations and visual effects.",
+      "recommendation": "keep",
+      "reasoning": "Visual effects system for environment. Instantiated once in Game initialization (line 6852) for weather display."
+    },
+    {
+      "name": "generateSaveKey",
+      "line": 1980,
+      "count": 2,
+      "category": "function",
+      "type": "utility",
+      "description": "Generates unique save file keys combining prefix with timestamp. Used in save game functionality.",
+      "recommendation": "keep",
+      "reasoning": "Essential utility function for save game system. Called when creating new save slots."
+    },
+    {
+      "name": "CLASS_WEAPON_PROFICIENCY",
+      "line": 2701,
+      "count": 2,
+      "category": "constant",
+      "type": "system",
+      "description": "D&D 5e character class weapon proficiency data. Maps each class to allowed weapon types (simple, martial, ranged, etc.).",
+      "recommendation": "keep",
+      "reasoning": "Core D&D mechanics. Referenced during character creation and combat to determine usable weapons (line 3769)."
+    },
+    {
+      "name": "CLASS_TOOL_PROFICIENCY",
+      "line": 2718,
+      "count": 2,
+      "category": "constant",
+      "type": "system",
+      "description": "D&D 5e character class tool proficiency data. Maps each class to allowed tool proficiencies for skill checks.",
+      "recommendation": "keep",
+      "reasoning": "Core D&D mechanics for character abilities. Used in character creation and skill resolution (line 4060)."
+    },
+    {
+      "name": "FLAW_COMPLICATIONS",
+      "line": 6648,
+      "count": 2,
+      "category": "constant",
+      "type": "system",
+      "description": "Character personality flaw mechanics triggered during interactions (sharp tongue disadvantage, reluctance to trust, etc.). Implements roleplay mechanics.",
+      "recommendation": "keep",
+      "reasoning": "Intentional character mechanics system. Used in dialogue/action callbacks to apply personality-based effects (line 5568)."
+    }
+  ],
+  "byCategory": {
+    "constants": [
+      "SOUND_ENABLED",
+      "SOUND_VOLUME",
+      "MUSIC_VOLUME",
+      "STATUS_EFFECTS",
+      "DISEASES",
+      "MADNESS_EFFECTS",
+      "KEYBOARD_SHORTCUTS",
+      "DRAMATIC_DESCRIPTIONS",
+      "CLASS_WEAPON_PROFICIENCY",
+      "CLASS_TOOL_PROFICIENCY",
+      "FLAW_COMPLICATIONS"
+    ],
+    "classes": [
+      "SoundManager",
+      "MusicManager",
+      "DiceAnimator",
+      "WeatherRenderer"
+    ],
+    "functions": [
+      "generateSaveKey"
+    ]
+  },
+  "keyFindings": {
+    "deadCode": 0,
+    "intentionalConfigs": 3,
+    "coreGameMechanics": 8,
+    "utilityClasses": 4,
+    "utilityFunctions": 1,
+    "status": "ALL SYMBOLS ARE INTENTIONAL - No dead code detected"
+  }
+}
