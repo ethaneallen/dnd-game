@@ -2008,14 +2008,14 @@ const CAMPAIGNS = {
             "EvilPriest": { name: "The High Priest of Chaos", role: "Cult Leader", description: "The sinister leader of the Temple of Evil Chaos, he commands the monsters through dark pacts.", dialogue: ["Fools! You dare intrude upon the Temple of Chaos?", "The dark gods will feast upon your souls!", "The alliance of evil cannot be stopped! Even if I fall, others will rise!"], boss: true }
         },
         locations: [
-            { name: "Road to the Keep", type: "wilderness", danger: 1, icon: "🛤️", chapter: 0, description: "The dusty road leading to the Keep. Relatively safe, but stay alert." },
-            { name: "Keep Gates", type: "town", danger: 0, icon: "🚪", chapter: 0, description: "The main entrance to the Keep, guarded day and night." },
-            { name: "Keep - Outer Bailey", type: "town", danger: 0, icon: "🏢️", chapter: 1, description: "The common area of the Keep with shops, tavern, and chapel." },
-            { name: "Green Man Inn", type: "town", danger: 0, icon: "🍺", chapter: 1, description: "The Keep's only tavern. Good food, warm beds, and plenty of rumors." },
-            { name: "Trader's Shop", type: "town", danger: 0, icon: "🏺", chapter: 1, description: "Olaf's general store, selling everything an adventurer might need." },
-            { name: "Chapel of Light", type: "town", danger: 0, icon: "⛪", chapter: 1, description: "A small chapel where weary adventurers can find healing." },
-            { name: "Keep - Inner Bailey", type: "town", danger: 0, icon: "🏰", chapter: 1, description: "The fortified heart of the Keep where the Castellan resides." },
-            { name: "Bank & Jeweler", type: "town", danger: 0, icon: "💎", chapter: 1, description: "A secure place to store valuables and exchange gems for gold." },
+            { name: "Road to the Keep", type: "wilderness", danger: 1, icon: "🛤️", chapter: 0, mapX: 350, mapY: 300, description: "The dusty road leading to the Keep. Relatively safe, but stay alert." },
+            { name: "Keep Gates", type: "town", danger: 0, icon: "🚪", chapter: 0, mapX: 500, mapY: 300, description: "The main entrance to the Keep, guarded day and night." },
+            { name: "Keep - Outer Bailey", type: "town", danger: 0, icon: "🏢️", chapter: 1, mapX: 505, mapY: 305, description: "The common area of the Keep with shops, tavern, and chapel." },
+            { name: "Green Man Inn", type: "town", danger: 0, icon: "🍺", chapter: 1, mapX: 507, mapY: 303, description: "The Keep's only tavern. Good food, warm beds, and plenty of rumors." },
+            { name: "Trader's Shop", type: "town", danger: 0, icon: "🏺", chapter: 1, mapX: 503, mapY: 308, description: "Olaf's general store, selling everything an adventurer might need." },
+            { name: "Chapel of Light", type: "town", danger: 0, icon: "⛪", chapter: 1, mapX: 498, mapY: 306, description: "A small chapel where weary adventurers can find healing." },
+            { name: "Keep - Inner Bailey", type: "town", danger: 0, icon: "🏰", chapter: 1, mapX: 510, mapY: 300, description: "The fortified heart of the Keep where the Castellan resides." },
+            { name: "Bank & Jeweler", type: "town", danger: 0, icon: "💎", chapter: 1, mapX: 506, mapY: 298, description: "A secure place to store valuables and exchange gems for gold." },
             { name: "The Wilderness", type: "wilderness", danger: 2, icon: "🌲", chapter: 2, description: "Dense forest and rocky terrain between the Keep and the Caves." },
             { name: "Hermit's Cave", type: "wilderness", danger: 2, icon: "🏐️", chapter: 2, description: "A cave where a mad hermit dwells. Is he friend or foe?" },
             { name: "Spider Woods", type: "wilderness", danger: 2, icon: "🕷️", chapter: 2, description: "A stretch of forest infested with giant spiders." },
@@ -6924,6 +6924,9 @@ class Game {
         // Active side quests
         this.sideQuests = [];
         
+        // Travel state flag
+        this.isTraveling = false;
+        
         // Log filter settings
         this.logFilters = {
             combat: true,
@@ -10370,6 +10373,11 @@ class Game {
                 return;
             } else {
                 this.log(`❌ You fail to escape! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC ${fleeDC})`, "danger");
+                // Failed flee - go directly to monster turn, skip companion attacks
+                this.dm.defendingThisTurn = false;
+                this.monsterTurn();
+                this.processingCombatAction = false;
+                return;
             }
             this.dm.defendingThisTurn = false;
         } else if (action === "spell") {
@@ -15123,16 +15131,51 @@ class Game {
     }
     
     renderJournalQuests() {
-        const quests = this.character.journal.quests;
-        if (quests.length === 0) {
+        const mainQuests = this.character.journal.quests;
+        const sideActive = this.sideQuests.filter(q => !q.completed);
+        const sideCompleted = this.sideQuests.filter(q => q.completed);
+        
+        if (mainQuests.length === 0 && sideActive.length === 0 && sideCompleted.length === 0) {
             return '<p style="color: #888;">No quests recorded yet.</p>';
         }
-        return quests.map(q => `
-            <div class="journal-entry">
-                <div class="journal-title">${q.completed ? '✅' : '📋'} ${q.name || q.id}</div>
-                <div class="journal-text">${q.description || ''}</div>
-            </div>
-        `).join('');
+        
+        let html = '';
+        
+        // Main Campaign Quests
+        if (mainQuests.length > 0) {
+            html += '<h3 style="color:#c9a227;margin-top:0;">📜 Main Quests</h3>';
+            html += mainQuests.map(q => `
+                <div class="journal-entry">
+                    <div class="journal-title">${q.completed ? '✅' : '📋'} ${q.name || q.id}</div>
+                    <div class="journal-text">${q.description || ''}</div>
+                </div>
+            `).join('');
+        }
+        
+        // Active Side Quests
+        if (sideActive.length > 0) {
+            html += '<h3 style="color:#c9a227;margin-top:15px;">⭐ Side Quests</h3>';
+            html += sideActive.map(q => `
+                <div class="journal-entry">
+                    <div class="journal-title">📋 ${q.title}</div>
+                    <div class="journal-text">${q.description}</div>
+                    <div class="journal-text" style="color:#4CAF50;font-weight:bold;margin-top:5px;">Progress: ${q.progress}/${q.goal} • Reward: ${q.reward.gold}g, ${q.reward.xp} XP</div>
+                </div>
+            `).join('');
+        }
+        
+        // Completed Side Quests
+        if (sideCompleted.length > 0) {
+            html += '<h3 style="color:#4CAF50;margin-top:15px;">✅ Completed Side Quests</h3>';
+            html += sideCompleted.map(q => `
+                <div class="journal-entry">
+                    <div class="journal-title">✅ ${q.title}</div>
+                    <div class="journal-text" style="color:#888;">${q.description}</div>
+                </div>
+            `).join('');
+        }
+        
+        return html;
     }
     
     renderJournalNPCs() {
@@ -17955,17 +17998,17 @@ class Game {
                     </div>
                     <div style="font-size: 0.8rem; color: #888; margin-bottom: 6px;">${loc.description || loc.type}</div>
                     <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                        <button class="pace-btn slow" onclick="event.stopPropagation(); game.travelWithPace(${originalIndex}, 'slow')" 
+                        <button class="pace-btn slow" onclick="if (!game.isTraveling) { event.stopPropagation(); game.travelWithPace(${originalIndex}, 'slow'); }" 
                                 title="Slow pace: Stealth advantage, can spot dangers easier, takes longer"
                                 style="padding: 4px 10px; font-size: 0.72rem; background: rgba(100,200,100,0.2); border: 1px solid rgba(100,200,100,0.4); color: #8f8; border-radius: 4px; cursor: pointer;">
                             🐢 Slow (18 mi/day, Stealth)
                         </button>
-                        <button class="pace-btn normal" onclick="event.stopPropagation(); game.travelWithPace(${originalIndex}, 'normal')"
+                        <button class="pace-btn normal" onclick="if (!game.isTraveling) { event.stopPropagation(); game.travelWithPace(${originalIndex}, 'normal'); }"
                                 title="Normal pace: Balanced travel"
                                 style="padding: 4px 10px; font-size: 0.72rem; background: rgba(200,200,100,0.2); border: 1px solid rgba(200,200,100,0.4); color: #ff8; border-radius: 4px; cursor: pointer;">
                             🚶 Normal (24 mi/day)
                         </button>
-                        <button class="pace-btn fast" onclick="event.stopPropagation(); game.travelWithPace(${originalIndex}, 'fast')"
+                        <button class="pace-btn fast" onclick="if (!game.isTraveling) { event.stopPropagation(); game.travelWithPace(${originalIndex}, 'fast'); }"
                                 title="Fast pace: Quick travel but harder to spot dangers, no stealth"
                                 style="padding: 4px 10px; font-size: 0.72rem; background: rgba(200,100,100,0.2); border: 1px solid rgba(200,100,100,0.4); color: #f88; border-radius: 4px; cursor: pointer;">
                             🏃 Fast (30 mi/day)
@@ -18004,6 +18047,12 @@ class Game {
     
     // Travel with chosen pace
     async travelWithPace(locationIndex, pace) {
+        // Prevent multiple simultaneous travel calls
+        if (this.isTraveling) {
+            return;
+        }
+        this.isTraveling = true;
+        
         const newLocation = this.dm.campaign.locations[locationIndex];
         const distance = this.calculateDistance(this.dm.currentLocation, newLocation);
         
@@ -18013,21 +18062,25 @@ class Game {
         // Pre-flight checks (same as regular travel)
         if (this.character.hp <= 0) {
             this.log("You're unconscious and need medical attention! Rest to recover.", "danger");
+            this.isTraveling = false;
             return;
         }
         if (this.character.exhaustion >= 5) {
             this.log("⚠️ You are too exhausted to travel! (Exhaustion level 5). You must rest.", "danger");
+            this.isTraveling = false;
             return;
         }
         const enc = this.dm.calculateEncumbrance();
         if (enc.current >= enc.capacity) {
             this.log(`⚠️ You are carrying ${enc.current} lbs — over capacity! Drop items before traveling.`, "danger");
+            this.isTraveling = false;
             return;
         }
         
         // Gate checks
         if (this.dm.campaignId === "nights_dark_terror" && newLocation.name === "Sukiskyn Homestead" && !this.dm.questFlags.clearedWildernessRoad) {
             this.log("The road to Sukiskyn is dangerous. Meet Stephan at Misha's Ferry and clear the wilderness road first.", "warning");
+            this.isTraveling = false;
             return;
         }
         
@@ -18035,6 +18088,7 @@ class Game {
         if (distance < 10) {
             this.log(`${newLocation.name} is nearby. Traveling quickly...`, "dm");
             await this.travel(locationIndex);
+            this.isTraveling = false;
             return;
         }
         
@@ -18164,6 +18218,7 @@ class Game {
                 // Check if player died
                 if (this.character.hp <= 0) {
                     this.log(`💀 Your journey ends here...`, "danger");
+                    this.isTraveling = false;
                     return;
                 }
             }
@@ -18182,6 +18237,7 @@ class Game {
                         this.log(`💀 You collapse from total exhaustion...`, "danger");
                         this.character.hp = 0;
                         this.gameOver();
+                        this.isTraveling = false;
                         return;
                     }
                 }
@@ -18204,6 +18260,9 @@ class Game {
         if (newLocation.description) {
             this.log(`<em>${newLocation.description}</em>`, "dm");
         }
+        
+        // Clear traveling flag
+        this.isTraveling = false;
         
         // Story triggers
         try {
@@ -19237,6 +19296,7 @@ class Game {
             hoursWithoutLongRest: this.dm.hoursWithoutLongRest || 0,
             visitedLocations: [...(this.dm.visitedLocations || [])],
             discoveredMonsters: [...(this.discoveredMonsters || [])],
+            sideQuests: this.sideQuests || [],
             saveTime: Date.now()
         };
         localStorage.setItem(saveKey, JSON.stringify(saveData));
@@ -19280,6 +19340,9 @@ class Game {
             }
             if (saveData.discoveredMonsters) {
                 this.discoveredMonsters = new Set(saveData.discoveredMonsters);
+            }
+            if (saveData.sideQuests) {
+                this.sideQuests = saveData.sideQuests;
             }
             
             // Switch to game screen
