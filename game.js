@@ -169,6 +169,84 @@ const SIDE_QUEST_TEMPLATES = [
     { type: "rescue", title: "Missing Person", description: "Someone has gone missing near {location}. Find them!", reward: { gold: 45, xp: 85 } }
 ];
 
+// ==================== ALIGNMENT SYSTEM ====================
+const ALIGNMENTS = {
+    "LG": { name: "Lawful Good", description: "Principled, honorable, obeys the law" },
+    "NG": { name: "Neutral Good", description: "Compassionate, follows conscience" },
+    "CG": { name: "Chaotic Good", description: "Rebellious, opposes tyranny" },
+    "LN": { name: "Lawful Neutral", description: "Values order and rules" },
+    "N": { name: "True Neutral", description: "Balanced, avoids extremes" },
+    "CN": { name: "Chaotic Neutral", description: "Values freedom, unpredictable" },
+    "LE": { name: "Lawful Evil", description: "Methodical, power through control" },
+    "NE": { name: "Neutral Evil", description: "Self-serving, amoral" },
+    "CE": { name: "Chaotic Evil", description: "Destructive, sadistic, uncontrolled" }
+};
+
+// ==================== MOUNTS & ANIMALS ====================
+const MOUNTS = {
+    horse: { name: "Horse", ac: 10, hp: 19, speed: 60, color: "🐴", cost: 75, carryCapacity: 480 },
+    pony: { name: "Pony", ac: 11, hp: 11, speed: 40, color: "🐴", cost: 30, carryCapacity: 225 },
+    camel: { name: "Camel", ac: 9, hp: 15, speed: 50, color: "🐫", cost: 50, carryCapacity: 480 },
+    elephant: { name: "Elephant", ac: 11, hp: 76, speed: 40, color: "🐘", cost: 200, carryCapacity: 1200 },
+    warhorse: { name: "Warhorse", ac: 12, hp: 19, speed: 60, color: "🐴", cost: 400, carryCapacity: 540, armored: true }
+};
+
+// ==================== DISEASE SYSTEM ====================
+const DISEASES = {
+    plague: { name: "Plague", saveDC: 12, save: "con", effect: "Disadvantage on all rolls, lose 1 hit point per day", duration: "Until cured", cure: "Lesser Restoration" },
+    leprosy: { name: "Leprosy", saveDC: 11, save: "con", effect: "Mutilating disease, lose 1 max HP per day", duration: "Permanent until cured", cure: "Greater Restoration" },
+    mummy_rot: { name: "Mummy Rot", saveDC: 15, save: "con", effect: "Take necrotic damage, disadvantage on heals", duration: "Until cured", cure: "Remove Curse + Greater Restoration" },
+    filth_fever: { name: "Filth Fever", saveDC: 12, save: "con", effect: "Disadvantage on attack rolls, ability checks, saving throws", duration: "1d4 days", cure: "Lesser Restoration" },
+    lycanthropy: { name: "Lycanthropy", saveDC: 13, save: "con", effect: "Transform into beast form on full moon", duration: "Permanent", cure: "Remove Curse on new moon" }
+};
+
+// ==================== MADNESS SYSTEM ====================
+const MADNESS_EFFECTS = {
+    shortTerm: [
+        "The next time you see blood spilled, you must succeed on a DC 15 WIS save or go berserk.",
+        "You believe that portal to another plane of existence opens if you cast spells in a particular location.",
+        "You see invisible creatures all around you.",
+        "You hear maddening whispers and have disadvantage on WIS saves.",
+        "You speak only in rhyme."
+    ],
+    longTerm: [
+        "You are convinced you are a different race.",
+        "You believe you have discovered a terrible truth about the cosmos.",
+        "You speak in tongues, cannot communicate normally.",
+        "You hoard mundane objects obsessively.",
+        "You believe someone you trust is replaced by an imposter."
+    ],
+    indefinite: [
+        "You believe you are dead and speak with a ghostly voice.",
+        "You believe you are someone else entirely.",
+        "You cannot distinguish reality from illusion.",
+        "You are convinced you are immune to harm."
+    ]
+};
+
+// ==================== LEGENDARY ACTIONS ====================
+const LEGENDARY_ACTIONS = {
+    multiattack: { name: "Multiattack", description: "Make 2 attacks" },
+    melee: { name: "Melee Attack", description: "Make a melee attack" },
+    dodge: { name: "Dodge", description: "Take the Dodge action" },
+    dash: { name: "Dash", description: "Take the Dash action" },
+    roar: { name: "Frightening Roar", description: "Each creature within 120ft that can hear must make WIS save or be frightened" },
+    heal: { name: "Heal", description: "Regain 10 HP" },
+    spellcast: { name: "Cast Spell", description: "Cast a spell of 6th level or lower" }
+};
+
+// ==================== MATERIAL COMPONENTS ====================
+const MATERIAL_COMPONENTS = {
+    "Diamond": { gp: 100, consumed: true, spells: ["Revivify", "True Resurrection"] },
+    "Sapphire": { gp: 50, consumed: true, spells: ["Scry", "Legend Lore"] },
+    "Amber": { gp: 25, consumed: false, spells: ["Animate Objects"] },
+    "Pearl": { gp: 100, consumed: true, spells: ["Identify", "Cure Wounds"] },
+    "Silver Dust": { gp: 10, consumed: true, spells: ["Faerie Fire", "Identify"] },
+    "Mercury": { gp: 20, consumed: false, spells: ["Clairvoyance", "Divination"] },
+    "Incense": { gp: 5, consumed: true, spells: ["Ceremony", "Dispel Magic"] },
+    "Holy Water": { gp: 25, consumed: true, spells: ["Consecrate", "Holy Aura"] }
+};
+
 // ==================== BOSS ENCOUNTERS ====================
 const BOSS_ENEMIES = {
     goblin_king: {
@@ -236,6 +314,68 @@ const BOSS_ENEMIES = {
         description: "A floating orb covered in eyestalks",
         legendaryResistances: 3
     }
+};
+
+// ==================== EXPANDED TRAP SYSTEM ====================
+const TRAPS = {
+    pit: { name: "Pit Trap", dc: 15, damage: "2d6", type: "falling", stages: ["detect", "avoid", "disarm"] },
+    poison_dart: { name: "Poison Dart Trap", dc: 16, damage: "1d6 + poison", type: "poison", stages: ["detect", "trigger", "disarm"] },
+    blade: { name: "Spinning Blades", dc: 17, damage: "3d6", type: "slashing", stages: ["detect", "avoid", "destroy"] },
+    magic_glyph: { name: "Magical Glyph", dc: 18, damage: "4d6", type: "varies", stages: ["detect", "disarm", "dispel"] },
+    stone_block: { name: "Falling Stone Blocks", dc: 14, damage: "4d10", type: "bludgeoning", stages: ["detect", "avoid", "prop_up"] },
+    fire: { name: "Fire Jets", dc: 15, damage: "2d8", type: "fire", stages: ["detect", "extinguish", "block"] },
+    gas: { name: "Toxic Gas", dc: 16, damage: "1d6 + stun", type: "poison", stages: ["detect", "ventilate", "escape"] },
+    symbol: { name: "Symbol of Death", dc: 19, damage: "10d10", type: "necrotic", stages: ["detect", "holy_water_dispel"] }
+};
+
+// ==================== MINI-GAMES ====================
+const MINI_GAMES = {
+    three_dragon_ante: {
+        name: "Three-Dragon Ante",
+        description: "A gambling card game",
+        minBet: 1,
+        maxBet: 100,
+        rules: "Wager gold and play cards. Win or lose 1d6x your bet.",
+        check: "Insight"
+    },
+    arm_wrestling: {
+        name: "Arm Wrestling",
+        description: "Test of strength against an opponent",
+        check: "Strength save",
+        dc: 12,
+        reward: "Reputation + 1d10 gold"
+    },
+    drinking_contest: {
+        name: "Drinking Contest",
+        description: "Out-drink opponents",
+        check: "Constitution save",
+        dc: 13,
+        reward: "Glory + friendship"
+    },
+    cards: {
+        name: "Tavern Card Game",
+        description: "Strategic card game with wagering",
+        check: "Insight or Deception",
+        minBet: 5,
+        maxBet: 50,
+        reward: "1d20x bet if win"
+    },
+    dice: {
+        name: "Dice Game",
+        description: "Bet on dice rolls",
+        check: "Luck",
+        minBet: 1,
+        maxBet: 100,
+        reward: "Variable based on roll"
+    }
+};
+
+const CAMPAIGN_MAP_ART = {
+    "nights_dark_terror": "images/maps/nights_dark_terror.jpg",
+    "curse_of_strahd": "images/maps/curse_of_strahd.jpg",
+    "tomb_of_annihilation": "images/maps/tomb_of_annihilation.jpg",
+    "lost_mine_of_phandelver": "images/maps/lost_mine_of_phandelver.jpg",
+    "keep_on_borderlands": "images/maps/keep_on_borderlands.jpg"
 };
 
 // ==================== FEATS DATA ====================
@@ -2541,23 +2681,6 @@ const SKILL_ABILITY_MAP = {
     "Deception": "cha", "Intimidation": "cha", "Performance": "cha", "Persuasion": "cha"
 };
 
-// Skills each class can choose from during creation (D&D 5e PHB)
-const CLASS_SKILL_CHOICES = {
-    "Fighter": { count: 2, choices: ["Acrobatics", "Animal Handling", "Athletics", "History", "Insight", "Intimidation", "Perception", "Survival"] },
-    "Wizard": { count: 2, choices: ["Arcana", "History", "Insight", "Investigation", "Medicine", "Religion"] },
-    "Rogue": { count: 4, choices: ["Acrobatics", "Athletics", "Deception", "Insight", "Intimidation", "Investigation", "Perception", "Performance", "Persuasion", "Sleight of Hand", "Stealth"] },
-    "Cleric": { count: 2, choices: ["History", "Insight", "Medicine", "Persuasion", "Religion"] },
-    "Ranger": { count: 3, choices: ["Animal Handling", "Athletics", "Insight", "Investigation", "Nature", "Perception", "Stealth", "Survival"] },
-    "Barbarian": { count: 2, choices: ["Animal Handling", "Athletics", "Intimidation", "Nature", "Perception", "Survival"] },
-    "Paladin": { count: 2, choices: ["Athletics", "Insight", "Intimidation", "Medicine", "Persuasion", "Religion"] },
-    "Monk": { count: 2, choices: ["Acrobatics", "Athletics", "History", "Insight", "Religion", "Stealth"] },
-    "Warlock": { count: 2, choices: ["Arcana", "Deception", "History", "Intimidation", "Investigation", "Nature", "Religion"] },
-    "Bard": { count: 3, choices: ["Acrobatics", "Animal Handling", "Arcana", "Athletics", "Deception", "History", "Insight", "Intimidation", "Investigation", "Medicine", "Nature", "Perception", "Performance", "Persuasion", "Religion", "Sleight of Hand", "Stealth", "Survival"] },
-    "Sorcerer": { count: 2, choices: ["Arcana", "Deception", "Insight", "Intimidation", "Persuasion", "Religion"] },
-    "Druid": { count: 2, choices: ["Arcana", "Animal Handling", "Insight", "Medicine", "Nature", "Perception", "Religion", "Survival"] },
-    "Artificer": { count: 2, choices: ["Arcana", "History", "Investigation", "Medicine", "Nature", "Perception", "Sleight of Hand"] }
-};
-
 // ========== Equipment Proficiency Tables ==========
 const CLASS_ARMOR_PROFICIENCY = {
     "Fighter": ["light", "medium", "heavy", "shields"],
@@ -2614,34 +2737,6 @@ const ALL_LANGUAGES = [
     "Abyssal", "Celestial", "Draconic", "Deep Speech", "Infernal", "Primordial",
     "Sylvan", "Undercommon"
 ];
-
-// ========== Racial Ability Data ==========
-const RACIAL_ABILITIES = {
-    "Halfling": {
-        "Lucky": { description: "Reroll natural 1s on attack rolls, ability checks, and saving throws", type: "passive" },
-        "Brave": { description: "Advantage on saving throws against being frightened", type: "passive" }
-    },
-    "Elf": {
-        "Fey Ancestry": { description: "Advantage on saving throws against being charmed, and magic can't put you to sleep", type: "passive" },
-        "Darkvision": { description: "See in dim light within 60 feet as if bright light, and darkness as dim light", type: "passive" }
-    },
-    "Dwarf": {
-        "Dwarven Resilience": { description: "Advantage on saving throws against poison, and resistance to poison damage", type: "passive" },
-        "Darkvision": { description: "See in dim light within 60 feet as if bright light, and darkness as dim light", type: "passive" }
-    },
-    "Dragonborn": {
-        "Breath Weapon": { description: "Exhale destructive energy in a 15ft cone or 30ft line. 2d6 damage (scales with level). DEX save for half. Recharges on short rest.", type: "active", usesPerRest: 1, damage: "2d6", save: "dex" },
-        "Damage Resistance": { description: "Resistance to your breath weapon's damage type", type: "passive", damageType: "fire" }
-    },
-    "Tiefling": {
-        "Hellish Resistance": { description: "Resistance to fire damage", type: "passive", damageType: "fire" },
-        "Darkvision": { description: "See in dim light within 60 feet as if bright light, and darkness as dim light", type: "passive" }
-    },
-    "Human": {
-        "Versatile": { description: "+1 to all ability scores", type: "passive" },
-        "Extra Skill": { description: "Gain proficiency in one additional skill of your choice", type: "creation" }
-    }
-};
 
 const GAME_DATA = {
     races: {
@@ -2766,7 +2861,6 @@ const GAME_DATA = {
         "Lightning Bolt": { level: 3, school: "Evocation", classes: ["Wizard", "Sorcerer"], damage: "8d6", damageType: "lightning", range: 100, aoe: "100ft line", save: "dex", description: "A stroke of lightning 100ft long and 5ft wide blasts out. DEX save for half." },
         "Counterspell": { level: 3, school: "Abjuration", classes: ["Wizard", "Sorcerer", "Warlock"], utility: true, description: "Reaction: Attempt to interrupt a creature casting a spell. Automatically counters spells of 3rd level or lower." },
         "Spirit Guardians": { level: 3, school: "Conjuration", classes: ["Cleric"], damage: "3d8", damageType: "radiant", range: 0, aoe: "15ft radius", save: "wis", concentration: true, description: "Spirits swirl around you in a 15ft radius. Hostile creatures take 3d8 radiant damage (WIS save for half). Lasts 10 minutes (concentration)." },
-        "Revivify": { level: 3, school: "Necromancy", classes: ["Cleric", "Paladin", "Druid", "Artificer"], healing: true, range: 5, description: "Touch a creature that has died within the last minute. It returns to life with 1 HP. Requires 300 gp worth of diamonds." },
         "Dispel Magic": { level: 3, school: "Abjuration", classes: ["Cleric", "Wizard", "Bard", "Sorcerer", "Warlock"], utility: true, description: "End one spell on a creature, object, or area. Spells of 3rd level or lower end automatically; higher ones require a check." },
         "Conjure Barrage": { level: 3, school: "Conjuration", classes: ["Ranger"], damage: "3d8", damageType: "slashing", range: 60, aoe: "60ft cone", save: "dex", description: "Throw a weapon or fire a piece of ammo that multiplies into a barrage. DEX save for half damage." },
         "Lightning Arrow": { level: 3, school: "Transmutation", classes: ["Ranger"], damage: "4d8", damageType: "lightning", range: 120, description: "Your next ranged attack transforms into a bolt of lightning. On hit, deal 4d8 lightning damage. Nearby creatures take 2d8 (DEX save for half)." },
@@ -2812,6 +2906,13 @@ const GAME_DATA = {
         "Entangle": { level: 1, school: "Conjuration", classes: ["Druid"], save: "str", concentration: true, description: "Grasping weeds and vines sprout in a 20ft square. STR save or be restrained. Lasts 1 minute (concentration)." },
         "Moonbeam": { level: 2, school: "Evocation", classes: ["Druid"], damage: "2d10", damageType: "radiant", range: 120, save: "con", concentration: true, description: "A silvery beam of pale light shines down. 2d10 radiant to creatures in the area. CON save for half (concentration)." },
         "Call Lightning": { level: 3, school: "Conjuration", classes: ["Druid"], damage: "3d10", damageType: "lightning", range: 120, save: "dex", concentration: true, description: "A storm cloud appears. Each turn, call down a bolt for 3d10 lightning damage. DEX save for half (concentration)." },
+        
+        // Resurrection Spells
+        "Revivify": { level: 3, school: "Necromancy", classes: ["Cleric", "Artificer"], utility: true, description: "You touch a dead creature that hasn't been dead for more than 1 minute. That creature returns to life with 1 HP. Requires a diamond worth 300+ gp.", materialComponent: "Diamond", componentCost: 300 },
+        "Raise Dead": { level: 5, school: "Necromancy", classes: ["Cleric", "Artificer"], utility: true, description: "You return a dead creature to life - must have been dead no longer than 10 days. Creature returns with 1 HP. Requires diamond worth 500+ gp.", materialComponent: "Diamond", componentCost: 500 },
+        "Resurrection": { level: 7, school: "Necromancy", classes: ["Cleric"], utility: true, description: "You touch a dead creature that's been dead no longer than 100 years. It returns to life with full HP. Requires diamond worth 1000+ gp. Casting takes 1 hour.", materialComponent: "Diamond", componentCost: 1000 },
+        "True Resurrection": { level: 9, school: "Necromancy", classes: ["Cleric"], utility: true, description: "You return a dead creature to life - no limit on how long they've been dead, or even if only a portion remains. Requires diamond worth 25000+ gp.", materialComponent: "Diamond", componentCost: 25000 },
+        
         // Monk Abilities (treated as spells for the system)
         "Flurry of Blows": { level: 0, school: "Martial", classes: ["Monk"], damage: "1d6", damageType: "bludgeoning", range: 5, description: "Spend 1 ki point after attacking to make two unarmed strikes as a bonus action." },
         "Patient Defense": { level: 0, school: "Martial", classes: ["Monk"], defensive: true, description: "Spend 1 ki point to take the Dodge action as a bonus action, imposing disadvantage on attacks against you." },
@@ -3104,6 +3205,9 @@ const GAME_DATA = {
         "Torch": 1,
         "Rope (50 ft)": 1,
         "Rations (1 day)": 1,
+        "Dwarven Cram": 2,
+        "Elven Waybread": 3,
+        "Trail Rations": 1,
         // Crafting Materials
         "Empty Vial": 2,
         "Healing Herbs": 5,
@@ -3112,6 +3216,14 @@ const GAME_DATA = {
         "Oil Flask": 3,
         "Sulfur": 10,
         "Silver Dust": 25,
+        // Spell Material Components
+        "Diamond": 300,
+        "Sapphire": 50,
+        "Amber": 25,
+        "Pearl": 100,
+        "Mercury": 20,
+        "Incense": 5,
+        "Holy Water": 25,
         // Crafted Items
         "Basic Poison": 50,
         "Alchemist's Fire": 50,
@@ -3242,7 +3354,10 @@ const GAME_DATA = {
         "Antidote": "Cures poison effects. Keep one handy in dangerous areas.",
         "Torch": "Provides light in dark places. Burns for 1 hour.",
         "Rope (50 ft)": "Useful for climbing, tying, and various adventuring needs.",
-        "Rations (1 day)": "A day's worth of dried food. Keeps you fed on the road.",
+        "Rations (1 day)": "Dried food for travel: jerky, hardtack, dried fruit, and nuts.",
+        "Dwarven Cram": "Dense biscuits and preserved mushrooms. Filling and long-lasting.",
+        "Elven Waybread": "Light honeyed bread and berries. Surprisingly sustaining (heals 1 HP when eaten).",
+        "Trail Rations": "Standard travel fare: dried meat, hard biscuits, and dried fruit.",
         // Crafting Materials
         "Empty Vial": "A small glass vial. Used in potion crafting.",
         "Healing Herbs": "Fragrant herbs with restorative properties. Used to craft healing potions.",
@@ -3460,6 +3575,8 @@ class Character {
         };
         // Character voice patterns
         this.voiceStyle = "";
+        // Alignment system (Law/Chaos - Good/Evil)
+        this.alignment = "N"; // LG, NG, CG, LN, N, CN, LE, NE, CE
         // NPC relationships tracking
         this.relationships = {}; // NPC name -> relationship level (-100 to 100)
         // Concentration tracking for spells
@@ -3496,6 +3613,23 @@ class Character {
             currentActivity: null,
             progress: 0
         };
+        // Mounted Combat
+        this.mountedOn = null; // Mount name if mounted
+        this.mount = null; // Mount stats object
+        // Character age tracking
+        this.age = 20; // Default age
+        // Vision types (darkvision, blindsight, truesight, etc.)
+        this.visionTypes = ["normal"]; // Can have multiple
+        this.visionRanges = { normal: null, darkvision: this.darkvisionRange, blindsight: 0, truesight: 0 };
+        // Disease & Madness tracking
+        this.diseases = []; // [{name, saveDC, effect, duration}, ...]
+        this.madness = { shortTerm: [], longTerm: [], indefinite: [] }; // Madness effects
+        // Magic item identification
+        this.identifiedItems = []; // Items player has identified
+        this.unidentifiedItems = []; // Unknown magic items in inventory
+        // Material component tracking
+        this.materialComponents = {}; // {"Diamond": 500, "Fine Powder": 50, ...}
+        this.componentPouch = true; // Assume they have one
     }
 
     rollStats() {
@@ -3522,6 +3656,10 @@ class Character {
         // Set darkvision based on race
         if (this.traits.includes("Darkvision")) {
             this.darkvisionRange = 60;
+            if (!this.visionTypes.includes("darkvision")) {
+                this.visionTypes.push("darkvision");
+            }
+            this.visionRanges.darkvision = 60;
         }
         
         // Initialize racial ability tracking
@@ -4414,7 +4552,15 @@ class Character {
             giantStrengthOldStr: this.giantStrengthOldStr || 0,
             cloakOfShadows: this.cloakOfShadows || false,
             bootsOfSpeed: this.bootsOfSpeed || false,
-            ringOfProtection: this.ringOfProtection || false
+            ringOfProtection: this.ringOfProtection || false,
+            alignment: this.alignment || "N",
+            diseases: this.diseases || [],
+            madness: this.madness || { shortTerm: [], longTerm: [], indefinite: [] },
+            mountedOn: this.mountedOn || null,
+            mount: this.mount || null,
+            materialComponents: this.materialComponents || {},
+            visionTypes: this.visionTypes || ["normal"],
+            visionRanges: this.visionRanges || {}
         };
     }
 
@@ -4482,6 +4628,20 @@ class Character {
         if (char.charClass === 'Fighter' && char.actionSurgeUsed === undefined) char.actionSurgeUsed = false;
         if ((char.charClass === 'Cleric' || char.charClass === 'Paladin') && char.channelDivinityUsed === undefined) char.channelDivinityUsed = false;
         if (char.charClass === 'Wizard' && char.arcaneRecoveryUsed === undefined) char.arcaneRecoveryUsed = false;
+        // New system defaults for older saves
+        if (!char.alignment) char.alignment = "N";
+        if (!char.diseases) char.diseases = [];
+        if (!char.madness) char.madness = { shortTerm: [], longTerm: [], indefinite: [] };
+        if (!char.mountedOn) char.mountedOn = null;
+        if (!char.mount) char.mount = null;
+        if (!char.materialComponents) char.materialComponents = {};
+        if (!char.identifiedItems) char.identifiedItems = [];
+        if (!char.unidentifiedItems) char.unidentifiedItems = [];
+        if (!char.visionTypes) {
+            char.visionTypes = ["normal"];
+            if (char.darkvisionRange > 0) char.visionTypes.push("darkvision");
+        }
+        if (!char.visionRanges) char.visionRanges = { normal: null, darkvision: char.darkvisionRange || 0, blindsight: 0, truesight: 0 };
         return char;
     }
 }
@@ -4646,6 +4806,7 @@ class DungeonMaster {
     }
 
     rollDice(notation) {
+        if (typeof notation === 'number') return notation;
         if (!notation.includes("d")) return parseInt(notation);
         // Handle notation like "3d4+3" or "2d6-1"
         let bonus = 0;
@@ -4964,6 +5125,24 @@ class DungeonMaster {
             currentHp: template.hp
         };
         
+        // Initialize ability tracking from class template
+        const classAbilities = COMPANION_CLASS_ABILITIES[companion.class] || {};
+        companion.abilities = {};
+        for (const [key, ability] of Object.entries(classAbilities)) {
+            companion.abilities[key] = { ...ability };
+        }
+        companion.combatStyle = COMPANION_COMBAT_STYLE[companion.class] || 
+            { aggression: 0.5, protection: 0.3, selfPreservation: 0.5 };
+        
+        // Combat state tracking
+        companion.dodging = false;        // Taking Dodge action this round
+        companion.shieldOfFaithActive = false;
+        companion.shieldOfFaithTurns = 0;
+        companion.huntersMarkActive = false;
+        companion.huntersMarkTurns = 0;
+        companion.deathSaves = { successes: 0, failures: 0 }; // Death save tracking
+        companion.stable = false;
+        
         // Apply character flaw penalty if applicable
         if (this.character.personality.flaw && this.character.personality.flaw.includes("slow to trust")) {
             companion.loyalty = Math.max(0, companion.loyalty - 20);
@@ -5008,13 +5187,16 @@ class DungeonMaster {
         return { deserted: false, loyalty: companion.loyalty };
     }
 
-    companionAttack(companion, enemy) {
-        // Companion makes an attack
+    companionAttack(companion, enemy, options = {}) {
+        // Companion makes an attack, potentially enhanced by class abilities
         const statMod = companion.stats[companion.weapon.stat] ? 
             Math.floor((companion.stats[companion.weapon.stat] - 10) / 2) : 2;
         const attackRoll = Math.floor(Math.random() * 20) + 1;
-        const profBonus = Math.floor((companion.level - 1) / 4) + 2; // Proper proficiency scaling
-        const totalAttack = attackRoll + statMod + profBonus;
+        const profBonus = Math.floor((companion.level - 1) / 4) + 2;
+        
+        // Loyalty affects attack rolls: high loyalty = focused, low = distracted
+        const loyaltyBonus = companion.loyalty >= 75 ? 1 : companion.loyalty <= 0 ? -1 : 0;
+        const totalAttack = attackRoll + statMod + profBonus + loyaltyBonus;
         
         if (attackRoll === 1) {
             return { hit: false, critical: false, fumble: true, roll: attackRoll, message: `${companion.name} fumbles their attack!` };
@@ -5027,7 +5209,7 @@ class DungeonMaster {
             return { hit: false, roll: attackRoll, total: totalAttack, message: `${companion.name} misses! (${totalAttack} vs AC ${enemy.ac})` };
         }
         
-        // Calculate damage
+        // Calculate base damage
         const diceMatch = companion.weapon.damage.match(/(\d+)d(\d+)/);
         let damage = 0;
         if (diceMatch) {
@@ -5039,12 +5221,52 @@ class DungeonMaster {
         }
         damage += statMod;
         
+        // Bonus damage from abilities
+        let bonusMsg = '';
+        
+        // Rogue Sneak Attack: extra 1d6 per 2 levels (min 1d6) when ally is fighting
+        if (options.sneakAttack) {
+            const sneakDice = Math.max(1, Math.floor(companion.level / 2));
+            let sneakDmg = 0;
+            for (let i = 0; i < sneakDice * (isCrit ? 2 : 1); i++) {
+                sneakDmg += Math.floor(Math.random() * 6) + 1;
+            }
+            damage += sneakDmg;
+            bonusMsg += ` (+${sneakDmg} sneak attack)`;
+        }
+        
+        // Hunter's Mark bonus
+        if (options.huntersMark) {
+            let markDmg = 0;
+            for (let i = 0; i < (isCrit ? 2 : 1); i++) {
+                markDmg += Math.floor(Math.random() * 6) + 1;
+            }
+            damage += markDmg;
+            bonusMsg += ` (+${markDmg} hunter's mark)`;
+        }
+        
+        // Colossus Slayer (Ranger): extra 1d8 when enemy below 75% HP
+        if (options.colossusSlayer) {
+            let slayerDmg = 0;
+            for (let i = 0; i < (isCrit ? 2 : 1); i++) {
+                slayerDmg += Math.floor(Math.random() * 8) + 1;
+            }
+            damage += slayerDmg;
+            bonusMsg += ` (+${slayerDmg} colossus slayer)`;
+        }
+        
+        // High loyalty damage bonus (fight harder for friends)
+        if (companion.loyalty >= 75) {
+            damage += 1;
+        }
+        
+        const attackVerb = isCrit ? 'CRITS' : 'hits';
         return {
             hit: true,
             critical: isCrit,
             roll: attackRoll,
-            damage: damage,
-            message: `${companion.name}${isCrit ? ' CRITS' : ' hits'} for ${damage} damage! "${companion.dialogue.combat}"`
+            damage: Math.max(1, damage),
+            message: `${companion.name} ${attackVerb} for ${Math.max(1, damage)} damage!${bonusMsg} "${companion.dialogue.combat}"`
         };
     }
 
@@ -5061,10 +5283,16 @@ class DungeonMaster {
         return this.party.map(c => ({
             name: c.name,
             class: c.class,
+            level: c.level,
             hp: c.currentHp,
             maxHp: c.maxHp,
             loyalty: c.loyalty,
-            status: c.currentHp <= 0 ? "Unconscious" : 
+            personality: c.personality,
+            dead: c.dead || false,
+            stable: c.stable || false,
+            abilities: c.abilities || {},
+            status: c.dead ? "Dead" :
+                   c.currentHp <= 0 ? (c.stable ? "Stable" : "Dying") : 
                    c.currentHp <= c.maxHp / 4 ? "Badly Wounded" :
                    c.currentHp <= c.maxHp / 2 ? "Wounded" : "Healthy"
         }));
@@ -5353,6 +5581,722 @@ class DungeonMaster {
         }
         return null;
     }
+
+    // ===== DISEASE SYSTEM =====
+    inflictDisease(diseaseType, dc = null) {
+        const disease = DISEASES[diseaseType];
+        if (!disease) return { success: false, message: `Unknown disease: ${diseaseType}` };
+        
+        dc = dc || disease.saveDC;
+        const saveType = (disease.save || "con").toUpperCase();
+        
+        // Make the save
+        const d20 = Math.floor(Math.random() * 20) + 1;
+        const modifier = this.character.getModifier ? this.character.getModifier(saveType.substring(0, 3).toLowerCase()) : 0;
+        const total = d20 + modifier;
+        
+        if (total >= dc) {
+            return {
+                success: false,
+                message: `Saved against ${diseaseType}! (rolled ${total} vs DC ${dc})`
+            };
+        }
+        
+        // Add disease to character
+        const diseaseInstance = {
+            name: diseaseType,
+            saveDC: dc,
+            saveType: saveType,
+            effect: disease.effect,
+            daysInfected: 0,
+            duration: disease.duration,
+            cured: false
+        };
+        
+        this.character.diseases.push(diseaseInstance);
+        return {
+            success: true,
+            message: `${this.character.name} has contracted ${diseaseType}!`,
+            disease: diseaseInstance
+        };
+    }
+
+    cureDisease(diseaseType) {
+        const diseaseIndex = this.character.diseases.findIndex(d => d.name === diseaseType);
+        if (diseaseIndex === -1) {
+            return { success: false, message: `${this.character.name} doesn't have ${diseaseType}.` };
+        }
+        
+        this.character.diseases.splice(diseaseIndex, 1);
+        return {
+            success: true,
+            message: `${diseaseType} has been cured!`
+        };
+    }
+
+    progressDiseases() {
+        // Called at end of each day (long rest)
+        const results = [];
+        for (const disease of this.character.diseases) {
+            disease.daysInfected++;
+            
+            // Check if disease deals damage
+            if (disease.name === "filth_fever" || disease.name === "Filth Fever") {
+                const dc = disease.saveDC;
+                const d20 = Math.floor(Math.random() * 20) + 1;
+                const conMod = this.character.getModifier ? this.character.getModifier("con") : 0;
+                if (d20 + conMod < dc) {
+                    const damage = this.rollDice("1d4");
+                    this.character.hp = Math.max(0, this.character.hp - damage);
+                    results.push(`Filth Fever deals ${damage} damage! (CON save ${d20 + conMod} vs DC ${dc})`);
+                } else {
+                    results.push(`Filth Fever: You fight off the fever today. (CON save ${d20 + conMod} vs DC ${dc})`);
+                }
+            } else if (disease.name === "plague" || disease.name === "Plague") {
+                const damage = this.rollDice("1d6");
+                this.character.hp = Math.max(0, this.character.hp - damage);
+                results.push(`Plague deals ${damage} damage!`);
+            } else if (disease.name === "mummy_rot" || disease.name === "Mummy Rot") {
+                const damage = this.rollDice("1d10");
+                this.character.hp = Math.max(0, this.character.hp - damage);
+                results.push(`Mummy Rot deals ${damage} necrotic damage!`);
+            }
+            
+            // Natural recovery: filth_fever lasts 1d4 days (roll once on contraction)
+            if ((disease.name === "filth_fever" || disease.name === "Filth Fever") && !disease.naturalDuration) {
+                disease.naturalDuration = this.rollDice("1d4");
+            }
+            if (disease.naturalDuration && disease.daysInfected >= disease.naturalDuration) {
+                disease.cured = true;
+                results.push(`${disease.name} has run its course (natural recovery after ${disease.daysInfected} days).`);
+            }
+        }
+        
+        // Remove cured diseases
+        this.character.diseases = this.character.diseases.filter(d => !d.cured);
+        
+        return results;
+    }
+
+    // ===== MADNESS SYSTEM =====
+    afflictMadness(type = "shortTerm") {
+        const effects = MADNESS_EFFECTS[type];
+        if (!effects) return { success: false };
+        
+        const effect = effects[Math.floor(Math.random() * effects.length)];
+        this.character.madness[type].push(effect);
+        
+        return {
+            success: true,
+            type,
+            effect,
+            message: `${this.character.name} experiences ${type}-term madness: ${effect}`
+        };
+    }
+
+    removeMadness(type = "shortTerm", effectIndex = 0) {
+        if (effectIndex >= this.character.madness[type].length) {
+            return { success: false };
+        }
+        
+        const removed = this.character.madness[type].splice(effectIndex, 1);
+        return {
+            success: true,
+            removed: removed[0],
+            message: `Madness cured: ${removed[0]}`
+        };
+    }
+
+    isMadnessActive() {
+        return this.character.madness.shortTerm.length > 0 ||
+               this.character.madness.longTerm.length > 0 ||
+               this.character.madness.indefinite.length > 0;
+    }
+
+    // ===== MAGIC ITEM IDENTIFICATION =====
+    identifyItem(itemRef) {
+        this.refreshUnidentifiedItems();
+
+        let itemName = null;
+        if (typeof itemRef === "number") {
+            const invItem = this.character.inventory[itemRef];
+            itemName = typeof invItem === "string" ? invItem : invItem?.name;
+        } else if (typeof itemRef === "string") {
+            itemName = itemRef;
+        } else if (itemRef && typeof itemRef === "object") {
+            itemName = itemRef.name;
+        }
+
+        if (!itemName) {
+            return { success: false, message: "Item not found." };
+        }
+        if (!this.character.inventory.some(i => (typeof i === "string" ? i : i?.name) === itemName)) {
+            return { success: false, message: "Item not found in inventory." };
+        }
+        if (!this.isLikelyMagicItem(itemName)) {
+            return { success: false, message: `${itemName} shows no magical properties to identify.` };
+        }
+        if (this.character.identifiedItems.includes(itemName)) {
+            return { success: false, message: `${itemName} is already identified.` };
+        }
+
+        this.character.identifiedItems.push(itemName);
+        this.refreshUnidentifiedItems();
+
+        const weapon = this.character.getWeaponData ? this.character.getWeaponData(itemName) : null;
+        const properties = weapon && weapon.magicBonus
+            ? `+${weapon.magicBonus} magical weapon (${weapon.damage} ${weapon.type})`
+            : (GAME_DATA.itemDescriptions[itemName] || "Magical item properties revealed.");
+
+        return {
+            success: true,
+            item: itemName,
+            properties,
+            message: `Identified: ${itemName} — ${properties}`
+        };
+    }
+
+    identifyItemBySage(itemName, goldCost = 100) {
+        this.refreshUnidentifiedItems();
+
+        if (this.character.gold < goldCost) {
+            return { success: false, message: `Insufficient gold. Need ${goldCost} gp, have ${this.character.gold}.` };
+        }
+
+        if (!this.character.inventory.some(i => (typeof i === "string" ? i : i?.name) === itemName)) {
+            return { success: false, message: "Item not found in inventory." };
+        }
+        if (!this.isLikelyMagicItem(itemName)) {
+            return { success: false, message: `${itemName} has no magical aura to identify.` };
+        }
+        if (this.character.identifiedItems.includes(itemName)) {
+            return { success: false, message: `${itemName} is already identified.` };
+        }
+        
+        this.character.gold -= goldCost;
+        this.character.identifiedItems.push(itemName);
+        this.refreshUnidentifiedItems();
+        
+        return {
+            success: true,
+            item: itemName,
+            cost: goldCost,
+            message: `${itemName} identified by sage for ${goldCost} gp.`
+        };
+    }
+
+    // ===== MOUNTED COMBAT =====
+    buyMount(mountType) {
+        const mount = MOUNTS[mountType];
+        if (!mount) return { success: false, message: "Unknown mount type." };
+        
+        if (this.character.gold < mount.cost) {
+            return {
+                success: false,
+                message: `Not enough gold. ${mountType} costs ${mount.cost} gp, you have ${this.character.gold}.`
+            };
+        }
+        
+        this.character.gold -= mount.cost;
+        this.character.mountedOn = mountType;
+        this.character.mount = { ...mount, currentHP: mount.hp };
+        
+        return {
+            success: true,
+            mount: mountType,
+            message: `You purchased a ${mountType}!`
+        };
+    }
+
+    mountSteed(mountType) {
+        if (!this.character.mount || this.character.mount.name !== mountType) {
+            return { success: false, message: "You don't have this mount." };
+        }
+        
+        this.character.mountedOn = mountType;
+        return {
+            success: true,
+            message: `${this.character.name} is now mounted on a ${mountType}.`,
+            ac: this.character.mount.ac,
+            speed: this.character.mount.speed
+        };
+    }
+
+    dismount() {
+        if (!this.character.mountedOn) {
+            return { success: false, message: "You are not mounted." };
+        }
+        
+        const mountName = this.character.mountedOn;
+        this.character.mountedOn = null;
+        return {
+            success: true,
+            message: `${this.character.name} dismounts from the ${mountName}.`
+        };
+    }
+
+    mountTakeDamage(damage) {
+        if (!this.character.mount) return { success: false };
+        
+        this.character.mount.currentHP = Math.max(0, this.character.mount.currentHP - damage);
+        
+        if (this.character.mount.currentHP <= 0) {
+            const mountName = this.character.mountedOn;
+            this.character.mountedOn = null;
+            return {
+                success: true,
+                dead: true,
+                message: `Your ${mountName} has been killed!`
+            };
+        }
+        
+        return {
+            success: true,
+            hp: this.character.mount.currentHP,
+            maxHP: this.character.mount.hp
+        };
+    }
+
+    // ===== MATERIAL COMPONENTS =====
+    addMaterialComponent(componentName, quantity = 1) {
+        if (!MATERIAL_COMPONENTS[componentName]) {
+            return { success: false, message: "Unknown material component." };
+        }
+        
+        if (!this.character.materialComponents[componentName]) {
+            this.character.materialComponents[componentName] = 0;
+        }
+        
+        this.character.materialComponents[componentName] += quantity;
+        return {
+            success: true,
+            component: componentName,
+            quantity: this.character.materialComponents[componentName],
+            message: `Added ${quantity} ${componentName}(s).`
+        };
+    }
+
+    removeMaterialComponent(componentName, quantity = 1) {
+        if (!this.character.materialComponents[componentName] || 
+            this.character.materialComponents[componentName] < quantity) {
+            return { success: false, message: `Not enough ${componentName}.` };
+        }
+        
+        this.character.materialComponents[componentName] -= quantity;
+        return {
+            success: true,
+            component: componentName,
+            remaining: this.character.materialComponents[componentName],
+            message: `Used ${quantity} ${componentName}(s).`
+        };
+    }
+
+    hasComponent(componentName, quantity = 1) {
+        return (this.character.materialComponents[componentName] || 0) >= quantity;
+    }
+
+    // ===== LEGENDARY/LAIR ACTIONS =====
+    applyLegendaryAction(enemy, actionType, targetOrLevel = null) {
+        const action = LEGENDARY_ACTIONS[actionType];
+        if (!action) return { success: false, message: "Unknown legendary action." };
+        
+        if (!enemy.legendaryActionCount) enemy.legendaryActionCount = 0;
+        if (enemy.legendaryActionCount >= 3) {
+            return { success: false, message: "No legendary actions remaining." };
+        }
+        
+        enemy.legendaryActionCount++;
+        
+        let result = {
+            success: true,
+            action: actionType,
+            description: action.description,
+            cost: action.cost || 1
+        };
+        
+        // Apply action effects (keys match lowercase LEGENDARY_ACTIONS constant)
+        switch (actionType) {
+            case "melee": {
+                const dmgDice = enemy.damage || "1d6";
+                result.damage = this.rollDice(dmgDice);
+                result.message = `${enemy.name} makes a legendary melee attack for ${result.damage} damage!`;
+                break;
+            }
+            case "dodge":
+                enemy.ac += 2;
+                enemy._legendaryDodgeBonus = (enemy._legendaryDodgeBonus || 0) + 2;
+                result.message = `${enemy.name} dodges! AC increased by 2 until next turn.`;
+                break;
+            case "dash":
+                result.message = `${enemy.name} dashes ${enemy.speed || 30} feet!`;
+                break;
+            case "heal": {
+                const healing = this.rollDice("3d6");
+                enemy.hp = Math.min(enemy.maxHp || enemy.hp, enemy.hp + healing);
+                result.healing = healing;
+                result.message = `${enemy.name} heals for ${healing} HP!`;
+                break;
+            }
+            case "spellcast": {
+                const spell = targetOrLevel || "Magic Missile";
+                const spellDmg = this.rollDice("3d6");
+                result.spell = spell;
+                result.damage = spellDmg;
+                result.message = `${enemy.name} casts ${spell} for ${spellDmg} damage!`;
+                break;
+            }
+            case "roar":
+                result.message = `${enemy.name} unleashes a terrifying roar!`;
+                result.condition = "frightened";
+                break;
+            case "multiattack":
+                result.attacks = 2;
+                result.message = `${enemy.name} makes 2 legendary attacks!`;
+                break;
+        }
+        
+        return result;
+    }
+
+    applyLairAction(lair, actionType) {
+        const action = LEGENDARY_ACTIONS[actionType];
+        if (!action) return { success: false };
+        
+        return {
+            success: true,
+            action: actionType,
+            description: action.description,
+            message: `Lair action: ${action.description}`
+        };
+    }
+
+    resetLegendaryActions(enemy) {
+        enemy.legendaryActionCount = 0;
+        enemy.ac = enemy.baseAC; // Reset any AC modifications
+        return { success: true, message: "Legendary actions reset." };
+    }
+
+    // ===== TRAP SYSTEM EXPANSION =====
+    detectTrap(trapType, trapDC = 12) {
+        const trap = TRAPS[trapType];
+        if (!trap) return { success: false, message: "Unknown trap." };
+        
+        // Investigation check
+        const d20 = Math.floor(Math.random() * 20) + 1;
+        const investigation = this.character.skills?.investigation || 0;
+        const total = d20 + investigation;
+        
+        if (total >= (trapDC || trap.detectionDC || 12)) {
+            return {
+                success: true,
+                detected: true,
+                message: `Trap detected! (${total} vs DC ${trapDC})`,
+                trap: trap
+            };
+        }
+        
+        return {
+            success: false,
+            detected: false,
+            message: `Failed to detect trap. (${total} vs DC ${trapDC})`
+        };
+    }
+
+    disarmTrap(trapType, trapDC = 15) {
+        const trap = TRAPS[trapType];
+        if (!trap) return { success: false, message: "Unknown trap." };
+        
+        // Dexterity (Thieves' Tools) check
+        const d20 = Math.floor(Math.random() * 20) + 1;
+        const sleightOfHand = this.character.skills?.sleightOfHand || 0;
+        const dexMod = this.character.getModifier ? this.character.getModifier('dex') : 0;
+        const total = d20 + sleightOfHand + dexMod;
+        
+        if (total >= (trapDC || trap.disarmDC || 15)) {
+            return {
+                success: true,
+                disarmed: true,
+                message: `Trap disarmed! (${total} vs DC ${trapDC})`
+            };
+        }
+        
+        // Trap triggers on failure
+        return {
+            success: false,
+            disarmed: false,
+            triggered: true,
+            damage: this.rollDice(trap.damage),
+            message: `Failed to disarm! (${total} vs DC ${trapDC}) Trap triggered!`
+        };
+    }
+
+    triggerTrap(trapType, dc = null) {
+        const trap = TRAPS[trapType];
+        if (!trap) return { success: false };
+        
+        const saveDC = dc || trap.dc || 12;
+        const saveType = trap.saveType || "dex";
+        const d20 = Math.floor(Math.random() * 20) + 1;
+        const modifier = this.character.getModifier ? this.character.getModifier(saveType) : 0;
+        const total = d20 + modifier;
+        
+        let damage = this.rollDice(trap.damage);
+        
+        if (total >= saveDC) {
+            damage = Math.ceil(damage / 2);
+            this.character.hp = Math.max(0, this.character.hp - damage);
+            return {
+                success: true,
+                saved: true,
+                damage,
+                message: `Saved against ${trapType}! (${total} vs DC ${saveDC}) Half damage: ${damage}`
+            };
+        }
+        
+        this.character.hp = Math.max(0, this.character.hp - damage);
+        return {
+            success: true,
+            saved: false,
+            damage,
+            message: `Hit by ${trapType}! (${total} vs DC ${saveDC}) Full damage: ${damage}`
+        };
+    }
+
+    // ===== MINI-GAMES SYSTEM =====
+    playMiniGame(gameType, bet = 0) {
+        const game = MINI_GAMES[gameType];
+        if (!game) return { success: false, message: "Unknown game." };
+
+        const usesBetting = game.minBet !== undefined || game.maxBet !== undefined;
+        if (usesBetting) {
+            const minBet = game.minBet || 0;
+            const maxBet = game.maxBet || Number.MAX_SAFE_INTEGER;
+            if (bet < minBet || bet > maxBet) {
+                return { success: false, message: `Bet must be between ${minBet} and ${maxBet} gp.` };
+            }
+            if (bet > this.character.gold) {
+                return { success: false, message: "Not enough gold for that bet." };
+            }
+        }
+        
+        // Determine success based on required check
+        let d20 = Math.floor(Math.random() * 20) + 1;
+        let modifier = 0;
+        
+        if (game.check) {
+            const checkStr = game.check.toLowerCase();
+            // Map check descriptions to ability modifiers
+            if (checkStr.includes("strength")) modifier = this.character.getModifier ? this.character.getModifier("str") : 0;
+            else if (checkStr.includes("constitution")) modifier = this.character.getModifier ? this.character.getModifier("con") : 0;
+            else if (checkStr.includes("insight")) modifier = this.character.getModifier ? this.character.getModifier("wis") : 0;
+            else if (checkStr.includes("deception")) modifier = this.character.getModifier ? this.character.getModifier("cha") : 0;
+        }
+        
+        const total = d20 + modifier;
+        const dc = game.dc || 12;
+        
+        let result = {
+            success: total >= dc,
+            game: gameType,
+            bet,
+            total,
+            dc,
+            message: `${gameType}: rolled ${total} vs DC ${dc}`
+        };
+        
+        if (result.success) {
+            if (usesBetting) {
+                const winnings = Math.floor(bet * 2);
+                this.character.gold += winnings;
+                result.message = `Won! Earned ${winnings} gp!`;
+                result.goldGained = winnings;
+            } else if (gameType === "arm_wrestling") {
+                const winnings = this.rollDice("1d10");
+                this.character.gold += winnings;
+                this.character.adjustReputation("commoners", 2);
+                result.message = `Victory! You earn ${winnings} gp and gain local respect.`;
+                result.goldGained = winnings;
+            } else if (gameType === "drinking_contest") {
+                this.character.adjustReputation("commoners", 1);
+                result.message = "You win the drinking contest and gain local renown.";
+            } else {
+                result.message = "You win the challenge!";
+            }
+        } else {
+            if (usesBetting) {
+                this.character.gold -= bet;
+                result.message = `Lost! Lost ${bet} gp.`;
+                result.goldLost = bet;
+            } else {
+                this.character.adjustReputation("commoners", -1);
+                result.message = "You lose the challenge and your pride takes a hit.";
+            }
+        }
+        
+        return result;
+    }
+
+    isLikelyMagicItem(itemName) {
+        if (typeof itemName !== "string") return false;
+
+        if (/\+\d/.test(itemName)) return true;
+
+        const weapon = this.character.getWeaponData ? this.character.getWeaponData(itemName) : null;
+        if (weapon && weapon.magicBonus) return true;
+
+        const desc = GAME_DATA.itemDescriptions[itemName] || "";
+        return /(magic|magical|enchanted|blessed|attunement|cursed|artifact|legendary)/i.test(desc);
+    }
+
+    refreshUnidentifiedItems() {
+        const inventoryNames = this.character.inventory
+            .map(item => typeof item === "string" ? item : item?.name)
+            .filter(Boolean);
+
+        const unresolved = inventoryNames.filter(name =>
+            this.isLikelyMagicItem(name) && !this.character.identifiedItems.includes(name)
+        );
+
+        this.character.unidentifiedItems = [...new Set(unresolved)];
+        return this.character.unidentifiedItems;
+    }
+
+    // ===== VISION TYPES =====
+    addVisionType(visionType, range = null) {
+        if (!this.character.visionTypes.includes(visionType)) {
+            this.character.visionTypes.push(visionType);
+        }
+        
+        if (range && this.character.visionRanges) {
+            this.character.visionRanges[visionType] = range;
+        }
+        
+        return {
+            success: true,
+            visionType,
+            message: `${this.character.name} can now see with ${visionType}.`
+        };
+    }
+
+    canSeeInDarkness() {
+        return this.character.visionTypes.includes("darkvision") ||
+               this.character.visionTypes.includes("truesight") ||
+               this.character.visionTypes.includes("blindsight");
+    }
+
+    canSeeInvisible() {
+        return this.character.visionTypes.includes("truesight") || 
+               this.character.visionTypes.includes("blindsight");
+    }
+
+    // ===== TRAVEL SYSTEM =====
+    startTravel(destination, pace = "normal") {
+        const paces = {
+            "slow": { speed: 18, stealth: true, spotting: -5 },
+            "normal": { speed: 24, stealth: false, spotting: 0 },
+            "fast": { speed: 30, stealth: false, spotting: 5 }
+        };
+        
+        const paceInfo = paces[pace] || paces.normal;
+        
+        this.character.travel = {
+            destination,
+            pace,
+            speed: paceInfo.speed,
+            distance: 0,
+            daysElapsed: 0,
+            rationsNeeded: 1, // per day
+            started: true
+        };
+        
+        return {
+            success: true,
+            destination,
+            pace,
+            speed: paceInfo.speed,
+            message: `Starting travel to ${destination} at ${pace} pace (${paceInfo.speed} miles per day).`
+        };
+    }
+
+    advanceTravel(days = 1) {
+        if (!this.character.travel.started) {
+            return { success: false, message: "Not traveling." };
+        }
+        
+        const rationsNeeded = days * this.character.travel.rationsNeeded;
+        
+        // Check rations - include all types
+        const rationTypes = ["Rations (1 day)", "Trail Rations", "Dwarven Cram", "Elven Waybread", "Frontier Rations", "Rain Catcher Rations"];
+        let rationsAvailable = 0;
+        this.character.inventory.forEach(item => {
+            if (typeof item === 'string') {
+                if (rationTypes.includes(item) || item.toLowerCase().includes('ration')) {
+                    rationsAvailable++;
+                }
+            } else if (item && item.name && (rationTypes.includes(item.name) || item.name.toLowerCase().includes('ration'))) {
+                rationsAvailable += item.quantity || 1;
+            }
+        });
+        
+        if (rationsAvailable < rationsNeeded) {
+            return { success: false, message: `Not enough rations. Need ${rationsNeeded}, have ${rationsAvailable}.` };
+        }
+        
+        // Consume rations - remove any type
+        let rationsConsumed = 0;
+        for (let i = this.character.inventory.length - 1; i >= 0 && rationsConsumed < rationsNeeded; i--) {
+            const item = this.character.inventory[i];
+            if (typeof item === 'string') {
+                if (rationTypes.includes(item) || item.toLowerCase().includes('ration')) {
+                    this.character.inventory.splice(i, 1);
+                    rationsConsumed++;
+                }
+            } else if (item && item.name && (rationTypes.includes(item.name) || item.name.toLowerCase().includes('ration'))) {
+                const toConsume = Math.min(item.quantity || 1, rationsNeeded - rationsConsumed);
+                item.quantity -= toConsume;
+                rationsConsumed += toConsume;
+                if (item.quantity <= 0) {
+                    this.character.inventory.splice(i, 1);
+                }
+            }
+        }
+        
+        // Advance travel
+        this.character.travel.daysElapsed += days;
+        this.character.travel.distance += days * this.character.travel.speed;
+        
+        // 30% chance of encounter each day
+        const encounter = Math.random() < 0.3;
+        
+        return {
+            success: true,
+            distance: this.character.travel.distance,
+            daysElapsed: this.character.travel.daysElapsed,
+            rationsUsed: rationsNeeded,
+            encounter,
+            message: `Traveled for ${days} day(s). Distance: ${this.character.travel.distance} miles.${encounter ? ' An encounter appears!' : ''}`
+        };
+    }
+
+    completeTravel() {
+        if (!this.character.travel.started) {
+            return { success: false };
+        }
+        
+        const destination = this.character.travel.destination;
+        const distance = this.character.travel.distance;
+        const daysElapsed = this.character.travel.daysElapsed;
+        
+        this.character.travel = {};
+        
+        return {
+            success: true,
+            destination,
+            distance,
+            daysElapsed,
+            message: `Arrived at ${destination} after ${daysElapsed} days of travel (${distance} miles).`
+        };
+    }
 }
 
 // Critical hit and fumble tables
@@ -5405,6 +6349,12 @@ const CRAFTING_RECIPES = {
         skill: "Arcana",
         dc: 14,
         result: "Silvered (weapon)"
+    },
+    "Trail Rations": {
+        materials: { "Meat": 2, "Healing Herbs": 1 },
+        skill: "Survival",
+        dc: 10,
+        result: "Trail Rations"
     }
 };
 
@@ -5623,6 +6573,52 @@ const COMPANIONS = {
             }
         }
     }
+};
+
+// Companion class ability templates - defines what NPCs can do beyond basic attacks
+const COMPANION_CLASS_ABILITIES = {
+    Fighter: {
+        secondWind: { name: "Second Wind", usesPerRest: 1, used: 0, hpThreshold: 0.5,
+            desc: "catches their breath and recovers", healDice: "1d10" },
+        actionSurge: { name: "Action Surge", usesPerRest: 1, used: 0,
+            desc: "surges forward with a burst of energy" },
+        protectAlly: { name: "Protection", passive: true,
+            desc: "interposes their shield to protect an ally" }
+    },
+    Cleric: {
+        healingWord: { name: "Healing Word", usesPerRest: 3, used: 0,
+            desc: "whispers a healing prayer", healDice: "1d4", healStat: "wis" },
+        sacredFlame: { name: "Sacred Flame", cantrip: true,
+            desc: "calls down radiant fire", damage: "1d8", damageType: "radiant" },
+        turnUndead: { name: "Turn Undead", usesPerRest: 1, used: 0,
+            desc: "presents their holy symbol and rebukes the undead" },
+        shieldOfFaith: { name: "Shield of Faith", usesPerRest: 1, used: 0,
+            desc: "invokes divine protection", acBonus: 2, duration: 3 }
+    },
+    Rogue: {
+        sneakAttack: { name: "Sneak Attack", passive: true,
+            desc: "finds a vital opening", extraDamage: "1d6" },
+        cunningAction: { name: "Cunning Action", passive: true,
+            desc: "nimbly darts away from danger" },
+        evasion: { name: "Evasion", passive: true,
+            desc: "ducks behind cover with incredible reflexes" }
+    },
+    Ranger: {
+        huntersMark: { name: "Hunter's Mark", usesPerRest: 2, used: 0,
+            desc: "marks their quarry", bonusDamage: "1d6", duration: 3 },
+        cureWounds: { name: "Cure Wounds", usesPerRest: 2, used: 0,
+            desc: "channels nature's healing", healDice: "1d8", healStat: "wis" },
+        colossusSlayer: { name: "Colossus Slayer", passive: true,
+            desc: "strikes at a weakened foe", extraDamage: "1d8", hpThreshold: 0.75 }
+    }
+};
+
+// Companion combat personality weights (affects tactical decision-making)
+const COMPANION_COMBAT_STYLE = {
+    Fighter: { aggression: 0.8, protection: 0.6, selfPreservation: 0.4 },
+    Cleric:  { aggression: 0.3, protection: 0.9, selfPreservation: 0.5 },
+    Rogue:   { aggression: 0.6, protection: 0.2, selfPreservation: 0.8 },
+    Ranger:  { aggression: 0.6, protection: 0.5, selfPreservation: 0.6 }
 };
 
 // Character personality options
@@ -5913,6 +6909,11 @@ class Game {
             xpThisRound: 0,
             goldThisRound: 0
         };
+
+        // Journal map placement helper
+        this.mapPlacementMode = false;
+        this.mapPlacementMarker = null;
+        this.mapPlacementTarget = null;
         
         // Unlocked achievements
         this.unlockedAchievements = new Set();
@@ -6238,9 +7239,7 @@ class Game {
     
     // Side Quest System
     generateSideQuest() {
-        // Only generate kill and explore quests (the types that can actually be completed)
-        const completableTemplates = SIDE_QUEST_TEMPLATES.filter(t => t.type === 'kill' || t.type === 'explore');
-        const template = completableTemplates[Math.floor(Math.random() * completableTemplates.length)];
+        const template = SIDE_QUEST_TEMPLATES[Math.floor(Math.random() * SIDE_QUEST_TEMPLATES.length)];
         
         // Get real locations from current campaign
         const campaignLocations = this.dm.campaign?.locations || [];
@@ -6256,8 +7255,13 @@ class Game {
         const items = ['Ancient Scroll', 'Golden Chalice', 'Family Ring', 'Enchanted Gem'];
         const item = items[Math.floor(Math.random() * items.length)];
         
-        // Don't generate duplicate quests for the same target/location
-        const isDuplicate = this.sideQuests.some(q => !q.completed && ((q.type === 'kill' && q.target === target) || (q.type === 'explore' && q.location === location)));
+        // Don't generate duplicate active quests of the same type + objective
+        const isDuplicate = this.sideQuests.some(q => {
+            if (q.completed || q.type !== template.type) return false;
+            if (template.type === 'kill') return q.target === target;
+            if (template.type === 'fetch') return q.location === location && q.item === item;
+            return q.location === location;
+        });
         if (isDuplicate) return null;
         
         // Limit active side quests to 3
@@ -6272,10 +7276,12 @@ class Game {
                 .replace('{location}', location)
                 .replace('{target}', target)
                 .replace('{item}', item),
-            target: target,
+            target: template.type === 'kill' ? target : null,
+            item: template.type === 'fetch' ? item : null,
             location: location,
             progress: 0,
             goal: template.type === 'kill' ? Math.floor(Math.random() * 3) + 2 : 1,
+            searchAttempts: 0,
             completed: false,
             reward: {
                 gold: Math.floor(template.reward.gold * (1 + this.character.level * 0.1)),
@@ -6301,18 +7307,39 @@ class Game {
     checkSideQuestProgress(eventType, target) {
         for (const quest of this.sideQuests) {
             if (quest.completed) continue;
-            
-            if (quest.type === eventType) {
-                if (eventType === 'kill' && target.toLowerCase().includes(quest.target.toLowerCase())) {
-                    quest.progress++;
-                    this.log(`📋 Quest Progress: ${quest.title} (${quest.progress}/${quest.goal})`, 'dm');
-                    
-                    if (quest.progress >= quest.goal) {
-                        this.completeSideQuest(quest);
-                    }
-                } else if (eventType === 'explore' && target === quest.location) {
-                    quest.progress = quest.goal;
+
+            if (quest.type === 'kill' && eventType === 'kill' && quest.target && target.toLowerCase().includes(quest.target.toLowerCase())) {
+                quest.progress++;
+                this.log(`📋 Quest Progress: ${quest.title} (${quest.progress}/${quest.goal})`, 'dm');
+
+                if (quest.progress >= quest.goal) {
                     this.completeSideQuest(quest);
+                }
+                continue;
+            }
+
+            if (eventType !== 'explore' || target !== quest.location) continue;
+
+            if (quest.type === 'explore') {
+                quest.progress = quest.goal;
+                this.completeSideQuest(quest);
+            } else if (quest.type === 'escort') {
+                quest.progress = quest.goal;
+                this.log(`🛡️ You escort the traveler safely to ${quest.location}.`, 'dm');
+                this.completeSideQuest(quest);
+            } else if (quest.type === 'rescue') {
+                quest.progress = quest.goal;
+                this.log(`🧭 You locate and rescue the missing person near ${quest.location}.`, 'dm');
+                this.completeSideQuest(quest);
+            } else if (quest.type === 'fetch') {
+                quest.searchAttempts = (quest.searchAttempts || 0) + 1;
+                const findChance = Math.min(0.35 + (quest.searchAttempts - 1) * 0.2, 0.9);
+                if (Math.random() < findChance) {
+                    quest.progress = quest.goal;
+                    this.log(`🔎 You recover ${quest.item} in ${quest.location}.`, 'dm');
+                    this.completeSideQuest(quest);
+                } else {
+                    this.log(`🔎 You search for ${quest.item} but come up empty (${quest.searchAttempts} attempt${quest.searchAttempts > 1 ? 's' : ''}).`, 'dm');
                 }
             }
         }
@@ -7094,6 +8121,25 @@ class Game {
                 </div>
             `;
         }
+        
+        // Populate alignment options
+        const alignContainer = document.getElementById("alignmentOptions");
+        if (alignContainer) {
+            alignContainer.innerHTML = "";
+            const alignIcons = { LG: "⚖️", NG: "😇", CG: "🗽", LN: "📏", N: "☯️", CN: "🎲", LE: "👑", NE: "🐍", CE: "🔥" };
+            for (let key in ALIGNMENTS) {
+                const a = ALIGNMENTS[key];
+                alignContainer.innerHTML += `
+                    <div class="option-card" data-alignment="${key}" onclick="game.selectAlignment('${key}')" style="padding:8px;min-width:auto;">
+                        <span class="option-icon">${alignIcons[key] || "⚖️"}</span>
+                        <div class="option-info">
+                            <h3>${a.name}</h3>
+                            <p>${a.description}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
     }
 
     selectRace(race) {
@@ -7117,6 +8163,13 @@ class Game {
         this.checkStartButton();
     }
 
+    selectAlignment(alignment) {
+        this.selectedAlignment = alignment;
+        document.querySelectorAll("[data-alignment]").forEach(el => el.classList.remove("selected"));
+        document.querySelector(`[data-alignment="${alignment}"]`).classList.add("selected");
+        this.checkStartButton();
+    }
+
     checkStartButton() {
         const name = document.getElementById("nameInput").value.trim();
         const canStart = name && this.selectedRace && this.selectedClass && this.selectedBackground;
@@ -7132,6 +8185,7 @@ class Game {
         this.character.characterClass = this.selectedClass;
         this.character.charClass = this.selectedClass;
         this.character.background = this.selectedBackground;
+        this.character.alignment = this.selectedAlignment || "N";
         
         this.character.rollStats();
         this.character.applyRacialBonus();
@@ -7389,10 +8443,18 @@ class Game {
             `;
         }
         
-        // Update traits row (Darkvision, racial features)
+        // Update traits row (Darkvision, racial features, alignment, disease, mount)
         const traitsEl = document.getElementById("charTraits");
         if (traitsEl) {
             let traitsHtml = '';
+            // Alignment display
+            if (this.character.alignment && ALIGNMENTS[this.character.alignment]) {
+                traitsHtml += `<span class="trait-tag" title="${ALIGNMENTS[this.character.alignment].description}">⚖️ ${ALIGNMENTS[this.character.alignment].name}</span>`;
+            }
+            // Mount display
+            if (this.character.mountedOn && this.character.mount) {
+                traitsHtml += `<span class="trait-tag" title="Mounted on ${this.character.mount.name} (${this.character.mount.currentHP}/${this.character.mount.hp} HP)">${this.character.mount.color || '🐴'} ${this.character.mount.name} (${this.character.mount.currentHP}HP)</span>`;
+            }
             if (this.character.hasDarkvision && this.character.hasDarkvision()) {
                 traitsHtml += `<span class="trait-tag" title="Darkvision ${this.character.darkvisionRange}ft">🌙 Darkvision ${this.character.darkvisionRange}ft</span>`;
             }
@@ -7418,6 +8480,20 @@ class Game {
             }
             if (this.character.race === 'Tiefling') {
                 traitsHtml += `<span class="trait-tag" title="Fire Resistance: Half damage from fire">🔥 Fire Resistance</span>`;
+            }
+            // Disease display
+            if (this.character.diseases && this.character.diseases.length > 0) {
+                for (const disease of this.character.diseases) {
+                    traitsHtml += `<span class="trait-tag" title="${disease.effect}" style="background:rgba(139,0,0,0.3);border-color:#8b0000;">🦠 ${disease.name} (Day ${disease.daysInfected || 1})</span>`;
+                }
+            }
+            // Madness display
+            const madness = this.character.madness;
+            if (madness) {
+                const allMadness = [...(madness.shortTerm || []), ...(madness.longTerm || []), ...(madness.indefinite || [])];
+                if (allMadness.length > 0) {
+                    traitsHtml += `<span class="trait-tag" title="${allMadness[0]}" style="background:rgba(128,0,128,0.3);border-color:#800080;">🧠 Madness (${allMadness.length})</span>`;
+                }
             }
             traitsEl.innerHTML = traitsHtml;
         }
@@ -7567,10 +8643,28 @@ class Game {
         // Get campaign-specific items for checking
         const campaignId = this.dm ? this.dm.campaignId : null;
         const campaignItems = campaignId ? GAME_DATA.campaignItems[campaignId] : null;
+
+        if (this.dm && this.dm.refreshUnidentifiedItems) {
+            this.dm.refreshUnidentifiedItems();
+        }
         
+        // Group identical items and count them
+        const itemCounts = {};
+        const itemOrder = []; // Preserve first appearance order
         for (let item of this.character.inventory) {
+            if (!itemCounts[item]) {
+                itemCounts[item] = 0;
+                itemOrder.push(item);
+            }
+            itemCounts[item]++;
+        }
+        
+        // Render grouped items
+        for (let item of itemOrder) {
+            const count = itemCounts[item];
+            
             // Check if item is usable (potions, consumables, campaign consumables)
-            let isUsable = item.includes("Potion") || item === "Antidote" || item === "Rations (1 day)";
+            let isUsable = item.includes("Potion") || item === "Antidote" || item.toLowerCase().includes("ration");
             if (campaignItems && campaignItems.consumables && campaignItems.consumables[item]) {
                 isUsable = true;
             }
@@ -7604,9 +8698,16 @@ class Game {
                     isCampaignItem = true;
                 }
             }
+
+            const isUnidentifiedMagic = this.character.unidentifiedItems.includes(item);
             
             let itemHtml = `<div class="inventory-item ${isUsable ? 'usable' : ''} ${isEquipped ? 'equipped' : ''} ${isEquippable ? 'equippable' : ''} ${isCampaignItem ? 'campaign-item' : ''}">`;
-            itemHtml += `<span class="item-name" onclick="game.showItemInfo('${item.replace(/'/g, "\\'")}')" title="Click for info">${item}${isCampaignItem ? ' ⭐' : ''}</span>`;
+            itemHtml += `<span class="item-name" onclick="game.showItemInfo('${item.replace(/'/g, "\\'")}')" title="Click for info">`;
+            itemHtml += `${item}${isCampaignItem ? ' ⭐' : ''}${isUnidentifiedMagic ? ' ❓' : ''}`;
+            if (count > 1) {
+                itemHtml += ` <span style="color: #4CAF50; font-weight: bold;">x${count}</span>`;
+            }
+            itemHtml += `</span>`;
             itemHtml += `<button class="info-btn" onclick="game.showItemInfo('${item.replace(/'/g, "\\'")}')">ℹ️</button>`;
             
             if (isEquipped) {
@@ -8080,6 +9181,15 @@ class Game {
                         { text: "🔍 Find another path (Perception)", skill: "wis", dc: 14, successReward: "safe_path", failPenalty: "lost_time" },
                         { text: "🚶 Take the long way", skill: null }
                     ]
+                },
+                {
+                    title: "🥕 Edible Plants",
+                    description: "You notice several wild edible plants growing near the path. Perfect for travel provisions!",
+                    approaches: [
+                        { text: "🌱 Forage skillfully (Survival)", skill: "wis", dc: 11, successReward: "forage_rations", failPenalty: null },
+                        { text: "📚 Use herbalist knowledge (Nature)", skill: "int", dc: 12, successReward: "forage_rations", failPenalty: "poison" },
+                        { text: "🚶 Move on", skill: null }
+                    ]
                 }
             ],
             town: [
@@ -8100,6 +9210,24 @@ class Game {
                         { text: "🎯 Play the odds (Intelligence)", skill: "int", dc: 13, successReward: "gambling_win", failPenalty: "gambling_loss" },
                         { text: "🃏 Cheat subtly (Sleight of Hand)", skill: "dex", dc: 15, successReward: "big_win", failPenalty: "caught" },
                         { text: "🚶 Decline politely", skill: null }
+                    ]
+                },
+                {
+                    title: "💪 Arm Wrestling",
+                    description: "A burly warrior challenges you to an arm wrestling match. 'Ten gold says I'll beat you!'",
+                    approaches: [
+                        { text: "💪 Accept the challenge (Strength)", skill: "str", dc: 12, successReward: "arm_wrestling_win", failPenalty: "arm_wrestling_loss" },
+                        { text: "🧠 Use technique (Athletics)", skill: "str", dc: 14, successReward: "big_win", failPenalty: "arm_wrestling_loss" },
+                        { text: "🚶 Decline", skill: null }
+                    ]
+                },
+                {
+                    title: "🍺 Drinking Contest",
+                    description: "A group at the bar challenges you: 'Drink for drink, last one standing wins the pot!'",
+                    approaches: [
+                        { text: "🍺 Drink up! (Constitution)", skill: "con", dc: 13, successReward: "drinking_win", failPenalty: "drinking_loss" },
+                        { text: "🤔 Pace yourself (Wisdom)", skill: "wis", dc: 12, successReward: "gambling_win", failPenalty: "drinking_loss" },
+                        { text: "🚶 Pass on the drinks", skill: null }
                     ]
                 },
                 {
@@ -8242,8 +9370,17 @@ class Game {
                     break;
                 case "herbs":
                 case "safe_herbs":
-                    char.inventory.push("Healing Potion");
-                    this.log("🌿 You gather medicinal herbs and brew a healing potion!", "loot");
+                    if (Math.random() < 0.4) {
+                        // 40% chance to find rations instead of healing potion
+                        const rationDays = Math.floor(Math.random() * 2) + 1; // 1-2 days
+                        for (let i = 0; i < rationDays; i++) {
+                            char.inventory.push("Rations (1 day)");
+                        }
+                        this.log(`🥖 You forage for food and find ${rationDays} day${rationDays > 1 ? 's' : ''} worth of edible plants!`, "loot");
+                    } else {
+                        char.inventory.push("Healing Potion");
+                        this.log("🌿 You gather medicinal herbs and brew a healing potion!", "loot");
+                    }
                     break;
                 case "shortcut":
                     const shortcutGold = Math.floor(Math.random() * 20) + 10;
@@ -8276,6 +9413,16 @@ class Game {
                     char.gold += bigWin;
                     this.log(`🃏 Your sleight of hand pays off! You win ${bigWin} gold!`, "loot");
                     break;
+                case "arm_wrestling_win":
+                    const armGold = Math.floor(Math.random() * 10) + 10;
+                    char.gold += armGold;
+                    this.log(`💪 You slam their arm down! The crowd cheers! +${armGold} gold!`, "loot");
+                    break;
+                case "drinking_win":
+                    const drinkGold = Math.floor(Math.random() * 15) + 10;
+                    char.gold += drinkGold;
+                    this.log(`🍺 You outdrink them all! +${drinkGold} gold from the pot!`, "loot");
+                    break;
                 case "secret_location":
                     const cacheGold = Math.floor(Math.random() * 25) + 15;
                     char.gold += cacheGold;
@@ -8293,6 +9440,13 @@ class Game {
                         this.log("🧴 They also slip you a healing potion for the road.", "loot");
                     }
                     if (char.experience >= getXpThreshold(char.level)) this.levelUp();
+                    break;
+                case "forage_rations":
+                    const forageDays = Math.floor(Math.random() * 3) + 2; // 2-4 days
+                    for (let i = 0; i < forageDays; i++) {
+                        char.inventory.push("Rations (1 day)");
+                    }
+                    this.log(`🥖 You skillfully forage and gather ${forageDays} days of quality rations!`, "loot");
                     break;
                 default:
                     this.log("✓ Your skill serves you well!", "success");
@@ -8347,6 +9501,23 @@ class Game {
                     const fine = Math.min(char.gold, Math.floor(Math.random() * 25) + 15);
                     char.gold -= fine;
                     this.log(`🚔 You're caught cheating! You pay ${fine} gold to avoid trouble!`, "danger");
+                    break;
+                case "arm_wrestling_loss":
+                    const armLoss = Math.min(char.gold, 10);
+                    char.gold -= armLoss;
+                    this.log(`💪 Your arm hits the table hard. You lose ${armLoss} gold and your pride.`, "danger");
+                    break;
+                case "drinking_loss":
+                    const drinkLoss = Math.min(char.gold, Math.floor(Math.random() * 10) + 5);
+                    char.gold -= drinkLoss;
+                    this.log(`🤢 You pass out. When you wake, you've lost ${drinkLoss} gold.`, "danger");
+                    // Chance of short-term madness from drinking
+                    if (Math.random() < 0.2) {
+                        const madResult = this.dm.afflictMadness("shortTerm");
+                        if (madResult.success) {
+                            this.log(`🧠 The hangover leaves you addled: ${madResult.effect}`, "danger");
+                        }
+                    }
                     break;
                 case "attention":
                     this.log("👀 Your questions draw unwanted attention...", "danger");
@@ -8762,6 +9933,11 @@ class Game {
             if (monster.conditions?.paralyzed || monster.conditions?.stunned) hasAdvantage = true;
             if (monster.conditions?.restrained || monster.conditions?.prone) hasAdvantage = true;
             
+            // Mounted combat advantage on melee attacks
+            if (this.character.mountedOn && !weaponInfo.properties?.includes("ranged")) {
+                hasAdvantage = true;
+            }
+            
             // Barbarian Rage grants advantage on STR attacks (Reckless Attack)
             if (char.raging && char.charClass === "Barbarian") hasAdvantage = true;
             
@@ -8946,6 +10122,7 @@ class Game {
                 // FUMBLE! Roll on fumble table
                 const fumble = FUMBLE_EFFECTS[Math.floor(Math.random() * FUMBLE_EFFECTS.length)];
                 this.log(`💀 FUMBLE! Natural 1! ${fumble.effect}`, "danger");
+                this.log(`🎭 ${getDramaticText('fumble')}`, "dm");
                 soundManager.playMiss();
                 this.applyFumbleEffect(fumble);
             } else if (attackResult.isCrit) {
@@ -8975,6 +10152,7 @@ class Game {
                 soundManager.playCritical();
                 await diceAnimator.rollDamage(weaponInfo.damage, critResult.finalDamage, `💥 ${critResult.finalDamage} ${weaponInfo.type}`);
                 this.log(`🎯 CRITICAL HIT! ${critEffect.name}: ${critEffect.effect}`, "success");
+                this.log(`🎭 ${getDramaticText('criticalHit')}`, "dm");
                 this.log(`💥 ${critResult.finalDamage} ${weaponInfo.type} damage with ${weaponInfo.name}!${bonusDamageText}`, "combat");
                 if (critResult.message) this.log(critResult.message, "dm");
                 
@@ -9253,30 +10431,226 @@ class Game {
     async companionCombatRound(monster) {
         if (!this.dm.party || this.dm.party.length === 0) return;
         
-        for (const companion of this.dm.party) {
-            if (companion.currentHp <= 0) continue; // Skip unconscious companions
+        const char = this.character;
+        const aliveCompanions = this.dm.party.filter(c => c.currentHp > 0);
+        const downCompanions = this.dm.party.filter(c => c.currentHp <= 0 && !c.dead);
+        
+        // Process unconscious companions' death saves first
+        for (const companion of downCompanions) {
+            if (companion.stable) continue; // Already stable, no more saves needed
+            await this.delay(400);
+            this.companionDeathSave(companion);
+        }
+        
+        for (const companion of aliveCompanions) {
+            if (monster.hp <= 0) break; // Monster already dead
             
             try {
-                await this.delay(500); // Brief pause between companion attacks
+                await this.delay(500);
                 
-                const result = this.dm.companionAttack(companion, monster);
-                this.log(result.message, result.hit ? "combat" : "dm");
+                // Clear dodge from previous round
+                companion.dodging = false;
                 
-                if (result.hit) {
-                    monster.hp -= result.damage;
-                    document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
-                    this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp);
-                    
-                    if (monster.hp <= 0) {
-                        this.log(`${companion.name} deals the finishing blow!`, "success");
-                        return;
+                // Tick down buffs
+                if (companion.shieldOfFaithActive) {
+                    companion.shieldOfFaithTurns--;
+                    if (companion.shieldOfFaithTurns <= 0) {
+                        companion.shieldOfFaithActive = false;
+                        companion.ac -= 2;
+                        this.log(`🛡️ ${companion.name}'s Shield of Faith fades.`, "dm");
+                    }
+                }
+                if (companion.huntersMarkActive) {
+                    companion.huntersMarkTurns--;
+                    if (companion.huntersMarkTurns <= 0) {
+                        companion.huntersMarkActive = false;
+                        this.log(`🎯 ${companion.name}'s Hunter's Mark fades.`, "dm");
                     }
                 }
                 
-                // Monster may retaliate against companions
-                if (Math.random() < 0.3 && monster.hp > 0) {
-                    await this.delay(300);
-                    this.companionTakesDamage(companion, monster);
+                // === TACTICAL DECISION ENGINE ===
+                const decision = this.companionDecideAction(companion, monster, char);
+                
+                switch (decision.action) {
+                    case 'heal_ally': {
+                        // Cleric/Ranger heals the player or a companion
+                        const ability = companion.abilities[decision.abilityKey];
+                        ability.used++;
+                        const wisMod = Math.floor((companion.stats.wis - 10) / 2);
+                        const healDice = ability.healDice;
+                        const diceMatch = healDice.match(/(\d+)d(\d+)/);
+                        let healing = 0;
+                        if (diceMatch) {
+                            for (let i = 0; i < parseInt(diceMatch[1]); i++) {
+                                healing += Math.floor(Math.random() * parseInt(diceMatch[2])) + 1;
+                            }
+                        }
+                        healing += Math.max(0, wisMod);
+                        
+                        if (decision.target === 'player') {
+                            char.heal(healing);
+                            this.log(`✨ ${companion.name} casts ${ability.name} on you! +${healing} HP! "${this.getCompanionBark(companion, 'heal')}"`, "success");
+                            this.dm.adjustCompanionLoyalty(companion.name, 1, "healed player");
+                        } else {
+                            const target = this.dm.party.find(c => c.name === decision.target);
+                            if (target) {
+                                const wasDown = target.currentHp <= 0;
+                                target.currentHp = Math.min(target.maxHp, target.currentHp + healing);
+                                if (wasDown && target.currentHp > 0) {
+                                    target.deathSaves = { successes: 0, failures: 0 };
+                                    target.stable = false;
+                                    this.log(`✨ ${companion.name} revives ${target.name} with ${ability.name}! +${healing} HP!`, "success");
+                                } else {
+                                    this.log(`✨ ${companion.name} heals ${target.name} with ${ability.name}! +${healing} HP (${target.currentHp}/${target.maxHp})`, "success");
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    
+                    case 'sacred_flame': {
+                        // Cleric cantrip — uses enemy DEX save 
+                        const wisMod = Math.floor((companion.stats.wis - 10) / 2);
+                        const profBonus = Math.floor((companion.level - 1) / 4) + 2;
+                        const dc = 8 + wisMod + profBonus;
+                        const saveRoll = Math.floor(Math.random() * 20) + 1 + (monster.dexMod || 0);
+                        if (saveRoll < dc) {
+                            const diceMatch = "1d8".match(/(\d+)d(\d+)/);
+                            let damage = 0;
+                            for (let i = 0; i < parseInt(diceMatch[1]); i++) {
+                                damage += Math.floor(Math.random() * parseInt(diceMatch[2])) + 1;
+                            }
+                            monster.hp -= damage;
+                            document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+                            this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp);
+                            this.log(`🔥 ${companion.name} calls down Sacred Flame for ${damage} radiant damage! "${companion.dialogue.combat}"`, "combat");
+                            if (monster.hp <= 0) {
+                                this.log(`${companion.name} deals the finishing blow!`, "success");
+                                return;
+                            }
+                        } else {
+                            this.log(`🔥 ${companion.name} casts Sacred Flame but the ${monster.name} dodges the radiance!`, "dm");
+                        }
+                        break;
+                    }
+                    
+                    case 'turn_undead': {
+                        const ability = companion.abilities.turnUndead;
+                        ability.used++;
+                        const wisMod = Math.floor((companion.stats.wis - 10) / 2);
+                        const profBonus = Math.floor((companion.level - 1) / 4) + 2;
+                        const dc = 8 + wisMod + profBonus;
+                        const saveRoll = Math.floor(Math.random() * 20) + 1 + (monster.wisMod || 0);
+                        if (saveRoll < dc) {
+                            // Stun the undead for 1 round
+                            if (!monster.conditions) monster.conditions = {};
+                            monster.conditions.frightened = true;
+                            this.log(`✝️ ${companion.name} presents their holy symbol! The ${monster.name} recoils in terror! (Frightened)`, "success");
+                        } else {
+                            this.log(`✝️ ${companion.name} presents their holy symbol, but the ${monster.name} resists!`, "dm");
+                        }
+                        break;
+                    }
+                    
+                    case 'shield_of_faith': {
+                        const ability = companion.abilities.shieldOfFaith;
+                        ability.used++;
+                        companion.shieldOfFaithActive = true;
+                        companion.shieldOfFaithTurns = 3;
+                        companion.ac += 2;
+                        this.log(`🛡️ ${companion.name} invokes Shield of Faith! AC increased to ${companion.ac}!`, "success");
+                        break;
+                    }
+                    
+                    case 'second_wind': {
+                        // Fighter heals themselves
+                        const ability = companion.abilities.secondWind;
+                        ability.used++;
+                        let healing = Math.floor(Math.random() * 10) + 1 + companion.level;
+                        healing = Math.min(healing, companion.maxHp - companion.currentHp);
+                        companion.currentHp += healing;
+                        this.log(`💨 ${companion.name} uses Second Wind! +${healing} HP! (${companion.currentHp}/${companion.maxHp}) "${this.getCompanionBark(companion, 'rally')}"`, "success");
+                        // Fighter still attacks after Second Wind (bonus action)
+                        await this.delay(300);
+                        await this.companionPerformAttack(companion, monster);
+                        break;
+                    }
+                    
+                    case 'action_surge': {
+                        // Fighter gets two attacks
+                        const ability = companion.abilities.actionSurge;
+                        ability.used++;
+                        this.log(`⚡ ${companion.name} uses Action Surge!`, "combat");
+                        await this.companionPerformAttack(companion, monster);
+                        if (monster.hp > 0) {
+                            await this.delay(300);
+                            await this.companionPerformAttack(companion, monster);
+                        }
+                        break;
+                    }
+                    
+                    case 'hunters_mark': {
+                        // Ranger marks then attacks
+                        const ability = companion.abilities.huntersMark;
+                        ability.used++;
+                        companion.huntersMarkActive = true;
+                        companion.huntersMarkTurns = 3;
+                        this.log(`🎯 ${companion.name} casts Hunter's Mark on the ${monster.name}!`, "combat");
+                        await this.delay(300);
+                        await this.companionPerformAttack(companion, monster, { huntersMark: true });
+                        break;
+                    }
+                    
+                    case 'dodge': {
+                        // Companion takes Dodge action — attacks against them have disadvantage
+                        companion.dodging = true;
+                        this.log(`🛡️ ${companion.name} takes a defensive stance! "${this.getCompanionBark(companion, 'defensive')}"`, "dm");
+                        break;
+                    }
+                    
+                    case 'protect_player': {
+                        // Fighter interposes to protect the player
+                        companion.protecting = true;
+                        this.log(`🛡️ ${companion.name} moves to protect you! "${this.getCompanionBark(companion, 'protect')}"`, "success");
+                        // Still makes an attack
+                        await this.delay(300);
+                        await this.companionPerformAttack(companion, monster);
+                        break;
+                    }
+                    
+                    case 'attack':
+                    default: {
+                        // Standard attack with possible passive ability enhancements
+                        const attackOptions = {};
+                        
+                        // Rogue Sneak Attack — passive, always on when ally fighting alongside
+                        if (companion.class === 'Rogue' && companion.abilities?.sneakAttack) {
+                            attackOptions.sneakAttack = true;
+                        }
+                        
+                        // Ranger Hunter's Mark bonus if active
+                        if (companion.huntersMarkActive) {
+                            attackOptions.huntersMark = true;
+                        }
+                        
+                        // Ranger Colossus Slayer if enemy below 75% HP
+                        if (companion.class === 'Ranger' && companion.abilities?.colossusSlayer && 
+                            monster.hp < monster.maxHp * 0.75) {
+                            attackOptions.colossusSlayer = true;
+                        }
+                        
+                        await this.companionPerformAttack(companion, monster, attackOptions);
+                        break;
+                    }
+                }
+                
+                // Monster may retaliate against companions (30% base, reduced if dodging)
+                if (companion.currentHp > 0 && monster.hp > 0) {
+                    const retaliateChance = companion.dodging ? 0.1 : 0.3;
+                    if (Math.random() < retaliateChance) {
+                        await this.delay(300);
+                        this.companionTakesDamage(companion, monster);
+                    }
                 }
             } catch (e) {
                 console.error(`Companion ${companion.name} combat error:`, e);
@@ -9286,22 +10660,264 @@ class Game {
         this.updateCombatPartyDisplay();
     }
     
+    // Companion performs a standard attack with optional enhancements
+    async companionPerformAttack(companion, monster, options = {}) {
+        const result = this.dm.companionAttack(companion, monster, options);
+        this.log(result.message, result.hit ? "combat" : "dm");
+        
+        if (result.hit) {
+            monster.hp -= result.damage;
+            document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+            this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp);
+            
+            if (monster.hp <= 0) {
+                this.log(`${companion.name} deals the finishing blow!`, "success");
+                return;
+            }
+        }
+    }
+    
+    // Tactical AI decision engine — determines what a companion does this round
+    companionDecideAction(companion, monster, player) {
+        const abilities = companion.abilities || {};
+        const style = companion.combatStyle || { aggression: 0.5, protection: 0.3, selfPreservation: 0.5 };
+        
+        const companionHpPct = companion.currentHp / companion.maxHp;
+        const playerHpPct = player.hp / player.maxHp;
+        const monsterHpPct = monster.hp / monster.maxHp;
+        
+        // Find badly hurt allies (player or companions)
+        const hurtAllies = [];
+        if (playerHpPct < 0.4) hurtAllies.push({ name: 'player', hpPct: playerHpPct, priority: 1 });
+        for (const ally of this.dm.party) {
+            if (ally === companion || ally.currentHp <= 0) continue;
+            const allyPct = ally.currentHp / ally.maxHp;
+            if (allyPct < 0.4) hurtAllies.push({ name: ally.name, hpPct: allyPct, priority: 2 });
+        }
+        // Downed allies who need emergency healing
+        const downedAllies = this.dm.party.filter(c => c !== companion && c.currentHp <= 0 && !c.dead && !c.stable);
+        
+        // Loyalty modifies willingness to help (low loyalty = more selfish)
+        const loyaltyFactor = Math.max(0.2, (companion.loyalty + 100) / 200); // 0.2 to 1.0
+        
+        // === CLERIC AI ===
+        if (companion.class === 'Cleric') {
+            // Priority 1: Heal downed allies
+            if (downedAllies.length > 0 && abilities.healingWord && abilities.healingWord.used < abilities.healingWord.usesPerRest) {
+                return { action: 'heal_ally', abilityKey: 'healingWord', target: downedAllies[0].name };
+            }
+            
+            // Priority 2: Heal badly hurt player (if loyal enough)
+            if (playerHpPct < 0.35 && loyaltyFactor > 0.4 && abilities.healingWord && abilities.healingWord.used < abilities.healingWord.usesPerRest) {
+                return { action: 'heal_ally', abilityKey: 'healingWord', target: 'player' };
+            }
+            
+            // Priority 3: Heal severely hurt companions
+            const criticalAlly = hurtAllies.find(a => a.hpPct < 0.25 && a.name !== 'player');
+            if (criticalAlly && abilities.healingWord && abilities.healingWord.used < abilities.healingWord.usesPerRest) {
+                return { action: 'heal_ally', abilityKey: 'healingWord', target: criticalAlly.name };
+            }
+            
+            // Priority 4: Turn Undead against undead enemies
+            if (monster.type === 'undead' && abilities.turnUndead && abilities.turnUndead.used < abilities.turnUndead.usesPerRest) {
+                return { action: 'turn_undead' };
+            }
+            
+            // Priority 5: Shield of Faith if taking heavy damage
+            if (companionHpPct < 0.6 && !companion.shieldOfFaithActive && abilities.shieldOfFaith && abilities.shieldOfFaith.used < abilities.shieldOfFaith.usesPerRest) {
+                return { action: 'shield_of_faith' };
+            }
+            
+            // Priority 6: Self-preservation — dodge when seriously hurt
+            if (companionHpPct < 0.25 && style.selfPreservation > Math.random()) {
+                return { action: 'dodge' };
+            }
+            
+            // Default: Sacred Flame cantrip (safer than melee) or basic attack
+            if (abilities.sacredFlame && Math.random() < 0.5) {
+                return { action: 'sacred_flame' };
+            }
+            return { action: 'attack' };
+        }
+        
+        // === FIGHTER AI ===
+        if (companion.class === 'Fighter') {
+            // Priority 1: Second Wind when below 50% HP
+            if (companionHpPct < 0.5 && abilities.secondWind && abilities.secondWind.used < abilities.secondWind.usesPerRest) {
+                return { action: 'second_wind' };
+            }
+            
+            // Priority 2: Protect player when they're very low
+            if (playerHpPct < 0.25 && loyaltyFactor > 0.5 && abilities.protectAlly && Math.random() < style.protection) {
+                return { action: 'protect_player' };
+            }
+            
+            // Priority 3: Action Surge against tough enemies or to finish off low HP enemies
+            if (abilities.actionSurge && abilities.actionSurge.used < abilities.actionSurge.usesPerRest) {
+                // Use Action Surge when enemy is a boss or nearly dead
+                if (monster.isBoss || monsterHpPct < 0.3) {
+                    return { action: 'action_surge' };
+                }
+            }
+            
+            // Priority 4: Self-preservation when critically low
+            if (companionHpPct < 0.2 && style.selfPreservation > Math.random()) {
+                return { action: 'dodge' };
+            }
+            
+            return { action: 'attack' };
+        }
+        
+        // === ROGUE AI ===
+        if (companion.class === 'Rogue') {
+            // Rogues are self-preservation focused
+            // Priority 1: Dodge if seriously hurt
+            if (companionHpPct < 0.3) {
+                // Cunning Action: Disengage (Dodge) when hurt
+                return { action: 'dodge' };
+            }
+            
+            // Default: Attack (sneak attack is passive, auto-applied)
+            return { action: 'attack' };
+        }
+        
+        // === RANGER AI ===
+        if (companion.class === 'Ranger') {
+            // Priority 1: Cure Wounds on downed allies
+            if (downedAllies.length > 0 && abilities.cureWounds && abilities.cureWounds.used < abilities.cureWounds.usesPerRest) {
+                return { action: 'heal_ally', abilityKey: 'cureWounds', target: downedAllies[0].name };
+            }
+            
+            // Priority 2: Cure Wounds on badly hurt player
+            if (playerHpPct < 0.3 && loyaltyFactor > 0.4 && abilities.cureWounds && abilities.cureWounds.used < abilities.cureWounds.usesPerRest) {
+                return { action: 'heal_ally', abilityKey: 'cureWounds', target: 'player' };
+            }
+            
+            // Priority 3: Hunter's Mark on fresh enemy
+            if (!companion.huntersMarkActive && abilities.huntersMark && abilities.huntersMark.used < abilities.huntersMark.usesPerRest && monsterHpPct > 0.5) {
+                return { action: 'hunters_mark' };
+            }
+            
+            // Priority 4: Dodge if critically hurt
+            if (companionHpPct < 0.25) {
+                return { action: 'dodge' };
+            }
+            
+            return { action: 'attack' };
+        }
+        
+        // Fallback for any class
+        return { action: 'attack' };
+    }
+    
+    // Generate contextual combat barks based on situation
+    getCompanionBark(companion, type) {
+        const barks = {
+            heal: [
+                "I've got you!", "Hold still!", "You'll be alright!", 
+                "Stay with me!", "Not on my watch!"
+            ],
+            rally: [
+                "I can still fight!", "Just a scratch!", "Not done yet!",
+                "I've had worse!", "Still standing!"
+            ],
+            defensive: [
+                "I need to fall back!", "Covering myself!", "Too many hits!",
+                "I'll catch my breath!", "Need a moment!"
+            ],
+            protect: [
+                "Get behind me!", "I'll hold them off!", "They won't touch you!",
+                "Stay close!", "I've got your back!"
+            ],
+            taunt: [
+                "Over here, ugly!", "Come fight someone your own size!",
+                "Is that all you've got?", "Face me, coward!"
+            ]
+        };
+        
+        const options = barks[type] || barks.rally;
+        return options[Math.floor(Math.random() * options.length)];
+    }
+    
+    // Companion death saving throw
+    companionDeathSave(companion) {
+        if (companion.dead || companion.stable) return;
+        
+        const roll = Math.floor(Math.random() * 20) + 1;
+        
+        if (roll === 20) {
+            // Nat 20 — regain 1 HP
+            companion.currentHp = 1;
+            companion.deathSaves = { successes: 0, failures: 0 };
+            companion.stable = false;
+            this.log(`🎉 ${companion.name} rolls a natural 20 and regains consciousness!`, "success");
+        } else if (roll === 1) {
+            companion.deathSaves.failures += 2;
+            this.log(`💀 ${companion.name} death save: Natural 1! Two failures! (${companion.deathSaves.failures}/3)`, "danger");
+        } else if (roll >= 10) {
+            companion.deathSaves.successes++;
+            this.log(`✅ ${companion.name} death save success! (${companion.deathSaves.successes}/3 successes)`, "dm");
+        } else {
+            companion.deathSaves.failures++;
+            this.log(`❌ ${companion.name} death save failure! (${companion.deathSaves.failures}/3 failures)`, "danger");
+        }
+        
+        if (companion.deathSaves.successes >= 3) {
+            companion.stable = true;
+            companion.deathSaves = { successes: 0, failures: 0 };
+            this.log(`🛡️ ${companion.name} stabilizes! They're unconscious but no longer dying.`, "success");
+        }
+        
+        if (companion.deathSaves.failures >= 3) {
+            companion.dead = true;
+            companion.deathSaves = { successes: 0, failures: 0 };
+            this.log(`💀 ${companion.name} has died! "${companion.dialogue.hurt}"`, "danger");
+            this.log(`The party mourns the loss of ${companion.name}...`, "dm");
+            // Remove from party after a delay
+            setTimeout(() => {
+                const idx = this.dm.party.indexOf(companion);
+                if (idx !== -1) this.dm.party.splice(idx, 1);
+            }, 2000);
+        }
+    }
+    
     companionTakesDamage(companion, monster) {
         if (companion.currentHp <= 0) return; // Already down
         const attackBonus = monster.attackBonus || 3;
-        const monsterAttack = Math.floor(Math.random() * 20) + 1 + attackBonus;
+        let monsterRoll = Math.floor(Math.random() * 20) + 1;
+        
+        // Dodge action — monster has disadvantage (roll twice, take lower)
+        if (companion.dodging) {
+            const secondRoll = Math.floor(Math.random() * 20) + 1;
+            monsterRoll = Math.min(monsterRoll, secondRoll);
+        }
+        
+        const monsterAttack = monsterRoll + attackBonus;
         
         if (monsterAttack >= companion.ac) {
-            const damage = this.dm.rollDice(monster.damage);
+            let damage = this.dm.rollDice(monster.damage);
+            
+            // Rogue Cunning Action: Take half damage on retaliation if they dodged
+            if (companion.dodging && companion.class === 'Rogue') {
+                damage = Math.floor(damage / 2);
+                this.log(`🗡️ ${companion.name}'s cunning footwork reduces the blow!`, "dm");
+            }
+            
             companion.currentHp -= damage;
             
             if (companion.currentHp <= 0) {
                 companion.currentHp = 0;
+                companion.deathSaves = { successes: 0, failures: 0 };
+                companion.stable = false;
                 this.log(`💔 ${companion.name} falls unconscious! "${companion.dialogue.hurt}"`, "danger");
                 this.dm.adjustCompanionLoyalty(companion.name, -5, "fell in combat");
             } else {
-                this.log(`💥 The ${monster.name} hits ${companion.name} for ${damage} damage!`, "danger");
+                const hpPct = companion.currentHp / companion.maxHp;
+                const urgency = hpPct < 0.25 ? "💔" : "💥";
+                this.log(`${urgency} The ${monster.name} hits ${companion.name} for ${damage} damage! (${companion.currentHp}/${companion.maxHp})`, "danger");
             }
+        } else if (companion.dodging) {
+            this.log(`🛡️ ${companion.name} nimbly avoids the ${monster.name}'s counterattack!`, "dm");
         }
     }
 
@@ -9439,12 +11055,77 @@ class Game {
                     this.monsterAttacksCompanion(monster, target);
                 }
             } else {
-                this.monsterSingleAttack(monster, char, attackNum > 0);
+                // Check if a protecting Fighter intercepts the attack on the player
+                const protector = activeCompanions.find(c => c.protecting && c.currentHp > 0);
+                if (protector && Math.random() < 0.6) {
+                    this.log(`🛡️ ${protector.name} interposes their shield! "Get behind me!"`, "success");
+                    this.monsterAttacksCompanion(monster, protector);
+                    protector.protecting = false; // Used up protection
+                } else {
+                    this.monsterSingleAttack(monster, char, attackNum > 0);
+                }
             }
+        }
+        
+        // Clear companion protecting state at end of monster turn
+        for (const comp of activeCompanions) {
+            comp.protecting = false;
         }
         
         // Clear prone after being attacked (you can stand up)
         char.removeCondition("prone");
+        
+        // ===== LEGENDARY ACTIONS PHASE =====
+        // Boss monsters with legendaryResistances get legendary actions after their turn
+        if (monster.isBoss && monster.legendaryResistances > 0) {
+            // Reset legendary action count each round
+            this.dm.resetLegendaryActions(monster);
+            
+            // Boss gets 1-3 legendary actions depending on CR/power
+            const numLegendaryActions = Math.min(3, monster.legendaryResistances);
+            const actionKeys = Object.keys(LEGENDARY_ACTIONS);
+            
+            for (let i = 0; i < numLegendaryActions; i++) {
+                if (char.hp <= 0) break;
+                
+                // Pick a random legendary action (prefer melee/heal when hurt)
+                let chosenAction;
+                if (monster.hp < (monster.maxHp || monster.hp) * 0.3 && Math.random() < 0.5) {
+                    chosenAction = "heal";
+                } else {
+                    const combatActions = ["melee", "roar", "heal", "spellcast"];
+                    chosenAction = combatActions[Math.floor(Math.random() * combatActions.length)];
+                }
+                
+                const result = this.dm.applyLegendaryAction(monster, chosenAction);
+                if (result.success) {
+                    this.log(`⚜️ LEGENDARY ACTION: ${result.message}`, "danger");
+                    
+                    // Apply damage to player if applicable
+                    if (result.damage && result.damage > 0) {
+                        char.hp = Math.max(0, char.hp - result.damage);
+                        this.log(`💥 You take ${result.damage} damage from the legendary action!`, "danger");
+                    }
+                    
+                    // Apply frightened condition from roar
+                    if (result.condition === "frightened") {
+                        const wisSave = Math.floor(Math.random() * 20) + 1 + (char.getModifier("wis") || 0);
+                        if (wisSave < 15) {
+                            char.addCondition("frightened");
+                            this.log(`😱 You are frightened by the ${monster.name}! (WIS save: ${wisSave} vs DC 15)`, "danger");
+                        } else {
+                            this.log(`💪 You resist the frightening roar! (WIS save: ${wisSave} vs DC 15)`, "success");
+                        }
+                    }
+                }
+            }
+            
+            // Reset dodge AC bonus at end of legendary actions
+            if (monster._legendaryDodgeBonus) {
+                monster.ac -= monster._legendaryDodgeBonus;
+                monster._legendaryDodgeBonus = 0;
+            }
+        }
         
         // Reset actions for next player turn
         this.dm.resetActions();
@@ -9561,6 +11242,18 @@ class Game {
             }
             
             if (damage > 0) {
+                // Mounted combat: 25% chance monster targets the mount instead
+                if (this.character.mountedOn && this.character.mount && Math.random() < 0.25) {
+                    const mountResult = this.dm.mountTakeDamage(damage);
+                    if (mountResult.success) {
+                        if (mountResult.dead) {
+                            this.log(`🐴💀 ${mountResult.message}`, "danger");
+                        } else {
+                            this.log(`🐴 Your mount takes ${damage} damage! (Mount HP: ${mountResult.hp}/${mountResult.maxHP})`, "danger");
+                        }
+                        return; // Mount absorbed the hit
+                    }
+                }
                 this.applyMonsterDamageToPlayer(char, damage, isCrit, damageType);
             }
         } else {
@@ -9727,14 +11420,35 @@ class Game {
         // Hit NPC party companions
         for (const comp of (this.dm.party || [])) {
             if (comp.currentHp <= 0) continue;
-            const saveRoll = Math.floor(Math.random() * 20) + 1 + 2; // companions get +2 save bonus
-            const dmg = saveRoll >= dc ? Math.floor(baseDmg / 2) : baseDmg;
+            // Use the companion's actual stat modifier + proficiency for the save
+            const saveStat = saveType || 'dex';
+            const statMod = comp.stats[saveStat] ? Math.floor((comp.stats[saveStat] - 10) / 2) : 0;
+            const profBonus = Math.floor((comp.level - 1) / 4) + 2;
+            // Rogues get Evasion — advantage on DEX saves
+            let saveRoll = Math.floor(Math.random() * 20) + 1;
+            if (comp.class === 'Rogue' && saveStat === 'dex') {
+                const secondRoll = Math.floor(Math.random() * 20) + 1;
+                saveRoll = Math.max(saveRoll, secondRoll);
+            }
+            const totalSave = saveRoll + statMod + profBonus;
+            const saved = totalSave >= dc;
+            // Rogue Evasion: DEX save success = no damage, failure = half damage
+            let dmg;
+            if (comp.class === 'Rogue' && saveStat === 'dex') {
+                dmg = saved ? 0 : Math.floor(baseDmg / 2);
+            } else {
+                dmg = saved ? Math.floor(baseDmg / 2) : baseDmg;
+            }
             comp.currentHp -= dmg;
             if (comp.currentHp <= 0) {
                 comp.currentHp = 0;
+                comp.deathSaves = { successes: 0, failures: 0 };
+                comp.stable = false;
                 this.log(`💔 ${comp.name} is hit by ${abilityName} for ${dmg} ${dmgType} damage and falls unconscious!`, "danger");
+            } else if (dmg === 0) {
+                this.log(`✨ ${comp.name} completely evades the ${abilityName}!`, "success");
             } else {
-                this.log(`💥 ${comp.name} takes ${dmg} ${dmgType} damage from ${abilityName}!${saveRoll >= dc ? ' (saved)' : ''}`, "danger");
+                this.log(`💥 ${comp.name} takes ${dmg} ${dmgType} damage from ${abilityName}!${saved ? ' (saved)' : ''}`, "danger");
             }
         }
         
@@ -9793,12 +11507,18 @@ class Game {
     
     monsterAttacksCompanion(monster, companion) {
         if (companion.currentHp <= 0) return; // Already down
-        const monsterAttack = Math.floor(Math.random() * 20) + 1;
-        const attackBonus = monster.attackBonus || 3; // Use actual monster attack bonus
-        const totalAttack = monsterAttack + attackBonus;
+        let monsterRoll = Math.floor(Math.random() * 20) + 1;
+        const attackBonus = monster.attackBonus || 3;
         
-        const isCrit = monsterAttack === 20;
-        const isFumble = monsterAttack === 1;
+        // Dodge action — monster has disadvantage
+        if (companion.dodging) {
+            const secondRoll = Math.floor(Math.random() * 20) + 1;
+            monsterRoll = Math.min(monsterRoll, secondRoll);
+        }
+        
+        const totalAttack = monsterRoll + attackBonus;
+        const isCrit = monsterRoll === 20;
+        const isFumble = monsterRoll === 1;
         
         if (isFumble) {
             this.log(`🎉 The ${monster.name} fumbles their attack against ${companion.name}!`, "success");
@@ -9816,6 +11536,8 @@ class Game {
             companion.currentHp -= damage;
             if (companion.currentHp <= 0) {
                 companion.currentHp = 0;
+                companion.deathSaves = { successes: 0, failures: 0 };
+                companion.stable = false;
                 this.log(`💔 ${companion.name} falls unconscious! "${companion.dialogue.hurt}"`, "danger");
                 this.dm.adjustCompanionLoyalty(companion.name, -5, "fell in combat");
             }
@@ -10674,14 +12396,11 @@ class Game {
             }
             // Identify: identify a random magic item
             if (spellName === "Identify") {
-                const unidentified = char.inventory.filter(item => {
-                    const weapon = char.getWeaponData(item);
-                    return weapon && weapon.magicBonus && !char.isAttuned(item);
-                });
+                const unidentified = this.dm.refreshUnidentifiedItems();
                 if (unidentified.length > 0) {
                     const item = unidentified[0];
-                    const weapon = char.getWeaponData(item);
-                    this.log(`📖 You identify ${item}: +${weapon.magicBonus} magical weapon (${weapon.damage} ${weapon.type} damage). Requires attunement.`, "success");
+                    const result = this.dm.identifyItem(item);
+                    this.log(`📖 ${result.message}`, result.success ? "success" : "danger");
                 } else {
                     this.log(`📖 You have no unidentified magic items.`, "dm");
                 }
@@ -10700,6 +12419,23 @@ class Game {
         
         // Close the spell menu
         this.closeSpellMenu();
+        
+        // Check material component requirement
+        if (spell.materialComponent) {
+            const compName = spell.materialComponent;
+            const compCost = spell.componentCost || 0;
+            const hasComp = this.dm.hasComponent(compName, 1);
+            if (!hasComp) {
+                this.log(`❌ ${spellName} requires ${compName} (worth ${compCost} gp) as a material component! You don't have one.`, "danger");
+                return;
+            }
+            // Consume the component if it's consumed on cast
+            const compData = MATERIAL_COMPONENTS[compName];
+            if (compData && compData.consumed) {
+                this.dm.removeMaterialComponent(compName, 1);
+                this.log(`💎 Used 1 ${compName} as a material component.`, "dm");
+            }
+        }
         
         // Use spell slot if not a cantrip
         if (spell.level > 0) {
@@ -10912,7 +12648,6 @@ class Game {
     handleUtilitySpell(spellName, spell) {
         if (spellName === "Misty Step") {
             this.log("💨 You vanish in a puff of mist and reappear safely!", "success");
-            // Could add tactical advantage here
             this.character.buffs.guidingBolt = true; // Advantage from repositioning
         } else if (spellName === "Light") {
             this.log("💡 Light springs from your hand, illuminating the area!", "dm");
@@ -10920,6 +12655,44 @@ class Game {
             this.log("👋 A spectral hand appears, ready to help!", "dm");
         } else if (spellName === "Spare the Dying") {
             this.log("🙏 Divine energy stabilizes the dying!", "success");
+        } else if (spellName === "Lesser Restoration") {
+            // Cure one disease or condition
+            if (this.character.diseases.length > 0) {
+                const cured = this.character.diseases.shift();
+                this.log(`✨ Lesser Restoration cures ${cured.name}!`, "success");
+            } else if (this.character.madness.shortTerm.length > 0) {
+                this.character.madness.shortTerm.pop();
+                this.log(`✨ Lesser Restoration cures your short-term madness!`, "success");
+            } else {
+                this.log(`✨ You cast Lesser Restoration, but have no disease or madness to cure.`, "dm");
+            }
+        } else if (spellName === "Greater Restoration") {
+            // Cure all diseases, madness, conditions, exhaustion
+            if (this.character.diseases.length > 0) {
+                this.character.diseases = [];
+                this.log(`✨ Greater Restoration cures all diseases!`, "success");
+            }
+            if (this.character.madness.shortTerm.length > 0 || this.character.madness.longTerm.length > 0) {
+                this.character.madness = { shortTerm: [], longTerm: [], indefinite: [] };
+                this.log(`✨ Greater Restoration cures all madness!`, "success");
+            }
+            if (this.character.exhaustion > 0) {
+                this.character.exhaustion = Math.max(0, this.character.exhaustion - 1);
+                this.log(`✨ Greater Restoration reduces exhaustion to ${this.character.exhaustion}!`, "success");
+            }
+        } else if (spellName === "Revivify" || spellName === "Raise Dead" || spellName === "Resurrection" || spellName === "True Resurrection") {
+            // Resurrection spells — check for fallen party companion
+            const fallenCompanion = (this.dm.party || []).find(c => c.currentHp <= 0);
+            if (fallenCompanion) {
+                if (spellName === "Resurrection" || spellName === "True Resurrection") {
+                    fallenCompanion.currentHp = fallenCompanion.maxHp;
+                } else {
+                    fallenCompanion.currentHp = 1;
+                }
+                this.log(`🌟 ${spellName} brings ${fallenCompanion.name} back to life with ${fallenCompanion.currentHp} HP!`, "success");
+            } else {
+                this.log(`✨ You cast ${spellName}, but there is no one to revive right now.`, "dm");
+            }
         } else {
             this.log(`✨ You cast ${spellName}!`, "dm");
         }
@@ -10963,6 +12736,42 @@ class Game {
         char.experience += xpGained;
         this.log(`You gain ${xpGained} XP! (Total: ${char.experience})`, "loot");
         this.showLootDrop('✨', 'xp', `+${xpGained} XP`);
+        
+        // Disease chance from fighting certain monsters
+        const monsterNameLower = monster.name.toLowerCase();
+        if (monsterNameLower.includes("rat") || monsterNameLower.includes("otyugh")) {
+            if (Math.random() < 0.15) {
+                const result = this.dm.inflictDisease("filth_fever");
+                if (result.success) {
+                    this.log(`🦠 ${result.message} The filthy creature infected you!`, "danger");
+                }
+            }
+        } else if (monsterNameLower.includes("mummy")) {
+            if (Math.random() < 0.25) {
+                const result = this.dm.inflictDisease("mummy_rot");
+                if (result.success) {
+                    this.log(`🦠 ${result.message} The mummy's curse takes hold!`, "danger");
+                }
+            }
+        } else if (monsterNameLower.includes("zombie") || monsterNameLower.includes("ghoul")) {
+            if (Math.random() < 0.10) {
+                const result = this.dm.inflictDisease("plague");
+                if (result.success) {
+                    this.log(`🦠 ${result.message} The undead's touch carries pestilence!`, "danger");
+                }
+            }
+        }
+        
+        // Madness chance from eldritch/aberration encounters
+        if (monsterNameLower.includes("beholder") || monsterNameLower.includes("mind flayer") || 
+            monsterNameLower.includes("aboleth") || monsterNameLower.includes("eldritch")) {
+            if (Math.random() < 0.20) {
+                const result = this.dm.afflictMadness("shortTerm");
+                if (result.success) {
+                    this.log(`🧠 ${result.message}`, "danger");
+                }
+            }
+        }
         
         // Track statistics for achievements
         this.stats.enemiesKilled++;
@@ -11072,6 +12881,43 @@ class Game {
             this.levelUp();
         }
         
+        // === COMPANION VICTORY REACTIONS ===
+        if (this.dm.party && this.dm.party.length > 0) {
+            for (const companion of this.dm.party) {
+                if (companion.dead) continue;
+                
+                // Positive loyalty gain from shared combat victory
+                let loyaltyGain = 2;
+                if (monster.isBoss) loyaltyGain = 5; // Boss kills build strong bonds
+                if (monster.xp >= 100) loyaltyGain = 3; // Tougher fights = more bonding
+                this.dm.adjustCompanionLoyalty(companion.name, loyaltyGain, "combat victory");
+                
+                // Victory dialogue (use the unused dialogue.victory field!)
+                if (companion.currentHp > 0 && companion.dialogue?.victory && Math.random() < 0.4) {
+                    this.log(`🗣️ ${companion.name}: "${companion.dialogue.victory}"`, "dm");
+                }
+                
+                // Companion morale commentary based on their state
+                if (companion.currentHp > 0 && companion.currentHp <= companion.maxHp * 0.25) {
+                    this.log(`${companion.name} is badly wounded but still standing.`, "dm");
+                }
+                
+                // Reset per-combat ability states
+                companion.dodging = false;
+                companion.protecting = false;
+                if (companion.abilities) {
+                    for (const ability of Object.values(companion.abilities)) {
+                        if (ability.usesPerRest !== undefined) {
+                            // Abilities reset on rest, not per-combat (keep tracking)
+                        }
+                    }
+                }
+                // Hunter's Mark ends when enemy dies
+                companion.huntersMarkActive = false;
+                companion.huntersMarkTurns = 0;
+            }
+        }
+        
         // Loot
         this.rollEnemyLoot(monster);
         this.endCombat(true);
@@ -11134,6 +12980,15 @@ class Game {
             const exotic = EXOTIC_MATERIALS[Math.floor(Math.random() * EXOTIC_MATERIALS.length)];
             this.character.addMaterial(exotic, 1);
             this.log(`✨ Rare material: ${exotic}!`, "loot");
+        }
+        
+        // Chance to find spell material components (15% from bosses, 5% from others)
+        const compChance = monster.isBoss ? 0.15 : 0.05;
+        if (Math.random() < compChance) {
+            const compKeys = Object.keys(MATERIAL_COMPONENTS);
+            const compName = compKeys[Math.floor(Math.random() * compKeys.length)];
+            this.dm.addMaterialComponent(compName, 1);
+            this.log(`💎 You find a spell component: ${compName}!`, "loot");
         }
     }
     
@@ -11198,6 +13053,7 @@ class Game {
         // Track Keep on the Borderlands cave kills (ALL monsters, not just bosses)
         if (this.dm.campaignId === "keep_on_borderlands") {
             const monsterNameLower = monster.name.toLowerCase();
+            const locChapter = this.dm.currentLocation ? this.dm.currentLocation.chapter : null;
             // Initialize flags if missing (for saves from before this feature)
             if (this.dm.questFlags.outerCavesKills === undefined) this.dm.questFlags.outerCavesKills = 0;
             if (this.dm.questFlags.innerCavesKills === undefined) this.dm.questFlags.innerCavesKills = 0;
@@ -11205,7 +13061,7 @@ class Game {
             if (this.dm.questFlags.innerCavesCleared === undefined) this.dm.questFlags.innerCavesCleared = false;
             
             // Track outer caves kills (Chapter 3) - ANY monster counts
-            if (this.dm.currentChapter <= 3 && !this.dm.questFlags.outerCavesCleared) {
+            if (this.dm.currentChapter >= 3 && this.dm.questFlags.foundCaves && locChapter === 3 && !this.dm.questFlags.outerCavesCleared) {
                 this.dm.questFlags.outerCavesKills++;
                 const kills = this.dm.questFlags.outerCavesKills;
                 const needed = 10;
@@ -11218,7 +13074,7 @@ class Game {
                 this.updateChapterDisplay();
             }
             // Track inner caves kills (Chapter 4) - ANY monster counts
-            if (this.dm.currentChapter >= 4 && !this.dm.questFlags.innerCavesCleared) {
+            if (this.dm.currentChapter >= 4 && locChapter === 4 && !this.dm.questFlags.innerCavesCleared) {
                 this.dm.questFlags.innerCavesKills++;
                 const kills = this.dm.questFlags.innerCavesKills;
                 const needed = 8;
@@ -11726,10 +13582,54 @@ class Game {
         soundManager.playLevelUp();
         this.log(`🎊 LEVEL UP! You are now level ${char.level}!`, "success");
         
+        // Level up companions when player levels up
+        this.levelUpCompanions(char.level);
+        
         // Show the HP choice modal
         this._pendingHpChoice = { dieRoll, averageHp, conMod, hitDie };
         this.showHpLevelUpChoice(dieRoll, averageHp, conMod, hitDie);
         
+    }
+    
+    // Scale companions to keep pace with the player
+    levelUpCompanions(playerLevel) {
+        if (!this.dm.party || this.dm.party.length === 0) return;
+        
+        for (const companion of this.dm.party) {
+            if (companion.level >= playerLevel) continue; // Already at or above player level
+            if (companion.dead) continue;
+            
+            const oldLevel = companion.level;
+            companion.level = Math.min(playerLevel, companion.level + 1); // Gain 1 level at a time
+            
+            // HP increase based on class hit die
+            const classHitDice = { Fighter: 10, Cleric: 8, Rogue: 8, Ranger: 10 };
+            const hitDie = classHitDice[companion.class] || 8;
+            const conMod = Math.floor((companion.stats.con - 10) / 2);
+            const hpGain = Math.max(1, Math.floor(hitDie / 2) + 1 + conMod); // Average + CON mod
+            
+            companion.maxHp += hpGain;
+            companion.hp = companion.maxHp; // Convenience alias
+            companion.currentHp = companion.maxHp; // Full heal on level up
+            
+            // Refresh ability uses 
+            if (companion.abilities) {
+                for (const ability of Object.values(companion.abilities)) {
+                    if (ability.usesPerRest) {
+                        // Some abilities gain extra uses at higher levels
+                        if (ability.name === 'Healing Word' && companion.level >= 3) ability.usesPerRest = 4;
+                        if (ability.name === 'Healing Word' && companion.level >= 5) ability.usesPerRest = 5;
+                        if (ability.name === 'Hunter\'s Mark' && companion.level >= 3) ability.usesPerRest = 3;
+                        ability.used = 0; // Reset uses
+                    }
+                }
+            }
+            
+            // Rogue sneak attack scales with level (automatically handled in attack logic)
+            
+            // Log the level up
+            this.log(`⬆️ ${companion.name} reaches level ${companion.level}! (+${hpGain} HP, now ${companion.maxHp} max)`, "success");
+        }
     }
 
     grantExperience(amount) {
@@ -12568,19 +14468,30 @@ class Game {
     }
 
     findTreasure() {
-        const treasure = GAME_DATA.treasures[Math.floor(Math.random() * GAME_DATA.treasures.length)];
-        
-        if (treasure.usable) {
-            this.character.inventory.push(treasure.name);
-            this.log(`💎 You found a ${treasure.name}! (Added to inventory)`, "loot");
-            this.showLootDrop('💎', 'item', treasure.name);
+        // 15% chance to find rations during exploration
+        if (Math.random() < 0.15) {
+            const rationCount = Math.floor(Math.random() * 3) + 1; // 1-3 days of rations
+            for (let i = 0; i < rationCount; i++) {
+                this.character.inventory.push("Rations (1 day)");
+            }
+            this.log(`🥖 You forage and find ${rationCount} day${rationCount > 1 ? 's' : ''} of rations! They'll help on your travels.`, "loot");
+            this.showLootDrop('🥖', 'item', `Rations (${rationCount} days)`);
+            soundManager.playLootDrop();
         } else {
-            const value = treasure.getValue();
-            this.character.gold += value;
-            this.log(`💰 You found ${treasure.name} worth ${value} gold!`, "loot");
-            this.showLootDrop('💰', 'gold', `+${value}g`);
+            const treasure = GAME_DATA.treasures[Math.floor(Math.random() * GAME_DATA.treasures.length)];
+            
+            if (treasure.usable) {
+                this.character.inventory.push(treasure.name);
+                this.log(`💎 You found a ${treasure.name}! (Added to inventory)`, "loot");
+                this.showLootDrop('💎', 'item', treasure.name);
+            } else {
+                const value = treasure.getValue();
+                this.character.gold += value;
+                this.log(`💰 You found ${treasure.name} worth ${value} gold!`, "loot");
+                this.showLootDrop('💰', 'gold', `+${value}g`);
+            }
+            soundManager.playLootDrop();
         }
-        soundManager.playLootDrop();
         this.updateUI();
     }
 
@@ -12597,7 +14508,8 @@ class Game {
             () => this.wildAnimalEncounterEvent(),
             () => this.lostTravelerEvent(),
             () => this.magicalAnomalyEvent(),
-            () => this.naturalHazardEvent()
+            () => this.naturalHazardEvent(),
+            () => this.trapEncounterEvent()
         ];
 
         await events[Math.floor(Math.random() * events.length)]();
@@ -12659,6 +14571,13 @@ class Game {
             // Always include healing potion
             if (!shopInventory.includes("Healing Potion")) {
                 shopInventory.push("Healing Potion");
+            }
+            // Always include at least one type of rations (essential for travel)
+            const rationTypes = ["Rations (1 day)", "Trail Rations", "Dwarven Cram", "Elven Waybread"];
+            const hasRations = shopInventory.some(item => rationTypes.includes(item));
+            if (!hasRations) {
+                const randomRation = rationTypes[Math.floor(Math.random() * rationTypes.length)];
+                shopInventory.push(randomRation);
             }
             // Add 1-2 random campaign-specific items if available
             if (campaignShopItems.length > 0) {
@@ -12738,7 +14657,7 @@ class Game {
         tabsContainer.innerHTML = "";
         
         if (shopType === "general" || shopType === "traveling") {
-            const categories = ["All", "Weapons", "Armor", "Items"];
+            const categories = ["All", "Weapons", "Armor", "Items", "Mounts"];
             categories.forEach(cat => {
                 const tab = document.createElement("button");
                 tab.className = "shop-tab" + (cat === "All" ? " active" : "");
@@ -12937,6 +14856,12 @@ class Game {
         const itemsContainer = document.getElementById("shopItems");
         itemsContainer.innerHTML = "";
         
+        // Handle Mounts tab specially
+        if (category === "Mounts") {
+            this.populateMountShop(itemsContainer);
+            return;
+        }
+        
         const prices = GAME_DATA.shopPrices;
         const campaignItems = GAME_DATA.campaignItems[this.dm.campaignId] || {};
         const descriptions = GAME_DATA.itemDescriptions;
@@ -13032,8 +14957,15 @@ class Game {
     buyItem(item, price) {
         if (this.character.gold >= price) {
             this.character.gold -= price;
-            this.character.inventory.push(item);
-            this.log(`🪙 Purchased ${item} for ${price} gold!`, "success");
+            
+            // If it's a spell material component, add to materialComponents tracker
+            if (MATERIAL_COMPONENTS[item]) {
+                this.dm.addMaterialComponent(item, 1);
+                this.log(`🪙 Purchased ${item} (spell component) for ${price} gold!`, "success");
+            } else {
+                this.character.inventory.push(item);
+                this.log(`🪙 Purchased ${item} for ${price} gold!`, "success");
+            }
             soundManager.playGold();
             
             // Refresh shop display
@@ -13047,6 +14979,85 @@ class Game {
             this.updateUI();
         } else {
             this.log("You don't have enough gold!", "danger");
+        }
+    }
+    
+    populateMountShop(container) {
+        const currentMount = this.character.mountedOn;
+        
+        for (const [key, mount] of Object.entries(MOUNTS)) {
+            const canAfford = this.character.gold >= mount.cost;
+            const owned = currentMount === key || (this.character.mount && this.character.mount.name === mount.name);
+            
+            const div = document.createElement("div");
+            div.className = `shop-item ${!canAfford && !owned ? "cannot-afford" : ""} ${owned ? "owned" : ""}`;
+            div.innerHTML = `
+                <div class="shop-item-info">
+                    <span class="shop-item-name">${mount.color} ${mount.name}</span>
+                    <span class="shop-item-stats">HP: ${mount.hp} | AC: ${mount.ac} | Speed: ${mount.speed}ft | Carry: ${mount.carryCapacity}lbs</span>
+                </div>
+                <div class="shop-item-price">
+                    <span>${mount.cost} gp</span>
+                    ${owned 
+                        ? '<span class="owned-badge">Owned</span>' 
+                        : `<button class="buy-btn" ${!canAfford ? "disabled" : ""} onclick="game.buyMountFromShop('${key}')">Buy</button>`
+                    }
+                </div>
+            `;
+            container.appendChild(div);
+        }
+        
+        // Mount/Dismount button
+        if (this.character.mount) {
+            const actionDiv = document.createElement("div");
+            actionDiv.style.cssText = "text-align: center; margin-top: 10px;";
+            if (this.character.mountedOn) {
+                actionDiv.innerHTML = `<button class="buy-btn" onclick="game.dismountFromShop()">🐴 Dismount</button>`;
+            } else if (this.character.mount.currentHP > 0) {
+                actionDiv.innerHTML = `<button class="buy-btn" onclick="game.mountFromShop()">🐴 Mount Up</button>`;
+            } else {
+                actionDiv.innerHTML = `<span style="color:#f44;">Your ${this.character.mount.name} has died.</span>`;
+            }
+            container.appendChild(actionDiv);
+        }
+    }
+    
+    buyMountFromShop(mountType) {
+        const result = this.dm.buyMount(mountType);
+        if (result.success) {
+            this.log(`🐴 ${result.message}`, "success");
+            soundManager.playGold();
+            document.getElementById("shopGold").textContent = `Your Gold: ${this.character.gold} gp`;
+            // Refresh mount shop display
+            const container = document.getElementById("shopItems");
+            container.innerHTML = "";
+            this.populateMountShop(container);
+            this.updateUI();
+        } else {
+            this.log(`❌ ${result.message}`, "danger");
+        }
+    }
+    
+    mountFromShop() {
+        const mountType = Object.keys(MOUNTS).find(k => MOUNTS[k].name === this.character.mount.name);
+        const result = this.dm.mountSteed(mountType || this.character.mount.name);
+        if (result.success) {
+            this.log(`🐴 ${result.message}`, "success");
+            const container = document.getElementById("shopItems");
+            container.innerHTML = "";
+            this.populateMountShop(container);
+            this.updateUI();
+        }
+    }
+    
+    dismountFromShop() {
+        const result = this.dm.dismount();
+        if (result.success) {
+            this.log(`🐴 ${result.message}`, "dm");
+            const container = document.getElementById("shopItems");
+            container.innerHTML = "";
+            this.populateMountShop(container);
+            this.updateUI();
         }
     }
     
@@ -13302,47 +15313,450 @@ class Game {
         return html;
     }
     
+    getCampaignMapTheme() {
+        const themes = {
+            "nights_dark_terror": {
+                title: "Wilderness of Karameikos",
+                subtitle: "Night's Dark Terror",
+                bg: "radial-gradient(circle at 20% 20%, #2a3b2f 0%, #1e2a24 45%, #151b18 100%)",
+                border: "#7aa16b",
+                glow: "rgba(122, 161, 107, 0.35)",
+                chapter: "#9fca8d",
+                mapImage: CAMPAIGN_MAP_ART["nights_dark_terror"]
+            },
+            "curse_of_strahd": {
+                title: "The Mists of Barovia",
+                subtitle: "Curse of Strahd",
+                bg: "radial-gradient(circle at 30% 20%, #2b2333 0%, #201725 45%, #151018 100%)",
+                border: "#9a7db8",
+                glow: "rgba(154, 125, 184, 0.35)",
+                chapter: "#bba1d6",
+                mapImage: CAMPAIGN_MAP_ART["curse_of_strahd"]
+            },
+            "tomb_of_annihilation": {
+                title: "Jungles of Chult",
+                subtitle: "Tomb of Annihilation",
+                bg: "radial-gradient(circle at 25% 25%, #35502f 0%, #213421 45%, #162418 100%)",
+                border: "#8bc66f",
+                glow: "rgba(139, 198, 111, 0.35)",
+                chapter: "#a8de8f",
+                mapImage: CAMPAIGN_MAP_ART["tomb_of_annihilation"]
+            },
+            "lost_mine_of_phandelver": {
+                title: "Sword Coast Frontier",
+                subtitle: "Lost Mine of Phandelver",
+                bg: "radial-gradient(circle at 25% 20%, #3a3530 0%, #27231f 45%, #1c1a17 100%)",
+                border: "#c8b089",
+                glow: "rgba(200, 176, 137, 0.35)",
+                chapter: "#e2c79b",
+                mapImage: CAMPAIGN_MAP_ART["lost_mine_of_phandelver"]
+            },
+            "keep_on_borderlands": {
+                title: "Borderlands Frontier",
+                subtitle: "Keep on the Borderlands",
+                bg: "radial-gradient(circle at 20% 20%, #2f3b40 0%, #222b2f 45%, #181f22 100%)",
+                border: "#8db7c6",
+                glow: "rgba(141, 183, 198, 0.35)",
+                chapter: "#a8d4e4",
+                mapImage: CAMPAIGN_MAP_ART["keep_on_borderlands"]
+            }
+        };
+
+        return themes[this.dm?.campaignId] || {
+            title: "Campaign Atlas",
+            subtitle: "Adventure Map",
+            bg: "radial-gradient(circle at 20% 20%, #3a3244 0%, #251f2d 45%, #18141d 100%)",
+            border: "#c9a227",
+            glow: "rgba(201,162,39,0.35)",
+            chapter: "#e3c76a",
+            mapImage: null
+        };
+    }
+
+    getMapCoordsKey(campaignId) {
+        return `dnd_map_coords_${campaignId || 'unknown'}`;
+    }
+
+    getMapCoordsForCampaign(campaignId) {
+        const key = this.getMapCoordsKey(campaignId);
+        try {
+            const raw = localStorage.getItem(key);
+            if (!raw) return {};
+            const parsed = JSON.parse(raw);
+            return parsed && typeof parsed === 'object' ? parsed : {};
+        } catch (err) {
+            return {};
+        }
+    }
+
+    saveMapCoordsForCampaign(campaignId, data) {
+        const key = this.getMapCoordsKey(campaignId);
+        localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    setMapCoord(campaignId, locationName, coord) {
+        if (!locationName || !coord) return;
+        const coords = this.getMapCoordsForCampaign(campaignId);
+        coords[locationName] = { x: coord.x, y: coord.y };
+        this.saveMapCoordsForCampaign(campaignId, coords);
+    }
+
+    clearMapCoord(campaignId, locationName) {
+        const coords = this.getMapCoordsForCampaign(campaignId);
+        if (coords[locationName]) {
+            delete coords[locationName];
+            this.saveMapCoordsForCampaign(campaignId, coords);
+        }
+    }
+
+    clearAllMapCoords(campaignId) {
+        const key = this.getMapCoordsKey(campaignId);
+        localStorage.removeItem(key);
+    }
+
+    getStoredMapCoord(campaignId, locationName) {
+        const coords = this.getMapCoordsForCampaign(campaignId);
+        return coords[locationName] || null;
+    }
+
+    buildCampaignMapLayout(locations) {
+        const campaignId = this.dm?.campaignId;
+        const storedCoords = this.getMapCoordsForCampaign(campaignId);
+        const chapters = [...new Set(locations.map(l => l.chapter ?? 0))].sort((a, b) => a - b);
+        const chapterIndex = {};
+        chapters.forEach((ch, idx) => chapterIndex[ch] = idx);
+
+        const chapterBuckets = {};
+        locations.forEach((loc, index) => {
+            const chapter = loc.chapter ?? 0;
+            if (!chapterBuckets[chapter]) chapterBuckets[chapter] = [];
+            chapterBuckets[chapter].push({ ...loc, index });
+        });
+
+        const chapterCount = Math.max(1, chapters.length);
+        const xMin = 85;
+        const xMax = 915;
+        const yMin = 72;
+        const yMax = 500;
+        const xStep = chapterCount > 1 ? (xMax - xMin) / (chapterCount - 1) : 0;
+
+        const nodes = [];
+
+        chapters.forEach(chapter => {
+            const bucket = chapterBuckets[chapter] || [];
+            const cIdx = chapterIndex[chapter] || 0;
+            const xBase = xMin + (cIdx * xStep);
+            const count = bucket.length;
+            const yStep = (yMax - yMin) / (count + 1);
+
+            bucket.forEach((loc, localIdx) => {
+                const jitterX = (((loc.index + 1) * 19) % 22) - 11;
+                const jitterY = (((loc.index + 1) * 23) % 28) - 14;
+                nodes.push({
+                    ...loc,
+                    x: Math.round(xBase + jitterX),
+                    y: Math.round(yMin + ((localIdx + 1) * yStep) + jitterY)
+                });
+            });
+        });
+
+        const nodeByIndex = {};
+        nodes.forEach(node => nodeByIndex[node.index] = node);
+
+        // Override layout with manual or stored coordinates when provided
+        nodes.forEach(node => {
+            const loc = locations[node.index];
+            if (!loc) return;
+            if (loc.mapX !== undefined && loc.mapY !== undefined) {
+                const x = Math.max(30, Math.min(970, Math.round(parseFloat(loc.mapX))));
+                const y = Math.max(30, Math.min(530, Math.round(parseFloat(loc.mapY))));
+                if (!Number.isNaN(x) && !Number.isNaN(y)) {
+                    node.x = x;
+                    node.y = y;
+                }
+                return;
+            }
+
+            const stored = storedCoords[loc.name];
+            if (stored && stored.x !== undefined && stored.y !== undefined) {
+                const x = Math.max(30, Math.min(970, Math.round(parseFloat(stored.x))));
+                const y = Math.max(30, Math.min(530, Math.round(parseFloat(stored.y))));
+                if (!Number.isNaN(x) && !Number.isNaN(y)) {
+                    node.x = x;
+                    node.y = y;
+                }
+            }
+        });
+
+        const edges = [];
+        for (let i = 1; i < locations.length; i++) {
+            if (nodeByIndex[i - 1] && nodeByIndex[i]) {
+                edges.push({ from: nodeByIndex[i - 1], to: nodeByIndex[i] });
+            }
+        }
+
+        return { nodes, edges, chapters };
+    }
+
     renderJournalMap() {
         if (!this.dm || !this.dm.campaign) {
             return '<p style="color:#888;text-align:center;padding:20px;">No campaign active.</p>';
         }
-        
-        const locations = this.dm.campaign.locations;
+
+        const locations = this.dm.campaign.locations || [];
         const currentLoc = this.dm.currentLocation;
-        const visitedLocations = this.dm.visitedLocations || new Set();
-        
-        // Group locations by chapter
-        const chapters = {};
-        locations.forEach((loc, idx) => {
-            const ch = loc.chapter ?? 0;
-            if (!chapters[ch]) chapters[ch] = [];
-            chapters[ch].push({ ...loc, index: idx });
-        });
-        
-        // Calculate progress
+        const campaignId = this.dm.campaignId;
+        const visitedLocations = this.dm.visitedLocations instanceof Set
+            ? this.dm.visitedLocations
+            : new Set(this.dm.visitedLocations || []);
+        const unlockedLocations = this.getAvailableLocations() || [];
+        const unlockedNameSet = new Set(unlockedLocations.map(loc => loc.name));
+        const theme = this.getCampaignMapTheme();
+        const { nodes, edges, chapters } = this.buildCampaignMapLayout(locations);
+        const storedCoords = this.getMapCoordsForCampaign(campaignId);
+
         const totalLocs = locations.length;
         const visitedCount = visitedLocations.size || 0;
-        const progressPct = Math.round((visitedCount / totalLocs) * 100);
-        
-        let html = `<div style="font-size:0.82rem;color:#aaa;margin-bottom:4px;">Explored: ${visitedCount}/${totalLocs} locations (${progressPct}%)</div>`;
-        html += `<div class="map-progress-bar"><div class="map-progress-fill" style="width:${progressPct}%"></div></div>`;
-        
-        for (const [chNum, locs] of Object.entries(chapters)) {
-            html += `<div class="map-chapter-label">Chapter ${chNum}</div>`;
-            html += `<div class="map-chapter-nodes">`;
-            for (const loc of locs) {
-                const isCurrent = currentLoc && currentLoc.name === loc.name;
-                const isVisited = visitedLocations.has(loc.name);
-                const cls = isCurrent ? 'current' : isVisited ? 'visited' : '';
-                html += `<div class="map-node ${cls}" title="${loc.description || loc.name}">
-                    <span class="node-icon">${loc.icon || '📍'}</span>
-                    <span>${loc.name}</span>
-                </div>`;
-            }
-            html += `</div>`;
+        const progressPct = totalLocs > 0 ? Math.round((visitedCount / totalLocs) * 100) : 0;
+        const unplacedCount = locations.filter(loc => {
+            if (loc.mapX !== undefined && loc.mapY !== undefined) return false;
+            return !storedCoords[loc.name];
+        }).length;
+
+        let svgEdges = '';
+        edges.forEach(edge => {
+            svgEdges += `
+                <line x1="${edge.from.x}" y1="${edge.from.y}" x2="${edge.to.x}" y2="${edge.to.y}"
+                    stroke="rgba(255,255,255,0.18)" stroke-width="2" stroke-linecap="round" />
+            `;
+        });
+
+        let svgNodes = '';
+        nodes.forEach(node => {
+            const isCurrent = currentLoc && currentLoc.name === node.name;
+            const isVisited = visitedLocations.has(node.name);
+            const isUnlocked = unlockedNameSet.has(node.name);
+            const isLocked = !isUnlocked;
+
+            const fill = isCurrent ? '#ffd35a' : isVisited ? '#6ec5ff' : isUnlocked ? '#86d68f' : '#5a5a5a';
+            const stroke = isCurrent ? '#ffe9a8' : isVisited ? '#b3e5ff' : isUnlocked ? '#c4f1cb' : '#7a7a7a';
+            const r = isCurrent ? 14 : 10;
+            const safeName = (node.name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const label = safeName.length > 20 ? `${safeName.slice(0, 20)}...` : safeName;
+            const escapedName = (node.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            const isPlacement = this.mapPlacementMode;
+            const cursor = isPlacement ? 'pointer' : isLocked ? 'default' : 'pointer';
+            const opacity = isLocked && !isPlacement ? 0.65 : 1;
+            const click = isPlacement
+                ? `onclick="game.selectMapPlacementTarget('${escapedName}')"`
+                : isLocked ? '' : `onclick="game.quickTravel(${node.index})"`;
+
+            svgNodes += `
+                <g ${click} style="cursor:${cursor};opacity:${opacity};">
+                    ${isCurrent ? `<circle cx="${node.x}" cy="${node.y}" r="21" fill="none" stroke="rgba(255,215,130,0.5)" stroke-width="2">
+                        <animate attributeName="r" values="19;24;19" dur="1.8s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="0.95;0.4;0.95" dur="1.8s" repeatCount="indefinite" />
+                    </circle>` : ''}
+                    <circle cx="${node.x}" cy="${node.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="2" />
+                    <text x="${node.x}" y="${node.y + 4}" text-anchor="middle" style="font-size:11px;pointer-events:none;">${node.icon || '📍'}</text>
+                    <text x="${node.x}" y="${node.y + 28}" text-anchor="middle" style="font-size:11px;fill:#ddd;pointer-events:none;">${label}</text>
+                    ${isCurrent ? `<text x="${node.x}" y="${node.y - 22}" text-anchor="middle" style="font-size:11px;fill:#ffd35a;font-weight:bold;pointer-events:none;">YOU ARE HERE</text>` : ''}
+                </g>
+            `;
+        });
+
+        const chapterBadges = chapters.map(ch => {
+            const chapterObj = this.dm.campaign.chapters?.[ch];
+            const title = chapterObj?.name ? chapterObj.name.split(':')[0] : `Chapter ${ch}`;
+            const active = this.dm.currentChapter === ch;
+            return `<span style="padding:3px 8px;border-radius:999px;border:1px solid ${active ? theme.chapter : 'rgba(255,255,255,0.25)'};color:${active ? theme.chapter : '#bbb'};font-size:0.72rem;">${title}</span>`;
+        }).join(' ');
+
+        const mapBgImage = theme.mapImage
+            ? `linear-gradient(rgba(8,8,10,0.52), rgba(8,8,10,0.58)), url('${theme.mapImage}')`
+            : theme.bg;
+
+        const placementMode = this.mapPlacementMode ? 'ON' : 'OFF';
+        const placementMarker = this.mapPlacementMarker;
+        if (this.mapPlacementMode && !this.mapPlacementTarget) {
+            this.mapPlacementTarget = currentLoc?.name || locations[0]?.name || null;
         }
-        
-        return html;
+        const placementTarget = this.mapPlacementTarget;
+        const placementLabel = placementMarker
+            ? `Last: ${placementMarker.x}, ${placementMarker.y}`
+            : 'Click the map to get coordinates';
+
+        const svgMarker = placementMarker && this.mapPlacementMode
+            ? `
+                <g>
+                    <circle cx="${placementMarker.x}" cy="${placementMarker.y}" r="10" fill="rgba(255,209,102,0.25)" stroke="#ffd166" stroke-width="2" />
+                    <line x1="${placementMarker.x - 14}" y1="${placementMarker.y}" x2="${placementMarker.x + 14}" y2="${placementMarker.y}" stroke="#ffd166" stroke-width="2" />
+                    <line x1="${placementMarker.x}" y1="${placementMarker.y - 14}" x2="${placementMarker.x}" y2="${placementMarker.y + 14}" stroke="#ffd166" stroke-width="2" />
+                </g>
+            `
+            : '';
+
+        return `
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                    <div>
+                        <div style="font-size:1rem;color:${theme.chapter};font-weight:bold;">🗺️ ${theme.title}</div>
+                        <div style="font-size:0.8rem;color:#999;">${theme.subtitle}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:0.82rem;color:#aaa;">Explored: ${visitedCount}/${totalLocs} (${progressPct}%)</div>
+                        <div style="width:180px;height:8px;background:rgba(255,255,255,0.12);border-radius:999px;overflow:hidden;">
+                            <div style="width:${progressPct}%;height:100%;background:linear-gradient(90deg, ${theme.border}, ${theme.chapter});"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">${chapterBadges}</div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                        <button onclick="game.toggleMapPlacementMode()" style="background:rgba(255,255,255,0.12);border:1px solid ${theme.border};color:#ddd;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:0.75rem;">
+                            📌 Placement Mode: ${placementMode}
+                        </button>
+                        ${this.mapPlacementMode ? `
+                            <select onchange="game.selectMapPlacementTarget(this.value)" style="background:rgba(0,0,0,0.35);border:1px solid ${theme.border};color:#ddd;padding:6px 8px;border-radius:6px;font-size:0.75rem;">
+                                ${locations.map(loc => {
+                                    const selected = loc.name === placementTarget ? 'selected' : '';
+                                    const hasCoord = (loc.mapX !== undefined && loc.mapY !== undefined) || storedCoords[loc.name];
+                                    const prefix = hasCoord ? '✅ ' : '⬜ ';
+                                    return `<option value="${loc.name}" ${selected}>${prefix}${loc.name}</option>`;
+                                }).join('')}
+                            </select>
+                            <button onclick="game.clearMapCoordForTarget()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);color:#ccc;padding:6px 8px;border-radius:6px;font-size:0.72rem;cursor:pointer;">Clear</button>
+                            <button onclick="game.selectNextUnplacedLocation()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);color:#ccc;padding:6px 8px;border-radius:6px;font-size:0.72rem;cursor:pointer;">Next Unplaced (${unplacedCount})</button>
+                            <button onclick="game.clearAllMapCoordsForCampaign()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);color:#ccc;padding:6px 8px;border-radius:6px;font-size:0.72rem;cursor:pointer;">Clear Campaign</button>
+                        ` : ''}
+                    </div>
+                    <div style="font-size:0.75rem;color:#aaa;">${this.mapPlacementMode ? placementLabel : 'Tip: enable placement mode to pick map coordinates'}</div>
+                </div>
+
+                <div style="background:${mapBgImage};background-size:cover;background-position:center;border:1px solid ${theme.border};box-shadow:0 0 18px ${theme.glow} inset;border-radius:12px;padding:8px;overflow:auto;">
+                    <svg id="journalMapSvg" viewBox="0 0 1000 560" onclick="game.handleMapCoordinateClick(event)" style="width:100%;min-width:780px;display:block;">
+                        <defs>
+                            <pattern id="gridMap" width="30" height="30" patternUnits="userSpaceOnUse">
+                                <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+                            </pattern>
+                        </defs>
+                        <rect x="0" y="0" width="1000" height="560" fill="url(#gridMap)" />
+                        ${svgEdges}
+                        ${svgMarker}
+                        ${svgNodes}
+                    </svg>
+                </div>
+
+                <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:0.75rem;color:#aaa;">
+                    <span>🟡 Current</span>
+                    <span>🔵 Visited</span>
+                    <span>🟢 Unlocked</span>
+                    <span>⚫ Locked</span>
+                    <span>Tip: Click an unlocked node to travel</span>
+                </div>
+            </div>
+        `;
+    }
+
+    toggleMapPlacementMode() {
+        this.mapPlacementMode = !this.mapPlacementMode;
+        if (!this.mapPlacementMode) {
+            this.mapPlacementMarker = null;
+            this.mapPlacementTarget = null;
+        } else if (!this.mapPlacementTarget) {
+            this.mapPlacementTarget = this.dm?.currentLocation?.name || this.dm?.campaign?.locations?.[0]?.name || null;
+        }
+        const content = document.getElementById("journalContent");
+        if (content) {
+            content.innerHTML = this.renderJournalMap();
+        }
+    }
+
+    selectMapPlacementTarget(locationName) {
+        this.mapPlacementTarget = locationName || null;
+        const content = document.getElementById("journalContent");
+        if (content) {
+            content.innerHTML = this.renderJournalMap();
+        }
+    }
+
+    clearMapCoordForTarget() {
+        const campaignId = this.dm?.campaignId;
+        const target = this.mapPlacementTarget;
+        if (!campaignId || !target) return;
+        this.clearMapCoord(campaignId, target);
+        this.mapPlacementMarker = null;
+        this.log(`🧹 Cleared map position for ${target}`, "dm");
+        const content = document.getElementById("journalContent");
+        if (content) {
+            content.innerHTML = this.renderJournalMap();
+        }
+    }
+
+    clearAllMapCoordsForCampaign() {
+        const campaignId = this.dm?.campaignId;
+        if (!campaignId) return;
+        if (!confirm("Clear all custom map placements for this campaign?")) return;
+        this.clearAllMapCoords(campaignId);
+        this.mapPlacementMarker = null;
+        this.log("🧹 Cleared all custom map placements for this campaign.", "dm");
+        const content = document.getElementById("journalContent");
+        if (content) {
+            content.innerHTML = this.renderJournalMap();
+        }
+    }
+
+    selectNextUnplacedLocation() {
+        const campaignId = this.dm?.campaignId;
+        const locations = this.dm?.campaign?.locations || [];
+        const stored = this.getMapCoordsForCampaign(campaignId);
+        const next = locations.find(loc => {
+            if (loc.mapX !== undefined && loc.mapY !== undefined) return false;
+            return !stored[loc.name];
+        });
+
+        if (next) {
+            this.mapPlacementTarget = next.name;
+            this.log(`📍 Selected next unplaced location: ${next.name}`, "dm");
+            const content = document.getElementById("journalContent");
+            if (content) {
+                content.innerHTML = this.renderJournalMap();
+            }
+        } else {
+            this.log("✅ All locations in this campaign are placed.", "dm");
+        }
+    }
+
+    handleMapCoordinateClick(event) {
+        if (!this.mapPlacementMode) return;
+
+        const svg = event.currentTarget;
+        if (!svg) return;
+
+        const rect = svg.getBoundingClientRect();
+        const x = Math.round(((event.clientX - rect.left) / rect.width) * 1000);
+        const y = Math.round(((event.clientY - rect.top) / rect.height) * 560);
+
+        this.mapPlacementMarker = { x, y };
+
+        const target = this.mapPlacementTarget || this.dm?.currentLocation?.name || null;
+        if (target) {
+            this.setMapCoord(this.dm?.campaignId, target, { x, y });
+        }
+
+        const coordText = target ? `${target} => mapX: ${x}, mapY: ${y}` : `mapX: ${x}, mapY: ${y}`;
+        if (navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText(coordText).catch(() => {});
+        }
+
+        this.log(`📌 Map coordinates copied: ${coordText}`, "dm");
+
+        const content = document.getElementById("journalContent");
+        if (content) {
+            content.innerHTML = this.renderJournalMap();
+        }
     }
     
     // ==================== NPC TALK SYSTEM ====================
@@ -13459,13 +15873,32 @@ class Game {
         
         if (npc.dialogue && npc.dialogue.length > 0) {
             const dialogue = Array.isArray(npc.dialogue) ? npc.dialogue[0] : npc.dialogue;
-            this.log(`<em>"${dialogue}"</em>`, "dm");
+            const styledDialogue = this.applyNPCSpeechPattern(npc, dialogue);
+            this.log(`<em>"${styledDialogue}"</em>`, "dm");
         }
         
         // Trigger any quest-related events
         this.checkNPCQuestTriggers(npcId);
         
         this.updateUI();
+    }
+
+    getNPCSpeechArchetype(npc) {
+        const roleText = `${npc.role || ''} ${npc.description || ''}`.toLowerCase();
+        if (roleText.includes('merchant') || roleText.includes('innkeeper') || roleText.includes('villager')) return 'commoner';
+        if (roleText.includes('lord') || roleText.includes('lady') || roleText.includes('baron') || roleText.includes('castellan') || roleText.includes('noble')) return 'noble';
+        if (roleText.includes('priest') || roleText.includes('sage') || roleText.includes('seer') || roleText.includes('madam')) return 'mysterious';
+        if (roleText.includes('guard') || roleText.includes('soldier') || roleText.includes('warrior') || roleText.includes('captain')) return 'gruff';
+        if (roleText.includes('evil') || roleText.includes('cult') || roleText.includes('vampire') || roleText.includes('necromancer')) return 'sinister';
+        if (roleText.includes('friend') || roleText.includes('guide') || roleText.includes('helper')) return 'cheerful';
+        return 'commoner';
+    }
+
+    applyNPCSpeechPattern(npc, dialogue) {
+        const archetype = this.getNPCSpeechArchetype(npc);
+        const pattern = NPC_SPEECH_PATTERNS[archetype] || NPC_SPEECH_PATTERNS.commoner;
+        if (!pattern || !pattern.prefix) return dialogue;
+        return `${pattern.prefix} ${dialogue}`;
     }
     
     checkNPCQuestTriggers(npcId) {
@@ -13515,6 +15948,144 @@ class Game {
     
     closeTalkMenu() {
         const modal = document.getElementById("talkModal");
+        if (modal) modal.classList.remove("active");
+    }
+
+    // ==================== TAVERN MINI-GAMES ====================
+    openMiniGameMenu() {
+        let modal = document.getElementById("miniGameModal");
+        if (!modal) {
+            modal = document.createElement("div");
+            modal.id = "miniGameModal";
+            modal.className = "modal";
+            document.body.appendChild(modal);
+        }
+
+        const gamesHtml = Object.entries(MINI_GAMES).map(([key, game]) => {
+            const minBet = game.minBet || 0;
+            const maxBet = game.maxBet || 0;
+            const usesBet = game.minBet !== undefined || game.maxBet !== undefined;
+
+            return `
+                <div class="travel-option" style="display:block; cursor: default;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <strong>${game.name}</strong>
+                        <span style="font-size: 0.85rem; opacity: 0.85;">Check: ${game.check || 'None'}</span>
+                    </div>
+                    <div style="font-size:0.9rem; opacity:0.9; margin:4px 0 8px 0;">${game.description}</div>
+                    ${usesBet ? `<div style="font-size:0.8rem; opacity:0.85; margin-bottom:6px;">Bet range: ${minBet}-${maxBet} gp</div>` : ''}
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        ${usesBet ? `<input id="minigame-bet-${key}" type="number" min="${minBet}" max="${maxBet}" value="${minBet}" style="width:120px;" />` : ''}
+                        <button class="buy-btn" onclick="game.playMiniGameFromMenu('${key}')">Play</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 620px; max-height: 75vh; overflow-y: auto;">
+                <h2>🎲 Tavern Mini-Games</h2>
+                <p style="color: gold; margin-bottom: 10px;">Your Gold: ${this.character.gold} gp</p>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    ${gamesHtml}
+                </div>
+                <button class="close-modal" style="margin-top: 12px;" onclick="game.closeMiniGameMenu()">Close</button>
+            </div>
+        `;
+
+        modal.classList.add("active");
+    }
+
+    playMiniGameFromMenu(gameType) {
+        const game = MINI_GAMES[gameType];
+        if (!game) return;
+
+        let bet = 0;
+        if (game.minBet !== undefined || game.maxBet !== undefined) {
+            const input = document.getElementById(`minigame-bet-${gameType}`);
+            bet = input ? parseInt(input.value, 10) : 0;
+            if (Number.isNaN(bet)) bet = 0;
+        }
+
+        const result = this.dm.playMiniGame(gameType, bet);
+        this.log(`🎲 ${result.message}`, result.success ? "success" : "danger");
+        this.updateUI();
+
+        if (result.success && result.goldGained) {
+            soundManager.playGold();
+        }
+
+        this.openMiniGameMenu();
+    }
+
+    closeMiniGameMenu() {
+        const modal = document.getElementById("miniGameModal");
+        if (modal) modal.classList.remove("active");
+    }
+
+    // ==================== IDENTIFICATION MENU ====================
+    openIdentificationMenu() {
+        let modal = document.getElementById("identifyModal");
+        if (!modal) {
+            modal = document.createElement("div");
+            modal.id = "identifyModal";
+            modal.className = "modal";
+            document.body.appendChild(modal);
+        }
+
+        const unidentified = this.dm.refreshUnidentifiedItems();
+        const listHtml = unidentified.length === 0
+            ? '<p style="color:#888;">No unidentified magic items right now.</p>'
+            : unidentified.map(item => `
+                <div class="travel-option" style="display:block; cursor:default;">
+                    <div style="font-weight:600; margin-bottom:8px;">❓ ${item}</div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="buy-btn" onclick="game.identifyByArcana('${item.replace(/'/g, "\\'")}')">🧠 Arcana Check (DC 15)</button>
+                        <button class="buy-btn" onclick="game.identifyBySage('${item.replace(/'/g, "\\'")}')">📚 Sage (100 gp)</button>
+                    </div>
+                </div>
+            `).join('');
+
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 560px; max-height: 75vh; overflow-y: auto;">
+                <h2>📖 Identify Magic Items</h2>
+                <p style="color: gold; margin-bottom: 10px;">Your Gold: ${this.character.gold} gp</p>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    ${listHtml}
+                </div>
+                <button class="close-modal" style="margin-top: 12px;" onclick="game.closeIdentificationMenu()">Close</button>
+            </div>
+        `;
+
+        modal.classList.add("active");
+    }
+
+    identifyByArcana(itemName) {
+        const check = this.dm.skillCheck("int", 15);
+        if (!check.success) {
+            this.log(`📖 You fail to identify ${itemName}. (Arcana ${check.total} vs DC 15)`, "danger");
+            this.openIdentificationMenu();
+            return;
+        }
+
+        const result = this.dm.identifyItem(itemName);
+        this.log(`📖 ${result.message} (Arcana ${check.total} vs DC 15)`, result.success ? "success" : "danger");
+        this.updateUI();
+        this.openIdentificationMenu();
+    }
+
+    identifyBySage(itemName) {
+        const result = this.dm.identifyItemBySage(itemName, 100);
+        this.log(`📖 ${result.message}`, result.success ? "success" : "danger");
+        if (result.success) {
+            soundManager.playGold();
+        }
+        this.updateUI();
+        this.openIdentificationMenu();
+    }
+
+    closeIdentificationMenu() {
+        const modal = document.getElementById("identifyModal");
         if (modal) modal.classList.remove("active");
     }
     
@@ -13788,13 +16359,21 @@ class Game {
                     ${subCompHtml}
                     ${partyStatus.map(c => {
                         const needsHealing = c.hp < c.maxHp;
-                        const hpPercent = (c.hp / c.maxHp) * 100;
+                        const hpPercent = Math.max(0, (c.hp / c.maxHp) * 100);
                         const hpClass = c.hp <= 0 ? 'critical' : c.hp <= c.maxHp / 4 ? 'critical' : c.hp <= c.maxHp / 2 ? 'wounded' : 'healthy';
+                        const statusColor = c.dead ? '#ff4444' : c.hp <= 0 ? '#ff8800' : '';
+                        // Build ability summary
+                        const abilityList = Object.values(c.abilities || {}).filter(a => a.usesPerRest).map(a => {
+                            const remaining = a.usesPerRest - (a.used || 0);
+                            const color = remaining > 0 ? '#8f8' : '#888';
+                            return `<span style="color:${color};font-size:0.75em;">${a.name} (${remaining}/${a.usesPerRest})</span>`;
+                        }).join(' · ');
                         return `
-                        <div class="party-member ${c.hp <= 0 ? 'unconscious' : ''}">
+                        <div class="party-member ${c.hp <= 0 ? 'unconscious' : ''} ${c.dead ? 'dead' : ''}">
                             <div class="member-info">
                                 <span class="member-name">🛡️ ${c.name}</span>
-                                <span class="member-class">${c.class} - ${c.status}</span>
+                                <span class="member-class">${c.class} Lv.${c.level} - <span style="color:${statusColor}">${c.status}</span></span>
+                                ${c.personality ? `<span style="font-size:0.75em;color:#aaa;font-style:italic;">${c.personality}</span>` : ''}
                             </div>
                             <div class="member-stats">
                                 <div class="companion-hp-bar-container">
@@ -13802,14 +16381,16 @@ class Game {
                                     <span class="companion-hp-text">HP: ${c.hp}/${c.maxHp}</span>
                                 </div>
                                 <span>Loyalty: ${this.getLoyaltyEmoji(c.loyalty)} ${c.loyalty}</span>
+                                ${abilityList ? `<div style="margin-top:4px;">${abilityList}</div>` : ''}
                             </div>
                             <div class="member-actions">
-                                ${needsHealing ? `
+                                ${c.dead ? '<span style="color:#ff4444;">☠️ Fallen</span>' : 
+                                needsHealing ? `
                                     ${hasHealingPotion ? `<button class="heal-btn" onclick="game.healCompanionWithPotion('${c.name}', 'Potion of Healing')">🧪 Heal (2d4+2)</button>` : ''}
                                     ${hasGreaterHealing ? `<button class="heal-btn" onclick="game.healCompanionWithPotion('${c.name}', 'Potion of Greater Healing')">🧪 Greater (4d4+4)</button>` : ''}
                                     ${!hasHealingPotion && !hasGreaterHealing ? '<span class="no-heals">No healing potions</span>' : ''}
                                 ` : '<span class="full-hp">✓ Full HP</span>'}
-                                <button class="small-btn dismiss" onclick="game.dismissCompanionUI('${c.name}')">Dismiss</button>
+                                ${!c.dead ? `<button class="small-btn dismiss" onclick="game.dismissCompanionUI('${c.name}')">Dismiss</button>` : ''}
                             </div>
                         </div>
                     `}).join('') || '<p style="color: #888;">No companions in party.</p>'}
@@ -14485,7 +17066,15 @@ class Game {
             const check = await this.dm.skillCheckAnimated("wis", 12, false, false, "Perception");
             if (check.success) {
                 this.log(`You search thoroughly! (Roll: ${check.roll}+${check.modifier}=${check.total} vs DC 12)`, "success");
-                if (Math.random() < 0.5) {
+                const lootRoll = Math.random();
+                if (lootRoll < 0.4) {
+                    // 40% chance for rations
+                    const rationDays = Math.floor(Math.random() * 3) + 2; // 2-4 days
+                    for (let i = 0; i < rationDays; i++) {
+                        this.character.inventory.push("Rations (1 day)");
+                    }
+                    this.log(`🥕 You find dried provisions left behind! Gained ${rationDays} days of rations.`, "loot");
+                } else if (lootRoll < 0.7) {
                     const gold = Math.floor(Math.random() * 16) + 5;
                     this.character.gold += gold;
                     this.log(`💰 You find ${gold} gold hidden under a bedroll!`, "loot");
@@ -14779,6 +17368,94 @@ class Game {
         this.updateUI();
     }
 
+    async trapEncounterEvent() {
+        // Pick a random trap type from the TRAPS constant
+        const trapKeys = Object.keys(TRAPS);
+        const trapKey = trapKeys[Math.floor(Math.random() * trapKeys.length)];
+        const trap = TRAPS[trapKey];
+        
+        this.log(`⚠️ You sense danger ahead...`, "dm");
+        
+        const choice = await this.showChoiceWithDC(
+            `⚠️ ${trap.name}!`,
+            `The corridor ahead looks suspicious. Something about the floor/walls doesn't look right...`,
+            [
+                { text: "🔍 Search for traps (Investigation)", skill: "int", dc: trap.dc - 2 },
+                { text: "🏃 Rush through quickly (Acrobatics)", skill: "dex", dc: trap.dc },
+                { text: "🔧 Proceed carefully", skill: null }
+            ]
+        );
+        
+        if (choice === 0) {
+            // Try to detect the trap
+            const detectResult = this.dm.detectTrap(trapKey, trap.dc - 2);
+            if (detectResult.detected) {
+                this.log(`✅ ${detectResult.message}`, "success");
+                this.log(`You found a ${trap.name}!`, "dm");
+                
+                // Offer to disarm
+                const disarmChoice = await this.showChoice(
+                    `🔧 ${trap.name} Detected`,
+                    `You've spotted the trap. What do you do?`,
+                    [{ text: "🔧 Disarm it" }, { text: "🚶 Carefully go around" }]
+                );
+                
+                if (disarmChoice === 0) {
+                    const disarmResult = this.dm.disarmTrap(trapKey, trap.dc);
+                    if (disarmResult.disarmed) {
+                        this.log(`✅ ${disarmResult.message}`, "success");
+                        const xp = 15 + Math.floor(trap.dc * 2);
+                        this.character.experience += xp;
+                        this.log(`Trap disarmed! +${xp} XP`, "success");
+                        if (this.character.experience >= getXpThreshold(this.character.level)) this.levelUp();
+                    } else {
+                        this.log(`💥 ${disarmResult.message}`, "danger");
+                        const damage = this.dm.rollDice(trap.damage);
+                        this.character.takeDamage(damage);
+                        this.log(`The ${trap.name} triggers for ${damage} ${trap.type} damage!`, "danger");
+                        if (this.character.hp <= 0) { this.gameOver(); return; }
+                    }
+                } else {
+                    this.log(`🚶 You carefully navigate around the ${trap.name}.`, "success");
+                    const xp = 10;
+                    this.character.experience += xp;
+                    this.log(`+${xp} XP for spotting the trap.`, "success");
+                }
+            } else {
+                this.log(`❌ ${detectResult.message}`, "danger");
+                // Undetected trap triggers
+                const triggerResult = this.dm.triggerTrap(trapKey);
+                if (triggerResult.saved) {
+                    this.log(`⚡ ${triggerResult.message}`, "dm");
+                } else {
+                    this.log(`💥 ${triggerResult.message}`, "danger");
+                }
+                if (this.character.hp <= 0) { this.gameOver(); return; }
+            }
+        } else if (choice === 1) {
+            // Rush through — DEX save
+            const check = await this.dm.skillCheckAnimated("dex", trap.dc, false, false, "Acrobatics");
+            if (check.success) {
+                this.log(`🏃 You dash through just in time! (${check.total} vs DC ${trap.dc})`, "success");
+            } else {
+                this.log(`💥 The ${trap.name} triggers!`, "danger");
+                const damage = this.dm.rollDice(trap.damage);
+                this.character.takeDamage(damage);
+                this.log(`You take ${damage} ${trap.type} damage! (${check.total} vs DC ${trap.dc})`, "danger");
+                if (this.character.hp <= 0) { this.gameOver(); return; }
+            }
+        } else {
+            // Proceed carefully — half damage
+            const damage = this.dm.rollDice(trap.damage);
+            const reducedDamage = Math.max(1, Math.floor(damage / 2));
+            this.character.takeDamage(reducedDamage);
+            this.log(`⚡ Your caution helps, but the ${trap.name} still catches you for ${reducedDamage} ${trap.type} damage (reduced).`, "danger");
+            if (this.character.hp <= 0) { this.gameOver(); return; }
+        }
+        
+        this.updateUI();
+    }
+
     useItem(item) {
         if (this.dm.inCombat) {
             this.log("You can't use items during combat!", "danger");
@@ -14869,16 +17546,22 @@ class Game {
             removeItem();
             this.log(`💊 You drink the ${item}. Any poison effects are cured!`, "success");
             this.updateUI();
-        } else if (item === "Rations (1 day)" || item === "Rain Catcher Rations") {
+        } else if (item === "Rations (1 day)" || item === "Trail Rations" || item === "Dwarven Cram" || item === "Rain Catcher Rations") {
             let heal;
             if (item === "Rain Catcher Rations") {
                 heal = this.dm.rollDice("2d4");
             } else {
-                heal = Math.floor(Math.random() * 3) + 1;
+                heal = Math.floor(Math.random() * 3) + 1; // 1-3 HP
             }
             this.character.heal(heal);
             removeItem();
             this.log(`🍖 You eat the ${item} and recover ${heal} HP.`, "success");
+            this.updateUI();
+        } else if (item === "Elven Waybread") {
+            // Elven waybread is light but surprisingly sustaining
+            this.character.heal(1);
+            removeItem();
+            this.log(`🍞 You eat the ${item}. Its light, honeyed flavor sustains you. Restored 1 HP.`, "success");
             this.updateUI();
         } else if (item === "Morning Lord's Blessing" || item === "Spirit of Ubtao" || item === "Hutaakan Healing Salve") {
             // Powerful campaign healing items
@@ -14991,6 +17674,15 @@ class Game {
             return;
         }
         
+        // Count how many of this item we have
+        const itemCount = this.character.inventory.filter(i => i === item).length;
+        
+        if (itemCount > 1) {
+            // Show quantity selector
+            this.showDropQuantityModal(item, itemCount);
+            return;
+        }
+        
         // Check item value for confirmation on expensive items
         const weight = ITEM_WEIGHTS[item];
         const isValuable = item.includes("Greater") || item.includes("+1") || item.includes("+2") || item.includes("+3") || 
@@ -15002,7 +17694,58 @@ class Game {
             return;
         }
         
-        this.confirmDrop(item);
+        this.confirmDrop(item, 1);
+    }
+    
+    showDropQuantityModal(item, maxCount) {
+        let modal = document.getElementById("dropQuantityModal");
+        if (!modal) {
+            modal = document.createElement("div");
+            modal.id = "dropQuantityModal";
+            modal.className = "modal";
+            document.body.appendChild(modal);
+        }
+        
+        const weight = ITEM_WEIGHTS[item] || 1;
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 400px; text-align: center;">
+                <h3>Drop ${item}</h3>
+                <p style="margin: 15px 0;">You have <strong style="color: #4CAF50;">${maxCount}</strong> of these.</p>
+                <p style="font-size: 0.85rem; color: #999; margin-bottom: 15px;">Weight: ${weight} lb${weight !== 1 ? 's' : ''} each</p>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin: 20px 0;">
+                    <button onclick="game.adjustDropQuantity(-1)" style="padding: 8px 16px; font-size: 1.2rem; background: rgba(100,100,120,0.4); border: 1px solid #555; color: #fff; border-radius: 4px; cursor: pointer;">▼</button>
+                    <input type="number" id="dropQuantityInput" min="1" max="${maxCount}" value="1" 
+                           style="width: 80px; padding: 8px; font-size: 1.2rem; background: rgba(30,30,40,0.8); border: 1px solid #555; color: #fff; border-radius: 4px; text-align: center;" />
+                    <button onclick="game.adjustDropQuantity(1)" style="padding: 8px 16px; font-size: 1.2rem; background: rgba(100,100,120,0.4); border: 1px solid #555; color: #fff; border-radius: 4px; cursor: pointer;">▲</button>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                    <button class="close-modal" style="background: #e74c3c; flex: 1;" onclick="game.confirmDropQuantity('${item.replace(/'/g, "\\'")}')">Drop</button>
+                    <button class="close-modal" style="flex: 1;" onclick="document.getElementById('dropQuantityModal').classList.remove('active')">Cancel</button>
+                </div>
+            </div>
+        `;
+        modal.classList.add("active");
+    }
+    
+    adjustDropQuantity(delta) {
+        const input = document.getElementById("dropQuantityInput");
+        if (input) {
+            const currentVal = parseInt(input.value) || 1;
+            const min = parseInt(input.min) || 1;
+            const max = parseInt(input.max) || 99;
+            input.value = Math.max(min, Math.min(max, currentVal + delta));
+        }
+    }
+    
+    confirmDropQuantity(item) {
+        const input = document.getElementById("dropQuantityInput");
+        const quantity = input ? parseInt(input.value) || 1 : 1;
+        
+        // Close modal
+        const modal = document.getElementById("dropQuantityModal");
+        if (modal) modal.classList.remove("active");
+        
+        this.confirmDrop(item, quantity);
     }
     
     showDropConfirmation(item) {
@@ -15029,17 +17772,25 @@ class Game {
         modal.classList.add("active");
     }
     
-    confirmDrop(item) {
+    confirmDrop(item, quantity = 1) {
         // Close confirmation modal if open
         const modal = document.getElementById("dropConfirmModal");
         if (modal) modal.classList.remove("active");
         
-        // Remove one instance of the item from inventory
-        const index = this.character.inventory.indexOf(item);
-        if (index > -1) {
-            this.character.inventory.splice(index, 1);
+        // Remove specified quantity of the item from inventory
+        let dropped = 0;
+        for (let i = 0; i < quantity; i++) {
+            const index = this.character.inventory.indexOf(item);
+            if (index > -1) {
+                this.character.inventory.splice(index, 1);
+                dropped++;
+            }
+        }
+        
+        if (dropped > 0) {
             const weight = ITEM_WEIGHTS[item] || 1;
-            this.log(`🗑️ Dropped ${item} (${weight} lb${weight !== 1 ? 's' : ''}).`, "dm");
+            const totalWeight = weight * dropped;
+            this.log(`🗑️ Dropped ${dropped}x ${item} (${totalWeight} lb${totalWeight !== 1 ? 's' : ''}).`, "dm");
             this.updateUI();
         }
     }
@@ -15083,9 +17834,14 @@ class Game {
             
             // Get NPCs available at this location
             const availableNPCs = this.getAvailableNPCs();
+            const unidentifiedCount = this.dm && this.dm.refreshUnidentifiedItems
+                ? this.dm.refreshUnidentifiedItems().length
+                : 0;
             
             shopBtnContainer.innerHTML = `
                 <button class="shop-btn" onclick="game.openShop('general')">🏺 Visit Shop</button>
+                <button class="shop-btn" onclick="game.openMiniGameMenu()">🎲 Mini-Games</button>
+                ${unidentifiedCount > 0 ? `<button class="shop-btn" onclick="game.openIdentificationMenu()">📖 Identify (${unidentifiedCount})</button>` : ''}
                 ${availableNPCs.length > 0 ? `<button class="talk-btn" onclick="game.openTalkMenu()">💬 Talk</button>` : ''}
             `;
             shopBtnContainer.style.display = "block";
@@ -15184,16 +17940,40 @@ class Game {
             };
             const levelLabel = loc.danger > 0 ? (levelRanges[loc.danger] || "Lv ?") : "";
             const originalIndex = this.dm.campaign.locations.indexOf(loc);
+            
+            // Calculate distance from current location
+            const distance = this.calculateDistance(this.dm.currentLocation, loc);
+            const distanceText = distance > 0 ? `${distance} mi` : "Nearby";
+            
             const option = document.createElement("div");
             option.className = "travel-option";
             option.innerHTML = `
-                <div>
-                    <span>${loc.icon} ${loc.name}</span>
-                    <div style="font-size: 0.8rem; color: #888;">${loc.description || loc.type}</div>
+                <div style="flex: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+                        <span style="font-weight: bold;">${loc.icon} ${loc.name}</span>
+                        <span style="font-size: 0.75rem; color: #aaa;">${distanceText}</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #888; margin-bottom: 6px;">${loc.description || loc.type}</div>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <button class="pace-btn slow" onclick="event.stopPropagation(); game.travelWithPace(${originalIndex}, 'slow')" 
+                                title="Slow pace: Stealth advantage, can spot dangers easier, takes longer"
+                                style="padding: 4px 10px; font-size: 0.72rem; background: rgba(100,200,100,0.2); border: 1px solid rgba(100,200,100,0.4); color: #8f8; border-radius: 4px; cursor: pointer;">
+                            🐢 Slow (18 mi/day, Stealth)
+                        </button>
+                        <button class="pace-btn normal" onclick="event.stopPropagation(); game.travelWithPace(${originalIndex}, 'normal')"
+                                title="Normal pace: Balanced travel"
+                                style="padding: 4px 10px; font-size: 0.72rem; background: rgba(200,200,100,0.2); border: 1px solid rgba(200,200,100,0.4); color: #ff8; border-radius: 4px; cursor: pointer;">
+                            🚶 Normal (24 mi/day)
+                        </button>
+                        <button class="pace-btn fast" onclick="event.stopPropagation(); game.travelWithPace(${originalIndex}, 'fast')"
+                                title="Fast pace: Quick travel but harder to spot dangers, no stealth"
+                                style="padding: 4px 10px; font-size: 0.72rem; background: rgba(200,100,100,0.2); border: 1px solid rgba(200,100,100,0.4); color: #f88; border-radius: 4px; cursor: pointer;">
+                            🏃 Fast (30 mi/day)
+                        </button>
+                    </div>
                 </div>
-                <span class="danger-level">${dangerStars}${levelLabel ? ` <span style="margin-left:6px;font-size:0.75rem;color:#c9a227;">${levelLabel}</span>` : ""}</span>
+                <span class="danger-level" style="margin-left: 8px;">${dangerStars}${levelLabel ? ` <span style="margin-left:6px;font-size:0.75rem;color:#c9a227;">${levelLabel}</span>` : ""}</span>
             `;
-            option.onclick = () => this.travel(originalIndex);
             optionsContainer.appendChild(option);
         });
         
@@ -15202,6 +17982,251 @@ class Game {
 
     closeTravelModal() {
         document.getElementById("travelModal").classList.remove("active");
+    }
+    
+    // Calculate distance between two locations (in miles)
+    calculateDistance(loc1, loc2) {
+        // If locations have map coordinates, use them
+        if (loc1.mapX !== undefined && loc2.mapX !== undefined) {
+            const dx = loc2.mapX - loc1.mapX;
+            const dy = loc2.mapY - loc1.mapY;
+            // Scale factor: map is roughly 1000x560 units, representing ~200 mile span
+            const pixelDistance = Math.sqrt(dx * dx + dy * dy);
+            const miles = Math.round((pixelDistance / 1000) * 200);
+            return Math.max(5, miles); // Minimum 5 miles
+        }
+        
+        // Fallback: estimate based on location type and danger
+        if (loc1.name === loc2.name) return 0;
+        const baseDist = 20 + (Math.abs((loc1.danger || 0) - (loc2.danger || 0)) * 10);
+        return baseDist;
+    }
+    
+    // Travel with chosen pace
+    async travelWithPace(locationIndex, pace) {
+        const newLocation = this.dm.campaign.locations[locationIndex];
+        const distance = this.calculateDistance(this.dm.currentLocation, newLocation);
+        
+        // Close modal
+        this.closeTravelModal();
+        
+        // Pre-flight checks (same as regular travel)
+        if (this.character.hp <= 0) {
+            this.log("You're unconscious and need medical attention! Rest to recover.", "danger");
+            return;
+        }
+        if (this.character.exhaustion >= 5) {
+            this.log("⚠️ You are too exhausted to travel! (Exhaustion level 5). You must rest.", "danger");
+            return;
+        }
+        const enc = this.dm.calculateEncumbrance();
+        if (enc.current >= enc.capacity) {
+            this.log(`⚠️ You are carrying ${enc.current} lbs — over capacity! Drop items before traveling.`, "danger");
+            return;
+        }
+        
+        // Gate checks
+        if (this.dm.campaignId === "nights_dark_terror" && newLocation.name === "Sukiskyn Homestead" && !this.dm.questFlags.clearedWildernessRoad) {
+            this.log("The road to Sukiskyn is dangerous. Meet Stephan at Misha's Ferry and clear the wilderness road first.", "warning");
+            return;
+        }
+        
+        // Nearby locations (< 10 miles): instant travel with short time passage
+        if (distance < 10) {
+            this.log(`${newLocation.name} is nearby. Traveling quickly...`, "dm");
+            await this.travel(locationIndex);
+            return;
+        }
+        
+        // Long distance: use pace system
+        const paces = {
+            slow: { speed: 18, name: "🐢 Slow", stealthBonus: true, perceptionPenalty: 5, encounterMod: -0.1 },
+            normal: { speed: 24, name: "🚶 Normal", stealthBonus: false, perceptionPenalty: 0, encounterMod: 0 },
+            fast: { speed: 30, name: "🏃 Fast", stealthBonus: false, perceptionPenalty: -5, encounterMod: 0.1 }
+        };
+        
+        const paceInfo = paces[pace] || paces.normal;
+        const daysNeeded = Math.ceil(distance / paceInfo.speed);
+        
+        // Check rations - include all types of rations
+        const rationTypes = ["Rations (1 day)", "Trail Rations", "Dwarven Cram", "Elven Waybread", "Frontier Rations", "Rain Catcher Rations"];
+        let rationsAvailable = 0;
+        
+        // Count all ration items in inventory
+        this.character.inventory.forEach(item => {
+            if (typeof item === 'string') {
+                // String-based inventory - check if item name includes ration keywords
+                if (rationTypes.includes(item) || item.toLowerCase().includes('ration')) {
+                    rationsAvailable++;
+                }
+            } else if (item && item.name) {
+                // Object-based inventory with quantity
+                if (rationTypes.includes(item.name) || item.name.toLowerCase().includes('ration')) {
+                    rationsAvailable += item.quantity || 1;
+                }
+            }
+        });
+        
+        // Warn if short on rations, but allow travel
+        if (rationsAvailable < daysNeeded) {
+            this.log(`⚠️ Warning: Only ${rationsAvailable} day${rationsAvailable !== 1 ? 's' : ''} of rations for ${daysNeeded}-day journey!`, "warning");
+            this.log(`💡 You'll take damage/exhaustion if you travel without food. Find food or shorten your journey.`, "dm");
+        }
+        
+        // Start journey
+        this.log(`🗺️ Beginning ${daysNeeded}-day journey to ${newLocation.name} at ${paceInfo.name} pace...`, "dm");
+        this.log(`📍 Distance: ${distance} miles | Speed: ${paceInfo.speed} mi/day | Rations: ${rationsAvailable}/${daysNeeded}`, "dm");
+        
+        if (pace === "slow") {
+            this.log(`🐢 Slow pace: You move carefully, able to use stealth and spot dangers more easily.`, "dm");
+        } else if (pace === "fast") {
+            this.log(`🏃 Fast pace: You rush onward, but are less able to notice threats or move stealthily.`, "warning");
+        }
+        
+        // Simulate each day of travel
+        let remainingMiles = distance;
+        let day = 1;
+        while (remainingMiles > 0) {
+            await this.delay(800);
+            
+            // Advance time by 8 hours per day
+            this.dm.advanceTime(8);
+            
+            const milesToday = Math.min(paceInfo.speed, remainingMiles);
+            remainingMiles -= milesToday;
+            this.log(`📅 Day ${day}/${daysNeeded}: Traveled ${milesToday} miles. ${remainingMiles} mi remaining.`, "dm");
+            
+            // Consume 1 ration per day
+            let rationFound = false;
+            for (let i = this.character.inventory.length - 1; i >= 0; i--) {
+                const item = this.character.inventory[i];
+                if (typeof item === 'string') {
+                    if (rationTypes.includes(item) || item.toLowerCase().includes('ration')) {
+                        this.character.inventory.splice(i, 1);
+                        rationFound = true;
+                        break;
+                    }
+                } else if (item && item.name && (rationTypes.includes(item.name) || item.name.toLowerCase().includes('ration'))) {
+                    item.quantity = (item.quantity || 1) - 1;
+                    if (item.quantity <= 0) {
+                        this.character.inventory.splice(i, 1);
+                    }
+                    rationFound = true;
+                    break;
+                }
+            }
+            
+            // Starvation penalty if no rations (D&D 5e rules)
+            if (!rationFound) {
+                const starvationDamage = Math.floor(Math.random() * 6) + 1; // 1d6 damage
+                this.character.takeDamage(starvationDamage);
+                this.log(`😰 No food! You suffer ${starvationDamage} damage from hunger and exhaustion.`, "danger");
+                this.updateUI();
+                
+                // Check if player survives
+                if (this.character.hp <= 0) {
+                    this.log(`💀 You collapse from starvation during your journey...`, "danger");
+                    return;
+                }
+            }
+            
+            // Random encounter chance (base 30%, modified by pace)
+            const encounterChance = 0.3 + paceInfo.encounterMod;
+            const dangerLevel = newLocation.danger || 1;
+            
+            if (Math.random() < encounterChance && dangerLevel > 0 && !this.dm.inCombat) {
+                // Perception check to spot encounter before it happens
+                const roll = Math.floor(Math.random() * 20) + 1;
+                const wisMod = this.character.getModifier("wis");
+                const perceptionTotal = roll + wisMod + paceInfo.perceptionPenalty;
+                const dc = 10 + dangerLevel * 2;
+                
+                if (perceptionTotal >= dc) {
+                    this.log(`👀 You spot potential danger ahead! (Perception: ${perceptionTotal} vs DC ${dc})`, "success");
+                    if (pace === "slow" && Math.random() < 0.6) {
+                        this.log(`🐢 Moving slowly, you manage to avoid the encounter entirely!`, "success");
+                        continue; // Skip this encounter
+                    }
+                    this.log(`⚔️ You prepare for combat...`, "dm");
+                } else {
+                    this.log(`❗ Ambushed during travel! (Failed Perception: ${perceptionTotal} vs DC ${dc})`, "danger");
+                }
+                
+                await this.delay(600);
+                const tier = Math.min(dangerLevel, 3);
+                const monsters = this.dm.campaign.monsters[tier];
+                const monster = { ...monsters[Math.floor(Math.random() * monsters.length)] };
+                this.startCombat(monster);
+                
+                // Wait for combat to end before continuing travel
+                await this.waitForCombatEnd();
+                
+                // Check if player died
+                if (this.character.hp <= 0) {
+                    this.log(`💀 Your journey ends here...`, "danger");
+                    return;
+                }
+            }
+            
+            // Forced march check
+            if (this.dm.hoursWithoutLongRest > 16) {
+                const hoursPast = Math.floor(this.dm.hoursWithoutLongRest - 16);
+                const dc = 10 + hoursPast;
+                const conMod = this.character.getModifier("con");
+                const roll = Math.floor(Math.random() * 20) + 1;
+                const total = roll + conMod;
+                if (total < dc) {
+                    const result = this.addExhaustion(1);
+                    this.log(`😰 Forced march! CON save: ${total} vs DC ${dc} — Failed! Exhaustion level ${result.exhaustion}.`, "danger");
+                    if (result.exhaustion >= 6) {
+                        this.log(`💀 You collapse from total exhaustion...`, "danger");
+                        this.character.hp = 0;
+                        this.gameOver();
+                        return;
+                    }
+                }
+            }
+
+            day += 1;
+        }
+        
+        // Arrival
+        await this.delay(400);
+        const daysTraveled = day - 1;
+        this.log(`✅ Arrived at ${newLocation.name} after ${daysTraveled} day${daysTraveled > 1 ? 's' : ''} of travel!`, "success");
+        
+        // Show transition and change location
+        await this.showLocationTransition(newLocation.name, newLocation.type);
+        this.dm.currentLocation = newLocation;
+        this.dm.visitedLocations.add(newLocation.name);
+        musicManager.playAmbientForLocation(newLocation);
+        
+        if (newLocation.description) {
+            this.log(`<em>${newLocation.description}</em>`, "dm");
+        }
+        
+        // Story triggers
+        try {
+            this.checkStoryTriggers(newLocation);
+        } catch (e) {
+            console.error('Story trigger error:', e);
+        }
+        
+        this.updateUI();
+    }
+    
+    // Helper to wait for combat to finish
+    waitForCombatEnd() {
+        return new Promise(resolve => {
+            const checkCombat = () => {
+                if (!this.dm.inCombat) {
+                    resolve();
+                } else {
+                    setTimeout(checkCombat, 500);
+                }
+            };
+            checkCombat();
+        });
     }
 
     travel(locationIndex) {
@@ -15302,7 +18327,12 @@ class Game {
         }
         
         // Random encounter while traveling (skip if story trigger already started combat)
-        if (!this.dm.inCombat && Math.random() < 0.35 && newLocation.danger > 0) {
+        // Random encounter while traveling (skip if story trigger already started combat)
+        // Also skip random encounters during NDT siege (siege has its own guaranteed goblin encounters)
+        const inNDTSiege = this.dm.campaignId === "nights_dark_terror" && this.dm.currentChapter === 1 
+            && !this.dm.questFlags.survivedSiege && this.dm.questFlags.reachedSukiskyn
+            && ["Sukiskyn Homestead", "Sukiskyn Stables", "Palisade Walls"].includes(newLocation.name);
+        if (!this.dm.inCombat && !inNDTSiege && Math.random() < 0.35 && newLocation.danger > 0) {
             this.log("You encounter enemies!", "danger");
             const tier = Math.min(newLocation.danger, 3);
             const monsters = this.dm.campaign.monsters[tier];
@@ -15319,6 +18349,19 @@ class Game {
         const campaignId = this.dm.campaignId;
         
         if (campaignId === "nights_dark_terror") {
+            // Auto-trigger intro when arriving at Misha's Ferry (so player doesn't have to manually TALK)
+            if (location.name === "Misha's Ferry" && !flags.intro) {
+                this.triggerStoryEvent("intro");
+                return; // Let intro dialog complete before other triggers
+            }
+            
+            // Prologue - Wilderness Road: warn if player hasn't met Stephan yet
+            if (location.name === "The Wilderness Road" && !flags.metStephan) {
+                this.log("The wilderness road stretches ahead into dangerous, unknown territory.", "warning");
+                this.log("💡 <strong>TIP:</strong> Travel to Misha's Ferry first — you need a guide before venturing into the wilds!", "loot");
+                return;
+            }
+            
             // Prologue - Wilderness Road ambush
             if (location.name === "The Wilderness Road" && flags.metStephan && !flags.clearedWildernessRoad) {
                 this.log("⚠️ Goblin scouts emerge from the treeline and charge!", "danger");
@@ -15334,6 +18377,27 @@ class Game {
             // Chapter 1 trigger - reaching Sukiskyn (town arrival, siege starts after)
             if (location.name === "Sukiskyn Homestead" && !flags.reachedSukiskyn && flags.clearedWildernessRoad) {
                 this.triggerStoryEvent("reachSukiskyn");
+            }
+            
+            // Siege goblin waves - guarantee goblin encounters at Sukiskyn locations during siege
+            if (flags.reachedSukiskyn && !flags.survivedSiege && !this.dm.inCombat &&
+                ["Sukiskyn Homestead", "Sukiskyn Stables", "Palisade Walls"].includes(location.name)) {
+                const remaining = 5 - (flags.goblinsKilled || 0);
+                if (remaining > 0) {
+                    const siegeGoblins = [
+                        { tier: 1, name: "Goblin Scout" },
+                        { tier: 2, name: "Goblin Warrior" },
+                        { tier: 2, name: "Goblin Wolf-Rider" },
+                        { tier: 2, name: "Goblin Archer" }
+                    ];
+                    const pick = siegeGoblins[Math.floor(Math.random() * siegeGoblins.length)];
+                    const goblin = this.dm.campaign.monsters[pick.tier]?.find(m => m.name === pick.name);
+                    if (goblin) {
+                        this.log(`⚔️ The siege continues! A ${pick.name} charges the homestead!`, "danger");
+                        this.log(`📊 Siege Progress: ${flags.goblinsKilled || 0}/${5} goblins defeated — ${remaining} remaining!`, "dm");
+                        this.startCombat({ ...goblin });
+                    }
+                }
             }
             
             // Chapter 3 trigger - entering Xitaqa's Lair - bugbear guards block the way
@@ -15376,6 +18440,11 @@ class Game {
                 this.startCombat(golthar);
             }
         } else if (campaignId === "curse_of_strahd") {
+            // Auto-trigger intro at Gates of Barovia
+            if (location.name === "Gates of Barovia" && !flags.enteredBarovia) {
+                this.triggerStoryEvent("intro_strahd");
+            }
+            
             // Death House - animated dead block the entrance
             if (location.name === "Death House" && !flags.clearedDeathHouse) {
                 this.log("The door creaks open and a shambling horror lurches from the darkness! The dead walk in this cursed house!", "danger");
@@ -15618,9 +18687,26 @@ class Game {
                 this.startCombat(highPriest);
             }
         } else if (campaignId === "lost_mine_of_phandelver") {
+            // Chapter 1: First visit to Goblin Ambush Site - set up the ambush and advance chapter
+            if (location.name === "Goblin Ambush Site" && !flags.ambushed) {
+                this.dm.questFlags.ambushed = true;
+                if (this.dm.currentChapter < 1) this.dm.currentChapter = 1;
+                this.log("🛤️ <strong>CHAPTER 1: GOBLIN TROUBLE</strong>", "danger");
+                this.log("You spot two dead horses sprawled across the trail, peppered with black-feathered arrows. The saddlebags have been looted. These are Gundren's horses!", "dm");
+                this.log("📜 <strong>OBJECTIVE:</strong> Follow the goblin trail to find Gundren and Sildar!", "loot");
+                this.character.addJournalEntry('quest', {
+                    id: 'rescue_gundren',
+                    name: 'Find Gundren Rockseeker',
+                    description: 'Gundren and Sildar were ambushed by goblins on the Triboar Trail. Find them!',
+                    completed: false
+                });
+                this.log("📜 <strong>QUEST STARTED:</strong> Find Gundren Rockseeker", "loot");
+                this.updateChapterDisplay();
+            }
+            
             // Chapter 1: Goblin Ambush Site - goblin camp encounter
             if (location.name === "Goblin Ambush Site" && !flags.clearedAmbushSite) {
-                this.log("More goblins lurk at the ambush site! They spring from their hiding spots with weapons drawn!", "danger");
+                this.log("Goblins lurk at the ambush site! They spring from their hiding spots with weapons drawn!", "danger");
                 this.dm.pendingStoryEvent = "clearAmbushSite";
                 const goblin = { ...this.dm.campaign.monsters[1].find(m => m.name === "Goblin") };
                 goblin.name = "Goblin Raider";
@@ -15886,10 +18972,11 @@ class Game {
             this.log(`🐉 Breath Weapon recharged!`, "success");
         }
         
-        // Heal companions on short rest (recover half their max HP)
+        // Heal companions on short rest (recover half their max HP) and reset short-rest abilities
         if (this.dm.party && this.dm.party.length > 0) {
             for (const companion of this.dm.party) {
-                if (companion.currentHp < companion.maxHp) {
+                if (companion.dead) continue;
+                if (companion.currentHp < companion.maxHp && companion.currentHp > 0) {
                     const healAmount = Math.floor(companion.maxHp / 2);
                     const oldHp = companion.currentHp;
                     companion.currentHp = Math.min(companion.maxHp, companion.currentHp + healAmount);
@@ -15897,6 +18984,18 @@ class Game {
                     if (healed > 0) {
                         this.log(`💚 ${companion.name} recovers ${healed} HP during the short rest. (${companion.currentHp}/${companion.maxHp})`, "success");
                     }
+                }
+                // Reset Fighter short-rest abilities (Second Wind, Action Surge)
+                if (companion.abilities) {
+                    if (companion.abilities.secondWind) companion.abilities.secondWind.used = 0;
+                    if (companion.abilities.actionSurge) companion.abilities.actionSurge.used = 0;
+                }
+                // Stabilized companions regain 1 HP after a short rest
+                if (companion.currentHp <= 0 && companion.stable && !companion.dead) {
+                    companion.currentHp = 1;
+                    companion.stable = false;
+                    companion.deathSaves = { successes: 0, failures: 0 };
+                    this.log(`💚 ${companion.name} regains consciousness after the rest. (1/${companion.maxHp} HP)`, "success");
                 }
             }
         }
@@ -15978,6 +19077,20 @@ class Game {
         // Clear conditions
         char.clearAllConditions();
 
+        // Progress diseases (damage, natural recovery)
+        if (char.diseases && char.diseases.length > 0) {
+            const diseaseResults = this.dm.progressDiseases();
+            for (const msg of diseaseResults) {
+                this.log(`🦠 ${msg}`, "danger");
+            }
+        }
+        
+        // Short-term madness clears on long rest
+        if (char.madness && char.madness.shortTerm && char.madness.shortTerm.length > 0) {
+            char.madness.shortTerm = [];
+            this.log(`😌 A good rest clears your short-term madness.`, "success");
+        }
+
         // Reset short rest counter
         this.dm.shortRestsTaken = 0;
         
@@ -16033,13 +19146,35 @@ class Game {
             if (char.race === "Half-Orc") char.racialAbilities.relentlessUsed = false;
         }
         
-        // Fully heal all companions on long rest
+        // Fully heal all companions on long rest and reset all abilities
         if (this.dm.party && this.dm.party.length > 0) {
             for (const companion of this.dm.party) {
-                if (companion.currentHp < companion.maxHp) {
+                if (companion.dead) continue;
+                // Full heal (including stabilized/unconscious companions)
+                if (companion.currentHp < companion.maxHp || companion.currentHp <= 0) {
                     companion.currentHp = companion.maxHp;
+                    companion.stable = false;
+                    companion.deathSaves = { successes: 0, failures: 0 };
                     this.log(`💚 ${companion.name} is fully restored. (${companion.currentHp}/${companion.maxHp})`, "success");
                 }
+                // Reset ALL ability uses on long rest
+                if (companion.abilities) {
+                    for (const ability of Object.values(companion.abilities)) {
+                        if (ability.usesPerRest !== undefined) {
+                            ability.used = 0;
+                        }
+                    }
+                }
+                // Clear combat buffs
+                if (companion.shieldOfFaithActive) {
+                    companion.ac -= 2;
+                    companion.shieldOfFaithActive = false;
+                    companion.shieldOfFaithTurns = 0;
+                }
+                companion.huntersMarkActive = false;
+                companion.huntersMarkTurns = 0;
+                companion.dodging = false;
+                companion.protecting = false;
             }
         }
         
@@ -16119,6 +19254,26 @@ class Game {
             this.dm.currentChapter = saveData.currentChapter || 0;
             this.dm.questFlags = saveData.questFlags || this.dm.questFlags;
             this.dm.party = saveData.party || [];
+            // Migrate older companions to include the new AI ability system
+            for (const companion of this.dm.party) {
+                if (!companion.abilities && companion.class) {
+                    const classAbilities = COMPANION_CLASS_ABILITIES[companion.class] || {};
+                    companion.abilities = {};
+                    for (const [key, ability] of Object.entries(classAbilities)) {
+                        companion.abilities[key] = { ...ability };
+                    }
+                }
+                if (!companion.combatStyle && companion.class) {
+                    companion.combatStyle = COMPANION_COMBAT_STYLE[companion.class] ||
+                        { aggression: 0.5, protection: 0.3, selfPreservation: 0.5 };
+                }
+                if (!companion.deathSaves) companion.deathSaves = { successes: 0, failures: 0 };
+                if (companion.stable === undefined) companion.stable = false;
+                if (companion.dodging === undefined) companion.dodging = false;
+                if (companion.protecting === undefined) companion.protecting = false;
+                if (companion.shieldOfFaithActive === undefined) companion.shieldOfFaithActive = false;
+                if (companion.huntersMarkActive === undefined) companion.huntersMarkActive = false;
+            }
             this.dm.hoursWithoutLongRest = saveData.hoursWithoutLongRest || 0;
             if (saveData.visitedLocations) {
                 this.dm.visitedLocations = new Set(saveData.visitedLocations);
@@ -16740,6 +19895,30 @@ class Game {
     }
 
     gameOver() {
+        // Check if a party companion can cast a resurrection spell on the player
+        const resClasses = ["Cleric", "Paladin"];
+        const partyRescuer = (this.dm.party || []).find(c => c.currentHp > 0 && resClasses.includes(c.class));
+        if (partyRescuer) {
+            this.character.hp = 1;
+            this.log(`🌟 ${partyRescuer.name} casts Revivify! You return to life with 1 HP!`, "success");
+            this.log(`(Thank your party's ${partyRescuer.class} for saving you!)`, "dm");
+            this.updateUI();
+            return;
+        }
+        
+        // Check if player has a resurrection scroll in inventory
+        const resScrollIdx = this.character.inventory.findIndex(i => 
+            i && (i.name === "Scroll of Revivify" || i.name === "Scroll of Resurrection")
+        );
+        if (resScrollIdx !== -1) {
+            const scroll = this.character.inventory[resScrollIdx];
+            this.character.inventory.splice(resScrollIdx, 1);
+            this.character.hp = 1;
+            this.log(`🌟 Your ${scroll.name} activates! You return to life with 1 HP!`, "success");
+            this.updateUI();
+            return;
+        }
+        
         this.endCombat(false);
         this.log("💀 GAME OVER", "danger");
         this.log(`${this.character.name} has fallen after ${this.dm.turn} turns.`, "danger");
@@ -17483,8 +20662,17 @@ class Game {
             // Lost Mine of Phandelver events
             case "clearAmbushSite":
                 this.dm.questFlags.clearedAmbushSite = true;
+                // Safety net: ensure ambushed flag and chapter are set
+                if (!this.dm.questFlags.ambushed) {
+                    this.dm.questFlags.ambushed = true;
+                }
+                if (this.dm.currentChapter < 1) {
+                    this.dm.currentChapter = 1;
+                }
                 this.grantExperience(50);
                 this.log("You clear out the remaining goblins at the ambush site. Tracks lead north toward the Cragmaw Hideout.", "success");
+                this.log("💡 <strong>TIP:</strong> Travel to the Cragmaw Hideout to rescue Sildar!", "loot");
+                this.updateChapterDisplay();
                 this.updateUI();
                 break;
             
