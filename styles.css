@@ -523,10 +523,7 @@ body::before {
 
 /* Inventory */
 .inventory-list {
-    font-size: 0.9rem;
-    max-height: 200px;
-    overflow-y: auto;
-    padding-right: var(--spacing-sm);
+    font-size: 0.82rem;
 }
 
 .inventory-list::-webkit-scrollbar {

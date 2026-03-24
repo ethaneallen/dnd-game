@@ -7884,88 +7884,77 @@ class Game {
     // Settings Panel
     openSettings() {
         const html = `
-            <div class="settings-modal">
-                <h2>⚙️ Settings</h2>
-                
-                <div class="settings-grid">
-                    <div class="settings-section">
-                        <h3>Difficulty</h3>
-                        <div class="settings-buttons">
-                            <button class="setting-btn ${this.difficulty === 'easy' ? 'active' : ''}" onclick="game.setDifficulty('easy'); game.openSettings();">Easy</button>
-                            <button class="setting-btn ${this.difficulty === 'normal' ? 'active' : ''}" onclick="game.setDifficulty('normal'); game.openSettings();">Normal</button>
-                            <button class="setting-btn ${this.difficulty === 'hard' ? 'active' : ''}" onclick="game.setDifficulty('hard'); game.openSettings();">Hard</button>
-                        </div>
-                        <p class="setting-desc">${DIFFICULTY_SETTINGS[this.difficulty].description}</p>
-                    </div>
-                    
-                    <div class="settings-section">
-                        <h3>Theme</h3>
-                        <div class="settings-buttons">
-                            <button class="setting-btn ${this.theme === 'dark' ? 'active' : ''}" onclick="game.theme='dark'; game.applyTheme(); game.saveSettings(); game.openSettings();">🌙 Dark</button>
-                            <button class="setting-btn ${this.theme === 'light' ? 'active' : ''}" onclick="game.theme='light'; game.applyTheme(); game.saveSettings(); game.openSettings();">☀️ Light</button>
-                        </div>
-                    </div>
-                    
-                    <div class="settings-section">
-                        <h3>Font Size</h3>
-                        <div class="settings-buttons">
-                            <button class="setting-btn ${this.fontSize === 'small' ? 'active' : ''}" onclick="game.setFontSize('small'); game.openSettings();">Small</button>
-                            <button class="setting-btn ${this.fontSize === 'medium' ? 'active' : ''}" onclick="game.setFontSize('medium'); game.openSettings();">Medium</button>
-                            <button class="setting-btn ${this.fontSize === 'large' ? 'active' : ''}" onclick="game.setFontSize('large'); game.openSettings();">Large</button>
-                        </div>
-                    </div>
-                    
-                    <div class="settings-section">
-                        <h3>Audio</h3>
-                        <div class="settings-buttons">
-                            <button class="setting-btn ${soundManager.enabled ? 'active' : ''}" onclick="soundManager.enabled = !soundManager.enabled; game.openSettings();">🔊 Sound: ${soundManager.enabled ? 'ON' : 'OFF'}</button>
-                            <button class="setting-btn ${musicManager.enabled ? 'active' : ''}" onclick="musicManager.toggle(); game.openSettings();">🎵 Music: ${musicManager.enabled ? 'ON' : 'OFF'}</button>
-                        </div>
-                        
-                        <h4 style="margin-top: 15px;">🌲 Ambient Soundscapes</h4>
-                        <div class="settings-buttons">
-                            <button class="setting-btn ${musicManager.ambientEnabled ? 'active' : ''}" 
-                                onclick="musicManager.setAmbientEnabled(!musicManager.ambientEnabled); game.openSettings();">
-                                🌊 Ambient: ${musicManager.ambientEnabled ? 'ON' : 'OFF'}
-                            </button>
-                        </div>
-                        ${musicManager.ambientEnabled ? `
-                            <div class="volume-control" style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">
-                                <label style="display: block; margin-bottom: 5px;">Volume</label>
-                                <input type="range" min="0" max="100" value="${musicManager.ambientVolume * 100}" 
-                                    oninput="musicManager.setAmbientVolume(this.value / 100); this.nextElementSibling.textContent = this.value + '%';"
-                                    style="width: 100%;">
-                                <span style="display: block; text-align: center; margin-top: 5px;">${Math.round(musicManager.ambientVolume * 100)}%</span>
-                            </div>
-                        ` : ''}
-                    </div>
-                    
-                    <div class="settings-section">
-                        <h3>Visual Effects</h3>
-                        <div class="settings-buttons">
-                            <button class="setting-btn ${this.weatherEnabled ? 'active' : ''}" onclick="game.weatherEnabled = !game.weatherEnabled; game.saveSettings(); game.updateUI(); game.openSettings();">🌧️ Weather: ${this.weatherEnabled ? 'ON' : 'OFF'}</button>
-                        </div>
-                        <p class="setting-desc">Toggle rain, fog, storms, and other weather visual effects</p>
-                    </div>
-                    
-                    <div class="settings-section">
-                        <h3>Auto-Save</h3>
-                        <div class="settings-buttons">
-                            <button class="setting-btn ${this.autoSave ? 'active' : ''}" onclick="game.autoSave = !game.autoSave; game.openSettings();">Auto-Save: ${this.autoSave ? 'ON' : 'OFF'}</button>
-                        </div>
-                    </div>
+            <h2>⚙️ Settings</h2>
 
-                    <div class="settings-section" id="debugSection" style="display:none;">
-                        <h3>Debug</h3>
-                        <div class="settings-buttons">
-                            <button class="setting-btn ${this.godMode ? 'active' : ''}" onclick="game.toggleGodMode(); game.openSettings();">🛡️ God Mode: ${this.godMode ? 'ON' : 'OFF'}</button>
-                        </div>
-                        <p class="setting-desc">Testing mode: no damage, no exhaustion, auto-heal to full when enabled</p>
-                    </div>
+            <div class="settings-section">
+                <h3>⚔️ Difficulty</h3>
+                <div class="settings-buttons">
+                    <button class="setting-btn ${this.difficulty === 'easy' ? 'active' : ''}" onclick="game.setDifficulty('easy'); game.openSettings();">Easy</button>
+                    <button class="setting-btn ${this.difficulty === 'normal' ? 'active' : ''}" onclick="game.setDifficulty('normal'); game.openSettings();">Normal</button>
+                    <button class="setting-btn ${this.difficulty === 'hard' ? 'active' : ''}" onclick="game.setDifficulty('hard'); game.openSettings();">Hard</button>
                 </div>
-                
-                <button class="close-modal" onclick="this.parentElement.parentElement.remove()">Close</button>
+                <p class="setting-desc">${DIFFICULTY_SETTINGS[this.difficulty].description}</p>
             </div>
+
+            <div class="settings-section">
+                <h3>🎨 Theme</h3>
+                <div class="settings-buttons">
+                    <button class="setting-btn ${this.theme === 'dark' ? 'active' : ''}" onclick="game.theme='dark'; game.applyTheme(); game.saveSettings(); game.openSettings();">🌙 Dark</button>
+                    <button class="setting-btn ${this.theme === 'light' ? 'active' : ''}" onclick="game.theme='light'; game.applyTheme(); game.saveSettings(); game.openSettings();">☀️ Light</button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>🔤 Font Size</h3>
+                <div class="settings-buttons">
+                    <button class="setting-btn ${this.fontSize === 'small' ? 'active' : ''}" onclick="game.setFontSize('small'); game.openSettings();">Small</button>
+                    <button class="setting-btn ${this.fontSize === 'medium' ? 'active' : ''}" onclick="game.setFontSize('medium'); game.openSettings();">Medium</button>
+                    <button class="setting-btn ${this.fontSize === 'large' ? 'active' : ''}" onclick="game.setFontSize('large'); game.openSettings();">Large</button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>🔊 Audio</h3>
+                <div class="settings-buttons">
+                    <button class="setting-btn ${soundManager.enabled ? 'active' : ''}" onclick="soundManager.enabled = !soundManager.enabled; game.openSettings();">🔊 Sound: ${soundManager.enabled ? 'ON' : 'OFF'}</button>
+                    <button class="setting-btn ${musicManager.enabled ? 'active' : ''}" onclick="musicManager.toggle(); game.openSettings();">🎵 Music: ${musicManager.enabled ? 'ON' : 'OFF'}</button>
+                    <button class="setting-btn ${musicManager.ambientEnabled ? 'active' : ''}" onclick="musicManager.setAmbientEnabled(!musicManager.ambientEnabled); game.openSettings();">🌊 Ambient: ${musicManager.ambientEnabled ? 'ON' : 'OFF'}</button>
+                </div>
+                ${musicManager.ambientEnabled ? `
+                    <div style="margin-top:12px; padding:10px; background:rgba(0,0,0,0.3); border-radius:8px; border:1px solid rgba(201,162,39,0.2);">
+                        <label style="display:block; margin-bottom:6px; color:#c9a227; font-size:0.85rem;">Ambient Volume</label>
+                        <input type="range" min="0" max="100" value="${Math.round(musicManager.ambientVolume * 100)}"
+                            oninput="musicManager.setAmbientVolume(this.value/100); this.nextElementSibling.textContent=this.value+'%';"
+                            style="width:100%; accent-color:#c9a227;">
+                        <span style="display:block; text-align:center; margin-top:4px; font-size:0.85rem; color:#aaa;">${Math.round(musicManager.ambientVolume * 100)}%</span>
+                    </div>
+                ` : ''}
+            </div>
+
+            <div class="settings-section">
+                <h3>✨ Visual Effects</h3>
+                <div class="settings-buttons">
+                    <button class="setting-btn ${this.weatherEnabled ? 'active' : ''}" onclick="game.weatherEnabled = !game.weatherEnabled; game.saveSettings(); game.updateUI(); game.openSettings();">🌧️ Weather: ${this.weatherEnabled ? 'ON' : 'OFF'}</button>
+                </div>
+                <p class="setting-desc">Toggle rain, fog, storms, and other weather visual effects.</p>
+            </div>
+
+            <div class="settings-section">
+                <h3>💾 Auto-Save</h3>
+                <div class="settings-buttons">
+                    <button class="setting-btn ${this.autoSave ? 'active' : ''}" onclick="game.autoSave = !game.autoSave; game.openSettings();">Auto-Save: ${this.autoSave ? 'ON' : 'OFF'}</button>
+                </div>
+            </div>
+
+            <div class="settings-section" id="debugSection" style="display:none;">
+                <h3>🛠️ Debug</h3>
+                <div class="settings-buttons">
+                    <button class="setting-btn ${this.godMode ? 'active' : ''}" onclick="game.toggleGodMode(); game.openSettings();">🛡️ God Mode: ${this.godMode ? 'ON' : 'OFF'}</button>
+                </div>
+                <p class="setting-desc">Testing mode: no damage, no exhaustion, auto-heal to full when enabled.</p>
+            </div>
+
+            <button class="close-modal" onclick="this.parentElement.parentElement.remove()">Close</button>
         `;
         
         // Remove any existing modal first
@@ -9173,16 +9162,20 @@ class Game {
                 const encPct = Math.round((enc.encThreshold / enc.capacity) * 100);
                 const heavyPct = Math.round((enc.heavyThreshold / enc.capacity) * 100);
                 encumPanel.innerHTML = `
-                    <div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:2px;">
-                        <span>⚖️ ${enc.current} / ${enc.capacity} lbs</span>
-                        ${encLabel ? `<span class="${encClass}" style="color:${labelColor};font-weight:bold;">${encLabel}</span>` : '<span style="color:#2ecc71;">OK</span>'}
+                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;margin-bottom:4px;">
+                        <span style="color:#c9a227;">⚖️ <strong>${enc.current}</strong> / ${enc.capacity} lbs</span>
+                        ${encLabel ? `<span style="color:${labelColor};font-weight:bold;font-size:0.72rem;">${encLabel}</span>` : '<span style="color:#2ecc71;font-weight:bold;">✓ OK</span>'}
                     </div>
-                    <div style="position:relative;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;">
-                        <div style="height:100%;width:${pct}%;background:${barColor};border-radius:3px;transition:width 0.3s;"></div>
-                    </div>
-                    <div style="position:relative;height:8px;margin-top:1px;">
-                        <div style="position:absolute;left:${encPct}%;transform:translateX(-50%);font-size:0.55rem;color:#f39c12;" title="Encumbered: >${enc.encThreshold} lbs">▼${enc.encThreshold}</div>
-                        <div style="position:absolute;left:${heavyPct}%;transform:translateX(-50%);font-size:0.55rem;color:#e74c3c;" title="Heavily Encumbered: >${enc.heavyThreshold} lbs">▼${enc.heavyThreshold}</div>
+                    <div style="position:relative;height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:visible;margin-bottom:20px;">
+                        <div style="height:100%;width:${pct}%;background:${barColor};border-radius:4px;transition:width 0.3s;overflow:hidden;"></div>
+                        <div style="position:absolute;left:${encPct}%;top:0;height:8px;width:2px;background:#f39c12;transform:translateX(-50%);"></div>
+                        <div style="position:absolute;left:${heavyPct}%;top:0;height:8px;width:2px;background:#e74c3c;transform:translateX(-50%);"></div>
+                        <div style="position:absolute;left:${encPct}%;top:10px;transform:translateX(-50%);white-space:nowrap;">
+                            <span style="background:rgba(243,156,18,0.2);border:1px solid #f39c12;border-radius:3px;padding:1px 5px;font-size:0.68rem;color:#f39c12;">${enc.encThreshold} lbs</span>
+                        </div>
+                        <div style="position:absolute;left:${heavyPct}%;top:10px;transform:translateX(-50%);white-space:nowrap;">
+                            <span style="background:rgba(231,76,60,0.2);border:1px solid #e74c3c;border-radius:3px;padding:1px 5px;font-size:0.68rem;color:#e74c3c;">${enc.heavyThreshold} lbs</span>
+                        </div>
                     </div>
                 `;
                 encumPanel.style.display = '';
