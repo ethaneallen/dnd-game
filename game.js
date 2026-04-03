@@ -7334,7 +7334,7 @@ class Game {
         this.weatherRenderer = new WeatherRenderer();
         this.weatherEnabled = true;
         
-        // Statistics for achievements
+        // Statistics for achievements and analytics
         this.stats = {
             enemiesKilled: 0,
             bossesKilled: 0,
@@ -7351,7 +7351,17 @@ class Game {
             flawlessVictories: 0,
             damageThisCombat: 0,
             xpThisRound: 0,
-            goldThisRound: 0
+            goldThisRound: 0,
+            // Advanced analytics
+            totalDamageDealt: 0,
+            totalDamageTaken: 0,
+            totalHealing: 0,
+            combatsWon: 0,
+            combatsLost: 0,
+            turnsPlayed: 0,
+            restsCompleted: 0,
+            totalPlayTime: 0,
+            sessionStartTime: Date.now()
         };
 
         // Journal map placement helper
@@ -7528,6 +7538,7 @@ class Game {
             this.unlockedAchievements = new Set(parsed.achievements || []);
             this.discoveredRecipes = new Set(parsed.recipes || []);
             this.stats = { ...this.stats, ...parsed.stats };
+            this.stats.sessionStartTime = Date.now();
             currentDifficulty = this.difficulty;
             currentTheme = this.theme;
             currentFontSize = this.fontSize;
@@ -7684,6 +7695,186 @@ class Game {
         }
         
         html += '</div><button class="close-modal" onclick="this.parentElement.parentElement.remove()">Close</button>';
+        
+        this.showModal(html);
+    }
+    
+    // Analytics Dashboard
+    openAnalytics() {
+        const s = this.stats;
+        const char = this.character;
+        const campaign = ACTIVE_CAMPAIGN;
+        
+        // Update play time
+        if (s.sessionStartTime) {
+            s.totalPlayTime += Date.now() - s.sessionStartTime;
+            s.sessionStartTime = Date.now();
+        }
+        
+        // Calculate derived stats
+        const totalLocations = campaign ? campaign.locations.length : 0;
+        const visitedCount = this.dm ? this.dm.visitedLocations.size : 0;
+        const explorePercent = totalLocations > 0 ? Math.round((visitedCount / totalLocations) * 100) : 0;
+        
+        const totalMonsters = this.discoveredMonsters ? this.discoveredMonsters.size : 0;
+        
+        const totalAchievements = Object.keys(ACHIEVEMENTS).length;
+        const unlockedCount = this.unlockedAchievements.size;
+        const achievePercent = totalAchievements > 0 ? Math.round((unlockedCount / totalAchievements) * 100) : 0;
+        
+        const winRate = (s.combatsWon + s.combatsLost) > 0 
+            ? Math.round((s.combatsWon / (s.combatsWon + s.combatsLost)) * 100) 
+            : 0;
+        
+        const avgDamagePerCombat = s.combatsWon > 0 
+            ? Math.round(s.totalDamageDealt / s.combatsWon) 
+            : 0;
+        
+        const critRate = s.turnsPlayed > 0 
+            ? ((s.criticalHits / s.turnsPlayed) * 100).toFixed(1) 
+            : '0.0';
+        
+        // Format play time
+        const totalMinutes = Math.floor(s.totalPlayTime / 60000);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        const playTimeStr = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+        
+        // Chapter progress
+        const totalChapters = campaign ? campaign.chapters.length : 1;
+        const currentChapter = this.dm ? this.dm.currentChapter + 1 : 1;
+        const chapterPercent = Math.round((currentChapter / totalChapters) * 100);
+        
+        // Build progress bar helper
+        const bar = (percent, color = '#c9a227') => 
+            `<div class="analytics-bar"><div class="analytics-bar-fill" style="width:${Math.min(100, percent)}%;background:${color}"></div><span class="analytics-bar-label">${percent}%</span></div>`;
+        
+        // Achievement progress details
+        let achieveHtml = '';
+        for (const [id, ach] of Object.entries(ACHIEVEMENTS)) {
+            const unlocked = this.unlockedAchievements.has(id);
+            achieveHtml += `<div class="analytics-achieve-row ${unlocked ? 'unlocked' : ''}">
+                <span>${unlocked ? ach.icon : '🔒'} ${ach.name}</span>
+                <span class="analytics-achieve-status">${unlocked ? '✅' : ach.description}</span>
+            </div>`;
+        }
+        
+        const html = `
+            <h2>📊 Adventure Analytics</h2>
+            <div class="analytics-dashboard">
+                <div class="analytics-section">
+                    <h3>🎮 Overview</h3>
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <div class="analytics-card-icon">⏱️</div>
+                            <div class="analytics-card-value">${playTimeStr}</div>
+                            <div class="analytics-card-label">Play Time</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-card-icon">📈</div>
+                            <div class="analytics-card-value">Lv.${char ? char.level : 1}</div>
+                            <div class="analytics-card-label">${char ? char.experience : 0} XP</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-card-icon">💰</div>
+                            <div class="analytics-card-value">${char ? char.gold : 0}</div>
+                            <div class="analytics-card-label">Current Gold</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-card-icon">🔄</div>
+                            <div class="analytics-card-value">${s.turnsPlayed}</div>
+                            <div class="analytics-card-label">Turns Played</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analytics-section">
+                    <h3>⚔️ Combat Performance</h3>
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <div class="analytics-card-icon">🏆</div>
+                            <div class="analytics-card-value">${s.combatsWon}</div>
+                            <div class="analytics-card-label">Victories</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-card-icon">💀</div>
+                            <div class="analytics-card-value">${s.combatsLost}</div>
+                            <div class="analytics-card-label">Defeats</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-card-icon">📊</div>
+                            <div class="analytics-card-value">${winRate}%</div>
+                            <div class="analytics-card-label">Win Rate</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-card-icon">🎯</div>
+                            <div class="analytics-card-value">${critRate}%</div>
+                            <div class="analytics-card-label">Crit Rate</div>
+                        </div>
+                    </div>
+                    <div class="analytics-stats-list">
+                        <div class="analytics-stat-row"><span>💥 Total Damage Dealt</span><span>${s.totalDamageDealt.toLocaleString()}</span></div>
+                        <div class="analytics-stat-row"><span>🩸 Total Damage Taken</span><span>${s.totalDamageTaken.toLocaleString()}</span></div>
+                        <div class="analytics-stat-row"><span>💚 Total Healing</span><span>${s.totalHealing.toLocaleString()}</span></div>
+                        <div class="analytics-stat-row"><span>⚔️ Avg Damage/Combat</span><span>${avgDamagePerCombat}</span></div>
+                        <div class="analytics-stat-row"><span>🎯 Critical Hits</span><span>${s.criticalHits}</span></div>
+                        <div class="analytics-stat-row"><span>🛡️ Flawless Victories</span><span>${s.flawlessVictories}</span></div>
+                        <div class="analytics-stat-row"><span>❤️ Close Calls</span><span>${s.closeCallWins}</span></div>
+                    </div>
+                </div>
+                
+                <div class="analytics-section">
+                    <h3>🗡️ Kill Stats</h3>
+                    <div class="analytics-stats-list">
+                        <div class="analytics-stat-row"><span>☠️ Enemies Killed</span><span>${s.enemiesKilled}</span></div>
+                        <div class="analytics-stat-row"><span>🐉 Bosses Slain</span><span>${s.bossesKilled}</span></div>
+                        <div class="analytics-stat-row"><span>🐲 Dragons Slain</span><span>${s.dragonsKilled}</span></div>
+                        <div class="analytics-stat-row"><span>✨ Spells Cast</span><span>${s.spellsCast}</span></div>
+                        <div class="analytics-stat-row"><span>🔨 Items Crafted</span><span>${s.itemsCrafted}</span></div>
+                        <div class="analytics-stat-row"><span>🛏️ Rests Completed</span><span>${s.restsCompleted}</span></div>
+                    </div>
+                </div>
+                
+                <div class="analytics-section">
+                    <h3>🗺️ Progression</h3>
+                    <div class="analytics-progress-item">
+                        <div class="analytics-progress-header">
+                            <span>📖 Campaign Progress</span>
+                            <span>Chapter ${currentChapter}/${totalChapters}</span>
+                        </div>
+                        ${bar(chapterPercent, '#4CAF50')}
+                    </div>
+                    <div class="analytics-progress-item">
+                        <div class="analytics-progress-header">
+                            <span>🗺️ Exploration</span>
+                            <span>${visitedCount}/${totalLocations} locations</span>
+                        </div>
+                        ${bar(explorePercent, '#2196F3')}
+                    </div>
+                    <div class="analytics-progress-item">
+                        <div class="analytics-progress-header">
+                            <span>📚 Bestiary</span>
+                            <span>${totalMonsters} discovered</span>
+                        </div>
+                    </div>
+                    <div class="analytics-progress-item">
+                        <div class="analytics-progress-header">
+                            <span>🏆 Achievements</span>
+                            <span>${unlockedCount}/${totalAchievements}</span>
+                        </div>
+                        ${bar(achievePercent, '#c9a227')}
+                    </div>
+                </div>
+                
+                <div class="analytics-section">
+                    <h3>🏆 Achievement Tracker</h3>
+                    <div class="analytics-achieve-list">
+                        ${achieveHtml}
+                    </div>
+                </div>
+            </div>
+            <button class="close-modal" onclick="this.parentElement.parentElement.remove()">Close</button>
+        `;
         
         this.showModal(html);
     }
@@ -10761,6 +10952,9 @@ class Game {
             return;
         }
 
+        // Track turns played
+        this.stats.turnsPlayed++;
+
         if (action === "attack") {
             // Get weapon info for attack
             const weaponInfo = char.getWeaponDamage(campaignId);
@@ -13050,6 +13244,13 @@ class Game {
     }
 
     endCombat(victory) {
+        // Track combat result
+        if (victory) {
+            this.stats.combatsWon++;
+        } else {
+            this.stats.combatsLost++;
+        }
+        this.stats.totalDamageTaken += this.stats.damageThisCombat;
         this.dm.inCombat = false;
         this.dm.currentEnemy = null;
         document.getElementById("combatPanel").classList.add("hidden");
@@ -13429,6 +13630,7 @@ class Game {
         } else {
             this.log(`✨ You cast ${spellName}!`, "combat");
         }
+        this.stats.spellsCast++;
         
         const spellMod = char.getSpellcastingMod();
         const spellAttack = char.getSpellAttackBonus();
@@ -13593,6 +13795,7 @@ class Game {
         }
         
         char.heal(healAmount);
+        this.stats.totalHealing += healAmount;
         this.log(`💚 ${spellName} restores ${healAmount} HP! (Now at ${char.hp}/${char.maxHp})`, "success");
         
         // Life Domain (7): Blessed Healer - caster also heals
@@ -13709,6 +13912,9 @@ class Game {
     handleMonsterDeath(monster) {
         const char = this.character;
         const diffSettings = DIFFICULTY_SETTINGS[this.difficulty];
+        
+        // Track total damage dealt (monster max HP = total damage dealt to kill it)
+        this.stats.totalDamageDealt += (monster.maxHp || monster.hp);
         
         // Apply difficulty modifiers
         let xpGained = Math.floor(monster.xp * diffSettings.xpMod);
@@ -19864,6 +20070,7 @@ class Game {
         try { await this.showLocationTransition(newLocation.name, newLocation.type); } catch(e) { console.error('Transition error:', e); }
         this.dm.currentLocation = newLocation;
         this.dm.visitedLocations.add(newLocation.name);
+        this.stats.locationsVisited = this.dm.visitedLocations.size;
         
         // Play ambient soundscape for location
         try { musicManager.playAmbientForLocation(newLocation); } catch(e) { console.error('Music error:', e); }
@@ -20509,6 +20716,7 @@ class Game {
         // Advance time by 1 hour
         this.dm.advanceTime(1);
         this.dm.shortRestsTaken++;
+        this.stats.restsCompleted++;
 
         // Use hit dice
         const healing = char.useHitDie();
@@ -20521,6 +20729,7 @@ class Game {
         }
         
         const totalHealing = healing + churchBonus;
+        this.stats.totalHealing += totalHealing;
         this.log(`⏰ You take a short rest and recover ${totalHealing} HP using a hit die.${churchBonus > 0 ? ` (+${churchBonus} divine blessing)` : ''}`, "success");
         this.log(`Hit dice remaining: ${char.hitDice.current}/${char.hitDice.max}`, "dm");
 
@@ -20641,6 +20850,7 @@ class Game {
         }
 
         char.gold -= 5;
+        this.stats.restsCompleted++;
         this.performLongRest(false);
         this.log("🏨 You rest at the inn. Fully restored!", "success");
     }
@@ -20650,6 +20860,7 @@ class Game {
         this.isTraveling = false; // Clear any stuck travel flag
         
         this.log("🏕️ You make camp and attempt to rest...", "dm");
+        this.stats.restsCompleted++;
         
         // Advance time by 8 hours
         this.dm.advanceTime(8);

@@ -2924,6 +2924,157 @@
             font-size: 0.8rem;
         }
         
+        /* Analytics Dashboard */
+        .analytics-dashboard {
+            padding-right: 5px;
+        }
+        
+        .analytics-section {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(74, 74, 106, 0.4);
+        }
+        
+        .analytics-section:last-child {
+            border-bottom: none;
+        }
+        
+        .analytics-section h3 {
+            color: #c9a227;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+        
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .analytics-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(74, 74, 106, 0.5);
+            border-radius: 8px;
+            padding: 10px 6px;
+            text-align: center;
+        }
+        
+        .analytics-card-icon {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+        
+        .analytics-card-value {
+            color: #fff;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        
+        .analytics-card-label {
+            color: #888;
+            font-size: 0.75rem;
+            margin-top: 2px;
+        }
+        
+        .analytics-stats-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .analytics-stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .analytics-stat-row span:first-child {
+            color: #ccc;
+        }
+        
+        .analytics-stat-row span:last-child {
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        .analytics-progress-item {
+            margin-bottom: 10px;
+        }
+        
+        .analytics-progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+        
+        .analytics-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .analytics-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            min-width: 2px;
+        }
+        
+        .analytics-bar-label {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+        
+        .analytics-achieve-list {
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        
+        .analytics-achieve-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+        
+        .analytics-achieve-row.unlocked {
+            color: #c9a227;
+            background: rgba(201, 162, 39, 0.08);
+        }
+        
+        .analytics-achieve-status {
+            font-size: 0.8rem;
+            text-align: right;
+            max-width: 55%;
+        }
+        
+        @media (max-width: 600px) {
+            .analytics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
         /* Settings Panel */
         .settings-section {
             margin-bottom: 18px;
@@ -4983,6 +5134,7 @@
                             <button class="menu-dropdown-item" onclick="game.openSettings(); game.closeMenuDropdown();">⚙️ Settings</button>
                             <button class="menu-dropdown-item" onclick="game.saveGame(); game.closeMenuDropdown();">💾 Save Game</button>
                             <button class="menu-dropdown-item" onclick="game.openAchievements(); game.closeMenuDropdown();">🏆 Achievements</button>
+                            <button class="menu-dropdown-item" onclick="game.openAnalytics(); game.closeMenuDropdown();">📊 Analytics</button>
                             <button class="menu-dropdown-item" onclick="game.exportCharacter(); game.closeMenuDropdown();">📤 Export Character</button>
                             <button class="menu-dropdown-item" onclick="game.returnToMainMenu(); game.closeMenuDropdown();">🏠 Main Menu</button>
                         </div>
