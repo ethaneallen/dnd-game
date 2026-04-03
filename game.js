@@ -8408,7 +8408,44 @@ class Game {
         this.updateUI();
         
         this.log(`⚡ <strong>Quick Start!</strong> Welcome, ${this.character.name}!`, "success");
+        this.log(`<strong>${campaign.icon} ${campaign.name.toUpperCase()} ${campaign.icon}</strong>`, "dm");
         this.log(`You are a Level ${this.character.level} ${this.character.race} ${this.character.charClass}.`, "dm");
+        
+        // Show personality info
+        this.log(`<em>Your ideal: ${this.character.personality.ideal}</em>`, "dm");
+        
+        // Show languages and tool proficiencies
+        if (this.character.languages && this.character.languages.length > 0) {
+            this.log(`💬 Languages: ${this.character.languages.join(", ")}`, "dm");
+        }
+        if (this.character.toolProficiencies && this.character.toolProficiencies.length > 0) {
+            this.log(`🔧 Tool Proficiencies: ${this.character.toolProficiencies.join(", ")}`, "dm");
+        }
+        
+        // Campaign-specific intro
+        if (this.selectedCampaign === "nights_dark_terror") {
+            this.log(`You begin your adventure in the frontier town of Kelven, in the Grand Duchy of Karameikos.`, "dm");
+            this.log(`<em>Word in town: a horse trader named Stephan waits at Misha's Ferry seeking an escort...</em>`, "dm");
+            this.log(`💡 TRAVEL to Misha's Ferry to meet Stephan the horse trader.`, "loot");
+        } else if (this.selectedCampaign === "curse_of_strahd") {
+            this.log(`Mysterious mists have surrounded you and your companions. When they clear, you find yourselves in a dark, unfamiliar land.`, "dm");
+            this.log(`<em>The iron gates of Barovia loom before you. There is no going back...</em>`, "dm");
+            this.log(`💡 Click TALK at the top to begin your dark journey.`, "loot");
+        } else if (this.selectedCampaign === "tomb_of_annihilation") {
+            this.log(`A mysterious summons has brought you to the tower of an archmage. Something terrible is happening across Faerûn...`, "dm");
+            this.log(`<em>Syndra Silvane, visibly weakened by some curse, beckons you closer...</em>`, "dm");
+            this.log(`💡 Click TALK at the top to learn of your mission.`, "loot");
+        } else if (this.selectedCampaign === "keep_on_borderlands") {
+            this.log(`You are a fledgling adventurer seeking fame and fortune on the frontier. The Keep on the Borderlands offers shelter and opportunity for those brave enough to face the wilderness beyond.`, "dm");
+            this.log(`<em>The dusty road stretches before you. In the distance, you can see the walls of the Keep...</em>`, "dm");
+            this.log("💡 <strong>TIP:</strong> Click TRAVEL to go to the Keep Gates!", "loot");
+            this.updateChapterDisplay();
+        } else if (this.selectedCampaign === "lost_mine_of_phandelver") {
+            this.log(`You've been hired by a dwarf named Gundren Rockseeker to escort a wagonload of supplies to the rough-and-tumble settlement of Phandalin, a couple of days' travel southeast of the city of Neverwinter.`, "dm");
+            this.log(`<em>Gundren rode ahead with his bodyguard Sildar Hallwinter, promising to meet you in Phandalin. The Triboar Trail stretches before you...</em>`, "dm");
+            this.log(`💡 Click TRAVEL to head down the Triboar Trail toward Phandalin.`, "loot");
+        }
+        
         this.dm.narrateLocation();
         
         // Show brief intro
