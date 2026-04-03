@@ -291,9 +291,7 @@ The game supports various settings:
 - **v1.0** - Initial release with core D&D mechanics
 
 ### **Future Enhancements**
-- 🌐 Multiplayer support
-- 📊 Advanced analytics dashboard
-- 🎨 Additional visual themes and dice designs
+- 🌐 Multiplayer support (Big effort, looking into this)
 - 📱 Native mobile app version
 - ☁️ Cloud save synchronization
 - 🎵 Background music loops
