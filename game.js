@@ -7334,7 +7334,7 @@ class Game {
         this.weatherRenderer = new WeatherRenderer();
         this.weatherEnabled = true;
         
-        // Statistics for achievements and analytics
+        // All-time statistics (persisted in settings across all characters)
         this.stats = {
             enemiesKilled: 0,
             bossesKilled: 0,
@@ -7363,6 +7363,9 @@ class Game {
             totalPlayTime: 0,
             sessionStartTime: Date.now()
         };
+        
+        // Per-character statistics (persisted with character save)
+        this.charStats = this.newCharStats();
 
         // Journal map placement helper
         this.mapPlacementMode = false;
@@ -7599,6 +7602,25 @@ class Game {
         this.log(`⚔️ Difficulty set to ${settings.name}: ${settings.description}`, 'dm');
     }
     
+    // Fresh per-character stats template
+    newCharStats() {
+        return {
+            enemiesKilled: 0, bossesKilled: 0, dragonsKilled: 0,
+            goldEarned: 0, criticalHits: 0, closeCallWins: 0,
+            spellsCast: 0, locationsVisited: 0, itemsCrafted: 0,
+            flawlessVictories: 0, totalDamageDealt: 0, totalDamageTaken: 0,
+            totalHealing: 0, combatsWon: 0, combatsLost: 0,
+            turnsPlayed: 0, restsCompleted: 0, totalPlayTime: 0,
+            sessionStartTime: Date.now()
+        };
+    }
+    
+    // Track a stat on both all-time and per-character counters
+    trackStat(key, amount = 1) {
+        if (key in this.stats) this.stats[key] += amount;
+        if (key in this.charStats) this.charStats[key] += amount;
+    }
+    
     // Achievement system
     checkAchievements() {
         this.stats.level = this.character?.level || 1;
@@ -7701,14 +7723,18 @@ class Game {
     
     // Analytics Dashboard
     openAnalytics() {
-        const s = this.stats;
         const char = this.character;
         const campaign = ACTIVE_CAMPAIGN;
         
-        // Update play time
-        if (s.sessionStartTime) {
-            s.totalPlayTime += Date.now() - s.sessionStartTime;
-            s.sessionStartTime = Date.now();
+        // Update play time on both stat objects
+        const now = Date.now();
+        if (this.stats.sessionStartTime) {
+            this.stats.totalPlayTime += now - this.stats.sessionStartTime;
+            this.stats.sessionStartTime = now;
+        }
+        if (this.charStats.sessionStartTime) {
+            this.charStats.totalPlayTime += now - this.charStats.sessionStartTime;
+            this.charStats.sessionStartTime = now;
         }
         
         // Calculate derived stats
@@ -7722,24 +7748,6 @@ class Game {
         const unlockedCount = this.unlockedAchievements.size;
         const achievePercent = totalAchievements > 0 ? Math.round((unlockedCount / totalAchievements) * 100) : 0;
         
-        const winRate = (s.combatsWon + s.combatsLost) > 0 
-            ? Math.round((s.combatsWon / (s.combatsWon + s.combatsLost)) * 100) 
-            : 0;
-        
-        const avgDamagePerCombat = s.combatsWon > 0 
-            ? Math.round(s.totalDamageDealt / s.combatsWon) 
-            : 0;
-        
-        const critRate = s.turnsPlayed > 0 
-            ? ((s.criticalHits / s.turnsPlayed) * 100).toFixed(1) 
-            : '0.0';
-        
-        // Format play time
-        const totalMinutes = Math.floor(s.totalPlayTime / 60000);
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = totalMinutes % 60;
-        const playTimeStr = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-        
         // Chapter progress
         const totalChapters = campaign ? campaign.chapters.length : 1;
         const currentChapter = this.dm ? this.dm.currentChapter + 1 : 1;
@@ -7749,25 +7757,24 @@ class Game {
         const bar = (percent, color = '#c9a227') => 
             `<div class="analytics-bar"><div class="analytics-bar-fill" style="width:${Math.min(100, percent)}%;background:${color}"></div><span class="analytics-bar-label">${percent}%</span></div>`;
         
-        // Achievement progress details
-        let achieveHtml = '';
-        for (const [id, ach] of Object.entries(ACHIEVEMENTS)) {
-            const unlocked = this.unlockedAchievements.has(id);
-            achieveHtml += `<div class="analytics-achieve-row ${unlocked ? 'unlocked' : ''}">
-                <span>${unlocked ? ach.icon : '🔒'} ${ach.name}</span>
-                <span class="analytics-achieve-status">${unlocked ? '✅' : ach.description}</span>
-            </div>`;
-        }
-        
-        const html = `
-            <h2>📊 Adventure Analytics</h2>
-            <div class="analytics-dashboard">
+        // Helper to render stats for a given stats object
+        const renderStats = (s, label) => {
+            const winRate = (s.combatsWon + s.combatsLost) > 0 
+                ? Math.round((s.combatsWon / (s.combatsWon + s.combatsLost)) * 100) : 0;
+            const avgDmg = s.combatsWon > 0 ? Math.round(s.totalDamageDealt / s.combatsWon) : 0;
+            const critRate = s.turnsPlayed > 0 ? ((s.criticalHits / s.turnsPlayed) * 100).toFixed(1) : '0.0';
+            const mins = Math.floor((s.totalPlayTime || 0) / 60000);
+            const h = Math.floor(mins / 60);
+            const m = mins % 60;
+            const timeStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
+            
+            return `
                 <div class="analytics-section">
                     <h3>🎮 Overview</h3>
                     <div class="analytics-grid">
                         <div class="analytics-card">
                             <div class="analytics-card-icon">⏱️</div>
-                            <div class="analytics-card-value">${playTimeStr}</div>
+                            <div class="analytics-card-value">${timeStr}</div>
                             <div class="analytics-card-label">Play Time</div>
                         </div>
                         <div class="analytics-card">
@@ -7816,7 +7823,7 @@ class Game {
                         <div class="analytics-stat-row"><span>💥 Total Damage Dealt</span><span>${s.totalDamageDealt.toLocaleString()}</span></div>
                         <div class="analytics-stat-row"><span>🩸 Total Damage Taken</span><span>${s.totalDamageTaken.toLocaleString()}</span></div>
                         <div class="analytics-stat-row"><span>💚 Total Healing</span><span>${s.totalHealing.toLocaleString()}</span></div>
-                        <div class="analytics-stat-row"><span>⚔️ Avg Damage/Combat</span><span>${avgDamagePerCombat}</span></div>
+                        <div class="analytics-stat-row"><span>⚔️ Avg Damage/Combat</span><span>${avgDmg}</span></div>
                         <div class="analytics-stat-row"><span>🎯 Critical Hits</span><span>${s.criticalHits}</span></div>
                         <div class="analytics-stat-row"><span>🛡️ Flawless Victories</span><span>${s.flawlessVictories}</span></div>
                         <div class="analytics-stat-row"><span>❤️ Close Calls</span><span>${s.closeCallWins}</span></div>
@@ -7834,42 +7841,65 @@ class Game {
                         <div class="analytics-stat-row"><span>🛏️ Rests Completed</span><span>${s.restsCompleted}</span></div>
                     </div>
                 </div>
-                
-                <div class="analytics-section">
-                    <h3>🗺️ Progression</h3>
-                    <div class="analytics-progress-item">
-                        <div class="analytics-progress-header">
-                            <span>📖 Campaign Progress</span>
-                            <span>Chapter ${currentChapter}/${totalChapters}</span>
+            `;
+        };
+        
+        // Achievement progress details
+        let achieveHtml = '';
+        for (const [id, ach] of Object.entries(ACHIEVEMENTS)) {
+            const unlocked = this.unlockedAchievements.has(id);
+            achieveHtml += `<div class="analytics-achieve-row ${unlocked ? 'unlocked' : ''}">
+                <span>${unlocked ? ach.icon : '🔒'} ${ach.name}</span>
+                <span class="analytics-achieve-status">${unlocked ? '✅' : ach.description}</span>
+            </div>`;
+        }
+        
+        const charName = char ? char.name : 'Character';
+        
+        const html = `
+            <h2>📊 Adventure Analytics</h2>
+            <div class="analytics-tabs">
+                <button class="analytics-tab active" onclick="document.getElementById('analyticsChar').style.display='';document.getElementById('analyticsAll').style.display='none';this.classList.add('active');this.nextElementSibling.classList.remove('active');">🧑 ${charName}</button>
+                <button class="analytics-tab" onclick="document.getElementById('analyticsAll').style.display='';document.getElementById('analyticsChar').style.display='none';this.classList.add('active');this.previousElementSibling.classList.remove('active');">🌍 All-Time</button>
+            </div>
+            <div class="analytics-dashboard">
+                <div id="analyticsChar">
+                    ${renderStats(this.charStats, 'character')}
+                    
+                    <div class="analytics-section">
+                        <h3>🗺️ Progression</h3>
+                        <div class="analytics-progress-item">
+                            <div class="analytics-progress-header">
+                                <span>📖 Campaign Progress</span>
+                                <span>Chapter ${currentChapter}/${totalChapters}</span>
+                            </div>
+                            ${bar(chapterPercent, '#4CAF50')}
                         </div>
-                        ${bar(chapterPercent, '#4CAF50')}
-                    </div>
-                    <div class="analytics-progress-item">
-                        <div class="analytics-progress-header">
-                            <span>🗺️ Exploration</span>
-                            <span>${visitedCount}/${totalLocations} locations</span>
+                        <div class="analytics-progress-item">
+                            <div class="analytics-progress-header">
+                                <span>🗺️ Exploration</span>
+                                <span>${visitedCount}/${totalLocations} locations</span>
+                            </div>
+                            ${bar(explorePercent, '#2196F3')}
                         </div>
-                        ${bar(explorePercent, '#2196F3')}
-                    </div>
-                    <div class="analytics-progress-item">
-                        <div class="analytics-progress-header">
-                            <span>📚 Bestiary</span>
-                            <span>${totalMonsters} discovered</span>
+                        <div class="analytics-progress-item">
+                            <div class="analytics-progress-header">
+                                <span>📚 Bestiary</span>
+                                <span>${totalMonsters} discovered</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="analytics-progress-item">
-                        <div class="analytics-progress-header">
-                            <span>🏆 Achievements</span>
-                            <span>${unlockedCount}/${totalAchievements}</span>
-                        </div>
-                        ${bar(achievePercent, '#c9a227')}
                     </div>
                 </div>
                 
-                <div class="analytics-section">
-                    <h3>🏆 Achievement Tracker</h3>
-                    <div class="analytics-achieve-list">
-                        ${achieveHtml}
+                <div id="analyticsAll" style="display:none;">
+                    ${renderStats(this.stats, 'alltime')}
+                    
+                    <div class="analytics-section">
+                        <h3>🏆 Achievements (${unlockedCount}/${totalAchievements})</h3>
+                        ${bar(achievePercent, '#c9a227')}
+                        <div class="analytics-achieve-list" style="margin-top:10px;">
+                            ${achieveHtml}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -8002,7 +8032,7 @@ class Game {
         quest.completed = true;
         this.character.gold += quest.reward.gold;
         this.grantExperience(quest.reward.xp);
-        this.stats.goldEarned += quest.reward.gold;
+        this.trackStat('goldEarned', quest.reward.gold);
         
         soundManager.playAchievement();
         this.log(`🎉 <strong>QUEST COMPLETE:</strong> ${quest.title}!`, 'success');
@@ -8586,6 +8616,7 @@ class Game {
         this.generateCharacterPersonality();
         
         this.dm = new DungeonMaster(this.character, this.selectedCampaign);
+        this.charStats = this.newCharStats();
         
         // Hide title screen, show game
         document.getElementById("titleScreen").classList.add("hidden");
@@ -8962,6 +8993,7 @@ class Game {
         this.generateCharacterPersonality();
         
         this.dm = new DungeonMaster(this.character, this.selectedCampaign);
+        this.charStats = this.newCharStats();
         
         // Switch to game screen
         document.getElementById("titleScreen").classList.add("hidden");
@@ -10953,7 +10985,7 @@ class Game {
         }
 
         // Track turns played
-        this.stats.turnsPlayed++;
+        this.trackStat('turnsPlayed');
 
         if (action === "attack") {
             // Get weapon info for attack
@@ -11178,6 +11210,7 @@ class Game {
                 this.applyFumbleEffect(fumble);
             } else if (attackResult.isCrit) {
                 // CRITICAL HIT! Double the weapon dice + ability mod + magic bonus + bonus damage
+                this.trackStat('criticalHits');
                 const critEffect = CRITICAL_HIT_EFFECTS[Math.floor(Math.random() * CRITICAL_HIT_EFFECTS.length)];
                 // Crit: roll weapon dice twice (per 5e RAW) + mods
                 let critDamage = this.dm.rollDice(weaponInfo.damage) + this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus + bonusDamage;
@@ -13246,11 +13279,11 @@ class Game {
     endCombat(victory) {
         // Track combat result
         if (victory) {
-            this.stats.combatsWon++;
+            this.trackStat('combatsWon');
         } else {
-            this.stats.combatsLost++;
+            this.trackStat('combatsLost');
         }
-        this.stats.totalDamageTaken += this.stats.damageThisCombat;
+        this.trackStat('totalDamageTaken', this.stats.damageThisCombat);
         this.dm.inCombat = false;
         this.dm.currentEnemy = null;
         document.getElementById("combatPanel").classList.add("hidden");
@@ -13630,7 +13663,7 @@ class Game {
         } else {
             this.log(`✨ You cast ${spellName}!`, "combat");
         }
-        this.stats.spellsCast++;
+        this.trackStat('spellsCast');
         
         const spellMod = char.getSpellcastingMod();
         const spellAttack = char.getSpellAttackBonus();
@@ -13795,7 +13828,7 @@ class Game {
         }
         
         char.heal(healAmount);
-        this.stats.totalHealing += healAmount;
+        this.trackStat('totalHealing', healAmount);
         this.log(`💚 ${spellName} restores ${healAmount} HP! (Now at ${char.hp}/${char.maxHp})`, "success");
         
         // Life Domain (7): Blessed Healer - caster also heals
@@ -13914,7 +13947,7 @@ class Game {
         const diffSettings = DIFFICULTY_SETTINGS[this.difficulty];
         
         // Track total damage dealt (monster max HP = total damage dealt to kill it)
-        this.stats.totalDamageDealt += (monster.maxHp || monster.hp);
+        this.trackStat('totalDamageDealt', monster.maxHp || monster.hp);
         
         // Apply difficulty modifiers
         let xpGained = Math.floor(monster.xp * diffSettings.xpMod);
@@ -13968,27 +14001,27 @@ class Game {
         }
         
         // Track statistics for achievements
-        this.stats.enemiesKilled++;
+        this.trackStat('enemiesKilled');
         
         // Check if this was a boss
         if (monster.isBoss) {
-            this.stats.bossesKilled++;
+            this.trackStat('bossesKilled');
             soundManager.playLevelUp(); // Special sound for boss kills
         }
         
         // Check for dragon kills
         if (monster.name.toLowerCase().includes('dragon')) {
-            this.stats.dragonsKilled++;
+            this.trackStat('dragonsKilled');
         }
         
         // Check for close call victory (less than 5 HP)
         if (char.hp < 5 && char.hp > 0) {
-            this.stats.closeCallWins++;
+            this.trackStat('closeCallWins');
         }
         
         // Check for flawless victory (no damage taken this combat)
         if (this.stats.damageThisCombat === 0) {
-            this.stats.flawlessVictories++;
+            this.trackStat('flawlessVictories');
         }
         
         // Check achievements
@@ -17948,7 +17981,7 @@ class Game {
         
         if (check.success) {
             this.character.inventory.push(recipe.result);
-            this.stats.itemsCrafted++;
+            this.trackStat('itemsCrafted');
             this.checkAchievements();
             this.log(`✅ Crafting success! (${check.total} vs DC ${recipe.dc}) Created: ${recipe.result}`, "success");
         } else {
@@ -17996,7 +18029,7 @@ class Game {
         
         if (check.success) {
             this.character.inventory.push(recipe.result);
-            this.stats.itemsCrafted++;
+            this.trackStat('itemsCrafted');
             this.checkAchievements();
             this.log(`⭐ Masterwork crafting success! (${check.total} vs DC 16) Created: ${recipe.result} — ${recipe.description}`, "success");
             soundManager.playAchievement();
@@ -20070,7 +20103,8 @@ class Game {
         try { await this.showLocationTransition(newLocation.name, newLocation.type); } catch(e) { console.error('Transition error:', e); }
         this.dm.currentLocation = newLocation;
         this.dm.visitedLocations.add(newLocation.name);
-        this.stats.locationsVisited = this.dm.visitedLocations.size;
+        this.charStats.locationsVisited = this.dm.visitedLocations.size;
+        this.stats.locationsVisited = Math.max(this.stats.locationsVisited, this.charStats.locationsVisited);
         
         // Play ambient soundscape for location
         try { musicManager.playAmbientForLocation(newLocation); } catch(e) { console.error('Music error:', e); }
@@ -20716,7 +20750,7 @@ class Game {
         // Advance time by 1 hour
         this.dm.advanceTime(1);
         this.dm.shortRestsTaken++;
-        this.stats.restsCompleted++;
+        this.trackStat('restsCompleted');
 
         // Use hit dice
         const healing = char.useHitDie();
@@ -20729,7 +20763,7 @@ class Game {
         }
         
         const totalHealing = healing + churchBonus;
-        this.stats.totalHealing += totalHealing;
+        this.trackStat('totalHealing', totalHealing);
         this.log(`⏰ You take a short rest and recover ${totalHealing} HP using a hit die.${churchBonus > 0 ? ` (+${churchBonus} divine blessing)` : ''}`, "success");
         this.log(`Hit dice remaining: ${char.hitDice.current}/${char.hitDice.max}`, "dm");
 
@@ -20850,7 +20884,7 @@ class Game {
         }
 
         char.gold -= 5;
-        this.stats.restsCompleted++;
+        this.trackStat('restsCompleted');
         this.performLongRest(false);
         this.log("🏨 You rest at the inn. Fully restored!", "success");
     }
@@ -20860,7 +20894,7 @@ class Game {
         this.isTraveling = false; // Clear any stuck travel flag
         
         this.log("🏕️ You make camp and attempt to rest...", "dm");
-        this.stats.restsCompleted++;
+        this.trackStat('restsCompleted');
         
         // Advance time by 8 hours
         this.dm.advanceTime(8);
@@ -21083,6 +21117,7 @@ class Game {
             visitedLocations: [...(this.dm.visitedLocations || [])],
             discoveredMonsters: [...(this.discoveredMonsters || [])],
             sideQuests: this.sideQuests || [],
+            charStats: this.charStats,
             saveTime: Date.now()
         };
         localStorage.setItem(saveKey, JSON.stringify(saveData));
@@ -21130,6 +21165,10 @@ class Game {
             if (saveData.sideQuests) {
                 this.sideQuests = saveData.sideQuests;
             }
+            
+            // Load per-character stats
+            this.charStats = saveData.charStats ? { ...this.newCharStats(), ...saveData.charStats } : this.newCharStats();
+            this.charStats.sessionStartTime = Date.now();
             
             // Switch to game screen
             document.getElementById("titleScreen").classList.add("hidden");

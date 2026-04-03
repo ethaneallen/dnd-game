@@ -2925,6 +2925,39 @@
         }
         
         /* Analytics Dashboard */
+        .analytics-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(74, 74, 106, 0.4);
+            padding-bottom: 0;
+        }
+        
+        .analytics-tab {
+            flex: 1;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(74, 74, 106, 0.4);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            color: #888;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .analytics-tab:hover {
+            background: rgba(201, 162, 39, 0.1);
+            color: #ccc;
+        }
+        
+        .analytics-tab.active {
+            background: rgba(201, 162, 39, 0.15);
+            border-color: #c9a227;
+            color: #c9a227;
+            font-weight: bold;
+        }
+        
         .analytics-dashboard {
             padding-right: 5px;
         }
