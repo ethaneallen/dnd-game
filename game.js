@@ -8957,15 +8957,70 @@ class Game {
         this.selectedCampaign = randomCampaign;
         ACTIVE_CAMPAIGN = CAMPAIGNS[randomCampaign];
         
-        // Pre-defined quick start characters
-        const quickCharacters = {
-            "Fighter": { race: "Human", class: "Fighter", background: "Soldier", name: "Aldric the Bold" },
-            "Wizard": { race: "Elf", class: "Wizard", background: "Scholar", name: "Elyndra Starweave" },
-            "Rogue": { race: "Halfling", class: "Rogue", background: "Criminal", name: "Finn Shadowstep" },
-            "Cleric": { race: "Dwarf", class: "Cleric", background: "Acolyte", name: "Thorin Ironheart" }
+        // Race-appropriate name pools
+        const raceNames = {
+            "Human": ["Aldric", "Brynn", "Cedric", "Darya", "Elara", "Garrett", "Helena", "Jorin", "Kira", "Landry", "Mirena", "Nolan", "Orla", "Pellam", "Rowena", "Soren", "Thessa", "Valen", "Wren", "Zara"],
+            "Elf": ["Aelindra", "Caelum", "Elyndra", "Faenor", "Galanodel", "Ielenia", "Liadon", "Miriel", "Naivara", "Quelenna", "Ryllae", "Sylvaris", "Thalion", "Vaelith", "Aravain", "Ilphelkiir", "Siannodel", "Xiloscient"],
+            "Dwarf": ["Thorin", "Brekka", "Dolgrin", "Elga", "Gardain", "Helga", "Kildrak", "Morda", "Orsik", "Runyarl", "Torbera", "Ulfgar", "Vistra", "Barendd", "Diesa", "Falkrunn", "Gurdis", "Kathra"],
+            "Halfling": ["Finn", "Cora", "Bramble", "Lidda", "Merric", "Nedda", "Osborn", "Paela", "Roscoe", "Seraphina", "Garret", "Lavinia", "Milo", "Portia", "Wellby", "Andry", "Callie", "Kithri"],
+            "Half-Orc": ["Grukk", "Baggi", "Dench", "Feng", "Holg", "Keth", "Myev", "Ront", "Shump", "Thokk", "Varka", "Neega", "Ovak", "Sutha", "Darva", "Gorza", "Brenna", "Krusk"],
+            "Tiefling": ["Carrion", "Despair", "Malice", "Morthos", "Orianna", "Rieta", "Torment", "Velora", "Skamos", "Nemeia", "Akta", "Criella", "Damaia", "Lerissa", "Makos", "Therai"],
+            "Dragonborn": ["Arjhan", "Balasar", "Bharash", "Ghesh", "Heskan", "Kriv", "Medrash", "Nadarr", "Rhogar", "Shamash", "Shedinn", "Tarhun", "Torinn", "Nala", "Perra", "Mishann"],
+            "Gnome": ["Boddynock", "Dimble", "Ellywick", "Fizban", "Gerbo", "Nyx", "Orryn", "Roondar", "Warryn", "Zook", "Bimpnottin", "Caramip", "Lilli", "Nissa", "Roywyn", "Tana"],
+            "Half-Elf": ["Arannis", "Davian", "Eryn", "Galinndan", "Hadriel", "Kael", "Lyris", "Mialee", "Rhiannon", "Sariel", "Theron", "Valanthe", "Adrie", "Birel", "Jelenneth", "Keyleth"],
+            "Aasimar": ["Ceriel", "Dawneth", "Hadriel", "Lumiel", "Solara", "Zariel", "Adriel", "Serathis", "Aurelius", "Celestia", "Daviel", "Israphel", "Malakhim", "Seraphine", "Uriel", "Virtue"],
+            "Goliath": ["Aukan", "Gauthak", "Ilikan", "Keothi", "Kuori", "Manneo", "Nalla", "Orilo", "Pethani", "Thalai", "Uthal", "Vaunea", "Bearkiller", "Dawncaller", "Lonehunter", "Stormbrow"],
+            "Tabaxi": ["Cloud on the Mountaintop", "Jade Claw", "River of Stars", "Smoke", "Swift", "Dusk", "Flicker", "Rain", "Whisper", "Brook", "Cinder", "Frost", "Ivory", "Ripple", "Storm", "Thistle"],
+            "Kenku": ["Clatter", "Creak", "Hiss", "Murmur", "Rattle", "Scratch", "Squawk", "Whistle", "Click", "Croak", "Flutter", "Rustle", "Screech", "Snap", "Thud", "Whoosh"],
+            "Firbolg": ["Adran", "Beren", "Cerran", "Fennas", "Helder", "Igan", "Meren", "Quillathe", "Rolen", "Thamior", "Varis", "Yenna", "Alder", "Bramble", "Mossglow", "Willowshade"]
         };
         
-        const preset = quickCharacters[characterClass];
+        // Titles by class
+        const classTitles = {
+            "Fighter": ["the Bold", "the Brave", "Ironhand", "Steelguard", "the Stalwart", "the Unbroken", "Shieldwall", "the Fierce"],
+            "Wizard": ["Starweave", "the Wise", "Spellwright", "Lorekeeper", "the Arcane", "Mysticborn", "Runeseeker", "the Learned"],
+            "Rogue": ["Shadowstep", "the Sly", "Nightwhisper", "Quickfingers", "the Unseen", "Silvertongue", "Darkmantle", "the Cunning"],
+            "Cleric": ["Ironheart", "the Devoted", "Lightbringer", "the Faithful", "Dawnkeeper", "Soulguard", "the Merciful", "the Blessed"],
+            "Ranger": ["Windwalker", "the Tracker", "Hawkeye", "Wildheart", "the Pathfinder", "Leafshade", "Stormrider", "Thornwalker"],
+            "Barbarian": ["the Mighty", "Skullcrusher", "Bloodrage", "the Untamed", "Stormborn", "the Savage", "Bonecrusher", "Ironjaw"],
+            "Paladin": ["the Righteous", "Oathkeeper", "the Radiant", "Dawnblade", "the Just", "Lightsworn", "the Valiant", "Honorguard"],
+            "Monk": ["the Serene", "Swiftfist", "Ironpalm", "the Tranquil", "Windstrike", "the Centered", "Stillwater", "Sunpetal"],
+            "Warlock": ["the Bound", "Shadowpact", "Voidtouched", "the Hexed", "Darkwhisper", "Soulforged", "the Eldritch", "Doomcaller"],
+            "Bard": ["the Silver-Tongued", "Songweaver", "the Merry", "Loreholder", "Talespinner", "the Melodious", "Fortunesung", "the Witty"],
+            "Sorcerer": ["the Gifted", "Stormblood", "Spellborn", "the Radiant", "Wildmagic", "Fireheart", "the Awakened", "Sparkweaver"],
+            "Druid": ["Oakenheart", "the Wild", "Moonvine", "Thornkeeper", "the Verdant", "Stormleaf", "Rootwalker", "the Untamed"],
+            "Artificer": ["the Inventor", "Gearwright", "Sparkforge", "the Tinkerer", "Cogsmith", "Ironweave", "the Crafty", "Brasshand"]
+        };
+        
+        // Pick random race appropriate for the class
+        const classRaces = {
+            "Fighter": ["Human", "Half-Orc", "Dragonborn", "Goliath", "Dwarf", "Half-Elf"],
+            "Wizard": ["Elf", "Gnome", "Half-Elf", "Tiefling", "Human", "Firbolg"],
+            "Rogue": ["Halfling", "Half-Elf", "Human", "Tabaxi", "Kenku", "Tiefling"],
+            "Cleric": ["Dwarf", "Human", "Aasimar", "Half-Elf", "Firbolg", "Dragonborn"]
+        };
+        
+        const races = classRaces[characterClass] || ["Human", "Elf", "Dwarf", "Halfling"];
+        const race = races[Math.floor(Math.random() * races.length)];
+        
+        // Generate a random name: first name from race pool + title from class pool
+        const names = raceNames[race] || raceNames["Human"];
+        const titles = classTitles[characterClass] || classTitles["Fighter"];
+        const firstName = names[Math.floor(Math.random() * names.length)];
+        const title = titles[Math.floor(Math.random() * titles.length)];
+        const fullName = `${firstName} ${title}`;
+        
+        // Pick an appropriate background
+        const classBgs = {
+            "Fighter": ["Soldier", "Noble", "Outlander"],
+            "Wizard": ["Scholar", "Acolyte", "Noble"],
+            "Rogue": ["Criminal", "Outlander", "Noble"],
+            "Cleric": ["Acolyte", "Soldier", "Scholar"]
+        };
+        const bgs = classBgs[characterClass] || ["Soldier"];
+        const background = bgs[Math.floor(Math.random() * bgs.length)];
+        
+        const preset = { race, class: characterClass, background, name: fullName };
         
         this.character = new Character();
         this.character.name = preset.name;
