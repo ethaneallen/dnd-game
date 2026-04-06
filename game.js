@@ -622,6 +622,15 @@ const SUBCLASS_DATA = {
                     7: { name: "Improved Flare", description: "When an enemy attacks you or an ally within 30ft, impose disadvantage on the attack roll (reaction).", type: "passive" },
                     14: { name: "Corona of Light", description: "Your damaging spells deal an extra 1d8 radiant damage.", type: "passive" }
                 }
+            },
+            Tempest: {
+                name: "Tempest Domain",
+                description: "Gods of storms and the sea, wielding lightning and thunder.",
+                features: {
+                    3: { name: "Wrath of the Storm", description: "When a creature within 5ft hits you, use your reaction to deal 2d8 lightning or thunder damage (DEX save for half). WIS mod times per long rest.", type: "resource" },
+                    7: { name: "Thunderbolt Strike", description: "When you deal lightning damage to a Large or smaller creature, push it 10ft away from you.", type: "passive" },
+                    14: { name: "Stormborn", description: "You gain a flying speed equal to your walking speed whenever you are outdoors.", type: "passive" }
+                }
             }
         }
     },
@@ -646,6 +655,15 @@ const SUBCLASS_DATA = {
                     7: { name: "Exceptional Training", description: "Your companion can Dash, Dodge, or Disengage as a bonus action on its turn.", type: "passive" },
                     11: { name: "Bestial Fury", description: "Your companion can make two attacks when you command it to attack.", type: "passive" }
                 }
+            },
+            GloomStalker: {
+                name: "Gloom Stalker",
+                description: "At home in the darkest places, you ambush foes from the shadows.",
+                features: {
+                    3: { name: "Dread Ambusher", description: "On the first turn of combat, your walking speed increases by 10ft and you can make one additional weapon attack that deals an extra 1d8 damage.", type: "passive" },
+                    7: { name: "Iron Mind", description: "You gain proficiency in WIS saves. +2 bonus to WIS saving throws.", type: "passive" },
+                    11: { name: "Stalker's Flurry", description: "Once on each of your turns when you miss with a weapon attack, you can make another weapon attack.", type: "passive" }
+                }
             }
         }
     },
@@ -669,6 +687,15 @@ const SUBCLASS_DATA = {
                     3: { name: "Totem Spirit (Bear)", description: "While raging, you have resistance to all damage except psychic damage.", type: "passive" },
                     7: { name: "Spirit Walker", description: "You can cast Commune with Nature as a ritual. +2 bonus to Perception and Survival checks.", type: "passive" },
                     14: { name: "Totemic Attunement", description: "While raging, hostile creatures within 5ft have disadvantage on attacks against targets other than you.", type: "passive" }
+                }
+            },
+            AncestralGuardian: {
+                name: "Path of the Ancestral Guardian",
+                description: "Barbarians who call upon ancestral spirits to protect allies.",
+                features: {
+                    3: { name: "Ancestral Protectors", description: "The first creature you hit while raging takes disadvantage on attacks against anyone but you, and allies have resistance to its damage.", type: "passive" },
+                    7: { name: "Spirit Shield", description: "While raging, you can reduce damage dealt to an ally within 30ft by 2d6 as a reaction.", type: "passive" },
+                    14: { name: "Consult the Spirits", description: "You can cast Clairvoyance as a ritual. Your ancestors guide your path.", type: "passive" }
                 }
             }
         }
@@ -727,6 +754,15 @@ const SUBCLASS_DATA = {
                     7: { name: "Shadow Step", description: "Teleport 60ft from one shadow to another as a bonus action, gaining advantage on your next attack." },
                     15: { name: "Opportunist", description: "When a creature within 5ft is hit by another creature, you can use your reaction to make a melee attack." }
                 }
+            },
+            FourElements: {
+                name: "Way of the Four Elements",
+                description: "Monks who harness the power of elemental forces.",
+                features: {
+                    3: { name: "Disciple of the Elements", description: "Spend ki to cast elemental spells: Burning Hands (2 ki), Thunderwave (2 ki), or Gust of Wind (3 ki)." },
+                    7: { name: "Elemental Burst", description: "Spend 3 ki to cast Fireball or Lightning Bolt." },
+                    15: { name: "Elemental Mastery", description: "Spend 5 ki to cast Wall of Fire, Wall of Stone, or Cone of Cold." }
+                }
             }
         }
     },
@@ -750,6 +786,15 @@ const SUBCLASS_DATA = {
                     3: { name: "Awakened Mind", description: "Communicate telepathically with any creature within 30ft that you can see." },
                     7: { name: "Entropic Ward", description: "When attacked, impose disadvantage. If the attack misses, gain advantage on your next attack." },
                     15: { name: "Create Thrall", description: "Touch an incapacitated humanoid to charm it permanently until Remove Curse is cast." }
+                }
+            },
+            Hexblade: {
+                name: "The Hexblade",
+                description: "Your patron is a mysterious entity from the Shadowfell — a force that manifests in sentient magic weapons.",
+                features: {
+                    3: { name: "Hexblade's Curse", description: "Curse a creature: add proficiency bonus to damage, crit on 19-20, regain HP equal to warlock level + CHA mod when it dies." },
+                    7: { name: "Accursed Specter", description: "When you slay a humanoid, raise it as a specter. It gains bonus HP equal to half your warlock level and obeys your commands." },
+                    15: { name: "Armor of Hexes", description: "If the cursed target hits you, roll d6. On 4+, the attack misses instead." }
                 }
             }
         }
@@ -775,6 +820,15 @@ const SUBCLASS_DATA = {
                     7: { name: "Extra Attack", description: "You can attack twice when you take the Attack action." },
                     15: { name: "Battle Magic", description: "When you cast a spell, make one weapon attack as a bonus action." }
                 }
+            },
+            Glamour: {
+                name: "College of Glamour",
+                description: "Bards who learned their arts in the Feywild, weaving fey magic into their performances.",
+                features: {
+                    3: { name: "Mantle of Inspiration", description: "Spend Bardic Inspiration to grant allies 5 temp HP and free movement without provoking OAs." },
+                    7: { name: "Enthralling Performance", description: "After performing for 1 minute, charm humanoids who listened (WIS save)." },
+                    15: { name: "Unbreakable Majesty", description: "Assume a magisterial presence. Creatures must CHA save to target you with attacks or harmful spells." }
+                }
             }
         }
     },
@@ -798,6 +852,15 @@ const SUBCLASS_DATA = {
                     3: { name: "Wild Magic Surge", description: "After casting a spell, roll d20. On a 1, roll on the Wild Magic Surge table for a random effect." },
                     7: { name: "Bend Luck", description: "Spend 2 sorcery points to add or subtract 1d4 from another creature's attack, check, or save." },
                     15: { name: "Controlled Chaos", description: "Roll twice on the Wild Magic Surge table and choose which effect occurs." }
+                }
+            },
+            Shadow: {
+                name: "Shadow Magic",
+                description: "Your power draws from the Shadowfell, weaving darkness and dread into your spells.",
+                features: {
+                    3: { name: "Eyes of the Dark", description: "You gain darkvision 120ft. At level 3, you can cast Darkness by spending 2 sorcery points (no concentration)." },
+                    7: { name: "Strength of the Grave", description: "When damage reduces you to 0 HP, CHA save (DC 5 + damage taken) to drop to 1 HP instead. Once per long rest." },
+                    15: { name: "Hound of Ill Omen", description: "Spend 3 sorcery points to summon a dire wolf from the Shadowfell that targets one creature." }
                 }
             }
         }
@@ -823,6 +886,15 @@ const SUBCLASS_DATA = {
                     7: { name: "Primal Strike", description: "Your attacks in beast form count as magical for overcoming resistance and immunity." },
                     15: { name: "Elemental Wild Shape", description: "Expend two Wild Shape uses to transform into an elemental." }
                 }
+            },
+            Spores: {
+                name: "Circle of Spores",
+                description: "Druids who find beauty in decay and see death as part of the cycle of life.",
+                features: {
+                    3: { name: "Halo of Spores", description: "Creatures that start their turn within 10ft take 1d4 necrotic damage (CON save negates). Increases to 1d6 at 6th, 1d8 at 10th, 1d10 at 14th." },
+                    7: { name: "Spreading Spores", description: "Use a bonus action to hurl spores up to 30ft, creating a 10ft cube of spore damage." },
+                    15: { name: "Fungal Body", description: "You can't be blinded, deafened, frightened, or poisoned. Critical hits against you count as normal hits." }
+                }
             }
         }
     },
@@ -847,6 +919,15 @@ const SUBCLASS_DATA = {
                     7: { name: "Arcane Jolt", description: "When you or your defender hit, add 2d6 force damage or 2d6 healing to an ally within 30ft." },
                     15: { name: "Improved Defender", description: "Steel Defender gains +2 AC and Arcane Jolt increases to 4d6." }
                 }
+            },
+            Artillerist: {
+                name: "Artillerist",
+                description: "An artificer who specializes in using magic to create deadly cannons.",
+                features: {
+                    3: { name: "Eldritch Cannon", description: "Create a Small or Tiny magical cannon. Choose: Flamethrower (15ft cone, 2d8 fire), Force Ballista (ranged, 2d8 force + push), or Protector (1d8 + INT mod temp HP to allies within 10ft)." },
+                    7: { name: "Arcane Firearm", description: "Turn a wand, staff, or rod into an arcane firearm. +1d8 to damage of artificer spell damage rolls." },
+                    15: { name: "Fortified Position", description: "You can have two cannons active at once. Allies within 10ft of a cannon gain half cover (+2 AC)." }
+                }
             }
         }
     }
@@ -864,6 +945,7 @@ const KEYBOARD_SHORTCUTS = {
     's': 'spell',
     'd': 'defend',
     'b': 'bonusAction',
+    'g': 'grapple',
     'r': 'retreat_or_rest',
     'e': 'explore',
     'j': 'journal',
@@ -2966,23 +3048,30 @@ const GAME_DATA = {
         "Dwarf": { bonus: { con: 2 }, traits: ["Darkvision", "Dwarven Resilience"], languages: ["Common", "Dwarvish"], toolProficiencies: [] },
         "Halfling": { bonus: { dex: 2 }, traits: ["Lucky", "Brave"], languages: ["Common", "Halfling"] },
         "Dragonborn": { bonus: { str: 2, cha: 1 }, traits: ["Breath Weapon", "Damage Resistance"], languages: ["Common", "Draconic"] },
-        "Tiefling": { bonus: { int: 1, cha: 2 }, traits: ["Darkvision", "Hellish Resistance"], languages: ["Common", "Infernal"] },
-        "Half-Orc": { bonus: { str: 2, con: 1 }, traits: ["Darkvision", "Relentless Endurance", "Savage Attacks"], languages: ["Common", "Orc"] }
+        "Tiefling": { bonus: { int: 1, cha: 2 }, traits: ["Darkvision", "Hellish Resistance", "Infernal Legacy"], languages: ["Common", "Infernal"] },
+        "Half-Orc": { bonus: { str: 2, con: 1 }, traits: ["Darkvision", "Relentless Endurance", "Savage Attacks"], languages: ["Common", "Orc"] },
+        "Gnome": { bonus: { int: 2 }, traits: ["Darkvision", "Gnome Cunning"], languages: ["Common", "Gnomish"] },
+        "Half-Elf": { bonus: { cha: 2 }, extraAbilityBonus: 2, traits: ["Darkvision", "Fey Ancestry", "Skill Versatility"], languages: ["Common", "Elvish"], extraLanguages: 1 },
+        "Aasimar": { bonus: { cha: 2 }, traits: ["Darkvision", "Celestial Resistance", "Healing Hands", "Light Bearer"], languages: ["Common", "Celestial"] },
+        "Goliath": { bonus: { str: 2, con: 1 }, traits: ["Stone's Endurance", "Powerful Build", "Mountain Born"], languages: ["Common", "Giant"] },
+        "Tabaxi": { bonus: { dex: 2, cha: 1 }, traits: ["Darkvision", "Feline Agility", "Cat's Claws"], languages: ["Common"] },
+        "Kenku": { bonus: { dex: 2, wis: 1 }, traits: ["Mimicry", "Expert Forgery", "Kenku Training"], languages: ["Common", "Auran"] },
+        "Firbolg": { bonus: { wis: 2, str: 1 }, traits: ["Firbolg Magic", "Hidden Step", "Powerful Build", "Speech of Beast and Leaf"], languages: ["Common", "Elvish", "Giant"] }
     },
     classes: {
         "Fighter": { hitDie: 10, primary: "str", saves: ["str", "con"], skills: ["Athletics", "Intimidation"], equipment: ["Longsword", "Shield", "Chain Mail"], spellcaster: false },
-        "Wizard": { hitDie: 6, primary: "int", saves: ["int", "wis"], skills: ["Arcana", "History"], equipment: ["Quarterstaff", "Spellbook", "Robes"], spellcaster: true, spellStat: "int", casterType: "full", cantrips: 3 },
+        "Wizard": { hitDie: 6, primary: "int", saves: ["int", "wis"], skills: ["Arcana", "History"], equipment: ["Quarterstaff", "Spellbook", "Robes", "Arcane Focus"], spellcaster: true, spellStat: "int", casterType: "full", cantrips: 3 },
         "Rogue": { hitDie: 8, primary: "dex", saves: ["dex", "int"], skills: ["Stealth", "Thieves' Tools"], equipment: ["Shortsword", "Dagger", "Leather Armor"], spellcaster: false },
-        "Cleric": { hitDie: 8, primary: "wis", saves: ["wis", "cha"], skills: ["Medicine", "Religion"], equipment: ["Mace", "Shield", "Scale Mail"], spellcaster: true, spellStat: "wis", casterType: "full", cantrips: 3 },
-        "Ranger": { hitDie: 10, primary: "dex", saves: ["str", "dex"], skills: ["Survival", "Nature"], equipment: ["Longbow", "Shortsword", "Leather Armor"], spellcaster: true, spellStat: "wis", casterType: "half", cantrips: 0 },
+        "Cleric": { hitDie: 8, primary: "wis", saves: ["wis", "cha"], skills: ["Medicine", "Religion"], equipment: ["Mace", "Shield", "Scale Mail", "Holy Symbol"], spellcaster: true, spellStat: "wis", casterType: "full", cantrips: 3 },
+        "Ranger": { hitDie: 10, primary: "dex", saves: ["str", "dex"], skills: ["Survival", "Nature"], equipment: ["Longbow", "Shortsword", "Leather Armor", "Component Pouch"], spellcaster: true, spellStat: "wis", casterType: "half", cantrips: 0 },
         "Barbarian": { hitDie: 12, primary: "str", saves: ["str", "con"], skills: ["Athletics", "Survival"], equipment: ["Greataxe", "Handaxes", "Hide Armor"], spellcaster: false },
-        "Paladin": { hitDie: 10, primary: "cha", saves: ["wis", "cha"], skills: ["Athletics", "Religion"], equipment: ["Longsword", "Shield", "Chain Mail"], spellcaster: true, spellStat: "cha", casterType: "half", cantrips: 0 },
+        "Paladin": { hitDie: 10, primary: "cha", saves: ["wis", "cha"], skills: ["Athletics", "Religion"], equipment: ["Longsword", "Shield", "Chain Mail", "Holy Symbol"], spellcaster: true, spellStat: "cha", casterType: "half", cantrips: 0 },
         "Monk": { hitDie: 8, primary: "dex", saves: ["str", "dex"], skills: ["Acrobatics", "Insight"], equipment: ["Shortsword", "Dagger"], spellcaster: false },
-        "Warlock": { hitDie: 8, primary: "cha", saves: ["wis", "cha"], skills: ["Arcana", "Deception"], equipment: ["Light Crossbow", "Dagger", "Leather Armor"], spellcaster: true, spellStat: "cha", casterType: "pact", cantrips: 2 },
-        "Bard": { hitDie: 8, primary: "cha", saves: ["dex", "cha"], skills: ["Performance", "Persuasion"], equipment: ["Rapier", "Dagger", "Leather Armor"], spellcaster: true, spellStat: "cha", casterType: "full", cantrips: 2 },
-        "Sorcerer": { hitDie: 6, primary: "cha", saves: ["con", "cha"], skills: ["Arcana", "Persuasion"], equipment: ["Light Crossbow", "Dagger"], spellcaster: true, spellStat: "cha", casterType: "full", cantrips: 4 },
-        "Druid": { hitDie: 8, primary: "wis", saves: ["int", "wis"], skills: ["Nature", "Survival"], equipment: ["Quarterstaff", "Leather Armor", "Shield"], spellcaster: true, spellStat: "wis", casterType: "full", cantrips: 2 },
-        "Artificer": { hitDie: 8, primary: "int", saves: ["con", "int"], skills: ["Arcana", "Investigation"], equipment: ["Light Crossbow", "Dagger", "Scale Mail"], spellcaster: true, spellStat: "int", casterType: "half", cantrips: 2 }
+        "Warlock": { hitDie: 8, primary: "cha", saves: ["wis", "cha"], skills: ["Arcana", "Deception"], equipment: ["Light Crossbow", "Dagger", "Leather Armor", "Arcane Focus"], spellcaster: true, spellStat: "cha", casterType: "pact", cantrips: 2 },
+        "Bard": { hitDie: 8, primary: "cha", saves: ["dex", "cha"], skills: ["Performance", "Persuasion"], equipment: ["Rapier", "Dagger", "Leather Armor", "Component Pouch"], spellcaster: true, spellStat: "cha", casterType: "full", cantrips: 2 },
+        "Sorcerer": { hitDie: 6, primary: "cha", saves: ["con", "cha"], skills: ["Arcana", "Persuasion"], equipment: ["Light Crossbow", "Dagger", "Arcane Focus"], spellcaster: true, spellStat: "cha", casterType: "full", cantrips: 4 },
+        "Druid": { hitDie: 8, primary: "wis", saves: ["int", "wis"], skills: ["Nature", "Survival"], equipment: ["Quarterstaff", "Leather Armor", "Shield", "Druidic Focus"], spellcaster: true, spellStat: "wis", casterType: "full", cantrips: 2 },
+        "Artificer": { hitDie: 8, primary: "int", saves: ["con", "int"], skills: ["Arcana", "Investigation"], equipment: ["Light Crossbow", "Dagger", "Scale Mail", "Thieves' Tools"], spellcaster: true, spellStat: "int", casterType: "half", cantrips: 2 }
     },
     // D&D 5e Spell Slot Tables
     // Full Caster table (Wizard, Cleric): slots by [characterLevel][spellLevel]
@@ -3108,7 +3197,7 @@ const GAME_DATA = {
         "Branding Smite": { level: 2, school: "Evocation", classes: ["Paladin"], damage: "2d6", damageType: "radiant", range: 5, concentration: true, description: "Your weapon gleams with astral radiance. On hit, extra 2d6 radiant damage. Invisible creatures become visible (concentration)." },
         // Warlock Spells
         "Eldritch Blast": { level: 0, school: "Evocation", classes: ["Warlock"], damage: "1d10", damageType: "force", range: 120, description: "A beam of crackling energy. Multiple beams at higher levels. The quintessential warlock cantrip.", scaling: "1d10 per 5 levels" },
-        "Hex": { level: 1, school: "Enchantment", classes: ["Warlock"], buff: true, concentration: true, description: "Curse a creature. Deal +1d6 necrotic damage to it with your attacks. It has disadvantage on one ability check of your choice (concentration)." },
+        "Hex": { level: 1, school: "Enchantment", classes: ["Warlock"], buff: true, bonus: true, concentration: true, description: "Curse a creature. Deal +1d6 necrotic damage to it with your attacks. It has disadvantage on one ability check of your choice (concentration)." },
         "Armor of Agathys": { level: 1, school: "Abjuration", classes: ["Warlock"], buff: true, description: "Gain 5 temp HP. While you have these temp HP, creatures that hit you with melee take 5 cold damage." },
         "Hellish Rebuke": { level: 1, school: "Evocation", classes: ["Warlock"], damage: "2d10", damageType: "fire", range: 60, save: "dex", description: "Reaction: When damaged, point your finger and the creature is engulfed in flames. DEX save for half." },
         "Darkness": { level: 2, school: "Evocation", classes: ["Warlock"], utility: true, concentration: true, description: "Magical darkness fills a 15ft sphere. Creatures with darkvision can't see through it. Nonmagical light can't illuminate it (concentration)." },
@@ -3219,14 +3308,14 @@ const GAME_DATA = {
         "Telekinesis": { level: 5, school: "Transmutation", classes: ["Wizard", "Sorcerer"], utility: true, concentration: true, description: "Move a creature or object with your mind. Objects up to 1000 lbs moved 30ft. Creatures: STR save or be moved and restrained (concentration)." },
         "Greater Restoration": { level: 5, school: "Abjuration", classes: ["Cleric", "Bard", "Druid", "Artificer"], utility: true, description: "Imbue a creature with positive energy to undo debilitating effects: reduce exhaustion, end charm/petrification/curse, restore ability score, restore HP maximum." },
         // Additional Druid Spells
-        "Healing Word": { level: 1, school: "Evocation", classes: ["Cleric", "Druid", "Bard"], healing: "1d4", description: "As a bonus action, a creature you can see regains 1d4 + spellcasting modifier HP." },
+        "Healing Word": { level: 1, school: "Evocation", classes: ["Cleric", "Druid", "Bard"], healing: "1d4", bonus: true, description: "As a bonus action, a creature you can see regains 1d4 + spellcasting modifier HP." },
         "Thunderwave": { level: 1, school: "Evocation", classes: ["Wizard", "Sorcerer", "Druid", "Bard"], damage: "2d8", damageType: "thunder", save: "con", aoe: "15ft cube", description: "A wave of thunderous force sweeps out. CON save or take 2d8 thunder damage and be pushed 10ft (half damage on save)." },
         "Spike Growth": { level: 2, school: "Transmutation", classes: ["Druid", "Ranger"], damage: "2d4", damageType: "piercing", concentration: true, description: "Ground in a 20ft radius sprouts spikes. Difficult terrain. 2d4 piercing damage per 5ft moved through the area (concentration)." },
         "Erupting Earth": { level: 3, school: "Transmutation", classes: ["Druid", "Sorcerer", "Wizard"], damage: "3d12", damageType: "bludgeoning", range: 120, save: "dex", description: "Choose a point on the ground. DEX save or take 3d12 bludgeoning damage (half on save). Area becomes difficult terrain." },
         "Stoneskin": { level: 4, school: "Abjuration", classes: ["Druid"], buff: true, concentration: true, description: "A creature gains resistance to nonmagical bludgeoning, piercing, and slashing damage for 1 hour (concentration)." },
         "Insect Plague": { level: 5, school: "Conjuration", classes: ["Cleric", "Druid", "Sorcerer"], damage: "4d10", damageType: "piercing", range: 300, save: "con", concentration: true, aoe: "20ft sphere", description: "Swarming locusts fill a 20ft sphere. CON save or take 4d10 piercing damage (half on save). Area is lightly obscured and difficult terrain (concentration)." },
         // Additional Warlock Spells
-        "Misty Step": { level: 2, school: "Conjuration", classes: ["Wizard", "Sorcerer", "Warlock", "Paladin"], utility: true, description: "Bonus action: Teleport up to 30ft to an unoccupied space you can see." },
+        "Misty Step": { level: 2, school: "Conjuration", classes: ["Wizard", "Sorcerer", "Warlock", "Paladin"], utility: true, bonus: true, description: "Bonus action: Teleport up to 30ft to an unoccupied space you can see." },
         "Summon Shadowspawn": { level: 3, school: "Conjuration", classes: ["Warlock", "Wizard"], utility: true, concentration: true, description: "Summon a shadowy entity from the Shadowfell. It obeys your commands and attacks your enemies (concentration)." },
         "Shadow of Moil": { level: 4, school: "Necromancy", classes: ["Warlock"], buff: true, concentration: true, description: "Flame-like shadows surround you. You are heavily obscured. Creatures that hit you take 2d8 necrotic damage (concentration)." },
         "Synaptic Static": { level: 5, school: "Enchantment", classes: ["Wizard", "Sorcerer", "Bard", "Warlock"], damage: "8d6", damageType: "psychic", range: 120, save: "int", aoe: "20ft sphere", description: "INT save or take 8d6 psychic damage and subtract 1d6 from attack rolls, ability checks, and concentration saves for 1 minute (half damage on save)." },
@@ -3236,7 +3325,7 @@ const GAME_DATA = {
         "Distant Spell": { level: 0, school: "Sorcery", classes: ["Sorcerer"], buff: true, description: "Metamagic: Spend 1 sorcery point to double a spell's range, or make a touch spell have 30ft range." },
         "Cone of Cold": { level: 5, school: "Evocation", classes: ["Wizard", "Sorcerer"], damage: "8d8", damageType: "cold", aoe: "60ft cone", save: "con", description: "A blast of cold air erupts from your hands in a 60ft cone. CON save or take 8d8 cold damage (half on save)." },
         // Additional Druid Spells
-        "Healing Word": { level: 1, school: "Evocation", classes: ["Cleric", "Bard", "Druid"], healing: "1d4", range: 60, description: "Bonus action: A creature within 60ft regains 1d4 + spellcasting modifier HP." },
+        "Healing Word": { level: 1, school: "Evocation", classes: ["Cleric", "Bard", "Druid"], healing: "1d4", range: 60, bonus: true, description: "Bonus action: A creature within 60ft regains 1d4 + spellcasting modifier HP." },
         "Thunderwave": { level: 1, school: "Evocation", classes: ["Wizard", "Druid", "Bard", "Sorcerer"], damage: "2d8", damageType: "thunder", aoe: "15ft cube", save: "con", description: "A wave of thunderous force sweeps out. CON save or take 2d8 thunder damage and be pushed 10ft (half damage on save, not pushed)." },
         "Spike Growth": { level: 2, school: "Transmutation", classes: ["Druid", "Ranger"], utility: true, concentration: true, description: "Ground in a 20ft radius sprouts hard spikes. Difficult terrain. Creatures moving through take 2d4 piercing per 5ft moved (concentration)." },
         "Conjure Animals": { level: 3, school: "Conjuration", classes: ["Druid", "Ranger"], utility: true, concentration: true, description: "Summon fey spirits that take the form of beasts. Choose CR total: one CR2, two CR1, four CR1/2, or eight CR1/4 beasts. Lasts 1 hour (concentration)." },
@@ -3249,12 +3338,18 @@ const GAME_DATA = {
         "Synaptic Static": { level: 5, school: "Enchantment", classes: ["Warlock", "Wizard", "Sorcerer", "Bard"], damage: "8d6", damageType: "psychic", range: 120, save: "int", description: "INT save or take 8d6 psychic damage and subtract 1d6 from attack rolls, ability checks, and concentration saves for 1 minute (half damage on save, no penalty)." },
     },
     backgrounds: {
-        "Soldier": { skills: ["Athletics", "Intimidation"], feature: "Military Rank", toolProficiencies: ["Dice Set", "Vehicles (Land)"], languages: [] },
-        "Scholar": { skills: ["Arcana", "History"], feature: "Researcher", toolProficiencies: [], languages: ["Choose One", "Choose One"] },
-        "Criminal": { skills: ["Deception", "Stealth"], feature: "Criminal Contact", toolProficiencies: ["Thieves' Tools", "Dice Set"], languages: [] },
-        "Noble": { skills: ["History", "Persuasion"], feature: "Position of Privilege", toolProficiencies: ["Dice Set"], languages: ["Choose One"] },
-        "Outlander": { skills: ["Athletics", "Survival"], feature: "Wanderer", toolProficiencies: ["Herbalism Kit"], languages: ["Choose One"] },
-        "Acolyte": { skills: ["Insight", "Religion"], feature: "Shelter of the Faithful", toolProficiencies: [], languages: ["Choose One", "Choose One"] }
+        "Soldier": { skills: ["Athletics", "Intimidation"], feature: "Military Rank", toolProficiencies: ["Dice Set", "Vehicles (Land)"], languages: [],
+            featureEffect: { innDiscount: true, intimidationAdvantage: true,Desc: "You can invoke your rank to exert influence over soldiers and requisition simple equipment. Free inn rest at military posts." } },
+        "Scholar": { skills: ["Arcana", "History"], feature: "Researcher", toolProficiencies: [], languages: ["Choose One", "Choose One"],
+            featureEffect: { loreAdvantage: true, Desc: "When you attempt to learn or recall lore (Arcana, History, Religion), you gain advantage if the knowledge could be found in a library or archive." } },
+        "Criminal": { skills: ["Deception", "Stealth"], feature: "Criminal Contact", toolProficiencies: ["Thieves' Tools", "Dice Set"], languages: [],
+            featureEffect: { fenceBonus: true, Desc: "Your underworld contacts let you fence stolen goods at 75% value instead of 50%. Thieves' Guild reputation gains are doubled." } },
+        "Noble": { skills: ["History", "Persuasion"], feature: "Position of Privilege", toolProficiencies: ["Dice Set"], languages: ["Choose One"],
+            featureEffect: { shopDiscount: true, persuasionAdvantage: true, Desc: "Common people make every effort to accommodate you. Shop prices are 10% lower and you have advantage on Persuasion checks with nobility." } },
+        "Outlander": { skills: ["Athletics", "Survival"], feature: "Wanderer", toolProficiencies: ["Herbalism Kit"], languages: ["Choose One"],
+            featureEffect: { freeForage: true, survivalAdvantage: true, Desc: "You can always find food and fresh water for yourself while in the wilderness. Advantage on Survival checks in the wild." } },
+        "Acolyte": { skills: ["Insight", "Religion"], feature: "Shelter of the Faithful", toolProficiencies: [], languages: ["Choose One", "Choose One"],
+            featureEffect: { freeInn: true, healingBonus: true, Desc: "You and your companions can receive free healing and lodging at temples. Church reputation gains are doubled." } }
     },
     treasures: [
         { name: "Gold coins", getValue: () => Math.floor(Math.random() * 26) + 5 },
@@ -3536,6 +3631,11 @@ const GAME_DATA = {
         "Dwarven Cram": 2,
         "Elven Waybread": 3,
         "Trail Rations": 1,
+        // Spellcasting Focuses
+        "Arcane Focus": 10,
+        "Component Pouch": 25,
+        "Holy Symbol": 5,
+        "Druidic Focus": 5,
         // Crafting Materials
         "Empty Vial": 2,
         "Healing Herbs": 5,
@@ -3865,7 +3965,13 @@ class Character {
             blinded: false,
             prone: false,
             restrained: false,
-            stunned: false
+            stunned: false,
+            charmed: false,
+            deafened: false,
+            incapacitated: false,
+            invisible: false,
+            petrified: false,
+            unconscious: false
         };
         // Rest system
         this.hitDice = { current: 1, max: 1 };
@@ -3888,6 +3994,10 @@ class Character {
         this.ragesRemaining = 0;
         // Inspiration system
         this.inspiration = false;
+        // Fighting Style (Fighter, Ranger, Paladin)
+        this.fightingStyle = null;
+        // Saving throw proficiencies (from class)
+        this.saveProficiencies = [];
         // Exhaustion system (0-6 levels)
         this.exhaustion = 0;
         // HP roll history (tracks actual HP gained per level for accurate recalculation)
@@ -3962,6 +4072,25 @@ class Character {
         this.componentPouch = true; // Assume they have one
     }
 
+    // Check if character has a spellcasting focus or component pouch
+    hasSpellcastingFocus() {
+        const foci = ["Arcane Focus", "Component Pouch", "Holy Symbol", "Druidic Focus"];
+        // Artificer uses Thieves' Tools or infused items as a focus
+        if (this.charClass === "Artificer") {
+            return this.inventory.includes("Thieves' Tools") || this.inventory.includes("Tinker's Tools") || foci.some(f => this.inventory.includes(f));
+        }
+        return foci.some(f => this.inventory.includes(f));
+    }
+
+    getBackgroundFeature() {
+        return GAME_DATA.backgrounds[this.background]?.featureEffect || null;
+    }
+
+    hasBackgroundFeature(key) {
+        const feat = this.getBackgroundFeature();
+        return feat ? !!feat[key] : false;
+    }
+
     rollStats() {
         for (let stat in this.stats) {
             const rolls = Array(4).fill(0).map(() => Math.floor(Math.random() * 6) + 1);
@@ -4002,6 +4131,37 @@ class Character {
         }
         if (this.race === "Half-Orc") {
             this.racialAbilities.relentlessUsed = false; // Resets on long rest
+        }
+        if (this.race === "Halfling") {
+            this.racialAbilities.luckyUsed = false; // Halfling Lucky: reroll 1s on d20
+        }
+        if (this.race === "Aasimar") {
+            this.racialAbilities.healingHandsUsed = false; // Heal = level HP, once per long rest
+        }
+        if (this.race === "Goliath") {
+            this.racialAbilities.stonesEnduranceUsed = false; // Reduce damage by 1d12+CON once per short rest
+        }
+        if (this.race === "Tabaxi") {
+            this.racialAbilities.felineAgilityUsed = false; // Double speed for one turn
+        }
+        if (this.race === "Firbolg") {
+            this.racialAbilities.hiddenStepUsed = false; // Invisible until next turn, once per short rest
+        }
+        if (this.race === "Tiefling") {
+            this.racialAbilities.hellishRebukeUsed = false; // Cast Hellish Rebuke once per long rest (level 3+)
+        }
+        // Half-Elf: +1 to two ability scores of choice
+        if (this.race === "Half-Elf") {
+            const raceData = GAME_DATA.races[this.race];
+            if (raceData.extraAbilityBonus) {
+                const stats = ["str", "dex", "con", "int", "wis"];
+                const shuffled = stats.sort(() => Math.random() - 0.5);
+                for (let i = 0; i < raceData.extraAbilityBonus && i < shuffled.length; i++) {
+                    this.stats[shuffled[i]] += 1;
+                }
+            }
+            // Skill Versatility: 2 extra skill proficiencies
+            this.racialAbilities.extraSkills = true;
         }
         
         // Apply racial languages
@@ -4071,6 +4231,9 @@ class Character {
         let mod = this.getModifier(ability);
         if (this.isSkillProficient(skillName)) {
             mod += this.getProficiencyBonus();
+        } else if (this.charClass === "Bard" && this.level >= 2) {
+            // Jack of All Trades: add half proficiency to non-proficient ability checks
+            mod += Math.floor(this.getProficiencyBonus() / 2);
         }
         if (this.hasExpertise(skillName)) {
             mod += this.getProficiencyBonus(); // Double proficiency
@@ -4130,6 +4293,20 @@ class Character {
         return profList.includes("shields");
     }
 
+    // Get saving throw modifier (ability mod + proficiency if proficient)
+    getSaveModifier(stat) {
+        let mod = this.getModifier(stat);
+        // Class save proficiencies
+        if (this.saveProficiencies && this.saveProficiencies.includes(stat)) {
+            mod += this.getProficiencyBonus();
+        }
+        // Paladin Aura of Protection: add CHA mod to all saves (level 6+)
+        if (this.charClass === "Paladin" && this.level >= 6) {
+            mod += Math.max(0, this.getModifier("cha"));
+        }
+        return mod;
+    }
+
     // ========== Attunement System ==========
     canAttune(itemName) {
         if (this.attunedItems.length >= 3) return false;
@@ -4166,11 +4343,17 @@ class Character {
     canCastRitual(spellName) {
         const spell = GAME_DATA.spells[spellName];
         if (!spell || !spell.ritual) return false;
-        // Must know the spell
-        if (!this.spells.known.includes(spellName) && !this.spells.cantrips.includes(spellName)) return false;
-        // Wizards, Clerics, Druids can cast rituals. Bards too at higher levels.
+        // Ritual casters
         const ritualCasters = ["Wizard", "Cleric", "Druid", "Bard", "Artificer"];
-        return ritualCasters.includes(this.charClass);
+        if (!ritualCasters.includes(this.charClass)) return false;
+        // Cleric/Druid: can ritual cast any class spell they have access to (prepared or not)
+        const prepFromFullList = ["Cleric", "Druid"];
+        if (prepFromFullList.includes(this.charClass)) {
+            return spell.classes.includes(this.charClass);
+        }
+        // Wizard: can ritual cast from spellbook (spells.known) without preparing
+        // Bard/Artificer: must know the spell
+        return this.spells.known.includes(spellName) || this.spells.cantrips.includes(spellName);
     }
 
     // ========== Darkvision Mechanics ==========
@@ -4225,6 +4408,7 @@ class Character {
         const dexMod = this.getModifier("dex");
         let baseAc = 10;
         let maxDex = 99;
+        let usingArmor = false;
         
         // Get campaign-specific items if available
         const campaignItems = campaignId ? GAME_DATA.campaignItems[campaignId] : null;
@@ -4238,6 +4422,7 @@ class Character {
             if (armorData) {
                 baseAc = armorData.ac;
                 maxDex = armorData.maxDex;
+                usingArmor = true;
                 // Heavy armor STR requirement: Chain Mail=13, Splint=15, Plate=15
                 if (armorData.type === "heavy") {
                     const strReq = armorData.strRequirement || 0;
@@ -4249,6 +4434,21 @@ class Character {
                 } else {
                     this._heavyArmorStrPenalty = false;
                 }
+            }
+        }
+        
+        // Unarmored Defense: Barbarian (10 + DEX + CON), Monk (10 + DEX + WIS)
+        if (!usingArmor) {
+            if (this.charClass === "Barbarian") {
+                baseAc = 10 + dexMod + this.getModifier("con");
+                maxDex = 0; // Already included DEX
+            } else if (this.charClass === "Monk") {
+                baseAc = 10 + dexMod + this.getModifier("wis");
+                maxDex = 0; // Already included DEX
+            } else if (this.charClass === "Sorcerer" && this.subclass === "Draconic") {
+                // Draconic Resilience: AC = 13 + DEX when unarmored
+                baseAc = 13 + dexMod;
+                maxDex = 0;
             }
         }
         
@@ -4264,6 +4464,11 @@ class Character {
             if (shieldData) {
                 this.ac += shieldData.acBonus;
             }
+        }
+        
+        // Fighting Style: Defense (+1 AC while wearing armor)
+        if (this.fightingStyle === 'Defense' && usingArmor) {
+            this.ac += 1;
         }
     }
     
@@ -4432,11 +4637,22 @@ class Character {
             this.setupSpells();
         }
         
+        // Set saving throw proficiencies from class
+        this.saveProficiencies = classInfo.saves || [];
+        
         // Setup Fighter
         if (this.charClass === "Fighter") {
             // Action Surge at level 2 (initialized to 0, unlocked at level 2 in levelUp)
             this.actionSurgeUses = 0;
             this.actionSurgeUsed = false;
+            // Fighting Style: choose based on weapon
+            const hasRanged = this.equipped.weapon && GAME_DATA.weapons[this.equipped.weapon]?.properties?.includes('ranged');
+            const hasTwoHanded = this.equipped.weapon && GAME_DATA.weapons[this.equipped.weapon]?.properties?.includes('two-handed');
+            const hasShield = !!this.equipped.shield;
+            if (hasRanged) this.fightingStyle = 'Archery';
+            else if (hasTwoHanded) this.fightingStyle = 'Great Weapon Fighting';
+            else if (hasShield) this.fightingStyle = 'Defense';
+            else this.fightingStyle = 'Dueling';
         }
         
         // Setup Barbarian Rage
@@ -4458,6 +4674,8 @@ class Character {
             // Channel Divinity at level 3
             this.channelDivinityUses = 0;
             this.channelDivinityUsed = false;
+            // Fighting Style: Defense (starts with shield)
+            this.fightingStyle = 'Defense';
         }
         
         // Setup Monk
@@ -4484,6 +4702,12 @@ class Character {
         if (this.charClass === "Sorcerer") {
             this.sorceryPoints = Math.max(0, this.level - 1); // Starts at level 2
             this.sorceryPointsMax = this.sorceryPoints;
+        }
+        
+        // Setup Ranger
+        if (this.charClass === "Ranger") {
+            const hasRanged = this.equipped.weapon && GAME_DATA.weapons[this.equipped.weapon]?.properties?.includes('ranged');
+            this.fightingStyle = hasRanged ? 'Archery' : 'Dueling';
         }
         
         // Setup Druid
@@ -4544,9 +4768,64 @@ class Character {
         const numCantrips = Math.min(classInfo.cantrips || 2, cantrips.length);
         this.spells.cantrips = cantrips.slice(0, numCantrips);
         
-        // Give starting level 1 spells (2-4 depending on class)
-        const numSpells = this.charClass === "Wizard" ? 4 : this.charClass === "Cleric" ? 3 : 2;
-        this.spells.known = level1Spells.slice(0, Math.min(numSpells, level1Spells.length));
+        // 5e Prepared vs Known distinction:
+        // Wizard: starts with 6 spells in spellbook (spells.known), prepares from spellbook
+        // Cleric/Druid/Paladin: prepare from FULL class spell list (spells.known is unused for these)
+        // Sorcerer/Bard/Warlock/Ranger: learn fixed number, cast any known (no preparation)
+        const prepFromFullList = ["Cleric", "Druid", "Paladin"];
+        if (this.charClass === "Wizard") {
+            // Wizard spellbook starts with 6 first-level spells (PHB p.114)
+            this.spells.known = level1Spells.slice(0, Math.min(6, level1Spells.length));
+        } else if (prepFromFullList.includes(this.charClass)) {
+            // These classes don't use spells.known for preparation — they prepare from full class list
+            // spells.known is kept empty; getPreparableSpells() provides the full list
+            this.spells.known = [];
+        } else {
+            // Known-spell casters: limited number of known spells
+            const numSpells = this.charClass === "Sorcerer" ? 2 : 2;
+            this.spells.known = level1Spells.slice(0, Math.min(numSpells, level1Spells.length));
+        }
+        
+        // Auto-prepare starting spells for preparation casters
+        if (["Wizard", "Cleric", "Druid", "Paladin"].includes(this.charClass)) {
+            if (!this.preparedSpells) this.preparedSpells = [];
+            const maxPrep = this.maxPreparedSpells();
+            const preparable = this.getPreparableSpells();
+            for (const s of preparable) {
+                if (this.preparedSpells.length >= maxPrep) break;
+                if (!this.preparedSpells.includes(s)) this.preparedSpells.push(s);
+            }
+        }
+    }
+
+    // Get all spells available for preparation (differs by class)
+    getPreparableSpells() {
+        const prepFromFullList = ["Cleric", "Druid", "Paladin"];
+        if (prepFromFullList.includes(this.charClass)) {
+            // These classes prepare from the FULL class spell list at levels they have slots for
+            const allSpells = GAME_DATA.spells;
+            const maxSpellLevel = Math.max(...Object.keys(this.spells.slots).filter(l => this.spells.slots[l] > 0).map(Number), 0);
+            return Object.keys(allSpells).filter(name => {
+                const sp = allSpells[name];
+                return sp.level > 0 && sp.level <= maxSpellLevel && sp.classes.includes(this.charClass);
+            });
+        } else if (this.charClass === "Wizard") {
+            // Wizard prepares from spellbook (spells.known)
+            return this.spells.known.filter(s => {
+                const sp = GAME_DATA.spells[s];
+                return sp && sp.level > 0;
+            });
+        }
+        // Non-preparation casters don't use this
+        return this.spells.known.filter(s => {
+            const sp = GAME_DATA.spells[s];
+            return sp && sp.level > 0;
+        });
+    }
+    
+    // Check if this class uses spell preparation
+    usesPreparedSpells() {
+        return ["Wizard", "Cleric", "Druid", "Paladin"].includes(this.charClass);
     }
     
     getSpellcastingMod() {
@@ -4572,13 +4851,14 @@ class Character {
             return this.spells.cantrips.includes(spellName);
         }
         
-        // Check if spell is known
-        if (!this.spells.known.includes(spellName)) return false;
-        
-        // Preparation casters: Wizard, Cleric, Druid, Paladin must have spell prepared
+        // Preparation casters: must have spell prepared
         const prepCasters = ["Wizard", "Cleric", "Druid", "Paladin"];
         if (prepCasters.includes(this.charClass)) {
+            // Prepared casters cast from their prepared list (no need to check spells.known)
             if (!this.preparedSpells.includes(spellName)) return false;
+        } else {
+            // Known-spell casters: must have spell in known list
+            if (!this.spells.known.includes(spellName)) return false;
         }
         
         // Check if we have a slot available
@@ -4589,13 +4869,25 @@ class Character {
     // Max prepared spells for preparation casters
     maxPreparedSpells() {
         const mod = this.getModifier(GAME_DATA.classes[this.charClass]?.spellStat || "int");
-        return Math.max(1, this.level + mod);
+        // Paladin/Ranger: half level (rounded down) + casting mod
+        // Wizard/Cleric/Druid: full level + casting mod
+        const halfCasters = ["Paladin", "Ranger"];
+        const effectiveLevel = halfCasters.includes(this.charClass) ? Math.floor(this.level / 2) : this.level;
+        return Math.max(1, effectiveLevel + mod);
     }
 
     useSpellSlot(level) {
+        // Try the exact level first
         if (this.spells.slotsUsed[level] < this.spells.slots[level]) {
             this.spells.slotsUsed[level]++;
-            return true;
+            return level; // Return the slot level used
+        }
+        // Auto-upcast: try higher-level slots when base level is exhausted
+        for (let lvl = level + 1; lvl <= 9; lvl++) {
+            if (this.spells.slots[lvl] && this.spells.slotsUsed[lvl] < this.spells.slots[lvl]) {
+                this.spells.slotsUsed[lvl]++;
+                return lvl; // Return the higher slot level used
+            }
         }
         return false;
     }
@@ -4702,10 +4994,21 @@ class Character {
             if (this.race === "Dwarf" && damageType === "poison") {
                 finalDamage = Math.floor(finalDamage / 2);
             }
+            // Aasimar Celestial Resistance (necrotic and radiant)
+            if (this.race === "Aasimar" && (damageType === "necrotic" || damageType === "radiant")) {
+                finalDamage = Math.floor(finalDamage / 2);
+            }
             // Barbarian Rage: resistance to bludgeoning, piercing, slashing
             if (this.raging && ["bludgeoning", "piercing", "slashing"].includes(damageType)) {
                 finalDamage = Math.floor(finalDamage / 2);
             }
+        }
+        
+        // Goliath Stone's Endurance: reduce damage by 1d12+CON mod, once per short rest
+        if (finalDamage > 0 && this.race === "Goliath" && this.racialAbilities && !this.racialAbilities.stonesEnduranceUsed) {
+            const reduction = Math.floor(Math.random() * 12) + 1 + this.getModifier("con");
+            finalDamage = Math.max(0, finalDamage - Math.max(0, reduction));
+            this.racialAbilities.stonesEnduranceUsed = true;
         }
         
         this.hp = Math.max(0, this.hp - finalDamage);
@@ -4790,7 +5093,13 @@ class Character {
     // Reputation management
     adjustReputation(faction, amount) {
         if (this.reputation.hasOwnProperty(faction)) {
-            this.reputation[faction] = Math.max(-100, Math.min(100, this.reputation[faction] + amount));
+            // Background feature: Acolyte doubles church rep, Criminal doubles thieves_guild rep
+            let adjusted = amount;
+            if (amount > 0) {
+                if (faction === 'church' && this.hasBackgroundFeature('healingBonus')) adjusted = amount * 2;
+                if (faction === 'thieves_guild' && this.hasBackgroundFeature('fenceBonus')) adjusted = amount * 2;
+            }
+            this.reputation[faction] = Math.max(-100, Math.min(100, this.reputation[faction] + adjusted));
         }
     }
 
@@ -4912,6 +5221,8 @@ class Character {
             bootsOfSpeed: this.bootsOfSpeed || false,
             ringOfProtection: this.ringOfProtection || false,
             alignment: this.alignment || "N",
+            inspiration: this.inspiration || false,
+            preparedSpells: this.preparedSpells || [],
             diseases: this.diseases || [],
             madness: this.madness || { shortTerm: [], longTerm: [], indefinite: [] },
             mountedOn: this.mountedOn || null,
@@ -4942,7 +5253,7 @@ class Character {
             char.deathSaves = { successes: 0, failures: 0, stable: false };
         }
         if (!char.conditions) {
-            char.conditions = { poisoned: false, frightened: false, paralyzed: false, blinded: false, prone: false, restrained: false, stunned: false };
+            char.conditions = { poisoned: false, frightened: false, paralyzed: false, blinded: false, prone: false, restrained: false, stunned: false, charmed: false, deafened: false, incapacitated: false, invisible: false, petrified: false, unconscious: false };
         }
         if (!char.hitDice) {
             char.hitDice = { current: char.level, max: char.level };
@@ -4973,6 +5284,7 @@ class Character {
             }
         }
         if (!char.expertise) char.expertise = {};
+        if (!char.preparedSpells) char.preparedSpells = [];
         if (!char.attunedItems) char.attunedItems = [];
         if (!char.racialAbilities) char.racialAbilities = {};
         if (char.darkvisionRange === undefined) {
@@ -5202,6 +5514,16 @@ class DungeonMaster {
         if (enc.heavilyEncumbered && ['str', 'dex', 'con'].includes(stat)) {
             disadvantage = true;
         }
+
+        // Background feature skill advantages
+        const bgFeat = this.character.getBackgroundFeature();
+        if (bgFeat) {
+            const sn = (skillName || '').toLowerCase();
+            if (bgFeat.loreAdvantage && ['arcana', 'history', 'religion'].includes(sn)) advantage = true;
+            if (bgFeat.survivalAdvantage && sn === 'survival' && this.currentLocation?.type === 'wilderness') advantage = true;
+            if (bgFeat.intimidationAdvantage && sn === 'intimidation') advantage = true;
+            if (bgFeat.persuasionAdvantage && sn === 'persuasion') advantage = true;
+        }
         
         let roll = roll1;
         let advType = null;
@@ -5223,6 +5545,9 @@ class DungeonMaster {
             if (this.character.hasExpertise(skillName)) {
                 modifier += this.character.getProficiencyBonus(); // Double proficiency
             }
+        } else if (skillName && this.character.charClass === 'Bard' && this.character.level >= 2) {
+            // Bard Jack of All Trades: half proficiency on non-proficient checks
+            modifier += Math.floor(this.character.getProficiencyBonus() / 2);
         }
 
         // Reputation bonuses to social/stealth checks
@@ -5261,6 +5586,16 @@ class DungeonMaster {
         if (enc.heavilyEncumbered && ['str', 'dex', 'con'].includes(stat)) {
             disadvantage = true;
         }
+
+        // Background feature skill advantages
+        const bgFeat = this.character.getBackgroundFeature();
+        if (bgFeat) {
+            const sn = (skillName || '').toLowerCase();
+            if (bgFeat.loreAdvantage && ['arcana', 'history', 'religion'].includes(sn)) advantage = true;
+            if (bgFeat.survivalAdvantage && sn === 'survival' && this.currentLocation?.type === 'wilderness') advantage = true;
+            if (bgFeat.intimidationAdvantage && sn === 'intimidation') advantage = true;
+            if (bgFeat.persuasionAdvantage && sn === 'persuasion') advantage = true;
+        }
         
         let roll1 = Math.floor(Math.random() * 20) + 1;
         let roll2 = Math.floor(Math.random() * 20) + 1;
@@ -5291,6 +5626,9 @@ class DungeonMaster {
             if (this.character.hasExpertise(skillName)) {
                 modifier += this.character.getProficiencyBonus(); // Double proficiency
             }
+        } else if (skillName && this.character.charClass === 'Bard' && this.character.level >= 2) {
+            // Bard Jack of All Trades: half proficiency on non-proficient checks
+            modifier += Math.floor(this.character.getProficiencyBonus() / 2);
         }
 
         // Reputation bonuses to social/stealth checks
@@ -5348,6 +5686,15 @@ class DungeonMaster {
         let roll2 = Math.floor(Math.random() * 20) + 1;
         let roll = roll1;
         let advType = null;
+        
+        // Halfling Lucky: reroll natural 1s on d20 attack rolls
+        if (this.character && this.character.race === "Halfling" && roll1 === 1) {
+            roll1 = Math.floor(Math.random() * 20) + 1;
+            roll = roll1;
+        }
+        if (this.character && this.character.race === "Halfling" && roll2 === 1) {
+            roll2 = Math.floor(Math.random() * 20) + 1;
+        }
         
         if (advantage && !disadvantage) {
             roll = Math.max(roll1, roll2);
@@ -5461,6 +5808,7 @@ class DungeonMaster {
             reaction: true,
             movement: 30
         };
+        this.bonusActionSpellCast = false;
     }
 
     useAction(type) {
@@ -6413,17 +6761,22 @@ class DungeonMaster {
         const trap = TRAPS[trapType];
         if (!trap) return { success: false, message: "Unknown trap." };
         
-        // Dexterity (Thieves' Tools) check
+        // Dexterity (Thieves' Tools) check — proficiency with Thieves' Tools adds proficiency bonus
         const d20 = Math.floor(Math.random() * 20) + 1;
-        const sleightOfHand = this.character.skills?.sleightOfHand || 0;
         const dexMod = this.character.getModifier ? this.character.getModifier('dex') : 0;
-        const total = d20 + sleightOfHand + dexMod;
+        let toolBonus = 0;
+        let toolMsg = "";
+        if (this.character.isToolProficient("Thieves' Tools") && this.character.inventory.includes("Thieves' Tools")) {
+            toolBonus = this.character.getProficiencyBonus();
+            toolMsg = " (Thieves' Tools)";
+        }
+        const total = d20 + dexMod + toolBonus;
         
         if (total >= (trapDC || trap.disarmDC || 15)) {
             return {
                 success: true,
                 disarmed: true,
-                message: `Trap disarmed! (${total} vs DC ${trapDC})`
+                message: `Trap disarmed${toolMsg}! (${total} vs DC ${trapDC})`
             };
         }
         
@@ -7299,6 +7652,8 @@ const ITEM_WEIGHTS = {
     // Tools
     "Thieves' Tools": 1, "Herbalism Kit": 3, "Tinker's Tools": 10,
     "Dice Set": 0, "Vehicles (Land)": 0,
+    // Spellcasting Focuses
+    "Arcane Focus": 1, "Component Pouch": 2, "Holy Symbol": 0, "Druidic Focus": 1,
     // Magic items (various)
     "Crown of the Goblin King": 2, "Vampiric Blade": 3, "Dragon Scale Armor": 45,
     "Staff of the Lich": 4, "Beholder Eye": 1
@@ -7459,6 +7814,12 @@ class Game {
             case 'bonusAction':
                 if (inCombat) {
                     this.showBonusActionMenu();
+                    event.preventDefault();
+                }
+                break;
+            case 'grapple':
+                if (inCombat) {
+                    this.combatAction('grapple');
                     event.preventDefault();
                 }
                 break;
@@ -8441,12 +8802,17 @@ class Game {
         this.selectedRace = null;
         this.selectedClass = null;
         this.selectedBackground = null;
+        this.selectedAlignment = null;
         this.selectedCampaign = null;
+        this.wizardStep = 1;
         ACTIVE_CAMPAIGN = null;
         
         // Reset name input
         document.getElementById("nameInput").value = "";
         document.getElementById("startGameBtn").disabled = true;
+        
+        // Reset wizard picks
+        this.updateWizardPicks();
         
         // Show campaign selection screen
         document.getElementById("creationScreen").classList.add("hidden");
@@ -8837,10 +9203,14 @@ class Game {
     }
 
     initCreation() {
+        this.wizardStep = 1;
+        
         // Icon maps for visual flair
         const raceIcons = {
             "Human": "👤", "Elf": "🧝", "Dwarf": "⛏️", "Halfling": "🍀",
-            "Dragonborn": "🐉", "Tiefling": "😈", "Half-Orc": "🪓"
+            "Dragonborn": "🐉", "Tiefling": "😈", "Half-Orc": "🪓",
+            "Gnome": "🔧", "Half-Elf": "🧝‍♂️", "Aasimar": "😇",
+            "Goliath": "🏔️", "Tabaxi": "🐱", "Kenku": "🐦", "Firbolg": "🌳"
         };
         const classIcons = {
             "Fighter": "⚔️", "Wizard": "🧙", "Rogue": "🗡️", "Cleric": "⛪",
@@ -8853,50 +9223,30 @@ class Game {
             "Outlander": "🌲", "Acolyte": "🙏"
         };
         
+        // Race groupings
+        this.raceGroups = {
+            "common": ["Human", "Elf", "Dwarf", "Halfling", "Half-Orc", "Half-Elf"],
+            "exotic": ["Tiefling", "Dragonborn", "Gnome", "Aasimar", "Goliath", "Tabaxi", "Kenku", "Firbolg"]
+        };
+        
         // Class groupings for organized display
-        const classGroups = {
+        this.classGroups = {
             "Martial": ["Fighter", "Barbarian", "Monk", "Rogue"],
             "Divine": ["Cleric", "Paladin", "Druid"],
             "Arcane": ["Wizard", "Sorcerer", "Warlock", "Bard"],
             "Hybrid": ["Ranger", "Artificer"]
         };
+        
+        // Store icons for tab filtering
+        this.raceIcons = raceIcons;
+        this.classIcons = classIcons;
+        this.bgIcons = bgIcons;
 
-        // Populate race options
-        const raceContainer = document.getElementById("raceOptions");
-        raceContainer.innerHTML = "";
-        for (let race in GAME_DATA.races) {
-            const traits = GAME_DATA.races[race].traits.join(", ");
-            raceContainer.innerHTML += `
-                <div class="option-card" data-race="${race}" onclick="game.selectRace('${race}')">
-                    <span class="option-icon">${raceIcons[race] || "👤"}</span>
-                    <div class="option-info">
-                        <h3>${race}</h3>
-                        <p>${traits}</p>
-                    </div>
-                </div>
-            `;
-        }
+        // Populate race options (common tab by default)
+        this.switchRaceTab('common');
 
-        // Populate class options with grouped layout
-        const classContainer = document.getElementById("classOptions");
-        classContainer.innerHTML = "";
-        for (let groupName in classGroups) {
-            classContainer.innerHTML += `<div class="class-group-label">${groupName}</div>`;
-            for (let cls of classGroups[groupName]) {
-                const info = GAME_DATA.classes[cls];
-                if (!info) continue;
-                const castLabel = info.spellcaster ? "🔮" : "";
-                classContainer.innerHTML += `
-                    <div class="option-card" data-class="${cls}" onclick="game.selectClass('${cls}')">
-                        <span class="option-icon">${classIcons[cls] || "⚔️"}</span>
-                        <div class="option-info">
-                            <h3>${cls}</h3>
-                            <p>d${info.hitDie} · ${info.primary.toUpperCase()} ${castLabel}</p>
-                        </div>
-                    </div>
-                `;
-            }
-        }
+        // Populate class options (all by default)
+        this.switchClassTab('all');
 
         // Populate background options
         const bgContainer = document.getElementById("backgroundOptions");
@@ -8922,7 +9272,7 @@ class Game {
             for (let key in ALIGNMENTS) {
                 const a = ALIGNMENTS[key];
                 alignContainer.innerHTML += `
-                    <div class="option-card" data-alignment="${key}" onclick="game.selectAlignment('${key}')" style="padding:8px;min-width:auto;">
+                    <div class="option-card" data-alignment="${key}" onclick="game.selectAlignment('${key}')">
                         <span class="option-icon">${alignIcons[key] || "⚖️"}</span>
                         <div class="option-info">
                             <h3>${a.name}</h3>
@@ -8932,34 +9282,207 @@ class Game {
                 `;
             }
         }
+        
+        // Set initial wizard state
+        this.goToWizardStep(1);
+    }
+    
+    // ===== Wizard Navigation =====
+    
+    switchRaceTab(tab) {
+        // Update tab buttons
+        document.querySelectorAll('#wizardStep1 .wizard-tab').forEach(t => t.classList.remove('active'));
+        const tabs = document.querySelectorAll('#wizardStep1 .wizard-tab');
+        if (tab === 'common') tabs[0]?.classList.add('active');
+        else tabs[1]?.classList.add('active');
+        
+        const container = document.getElementById("raceOptions");
+        container.innerHTML = "";
+        const races = this.raceGroups[tab] || this.raceGroups.common;
+        for (let race of races) {
+            if (!GAME_DATA.races[race]) continue;
+            const traits = GAME_DATA.races[race].traits.join(", ");
+            const selectedClass = this.selectedRace === race ? ' selected' : '';
+            container.innerHTML += `
+                <div class="option-card${selectedClass}" data-race="${race}" onclick="game.selectRace('${race}')">
+                    <span class="option-icon">${this.raceIcons[race] || "👤"}</span>
+                    <div class="option-info">
+                        <h3>${race}</h3>
+                        <p>${traits}</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    switchClassTab(tab) {
+        // Update tab buttons
+        document.querySelectorAll('#wizardStep2 .wizard-tab').forEach(t => t.classList.remove('active'));
+        const tabs = document.querySelectorAll('#wizardStep2 .wizard-tab');
+        const tabOrder = ['all', 'Martial', 'Divine', 'Arcane', 'Hybrid'];
+        const idx = tabOrder.indexOf(tab);
+        if (idx >= 0 && tabs[idx]) tabs[idx].classList.add('active');
+        
+        const container = document.getElementById("classOptions");
+        container.innerHTML = "";
+        
+        const groupsToShow = tab === 'all' ? Object.keys(this.classGroups) : [tab];
+        for (let groupName of groupsToShow) {
+            const classes = this.classGroups[groupName];
+            if (!classes) continue;
+            for (let cls of classes) {
+                const info = GAME_DATA.classes[cls];
+                if (!info) continue;
+                const castLabel = info.spellcaster ? "🔮" : "";
+                const selectedClass = this.selectedClass === cls ? ' selected' : '';
+                container.innerHTML += `
+                    <div class="option-card${selectedClass}" data-class="${cls}" onclick="game.selectClass('${cls}')">
+                        <span class="option-icon">${this.classIcons[cls] || "⚔️"}</span>
+                        <div class="option-info">
+                            <h3>${cls}</h3>
+                            <p>d${info.hitDie} · ${info.primary.toUpperCase()} ${castLabel}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    }
+    
+    goToWizardStep(step) {
+        this.wizardStep = step;
+        
+        // Update panels
+        document.querySelectorAll('.wizard-panel').forEach(p => p.classList.remove('active'));
+        const panel = document.getElementById(`wizardStep${step}`);
+        if (panel) panel.classList.add('active');
+        
+        // Update progress bar
+        document.querySelectorAll('.wizard-step').forEach(s => {
+            const sStep = parseInt(s.dataset.step);
+            s.classList.remove('active', 'completed');
+            if (sStep === step) s.classList.add('active');
+            else if (sStep < step) s.classList.add('completed');
+        });
+        
+        // Update connecting lines
+        const lines = document.querySelectorAll('.wizard-step-line');
+        lines.forEach((line, i) => {
+            line.classList.toggle('completed', i < step - 1);
+        });
+        
+        // Update summary on name step
+        if (step === 5) this.updateWizardSummary();
+        
+        // Scroll to top of creation screen
+        document.getElementById('creationScreen').scrollTop = 0;
+    }
+    
+    wizardBack() {
+        if (this.wizardStep > 1) {
+            this.goToWizardStep(this.wizardStep - 1);
+        } else {
+            this.backToCampaignSelect();
+        }
+    }
+    
+    wizardNext() {
+        if (this.wizardStep < 5) {
+            this.goToWizardStep(this.wizardStep + 1);
+        }
+    }
+    
+    updateWizardPicks() {
+        const pickRace = document.getElementById('pickRace');
+        const pickClass = document.getElementById('pickClass');
+        const pickBg = document.getElementById('pickBackground');
+        const pickAlign = document.getElementById('pickAlignment');
+        
+        if (this.selectedRace) {
+            pickRace.textContent = `${this.raceIcons[this.selectedRace] || ''} ${this.selectedRace}`;
+            pickRace.classList.remove('empty');
+        } else {
+            pickRace.textContent = 'Race';
+            pickRace.classList.add('empty');
+        }
+        
+        if (this.selectedClass) {
+            pickClass.textContent = `${this.classIcons[this.selectedClass] || ''} ${this.selectedClass}`;
+            pickClass.classList.remove('empty');
+        } else {
+            pickClass.textContent = 'Class';
+            pickClass.classList.add('empty');
+        }
+        
+        if (this.selectedBackground) {
+            pickBg.textContent = `${this.bgIcons[this.selectedBackground] || ''} ${this.selectedBackground}`;
+            pickBg.classList.remove('empty');
+        } else {
+            pickBg.textContent = 'Background';
+            pickBg.classList.add('empty');
+        }
+        
+        if (this.selectedAlignment) {
+            const a = ALIGNMENTS[this.selectedAlignment];
+            pickAlign.textContent = a ? a.name : this.selectedAlignment;
+            pickAlign.classList.remove('empty');
+        } else {
+            pickAlign.textContent = 'Alignment';
+            pickAlign.classList.add('empty');
+        }
+    }
+    
+    updateWizardSummary() {
+        const summary = document.getElementById('wizardSummary');
+        if (!summary) return;
+        
+        const raceInfo = this.selectedRace ? `${this.raceIcons[this.selectedRace] || ''} ${this.selectedRace}` : '—';
+        const classInfo = this.selectedClass ? `${this.classIcons[this.selectedClass] || ''} ${this.selectedClass}` : '—';
+        const bgInfo = this.selectedBackground ? `${this.bgIcons[this.selectedBackground] || ''} ${this.selectedBackground}` : '—';
+        const alignInfo = this.selectedAlignment && ALIGNMENTS[this.selectedAlignment] ? ALIGNMENTS[this.selectedAlignment].name : '—';
+        
+        summary.innerHTML = `
+            <div class="wizard-summary-row"><span class="label">Race</span><span class="value">${raceInfo}</span></div>
+            <div class="wizard-summary-row"><span class="label">Class</span><span class="value">${classInfo}</span></div>
+            <div class="wizard-summary-row"><span class="label">Background</span><span class="value">${bgInfo}</span></div>
+            <div class="wizard-summary-row"><span class="label">Alignment</span><span class="value">${alignInfo}</span></div>
+        `;
     }
 
     selectRace(race) {
         this.selectedRace = race;
         document.querySelectorAll("[data-race]").forEach(el => el.classList.remove("selected"));
-        document.querySelector(`[data-race="${race}"]`).classList.add("selected");
+        document.querySelector(`[data-race="${race}"]`)?.classList.add("selected");
+        this.updateWizardPicks();
         this.checkStartButton();
+        // Auto-advance after short delay
+        setTimeout(() => this.wizardNext(), 350);
     }
 
     selectClass(cls) {
         this.selectedClass = cls;
         document.querySelectorAll("[data-class]").forEach(el => el.classList.remove("selected"));
-        document.querySelector(`[data-class="${cls}"]`).classList.add("selected");
+        document.querySelector(`[data-class="${cls}"]`)?.classList.add("selected");
+        this.updateWizardPicks();
         this.checkStartButton();
+        setTimeout(() => this.wizardNext(), 350);
     }
 
     selectBackground(bg) {
         this.selectedBackground = bg;
         document.querySelectorAll("[data-background]").forEach(el => el.classList.remove("selected"));
-        document.querySelector(`[data-background="${bg}"]`).classList.add("selected");
+        document.querySelector(`[data-background="${bg}"]`)?.classList.add("selected");
+        this.updateWizardPicks();
         this.checkStartButton();
+        setTimeout(() => this.wizardNext(), 350);
     }
 
     selectAlignment(alignment) {
         this.selectedAlignment = alignment;
         document.querySelectorAll("[data-alignment]").forEach(el => el.classList.remove("selected"));
-        document.querySelector(`[data-alignment="${alignment}"]`).classList.add("selected");
+        document.querySelector(`[data-alignment="${alignment}"]`)?.classList.add("selected");
+        this.updateWizardPicks();
         this.checkStartButton();
+        setTimeout(() => this.wizardNext(), 350);
     }
 
     checkStartButton() {
@@ -9250,6 +9773,19 @@ class Game {
             if (this.character.hasDarkvision && this.character.hasDarkvision()) {
                 traitsHtml += `<span class="trait-tag" title="Darkvision ${this.character.darkvisionRange}ft">🌙 Darkvision ${this.character.darkvisionRange}ft</span>`;
             }
+            // Inspiration badge
+            if (this.character.inspiration) {
+                traitsHtml += `<span class="trait-tag" title="Inspiration: Spend for advantage on your next attack!" style="background:rgba(255,215,0,0.15);border-color:#ffd700;color:#ffd700;">⭐ Inspired</span>`;
+            }
+            // Spellcasting focus warning
+            if (this.character.isSpellcaster() && !this.character.hasSpellcastingFocus()) {
+                traitsHtml += `<span class="trait-tag" title="You need a spellcasting focus or Component Pouch to cast leveled spells! Buy one from a shop." style="background:rgba(231,76,60,0.15);border-color:#e74c3c;color:#e74c3c;">⚠️ No Focus</span>`;
+            }
+            // Background feature badge
+            const bgFeature = GAME_DATA.backgrounds[this.character.background];
+            if (bgFeature?.featureEffect) {
+                traitsHtml += `<span class="trait-tag" title="${bgFeature.featureEffect.Desc || bgFeature.feature}" style="background:rgba(100,200,255,0.1);border-color:rgba(100,200,255,0.4);color:rgb(130,200,255);">📜 ${bgFeature.feature}</span>`;
+            }
             // Show racial ability status
             if (this.character.racialAbilities) {
                 if (this.character.race === 'Dragonborn') {
@@ -9272,6 +9808,41 @@ class Game {
             }
             if (this.character.race === 'Tiefling') {
                 traitsHtml += `<span class="trait-tag" title="Fire Resistance: Half damage from fire">🔥 Fire Resistance</span>`;
+            }
+            if (this.character.race === 'Gnome') {
+                traitsHtml += `<span class="trait-tag" title="Gnome Cunning: Advantage on INT/WIS/CHA saves vs magic">🧠 Gnome Cunning</span>`;
+            }
+            if (this.character.race === 'Half-Elf') {
+                traitsHtml += `<span class="trait-tag" title="Fey Ancestry: Advantage on saves vs charm">🧝 Fey Ancestry</span>`;
+                traitsHtml += `<span class="trait-tag" title="Skill Versatility: 2 extra skill proficiencies">📚 Skill Versatility</span>`;
+            }
+            if (this.character.race === 'Aasimar') {
+                if (this.character.racialAbilities) {
+                    const used = this.character.racialAbilities.healingHandsUsed;
+                    traitsHtml += `<span class="trait-tag" title="Healing Hands: Heal ${this.character.level} HP (once per long rest)" style="${used ? 'opacity:0.4' : ''}">🤲 Healing Hands${used ? ' (used)' : ''}</span>`;
+                }
+                traitsHtml += `<span class="trait-tag" title="Celestial Resistance: Resist necrotic & radiant damage">✨ Celestial Resistance</span>`;
+            }
+            if (this.character.race === 'Goliath') {
+                if (this.character.racialAbilities) {
+                    const used = this.character.racialAbilities.stonesEnduranceUsed;
+                    traitsHtml += `<span class="trait-tag" title="Stone's Endurance: Reduce damage by 1d12+CON (once per short rest)" style="${used ? 'opacity:0.4' : ''}">🪨 Stone's Endurance${used ? ' (used)' : ''}</span>`;
+                }
+            }
+            if (this.character.race === 'Tabaxi') {
+                if (this.character.racialAbilities) {
+                    const used = this.character.racialAbilities.felineAgilityUsed;
+                    traitsHtml += `<span class="trait-tag" title="Feline Agility: Double speed for one movement (recharges when stationary)" style="${used ? 'opacity:0.4' : ''}">🐱 Feline Agility${used ? ' (used)' : ''}</span>`;
+                }
+            }
+            if (this.character.race === 'Firbolg') {
+                if (this.character.racialAbilities) {
+                    const used = this.character.racialAbilities.hiddenStepUsed;
+                    traitsHtml += `<span class="trait-tag" title="Hidden Step: Turn invisible until next turn (once per short rest)" style="${used ? 'opacity:0.4' : ''}">👻 Hidden Step${used ? ' (used)' : ''}</span>`;
+                }
+            }
+            if (this.character.race === 'Kenku') {
+                traitsHtml += `<span class="trait-tag" title="Kenku Training: Proficiency in 2 skills of your choice">🐦 Kenku Training</span>`;
             }
             // Disease display
             if (this.character.diseases && this.character.diseases.length > 0) {
@@ -9298,7 +9869,8 @@ class Game {
                 let html = `✨ Attuned: <span class="attune-count">${count}/3</span>`;
                 html += '<div style="margin-top:2px">';
                 this.character.attunedItems.forEach(item => {
-                    html += `<span class="attune-item">• ${item}</span> `;
+                    const escapedItem = item.replace(/'/g, "\\'");
+                    html += `<span class="attune-item">• ${item} <button class="unattune-btn" onclick="game.unattuneItemUI('${escapedItem}')" title="Remove attunement">✕</button></span> `;
                 });
                 html += '</div>';
                 attuneEl.innerHTML = html;
@@ -10076,6 +10648,12 @@ class Game {
             outcome.effect();
         }
         
+        // Inspiration chance for engaging with character backstory (25%)
+        if (index !== this.currentBackstoryEvent.outcomes.length - 1 && Math.random() < 0.25 && this.dm) {
+            const result = this.dm.grantInspiration("Excellent roleplay — staying true to your character!");
+            if (result.granted) this.log(`⭐ ${result.message}`, "success");
+        }
+        
         this.updateUI();
     }
     
@@ -10100,7 +10678,8 @@ class Game {
                     description: "Your foot catches on something thin and taut. You freeze...",
                     approaches: [
                         { text: "🎯 Carefully disarm (Dexterity)", skill: "dex", dc: 13, successReward: "trap_parts", failPenalty: "trap_damage" },
-                        { text: "🔍 Study the mechanism (Investigation)", skill: "int", dc: 14, successReward: "trap_safe", failPenalty: null },
+                        { text: "� Disarm with Thieves' Tools", skill: "dex", dc: 10, successReward: "trap_parts", failPenalty: "trap_damage", requiresTool: "Thieves' Tools" },
+                        { text: "�🔍 Study the mechanism (Investigation)", skill: "int", dc: 14, successReward: "trap_safe", failPenalty: null },
                         { text: "🏃 Jump back quickly (Dexterity)", skill: "dex", dc: 10, successReward: "escape", failPenalty: "trap_damage" }
                     ]
                 },
@@ -10111,6 +10690,16 @@ class Game {
                         { text: "🧠 Listen carefully (Perception)", skill: "wis", dc: 12, successReward: "info", failPenalty: null },
                         { text: "📚 Recall dungeon lore (History)", skill: "int", dc: 14, successReward: "knowledge", failPenalty: null },
                         { text: "😤 Ignore it", skill: null }
+                    ]
+                },
+                {
+                    title: "🔒 Locked Door",
+                    description: "A heavy iron door blocks the passage. The lock looks intricate but not impossible...",
+                    approaches: [
+                        { text: "🔧 Pick the lock (Thieves' Tools)", skill: "dex", dc: 10, successReward: "secret", failPenalty: null, requiresTool: "Thieves' Tools" },
+                        { text: "💪 Force it open (Athletics)", skill: "str", dc: 16, successReward: "secret", failPenalty: "noise" },
+                        { text: "🔍 Search for a key (Investigation)", skill: "int", dc: 14, successReward: "secret", failPenalty: null },
+                        { text: "🚶 Find another way", skill: null }
                     ]
                 }
             ],
@@ -10130,6 +10719,7 @@ class Game {
                     approaches: [
                         { text: "🌱 Gather herbs (Nature)", skill: "int", dc: 12, successReward: "herbs", failPenalty: "poison" },
                         { text: "📚 Identify carefully (Medicine)", skill: "wis", dc: 10, successReward: "safe_herbs", failPenalty: null },
+                        { text: "🧪 Use Herbalism Kit", skill: "wis", dc: 8, successReward: "herbalism_potion", failPenalty: null, requiresTool: "Herbalism Kit" },
                         { text: "🚶 Leave them", skill: null }
                     ]
                 },
@@ -10148,6 +10738,7 @@ class Game {
                     approaches: [
                         { text: "🌱 Forage skillfully (Survival)", skill: "wis", dc: 11, successReward: "forage_rations", failPenalty: null },
                         { text: "📚 Use herbalist knowledge (Nature)", skill: "int", dc: 12, successReward: "forage_rations", failPenalty: "poison" },
+                        { text: "🧪 Use Herbalism Kit", skill: "wis", dc: 8, successReward: "herbalism_potion", failPenalty: null, requiresTool: "Herbalism Kit" },
                         { text: "🚶 Move on", skill: null }
                     ]
                 }
@@ -10241,10 +10832,18 @@ class Game {
         const skillLabelMatch = resolvedApproach.text.match(/\(([^)]+)\)/);
         const skillName = skillLabelMatch ? skillLabelMatch[1].trim() : null;
 
+        // Tool proficiency: lower the effective DC when using a proficient tool
+        let effectiveDC = resolvedApproach.dc;
+        if (resolvedApproach.requiresTool && this.character.isToolProficient(resolvedApproach.requiresTool)) {
+            // Tool proficiency already factored into the lower DC in the approach definition
+            // but add visual feedback
+            this.log(`🔧 Using ${resolvedApproach.requiresTool} (proficient)`, "dm");
+        }
+
         // Roll the skill check
         const check = await this.dm.skillCheckAnimated(
             resolvedApproach.skill,
-            resolvedApproach.dc,
+            effectiveDC,
             hasAdvantage,
             hasDisadvantage,
             skillName
@@ -10436,6 +11035,16 @@ class Game {
                     }
                     this.log(`🥖 You skillfully forage and gather ${forageDays} days of quality rations!`, "loot");
                     break;
+                case "herbalism_potion":
+                    // Herbalism Kit: craft a healing potion with proficiency
+                    const potionType = Math.random() < 0.3 ? "Greater Healing Potion" : "Healing Potion";
+                    char.inventory.push(potionType);
+                    this.log(`🧪 Using your Herbalism Kit, you expertly brew a ${potionType}!`, "loot");
+                    const herbXp = 25;
+                    char.experience += herbXp;
+                    this.log(`+${herbXp} XP for skilled herbalism!`, "success");
+                    if (char.experience >= getXpThreshold(char.level)) this.levelUp();
+                    break;
                 default:
                     this.log("✓ Your skill serves you well!", "success");
             }
@@ -10470,9 +11079,11 @@ class Game {
                     this.log(`🤢 The plant was poisonous! You take ${poisonDmg} damage!`, "danger");
                     break;
                 case "fall_damage":
-                    const fallDmg = this.dm.rollDice("1d6");
+                    const fallHeight = (Math.floor(Math.random() * 4) + 1) * 10;
+                    const fallDice = Math.floor(fallHeight / 10);
+                    const fallDmg = this.dm.rollDice(`${fallDice}d6`);
                     char.takeDamage(fallDmg);
-                    this.log(`🏔️ You slip and fall! ${fallDmg} damage!`, "danger");
+                    this.log(`🏔️ You slip and fall ${fallHeight} feet! ${fallDmg} damage! (${fallDice}d6)`, "danger");
                     break;
                 case "lost_time":
                     this.log("⏰ You spend a long time searching for another path...", "dm");
@@ -10610,6 +11221,12 @@ class Game {
             optionsContainer.innerHTML = "";
             
             event.approaches.forEach((approach, index) => {
+                // Skip approaches that require a tool the character doesn't have
+                if (approach.requiresTool) {
+                    const hasTool = this.character.inventory.includes(approach.requiresTool) && this.character.isToolProficient(approach.requiresTool);
+                    if (!hasTool) return; // Don't show this option
+                }
+                
                 const btn = document.createElement("div");
                 btn.className = "travel-option skill-option";
                 
@@ -10689,12 +11306,29 @@ class Game {
         const monsters = this.dm.campaign.monsters[monsterTier];
         const monster = { ...monsters[Math.floor(Math.random() * monsters.length)] };
         
-        if (forced) {
-            // Enemy has surprise
-            this.log("⚠️ You've been ambushed!", "danger");
+        // Alert feat: can't be surprised
+        const hasAlert = this.character.feats && this.character.feats.includes("Alert");
+        
+        if (forced && !hasAlert) {
+            // SURPRISE ROUND: Enemy has surprise — player loses their first turn
+            this.log("⚠️ You've been ambushed! SURPRISE ROUND!", "danger");
+            this.log("💀 You are surprised and cannot act this round!", "danger");
             this.startCombat(monster);
-            // Enemy gets a free attack
-            setTimeout(() => this.monsterTurn(), 500);
+            monster.surpriseRound = true; // Track that this is a surprise round
+            // Enemy gets a full surprise round: attack + possible multiattack
+            setTimeout(() => {
+                this.log("🔴 The enemy acts during the surprise round!", "danger");
+                this.monsterTurn();
+                // Assassin subclass: next hit after surprise is auto-crit
+                if (monster.hp > 0) {
+                    monster.surpriseRound = false;
+                }
+            }, 500);
+            return;
+        } else if (forced && hasAlert) {
+            // Alert feat prevents surprise — still attacked but can act normally
+            this.log("⚠️ Enemies tried to ambush you, but your Alert feat means you can't be surprised!", "success");
+            this.startCombat(monster);
             return;
         }
         
@@ -10718,11 +11352,17 @@ class Game {
         const effectivePassive = hasDisadvantage ? passivePerception - 5 : (hasAdvantage ? passivePerception + 5 : passivePerception);
         
         if (effectivePassive >= perceptionDC) {
-            // Auto-detected via passive perception
+            // Auto-detected via passive perception — PLAYER SURPRISE ROUND
             this.log(`👁️ Passive Perception (${effectivePassive}) detected danger! (DC ${perceptionDC})`, "success");
-            this.log(`🔍 You notice a ${monster.name} lurking ahead. You have the advantage!`, "dm");
+            this.log(`🔍 You notice a ${monster.name} lurking ahead. SURPRISE ROUND — the enemy can't act!`, "dm");
             this.character.buffs.guidingBolt = true;
             this.startCombat(monster);
+            // Assassin subclass: hits on surprised creatures are auto-crits
+            if (this.character.subclass === 'Assassin') {
+                this.character.subclassFeatures = this.character.subclassFeatures || {};
+                this.character.subclassFeatures.assassinateActive = true;
+                this.log(`🗡️ Assassinate! Your first hit will be a critical strike!`, "success");
+            }
             return;
         }
         
@@ -10739,16 +11379,26 @@ class Game {
         
         if (check.success) {
             this.log(`${rollMsg} - You spotted the danger!`, "success");
-            this.log(`🔍 You notice a ${monster.name} lurking ahead. You have the advantage!`, "dm");
+            this.log(`🔍 You notice a ${monster.name} lurking ahead. SURPRISE ROUND — the enemy can't act!`, "dm");
             this.character.buffs.guidingBolt = true; // Advantage on first attack
             this.startCombat(monster);
+            // Assassin subclass: hits on surprised creatures are auto-crits
+            if (this.character.subclass === 'Assassin') {
+                this.character.subclassFeatures = this.character.subclassFeatures || {};
+                this.character.subclassFeatures.assassinateActive = true;
+                this.log(`🗡️ Assassinate! Your first hit will be a critical strike!`, "success");
+            }
         } else {
             this.log(`${rollMsg} - You didn't notice the threat!`, "danger");
             this.startCombat(monster);
-            // Small chance enemy gets surprise attack
-            if (Math.random() < 0.3) {
-                this.log(`💀 The ${monster.name} gets a surprise attack!`, "danger");
-                setTimeout(() => this.monsterTurn(), 500);
+            // Enemy gets surprise round (30% chance for full surprise, otherwise normal combat)
+            if (Math.random() < 0.3 && !hasAlert) {
+                this.log(`💀 SURPRISE ROUND! The ${monster.name} catches you off guard — you can't act this round!`, "danger");
+                monster.surpriseRound = true;
+                setTimeout(() => {
+                    this.monsterTurn();
+                    if (monster.hp > 0) monster.surpriseRound = false;
+                }, 500);
             }
         }
     }
@@ -10987,15 +11637,49 @@ class Game {
         // Track turns played
         this.trackStat('turnsPlayed');
 
+        // Clear Shield buff at start of player turn (lasts until start of your next turn)
+        if (char.buffs.shieldActive) {
+            char.buffs.shieldActive = false;
+        }
+
+        // Action economy enforcement: main actions consume the action
+        const mainActions = ["attack", "defend", "flee", "grapple", "shove"];
+        if (mainActions.includes(action) && !this.dm.actions.action) {
+            this.log(`⚠️ You've already used your action this turn!`, "warning");
+            this.processingCombatAction = false;
+            return;
+        }
+
         if (action === "attack") {
+            this.dm.useAction('action');
             // Get weapon info for attack
-            const weaponInfo = char.getWeaponDamage(campaignId);
+            let weaponInfo = char.getWeaponDamage(campaignId);
+            
+            // Druid Wild Shape: use beast form attack stats
+            if (char.wildShapeActive && char.wildShapeForm) {
+                const form = char.wildShapeForm;
+                weaponInfo = {
+                    name: `${form.icon} ${form.name} (${form.damage})`,
+                    damage: form.damage,
+                    type: form.type || "slashing",
+                    stat: "str",
+                    magicBonus: 0,
+                    properties: []
+                };
+            }
             const profBonus = char.getProficiencyBonus();
             const magicBonus = weaponInfo.magicBonus || 0;
             
             // Check for advantage/disadvantage from various sources
             let hasAdvantage = char.buffs.guidingBolt || false;
             let hasDisadvantage = false;
+            
+            // Inspiration: auto-spend for advantage when not already advantaged
+            if (char.inspiration && !hasAdvantage) {
+                char.inspiration = false;
+                hasAdvantage = true;
+                this.log(`⭐ You spend your Inspiration for advantage on this attack!`, "success");
+            }
             
             // Exhaustion Level 3+: Disadvantage on attack rolls
             if (char.exhaustion >= 3) hasDisadvantage = true;
@@ -11059,10 +11743,20 @@ class Game {
                 totalAttackMod += profBonus;
             }
             
+            // Fighting Style: Archery (+2 to ranged attack rolls)
+            if (char.fightingStyle === 'Archery' && weaponInfo.properties?.includes('ranged')) {
+                totalAttackMod += 2;
+            }
+            
             // Military reputation combat bonus
             const repBonuses = char.getReputationBonuses();
             if (repBonuses.combatBonus) {
                 totalAttackMod += repBonuses.combatBonus;
+            }
+            
+            // Paladin Channel Divinity: Sacred Weapon bonus
+            if (char.buffs.sacredWeapon) {
+                totalAttackMod += char.buffs.sacredWeapon;
             }
             
             // Equipment proficiency: non-proficient armor causes disadvantage on attacks
@@ -11184,6 +11878,26 @@ class Game {
                 bonusDamageText += ` +${colossusSlayerDmg} Colossus Slayer`;
             }
             
+            // Paladin Divine Smite: auto-spend lowest spell slot for extra radiant damage on hit
+            let divineSmiteDamage = 0;
+            if (char.charClass === 'Paladin' && char.level >= 2) {
+                // Find lowest available spell slot
+                for (let sl = 1; sl <= 5; sl++) {
+                    if (char.spells.slots[sl] && (char.spells.slotsUsed[sl] || 0) < char.spells.slots[sl]) {
+                        char.spells.slotsUsed[sl]++;
+                        const smiteDice = 2 + (sl - 1); // 2d8 base + 1d8 per slot above 1st
+                        divineSmiteDamage = this.dm.rollDice(`${smiteDice}d8`);
+                        // Extra 1d8 vs undead/fiend
+                        if (monster.type === 'undead' || monster.type === 'fiend') {
+                            divineSmiteDamage += this.dm.rollDice("1d8");
+                        }
+                        bonusDamage += divineSmiteDamage;
+                        bonusDamageText += ` +${divineSmiteDamage} Divine Smite (${smiteDice}d8, L${sl} slot)`;
+                        break;
+                    }
+                }
+            }
+            
             // Feat: GWM / Sharpshooter +10 damage bonus
             if (powerAttackActive) {
                 bonusDamage += 10;
@@ -11214,6 +11928,25 @@ class Game {
                 const critEffect = CRITICAL_HIT_EFFECTS[Math.floor(Math.random() * CRITICAL_HIT_EFFECTS.length)];
                 // Crit: roll weapon dice twice (per 5e RAW) + mods
                 let critDamage = this.dm.rollDice(weaponInfo.damage) + this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus + bonusDamage;
+                // Half-Orc Savage Attacks: roll one extra weapon die on crit
+                if (char.race === "Half-Orc") {
+                    const savageBonus = this.dm.rollDice(weaponInfo.damage);
+                    critDamage += savageBonus;
+                }
+                // Barbarian Brutal Critical: extra weapon dice on crit (1 at L9, 2 at L13, 3 at L17)
+                if (char.charClass === "Barbarian") {
+                    let brutalDice = 0;
+                    if (char.level >= 17) brutalDice = 3;
+                    else if (char.level >= 13) brutalDice = 2;
+                    else if (char.level >= 9) brutalDice = 1;
+                    for (let i = 0; i < brutalDice; i++) {
+                        critDamage += this.dm.rollDice(weaponInfo.damage);
+                    }
+                }
+                // Fighting Style: Dueling (+2 damage with one-handed melee, no two-handed/ranged)
+                if (char.fightingStyle === 'Dueling' && !weaponInfo.properties?.includes('two-handed') && !weaponInfo.properties?.includes('ranged')) {
+                    critDamage += 2;
+                }
                 // Sneak Attack dice also double on crit
                 if (sneakAttackDamage > 0) {
                     const sneakDice = char.getSneakAttackDice();
@@ -11240,6 +11973,12 @@ class Game {
                 this.log(`💥 ${critResult.finalDamage} ${weaponInfo.type} damage with ${weaponInfo.name}!${bonusDamageText}`, "combat");
                 if (critResult.message) this.log(critResult.message, "dm");
                 
+                // Inspiration chance on critical hit (20% — the DM rewards decisive blows)
+                if (Math.random() < 0.20 && this.dm) {
+                    const result = this.dm.grantInspiration("A decisive critical strike!");
+                    if (result.granted) this.log(`⭐ ${result.message}`, "success");
+                }
+                
                 // Check for bonus attack
                 if (critEffect.special === "bonusAttack") {
                     this.log("⚔️ You gain a bonus attack!", "success");
@@ -11253,7 +11992,16 @@ class Game {
                 }
             } else if (attackResult.total >= monster.ac) {
                 // Normal hit: weapon die + ability mod + magic bonus + bonus damage
-                const damage = this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus + bonusDamage + sneakAttackDamage;
+                let damage = this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus + bonusDamage + sneakAttackDamage;
+                // Fighting Style: Dueling (+2 damage with one-handed melee weapon)
+                if (char.fightingStyle === 'Dueling' && !weaponInfo.properties?.includes('two-handed') && !weaponInfo.properties?.includes('ranged')) {
+                    damage += 2;
+                }
+                // Fighting Style: Great Weapon Fighting (reroll 1s and 2s on damage dice)
+                // Simplified: +1 average damage bonus for two-handed/heavy weapons
+                if (char.fightingStyle === 'Great Weapon Fighting' && (weaponInfo.properties?.includes('two-handed') || weaponInfo.properties?.includes('heavy'))) {
+                    damage += Math.floor(Math.random() * 2) + 1; // +1-2 bonus (simulates reroll benefit)
+                }
                 const hitResult = this.applyDamageToMonster(monster, damage, weaponInfo.type);
                 soundManager.playHit();
                 await diceAnimator.rollDamage(weaponInfo.damage, hitResult.finalDamage, `${hitResult.finalDamage} ${weaponInfo.type}`);
@@ -11389,11 +12137,64 @@ class Game {
             
             this.dm.defendingThisTurn = false;
             
+        } else if (action === "grapple") {
+            this.dm.useAction('action');
+            // GRAPPLE: Contested Athletics check (attacker Athletics vs target Athletics/Acrobatics)
+            const char = this.character;
+            const playerAthMod = char.getSkillModifier("Athletics");
+            const monsterStr = monster.attackBonus || Math.floor(monster.hp / 10) + 1;
+            
+            // Player rolls Athletics
+            const playerRoll = Math.floor(Math.random() * 20) + 1 + playerAthMod;
+            // Monster rolls Athletics or Acrobatics (uses higher)
+            const monsterRoll = Math.floor(Math.random() * 20) + 1 + monsterStr;
+            
+            this.log(`🤼 You attempt to grapple the ${monster.name}!`, "combat");
+            this.log(`🎲 Athletics: You ${playerRoll} vs ${monster.name} ${monsterRoll}`, "dm");
+            
+            if (playerRoll >= monsterRoll) {
+                monster.conditions = monster.conditions || {};
+                monster.conditions.grappled = true;
+                monster.conditions.restrained = true; // Speed 0, disadvantage on DEX saves
+                this.log(`✅ Grapple successful! The ${monster.name} is grappled! (speed 0, disadvantage on attacks)`, "success");
+                // Grappled enemies have disadvantage on attacks and can't flee
+            } else {
+                this.log(`❌ The ${monster.name} breaks free of your grapple attempt!`, "danger");
+            }
+            this.dm.defendingThisTurn = false;
+            
+        } else if (action === "shove") {
+            this.dm.useAction('action');
+            // SHOVE: Contested Athletics check — knock target prone or push 5ft
+            const char = this.character;
+            const playerAthMod = char.getSkillModifier("Athletics");
+            const monsterStr = monster.attackBonus || Math.floor(monster.hp / 10) + 1;
+            
+            // Player rolls Athletics
+            const playerRoll = Math.floor(Math.random() * 20) + 1 + playerAthMod;
+            // Monster rolls Athletics or Acrobatics (uses higher)
+            const monsterRoll = Math.floor(Math.random() * 20) + 1 + monsterStr;
+            
+            this.log(`🫸 You attempt to shove the ${monster.name}!`, "combat");
+            this.log(`🎲 Athletics: You ${playerRoll} vs ${monster.name} ${monsterRoll}`, "dm");
+            
+            if (playerRoll >= monsterRoll) {
+                monster.conditions = monster.conditions || {};
+                monster.conditions.prone = true;
+                this.log(`✅ Shove successful! The ${monster.name} is knocked prone! (Melee attacks have advantage, ranged have disadvantage)`, "success");
+                // Prone: advantage on melee attacks against them
+            } else {
+                this.log(`❌ The ${monster.name} holds their ground!`, "danger");
+            }
+            this.dm.defendingThisTurn = false;
+            
         } else if (action === "defend") {
+            this.dm.useAction('action');
             this.log("🛡️ You take the Dodge action! Attackers have disadvantage against you this round.", "dm");
             this.dm.defendingThisTurn = true;
             
         } else if (action === "flee") {
+            this.dm.useAction('action');
             // Cunning Action: Dash / Step of the Wind gives auto-flee
             if (this.dm.cunningDash) {
                 this.dm.cunningDash = false;
@@ -11412,6 +12213,7 @@ class Game {
             }
             
             // Opportunity Attack: monster gets a free attack when you flee without disengaging
+            let sentinelStoppedFlee = false;
             if (!disengaged && monster.hp > 0) {
                 this.log(`⚔️ ${monster.name} makes an opportunity attack as you try to flee!`, "danger");
                 const monsterAttackBonus = monster.attackBonus || Math.floor(monster.hp / 10) + 3;
@@ -11436,7 +12238,16 @@ class Game {
                         }
                     }
                     
-                    // Sentinel feat: if monster has it, speed reduced to 0 — but since it's a player fleeing, Sentinel on monster stops the flee
+                    // Sentinel feat: OA hit reduces target speed to 0, preventing flee
+                    if (char.feats && char.feats.includes("Sentinel")) {
+                        // Player has Sentinel — doesn't apply here (monster is attacking)
+                    }
+                    // Monster Sentinel-like behavior: high CR monsters can stop flee on OA hit
+                    if (monster.cr >= 5 && char.hp > 0) {
+                        sentinelStoppedFlee = true;
+                        this.log(`🛑 The force of the blow stops you in your tracks! You can't escape this turn.`, "danger");
+                    }
+                    
                     if (char.hp <= 0) {
                         this.updateUI();
                         this.processingCombatAction = false;
@@ -11448,6 +12259,13 @@ class Game {
             }
             
             // Flee check (Athletics/Acrobatics)
+            if (sentinelStoppedFlee) {
+                // Sentinel-stopped: skip flee check, go to monster turn
+                this.dm.defendingThisTurn = false;
+                this.monsterTurn();
+                this.processingCombatAction = false;
+                return;
+            }
             let fleeDC = disengaged ? 5 : 12;
             const check = await this.dm.skillCheckAnimated("dex", fleeDC, false, false, "Acrobatics");
             if (check.success) {
@@ -11472,6 +12290,12 @@ class Game {
         } else if (action === "rage") {
             // Barbarian Rage - bonus action, then still get to attack
             if (char.charClass === "Barbarian" && char.ragesRemaining > 0 && !char.raging) {
+                if (!this.dm.actions.bonusAction) {
+                    this.log(`⚠️ You've already used your bonus action this turn!`, "warning");
+                    this.processingCombatAction = false;
+                    return;
+                }
+                this.dm.useAction('bonusAction');
                 char.raging = true;
                 char.ragesRemaining--;
                 this.log(`💢 RAGE! You enter a furious rage! (+${char.getRageDamage()} melee damage, resistance to physical damage, advantage on STR attacks)`, "success");
@@ -12108,6 +12932,34 @@ class Game {
             return;
         }
         
+        // Grappled: monster has disadvantage on attacks and can attempt to escape
+        if (monster.conditions?.grappled) {
+            // 40% chance monster tries to break free instead of attacking
+            if (Math.random() < 0.4) {
+                const monsterStr = monster.attackBonus || Math.floor(monster.hp / 10) + 1;
+                const escapeRoll = Math.floor(Math.random() * 20) + 1 + monsterStr;
+                const playerAth = char.getSkillModifier("Athletics");
+                const holdRoll = Math.floor(Math.random() * 20) + 1 + playerAth;
+                this.log(`🤼 The ${monster.name} tries to break free! (${escapeRoll} vs your ${holdRoll})`, "combat");
+                if (escapeRoll > holdRoll) {
+                    monster.conditions.grappled = false;
+                    monster.conditions.restrained = false;
+                    this.log(`💨 The ${monster.name} breaks free of your grapple!`, "danger");
+                } else {
+                    this.log(`💪 You maintain your grapple on the ${monster.name}!`, "success");
+                }
+                this.dm.resetActions();
+                this.updateCombatPartyDisplay();
+                return;
+            }
+        }
+        
+        // Prone: monster uses half movement to stand up (narrative only in this system)
+        if (monster.conditions?.prone) {
+            this.log(`🔄 The ${monster.name} stands up from prone.`, "dm");
+            delete monster.conditions.prone;
+        }
+        
         // Execute special abilities at start of monster turn (if any)
         if (monster.specialAbilities && monster.specialAbilities.length > 0) {
             for (const ability of monster.specialAbilities) {
@@ -12255,6 +13107,8 @@ class Game {
         if (char.hasCondition("prone")) monsterAdvantage = true;
         // Dodge action: attacker has disadvantage (PHB p.194)
         if (this.dm.defendingThisTurn) monsterDisadvantage = true;
+        // Barbarian Reckless Attack: enemies have advantage while you're raging
+        if (char.raging && char.charClass === "Barbarian") monsterAdvantage = true;
         
         if (!isExtraAttack) this.dm.enemyAdvantageNextAttack = false;
         
@@ -12274,10 +13128,9 @@ class Game {
             this.dm.tempAcPenalty = 0;
         }
         
-        // Shield spell adds +5 AC
+        // Shield spell: if already active from a previous reaction cast, apply +5 AC
         if (char.buffs.shieldActive) {
             defenseBonus += 5;
-            char.buffs.shieldActive = false; // Expires after this attack
         }
         
         const attackBonus = this.getMonsterAttackBonus(monster);
@@ -12298,6 +13151,22 @@ class Game {
         if (isFumble) {
             this.log(`🎉 The ${monster.name} fumbles ${isExtraAttack ? 'an extra ' : 'their '}attack! (${rollMsg})`, "success");
             soundManager.playMiss();
+        } else if (!isCrit && totalAttackRoll >= char.ac + defenseBonus) {
+            // Attack WOULD hit — check for Shield spell reaction
+            if (this.canCastShieldReaction(char, totalAttackRoll, defenseBonus)) {
+                this.castShieldReaction(char);
+                defenseBonus += 5;
+                // Re-check if the attack still hits with Shield's +5 AC
+                if (totalAttackRoll < char.ac + defenseBonus) {
+                    soundManager.playMiss();
+                    this.log(`🛡️ Shield deflects the attack! (${rollMsg} vs AC ${char.ac + defenseBonus})`, "success");
+                    return; // Attack misses thanks to Shield
+                }
+            }
+        }
+        
+        if (isFumble) {
+            // Already handled above — skip
         } else if (isCrit || totalAttackRoll >= char.ac + defenseBonus) {
             // Determine damage dice — support multiple attack types
             let damageDice = monster.damage;
@@ -12322,6 +13191,28 @@ class Game {
                 this.log(`💥 The ${monster.name} hits you for ${damage} ${damageType} damage! (${rollMsg} vs AC ${char.ac + defenseBonus})`, "danger");
             }
             
+            // Monk Deflect Missiles: reduce damage from ranged attacks (reaction, level 3+)
+            // Treats piercing attacks and ~30% of other attacks as ranged (game abstraction)
+            if (char.charClass === 'Monk' && char.level >= 3 && this.dm.actions.reaction &&
+                (damageType === 'piercing' || Math.random() < 0.3)) {
+                const deflectAmount = this.dm.rollDice("1d10") + char.getModifier("dex") + char.level;
+                damage = Math.max(0, damage - deflectAmount);
+                this.dm.useAction('reaction');
+                if (damage === 0) {
+                    this.log(`🥋 DEFLECT MISSILES! You catch the projectile and negate all damage! (-${deflectAmount})`, "success");
+                    return; // No damage to apply
+                } else {
+                    this.log(`🥋 Deflect Missiles reduces damage by ${deflectAmount}! (${damage} remaining)`, "success");
+                }
+            }
+
+            // Rogue Uncanny Dodge: halve damage from an attack as reaction (level 5+)
+            if (char.charClass === 'Rogue' && char.level >= 5 && this.dm.actions.reaction) {
+                damage = Math.floor(damage / 2);
+                this.dm.useAction('reaction');
+                this.log(`🗡️ UNCANNY DODGE! You halve the incoming damage to ${damage}!`, "success");
+            }
+
             // Barbarian Rage: resistance to bludgeoning, piercing, and slashing damage
             if (char.raging && char.charClass === "Barbarian") {
                 const physicalTypes = ["bludgeoning", "piercing", "slashing", "physical"];
@@ -12345,6 +13236,28 @@ class Game {
                     this.log(`✨ The Arcane Ward blocked all the damage!`, "success");
                     this.stats.damageThisCombat += 0;
                     return;
+                }
+            }
+            
+            // Druid Wild Shape: beast form absorbs damage before real HP
+            if (char.wildShapeActive && char.wildShapeHp > 0) {
+                if (damage >= char.wildShapeHp) {
+                    const overflow = damage - char.wildShapeHp;
+                    char.wildShapeHp = 0;
+                    char.wildShapeActive = false;
+                    char.ac = char.wildShapeOriginalAc || char.calculateAc();
+                    this.log(`🐻💥 Your beast form is destroyed! Reverting to normal form!`, "danger");
+                    char.wildShapeForm = null;
+                    damage = overflow; // Excess damage carries over
+                    if (damage <= 0) {
+                        this.stats.damageThisCombat += 0;
+                        return;
+                    }
+                } else {
+                    char.wildShapeHp -= damage;
+                    this.log(`🐻 Beast form absorbs the blow! (Beast HP: ${char.wildShapeHp}/${char.wildShapeMaxHp})`, "success");
+                    this.stats.damageThisCombat += damage;
+                    return; // No damage to real HP
                 }
             }
             
@@ -12425,6 +13338,14 @@ class Game {
     executeMonsterAbility(monster, ability, char) {
         const abilityName = ability.name || "Special Ability";
 
+        // Counterspell opportunity: player can try to counter magical monster abilities
+        const magicAbilityTypes = ["breath", "frighten", "poison", "charm", "petrify"];
+        if (magicAbilityTypes.includes(ability.type) && this.canCastCounterspellReaction(char)) {
+            this.castCounterspellReaction(char);
+            this.log(`✋ You counter the ${monster.name}'s ${abilityName}! The magic fizzles!`, "success");
+            return; // Ability is negated
+        }
+
         // Check if heavily encumbered for save disadvantage on STR/DEX/CON
         const enc = this.dm ? this.dm.calculateEncumbrance() : { heavilyEncumbered: false };
         const heavyEnc = enc.heavilyEncumbered;
@@ -12436,7 +13357,7 @@ class Game {
                 const saveDC = ability.dc || this.getMonsterSaveDC(monster);
                 let dexRoll1 = this.dm.rollDice("1d20");
                 let dexRoll2 = this.dm.rollDice("1d20");
-                const dexSave = ((char.exhaustion >= 3 || heavyEnc) ? Math.min(dexRoll1, dexRoll2) : dexRoll1) + char.getModifier("dex");
+                const dexSave = ((char.exhaustion >= 3 || heavyEnc) ? Math.min(dexRoll1, dexRoll2) : dexRoll1) + char.getSaveModifier("dex");
                 if (dexSave >= saveDC) {
                     const halfDmg = Math.floor(breathDmg / 2);
                     this.log(`🔥 ${monster.name} uses ${abilityName}! You dodge (DEX save ${dexSave} vs DC ${saveDC}) — ${halfDmg} ${ability.damageType || 'fire'} damage!`, "danger");
@@ -12453,13 +13374,22 @@ class Game {
                 // Frightful Presence: WIS save or become frightened
                 let wisRoll1 = this.dm.rollDice("1d20");
                 let wisRoll2 = this.dm.rollDice("1d20");
-                const wisSave = (char.exhaustion >= 3 ? Math.min(wisRoll1, wisRoll2) : wisRoll1) + char.getModifier("wis");
+                // Halfling Brave: advantage on saves vs frightened
+                const braveAdvantage = char.race === "Halfling" || (char.traits && char.traits.includes("Brave"));
+                // Gnome Cunning: advantage on INT/WIS/CHA saves against magic
+                const gnomeCunning = char.race === "Gnome";
+                // Fey Ancestry: Elves & Half-Elves have advantage on saves against being charmed
+                const feyAncestry = char.traits && char.traits.includes("Fey Ancestry");
+                const frightAdv = braveAdvantage || gnomeCunning || feyAncestry;
+                const wisSave = ((char.exhaustion >= 3 ? Math.min(wisRoll1, wisRoll2) : (frightAdv ? Math.max(wisRoll1, wisRoll2) : wisRoll1))) + char.getSaveModifier("wis");
                 const frightDC = ability.dc || this.getMonsterSaveDC(monster);
                 if (wisSave < frightDC) {
+                    // Fey Ancestry: Elves & Half-Elves can't be charmed (but CAN be frightened normally)
                     char.addCondition("frightened");
                     this.log(`😱 ${monster.name} uses ${abilityName}! (WIS save ${wisSave} vs DC ${frightDC}) You are frightened!`, "danger");
+                    if (braveAdvantage) this.log(`(Brave gave you advantage on the save)`, "dm");
                 } else {
-                    this.log(`💪 ${monster.name} uses ${abilityName}! (WIS save ${wisSave} vs DC ${frightDC}) You resist the fear!`, "success");
+                    this.log(`💪 ${monster.name} uses ${abilityName}! (WIS save ${wisSave} vs DC ${frightDC}) You resist the fear!${braveAdvantage ? ' (Brave advantage!)' : ''}`, "success");
                 }
                 // Frighten abilities with damage also hit companions
                 if (ability.damage) {
@@ -12472,7 +13402,9 @@ class Game {
                 // Poison attack: CON save or take poison damage + poisoned condition — hits companions too
                 let conRoll1 = this.dm.rollDice("1d20");
                 let conRoll2 = this.dm.rollDice("1d20");
-                const conSave = ((char.exhaustion >= 3 || heavyEnc) ? Math.min(conRoll1, conRoll2) : conRoll1) + char.getModifier("con");
+                // Dwarf Dwarven Resilience: advantage on saves against poison
+                const dwarfPoisonAdv = char.race === "Dwarf";
+                const conSave = ((char.exhaustion >= 3 || heavyEnc) ? Math.min(conRoll1, conRoll2) : (dwarfPoisonAdv ? Math.max(conRoll1, conRoll2) : conRoll1)) + char.getSaveModifier("con");
                 const poisonDC = ability.dc || this.getMonsterSaveDC(monster);
                 const poisonDmg = this.dm.rollDice(ability.damage || "2d6");
                 if (conSave < poisonDC) {
@@ -12481,7 +13413,7 @@ class Game {
                     this.applyMonsterDamageToPlayer(char, poisonDmg);
                 } else {
                     const halfPoison = Math.floor(poisonDmg / 2);
-                    this.log(`💪 ${monster.name} uses ${abilityName}! (CON save ${conSave} vs DC ${poisonDC}) You resist! ${halfPoison} poison damage.`, "success");
+                    this.log(`💪 ${monster.name} uses ${abilityName}! (CON save ${conSave} vs DC ${poisonDC}) You resist!${dwarfPoisonAdv ? ' (Dwarven Resilience!)' : ''} ${halfPoison} poison damage.`, "success");
                     this.applyMonsterDamageToPlayer(char, halfPoison);
                 }
                 this.applyAoEToCompanions(monster, abilityName, poisonDmg, 'poison', poisonDC, 'con');
@@ -12654,7 +13586,23 @@ class Game {
         }
     }
     
+    updateActionEconomyDisplay() {
+        const bar = document.getElementById("actionEconomy");
+        if (!bar) return;
+        if (!this.dm.inCombat) { bar.style.display = 'none'; return; }
+        bar.style.display = 'flex';
+        const a = this.dm.actions;
+        const aeAction = document.getElementById("aeAction");
+        const aeBonusAction = document.getElementById("aeBonusAction");
+        const aeReaction = document.getElementById("aeReaction");
+        if (aeAction) { aeAction.style.opacity = a.action ? '1' : '0.3'; aeAction.style.textDecoration = a.action ? 'none' : 'line-through'; }
+        if (aeBonusAction) { aeBonusAction.style.opacity = a.bonusAction ? '1' : '0.3'; aeBonusAction.style.textDecoration = a.bonusAction ? 'none' : 'line-through'; }
+        if (aeReaction) { aeReaction.style.opacity = a.reaction ? '1' : '0.3'; aeReaction.style.textDecoration = a.reaction ? 'none' : 'line-through'; }
+    }
+
     updateCombatPartyDisplay() {
+        // Update action economy bar
+        this.updateActionEconomyDisplay();
         // Update party status display during combat
         let partyDisplay = document.getElementById("combatPartyStatus");
         
@@ -12839,6 +13787,17 @@ class Game {
             });
         }
         
+        // Sorcerer: Twinned Spell (costs spell level in sorcery points, min 1)
+        if (char.charClass === "Sorcerer" && char.sorceryPoints >= 1 && char.level >= 3 && !char.buffs.twinnedSpell) {
+            actions.push({
+                id: "twinnedSpell",
+                name: "Twinned Spell",
+                icon: "🔮",
+                description: `Double next spell's damage (1+ sorcery pts, ${char.sorceryPoints} left)`,
+                className: "Sorcerer"
+            });
+        }
+        
         // Two-Weapon Fighting: off-hand attack if wielding light weapon
         if (char.equipped.weapon) {
             const weaponData = char.getWeaponData(char.equipped.weapon, this.dm.campaignId);
@@ -12863,6 +13822,83 @@ class Game {
                 icon: "🐉",
                 description: `${breathDmg} ${breathType} damage, DEX save for half (recharges on short rest)`,
                 className: "Dragonborn"
+            });
+        }
+        
+        // Aasimar: Healing Hands (action, heal = character level, once per long rest)
+        if (char.race === "Aasimar" && char.racialAbilities && !char.racialAbilities.healingHandsUsed) {
+            actions.push({
+                id: "healingHands",
+                name: "Healing Hands",
+                icon: "🤲",
+                description: `Heal ${char.level} HP (once per long rest)`,
+                className: "Aasimar"
+            });
+        }
+        
+        // Firbolg: Hidden Step (bonus action, turn invisible until next turn, once per short rest)
+        if (char.race === "Firbolg" && char.racialAbilities && !char.racialAbilities.hiddenStepUsed) {
+            actions.push({
+                id: "hiddenStep",
+                name: "Hidden Step",
+                icon: "👻",
+                description: "Turn invisible until your next turn (once per short rest)",
+                className: "Firbolg"
+            });
+        }
+        
+        // Tabaxi: Feline Agility (free action, double speed — guaranteed flee)
+        if (char.race === "Tabaxi" && char.racialAbilities && !char.racialAbilities.felineAgilityUsed) {
+            actions.push({
+                id: "felineAgility",
+                name: "Feline Agility",
+                icon: "🐱",
+                description: "Double your speed this turn — guaranteed escape if you flee",
+                className: "Tabaxi"
+            });
+        }
+        
+        // Druid: Wild Shape (level 2+, 2 uses per short rest)
+        if (char.charClass === "Druid" && char.level >= 2 && (char.wildShapeUses || 0) > 0 && !char.wildShapeActive) {
+            actions.push({
+                id: "wildShape",
+                name: "Wild Shape",
+                icon: "🐻",
+                description: `Transform into a beast (CR ${char.wildShapeCR || 0.25}, ${char.wildShapeUses} uses left)`,
+                className: "Druid"
+            });
+        }
+        
+        // Druid: Revert from Wild Shape
+        if (char.wildShapeActive) {
+            actions.push({
+                id: "wildShapeRevert",
+                name: "Revert Form",
+                icon: "🧝",
+                description: `Return to your normal form (Beast HP: ${char.wildShapeHp}/${char.wildShapeMaxHp})`,
+                className: "Druid"
+            });
+        }
+        
+        // Cleric: Channel Divinity — Turn Undead (level 2+)
+        if (char.charClass === "Cleric" && char.level >= 2 && !char.channelDivinityUsed) {
+            actions.push({
+                id: "channelDivinity",
+                name: "Channel Divinity: Turn Undead",
+                icon: "✝️",
+                description: `Force undead to flee (WIS save DC ${char.getSpellSaveDC ? char.getSpellSaveDC() : 13})`,
+                className: "Cleric"
+            });
+        }
+        
+        // Paladin: Channel Divinity — Sacred Weapon (level 3+)
+        if (char.charClass === "Paladin" && char.level >= 3 && !char.channelDivinityUsed) {
+            actions.push({
+                id: "channelDivinitySacred",
+                name: "Channel Divinity: Sacred Weapon",
+                icon: "🗡️✨",
+                description: `Add +${Math.max(1, char.getModifier("cha"))} to attack rolls for 1 minute`,
+                className: "Paladin"
             });
         }
         
@@ -12948,11 +13984,35 @@ class Game {
             case "quickenedSpell":
                 await this.bonusQuickenedSpell(char);
                 break;
+            case "twinnedSpell":
+                await this.bonusTwinnedSpell(char);
+                break;
             case "offhandAttack":
                 await this.bonusOffhandAttack(char, monster);
                 break;
             case "breathWeapon":
                 await this.bonusBreathWeapon(char, monster);
+                break;
+            case "healingHands":
+                await this.bonusHealingHands(char);
+                break;
+            case "hiddenStep":
+                await this.bonusHiddenStep(char);
+                break;
+            case "felineAgility":
+                await this.bonusFelineAgility(char);
+                break;
+            case "wildShape":
+                await this.bonusWildShape(char);
+                break;
+            case "wildShapeRevert":
+                await this.bonusWildShapeRevert(char);
+                break;
+            case "channelDivinity":
+                await this.bonusChannelDivinity(char);
+                break;
+            case "channelDivinitySacred":
+                await this.bonusChannelDivinitySacred(char);
                 break;
             default:
                 this.log("Unknown bonus action!", "danger");
@@ -13114,6 +14174,16 @@ class Game {
         this.showSpellMenu();
     }
     
+    async bonusTwinnedSpell(char) {
+        if (char.sorceryPoints < 1) {
+            this.log("Not enough sorcery points! (Need 1+)", "danger");
+            return;
+        }
+        char.sorceryPoints -= 1; // Minimum cost (scales with spell level when actually twinned)
+        char.buffs.twinnedSpell = true;
+        this.log(`🔮 Twinned Spell prepared! Your next damage spell will hit twice! (${char.sorceryPoints}/${char.sorceryPointsMax} sorcery pts)`, "success");
+    }
+    
     async bonusOffhandAttack(char, monster) {
         const weaponData = char.getWeaponData(char.equipped.weapon, this.dm.campaignId);
         if (!weaponData) return;
@@ -13182,6 +14252,136 @@ class Game {
         if (monster.hp <= 0) {
             this.handleMonsterDeath(monster);
         }
+    }
+    
+    async bonusHealingHands(char) {
+        if (char.race !== "Aasimar" || !char.racialAbilities || char.racialAbilities.healingHandsUsed) {
+            this.log("Healing Hands already used!", "danger");
+            return;
+        }
+        char.racialAbilities.healingHandsUsed = true;
+        const healing = char.level;
+        const oldHp = char.hp;
+        char.heal(healing);
+        const healed = char.hp - oldHp;
+        this.log(`🤲 Healing Hands! Celestial radiance restores ${healed} HP! (${char.hp}/${char.maxHp})`, "success");
+    }
+    
+    async bonusHiddenStep(char) {
+        if (char.race !== "Firbolg" || !char.racialAbilities || char.racialAbilities.hiddenStepUsed) {
+            this.log("Hidden Step already used!", "danger");
+            return;
+        }
+        char.racialAbilities.hiddenStepUsed = true;
+        char.buffs.hiddenStrike = true;
+        this.dm.defendingThisTurn = true;
+        this.log(`👻 Hidden Step! You turn invisible until your next turn — enemies have disadvantage attacking you, and your next attack has advantage!`, "success");
+    }
+    
+    async bonusFelineAgility(char) {
+        if (char.race !== "Tabaxi" || !char.racialAbilities || char.racialAbilities.felineAgilityUsed) {
+            this.log("Feline Agility already used!", "danger");
+            return;
+        }
+        char.racialAbilities.felineAgilityUsed = true;
+        this.dm.cunningDash = true; // Reuse the dash mechanic for guaranteed flee
+        this.log(`🐱 Feline Agility! Your speed doubles — flee is guaranteed this turn!`, "success");
+    }
+    
+    // Wild Shape: transform into a beast form with temp HP
+    async bonusWildShape(char) {
+        if (char.charClass !== "Druid" || char.level < 2 || (char.wildShapeUses || 0) <= 0) {
+            this.log("No Wild Shape uses remaining!", "danger");
+            return;
+        }
+        char.wildShapeUses--;
+        const cr = char.wildShapeCR || 0.25;
+        // Beast forms by CR
+        const beastForms = {
+            0.25: [
+                { name: "Wolf", hp: 11, ac: 13, damage: "2d4+2", attack: 4, type: "piercing", icon: "🐺" },
+                { name: "Giant Badger", hp: 13, ac: 10, damage: "1d6+1", attack: 3, type: "slashing", icon: "🦡" },
+                { name: "Panther", hp: 13, ac: 12, damage: "1d6+2", attack: 4, type: "slashing", icon: "🐆" }
+            ],
+            0.5: [
+                { name: "Black Bear", hp: 19, ac: 11, damage: "2d6+2", attack: 3, type: "slashing", icon: "🐻" },
+                { name: "Crocodile", hp: 19, ac: 12, damage: "1d10+2", attack: 4, type: "piercing", icon: "🐊" },
+                { name: "Giant Wasp", hp: 13, ac: 12, damage: "1d6+1", attack: 4, type: "piercing", icon: "🐝" }
+            ],
+            1: [
+                { name: "Brown Bear", hp: 34, ac: 11, damage: "2d6+4", attack: 5, type: "slashing", icon: "🐻" },
+                { name: "Dire Wolf", hp: 37, ac: 14, damage: "2d6+3", attack: 5, type: "piercing", icon: "🐺" },
+                { name: "Giant Spider", hp: 26, ac: 14, damage: "1d8+3", attack: 5, type: "piercing", icon: "🕷️" }
+            ]
+        };
+        const forms = beastForms[cr] || beastForms[0.25];
+        const form = forms[Math.floor(Math.random() * forms.length)];
+        // Scale beast HP by druid level
+        const beastHp = form.hp + Math.floor(char.level * 1.5);
+        // Store original stats
+        char.wildShapeActive = true;
+        char.wildShapeForm = form;
+        char.wildShapeHp = beastHp;
+        char.wildShapeMaxHp = beastHp;
+        char.wildShapeOriginalHp = char.hp;
+        char.wildShapeOriginalAc = char.ac;
+        // Apply beast form AC (keep better of beast or natural)
+        char.ac = Math.max(form.ac, char.ac);
+        this.log(`🐻 WILD SHAPE! You transform into a ${form.icon} ${form.name}! (Beast HP: ${beastHp}, AC: ${char.ac}, Attack: ${form.damage})`, "success");
+        this.log(`💡 Damage is absorbed by beast HP first. When beast HP reaches 0, you revert.`, "dm");
+    }
+    
+    async bonusWildShapeRevert(char) {
+        if (!char.wildShapeActive) return;
+        char.wildShapeActive = false;
+        char.ac = char.wildShapeOriginalAc || char.calculateAc();
+        this.log(`🧝 You revert to your natural form. (HP: ${char.hp}/${char.maxHp})`, "success");
+        char.wildShapeForm = null;
+        char.wildShapeHp = 0;
+    }
+    
+    // Channel Divinity: Turn Undead (Cleric)
+    async bonusChannelDivinity(char) {
+        if (char.channelDivinityUsed) {
+            this.log("Channel Divinity already used!", "danger");
+            return;
+        }
+        char.channelDivinityUsed = true;
+        const monster = this.dm.currentEnemy;
+        const saveDC = char.getSpellSaveDC ? char.getSpellSaveDC() : 13;
+        if (monster && (monster.type === 'undead' || (monster.name && monster.name.toLowerCase().match(/skeleton|zombie|ghoul|ghost|vampire|wight|wraith|specter|lich|mummy/)))) {
+            const monsterSave = Math.floor(Math.random() * 20) + 1 + 2;
+            if (monsterSave < saveDC) {
+                // Destroy Undead at higher levels
+                const cr = monster.cr || 1;
+                if (char.level >= 17 && cr <= 4 || char.level >= 14 && cr <= 3 || char.level >= 11 && cr <= 2 || char.level >= 8 && cr <= 1 || char.level >= 5 && cr <= 0.5) {
+                    monster.hp = 0;
+                    this.log(`✝️ DESTROY UNDEAD! The ${monster.name} is obliterated by divine power! (WIS save ${monsterSave} vs DC ${saveDC})`, "success");
+                } else {
+                    monster.conditions = monster.conditions || {};
+                    monster.conditions.frightened = true;
+                    monster.conditions.turnedUndead = true;
+                    this.log(`✝️ TURN UNDEAD! The ${monster.name} recoils in fear! Frightened and turned! (WIS save ${monsterSave} vs DC ${saveDC})`, "success");
+                }
+            } else {
+                this.log(`✝️ Turn Undead: The ${monster.name} resists! (WIS save ${monsterSave} vs DC ${saveDC})`, "danger");
+            }
+        } else {
+            this.log(`✝️ Channel Divinity: No undead to turn! The divine energy dissipates.`, "dm");
+            char.channelDivinityUsed = false; // Refund if no valid target
+        }
+    }
+    
+    // Channel Divinity: Sacred Weapon (Paladin)
+    async bonusChannelDivinitySacred(char) {
+        if (char.channelDivinityUsed) {
+            this.log("Channel Divinity already used!", "danger");
+            return;
+        }
+        char.channelDivinityUsed = true;
+        const chaBonus = Math.max(1, char.getModifier("cha"));
+        char.buffs.sacredWeapon = chaBonus;
+        this.log(`🗡️✨ Sacred Weapon! Your weapon glows with holy light — +${chaBonus} to attack rolls for this combat!`, "success");
     }
     
     // ===== END BONUS ACTION ECONOMY =====
@@ -13394,20 +14594,23 @@ class Game {
         }
         
         // Add leveled spells section, grouped by spell level
-        if (char.spells.known.length > 0) {
-            const prepCasters = ["Wizard", "Cleric", "Druid", "Paladin"];
-            const isPrep = prepCasters.includes(char.charClass);
+        const prepCasters = ["Wizard", "Cleric", "Druid", "Paladin"];
+        const isPrep = prepCasters.includes(char.charClass);
+        // For prep casters, show prepared spells; for known casters, show known spells
+        const displaySpells = isPrep ? (char.preparedSpells || []) : char.spells.known;
+        if (displaySpells.length > 0 || isPrep) {
             const spellsByLevel = {};
-            char.spells.known.forEach(spellName => {
+            displaySpells.forEach(spellName => {
                 const spell = GAME_DATA.spells[spellName];
-                if (spell) {
+                if (spell && spell.level > 0) {
                     if (!spellsByLevel[spell.level]) spellsByLevel[spell.level] = [];
                     spellsByLevel[spell.level].push({ name: spellName, spell });
                 }
             });
             if (isPrep) {
+                const prepLabel = char.charClass === "Wizard" ? "Spellbook" : "Class Spell List";
                 spellList.innerHTML += `<div style="margin:6px 0 4px;display:flex;justify-content:space-between;align-items:center;">
-                    <span style="font-size:0.78rem;color:#aaa;">Prepared: ${char.preparedSpells.length}/${char.maxPreparedSpells()}</span>
+                    <span style="font-size:0.78rem;color:#aaa;">Prepared: ${char.preparedSpells.length}/${char.maxPreparedSpells()} (from ${prepLabel})</span>
                     <button onclick="game.showSpellPreparationModal()" style="font-size:0.72rem;padding:3px 8px;border-radius:5px;border:1px solid rgba(212,175,55,0.4);background:rgba(212,175,55,0.1);color:#c9a227;cursor:pointer;">📖 Change Prepared</button>
                 </div>`;
             }
@@ -13478,11 +14681,12 @@ class Game {
         const spellStat = GAME_DATA.classes[char.charClass]?.spellStat || "int";
         const mod = char.getModifier(spellStat);
 
-        // Get all known leveled spells for this class
-        const available = char.spells.known.filter(s => {
-            const sp = GAME_DATA.spells[s];
-            return sp && sp.level > 0;
-        });
+        // Use getPreparableSpells() for the full available pool
+        const available = char.getPreparableSpells();
+        const prepFromFullList = ["Cleric", "Druid", "Paladin"];
+        const sourceLabel = prepFromFullList.includes(char.charClass) 
+            ? `${classLabel} class spell list` 
+            : `${classLabel}'s spellbook`;
 
         if (available.length === 0) {
             this.log(`📖 No spells to prepare yet.`, "dm");
@@ -13492,7 +14696,7 @@ class Game {
         const renderModal = () => {
             const current = char.preparedSpells;
             let html = `<h2>📖 Prepare Spells</h2>`;
-            html += `<p style="margin-bottom:8px;color:var(--text-secondary);">${classLabel}s prepare spells after a long rest. Choose up to <strong>${maxPrep}</strong> (Level ${char.level} + ${spellStat.toUpperCase()} mod ${mod >= 0 ? '+' : ''}${mod}).</p>`;
+            html += `<p style="margin-bottom:8px;color:var(--text-secondary);">${classLabel}s prepare spells after a long rest from their ${sourceLabel}. Choose up to <strong>${maxPrep}</strong> (Level ${char.level} + ${spellStat.toUpperCase()} mod ${mod >= 0 ? '+' : ''}${mod}).</p>`;
             html += `<p style="margin-bottom:12px;font-size:0.9em;color:var(--accent);">Prepared: ${current.length}/${maxPrep}</p>`;
             html += `<div style="display:flex;flex-direction:column;gap:6px;max-height:55vh;overflow-y:auto;">`;
 
@@ -13632,6 +14836,31 @@ class Game {
         const monster = this.dm.currentEnemy;
         
         if (!spell) return;
+
+        // Action economy: bonus action spells vs action spells
+        const isBonusAction = spell.bonus || false;
+        if (isBonusAction) {
+            if (!this.dm.actions.bonusAction) {
+                this.log(`⚠️ You've already used your bonus action this turn!`, "warning");
+                return;
+            }
+            this.dm.useAction('bonusAction');
+            // PHB rule: if you cast a bonus action spell, the only other spell you can cast
+            // this turn is a cantrip with a casting time of 1 action
+            this.dm.bonusActionSpellCast = true;
+        } else if (spell.level > 0 || this.dm.inCombat) {
+            // PHB bonus action spell restriction: can't cast a leveled spell if a bonus action spell was cast this turn
+            if (this.dm.bonusActionSpellCast && spell.level > 0) {
+                this.log(`⚠️ You already cast a bonus action spell this turn — you can only cast a cantrip with your action! (PHB p.202)`, "warning");
+                return;
+            }
+            // Cantrips during combat also use the action
+            if (!this.dm.actions.action) {
+                this.log(`⚠️ You've already used your action this turn!`, "warning");
+                return;
+            }
+            this.dm.useAction('action');
+        }
         
         // Close the spell menu
         this.closeSpellMenu();
@@ -13651,15 +14880,27 @@ class Game {
                 this.dm.removeMaterialComponent(compName, 1);
                 this.log(`💎 Used 1 ${compName} as a material component.`, "dm");
             }
+        } else if (spell.level > 0 && !char.hasSpellcastingFocus()) {
+            // Non-cantrip spells without costly components still need a focus or component pouch
+            // to substitute for mundane material components (PHB p.203)
+            this.log(`❌ You need a spellcasting focus (Arcane Focus, Holy Symbol, Druidic Focus) or Component Pouch to cast ${spellName}! Buy one from a shop.`, "danger");
+            return;
         }
         
         // Use spell slot if not a cantrip
+        let upcastLevel = 0; // How many levels above base the spell was cast at
         if (spell.level > 0) {
-            if (!char.useSpellSlot(spell.level)) {
+            const slotUsed = char.useSpellSlot(spell.level);
+            if (!slotUsed) {
                 this.log("No spell slots remaining!", "danger");
                 return;
             }
-            this.log(`✨ You cast ${spellName}! (Level ${spell.level} slot used)`, "combat");
+            upcastLevel = slotUsed - spell.level;
+            if (upcastLevel > 0) {
+                this.log(`✨ You cast ${spellName} at level ${slotUsed}! (Upcast +${upcastLevel}) ⬆️`, "combat");
+            } else {
+                this.log(`✨ You cast ${spellName}! (Level ${spell.level} slot used)`, "combat");
+            }
         } else {
             this.log(`✨ You cast ${spellName}!`, "combat");
         }
@@ -13674,8 +14915,9 @@ class Game {
             if (char.concentrating && char.concentrating !== spellName) {
                 const drop = confirm(`You are concentrating on ${char.concentrating}. Casting ${spellName} will end it. Continue?`);
                 if (!drop) {
-                    // Refund the spell slot
-                    if (spell.level > 0) char.spells.slotsUsed[spell.level]--;
+                    // Refund the spell slot (at the level actually used, which may be upcast)
+                    const refundLevel = spell.level + upcastLevel;
+                    if (refundLevel > 0) char.spells.slotsUsed[refundLevel]--;
                     return;
                 }
                 this.dropConcentration(char, `casting ${spellName}`);
@@ -13686,9 +14928,9 @@ class Game {
         
         // Handle different spell types
         if (spell.damage) {
-            await this.handleDamageSpell(spellName, spell, monster, spellAttack, spellDC, spellMod);
+            await this.handleDamageSpell(spellName, spell, monster, spellAttack, spellDC, spellMod, upcastLevel);
         } else if (spell.healing) {
-            this.handleHealingSpell(spellName, spell, spellMod);
+            this.handleHealingSpell(spellName, spell, spellMod, upcastLevel);
         } else if (spell.defensive) {
             this.handleDefensiveSpell(spellName, spell);
         } else if (spell.buff) {
@@ -13737,15 +14979,40 @@ class Game {
         return `${numDice}d${sides}`;
     }
 
-    async handleDamageSpell(spellName, spell, monster, spellAttack, spellDC, spellMod) {
+    async handleDamageSpell(spellName, spell, monster, spellAttack, spellDC, spellMod, upcastLevel = 0) {
         // Get scaled damage for cantrips
         const spellDamage = this.getScaledSpellDamage(spell);
         const char = this.character;
+        
+        // Calculate upcast bonus damage (generic: +1d per upcast level for most spells)
+        let upcastBonus = 0;
+        if (upcastLevel > 0 && spell.level > 0) {
+            // Parse the base damage to get the die size
+            const diceMatch = spellDamage.match(/\d+d(\d+)/);
+            const dieSides = diceMatch ? parseInt(diceMatch[1]) : 8; // Default d8 for upcasting
+            for (let i = 0; i < upcastLevel; i++) {
+                upcastBonus += Math.floor(Math.random() * dieSides) + 1;
+            }
+        }
+        
+        // Sorcerer Metamagic: Twinned Spell — double the damage (hits a second target)
+        let twinnedMultiplier = 1;
+        if (char.buffs.twinnedSpell) {
+            twinnedMultiplier = 2;
+            char.buffs.twinnedSpell = false;
+            this.log(`🔮 Twinned Spell! The magic splits and strikes twice!`, "success");
+        }
         
         // Evocation: Empowered Evocation (level 14) - add INT mod to damage
         let evocationBonus = 0;
         if (char.subclass === 'Evocation' && char.subclassFeatures['Evocation_14'] && spell.school === 'Evocation') {
             evocationBonus = char.getModifier('int');
+        }
+        
+        // Warlock Eldritch Invocation: Agonizing Blast — add CHA mod to Eldritch Blast damage
+        let agonizingBlastBonus = 0;
+        if (char.charClass === 'Warlock' && spellName === 'Eldritch Blast' && char.level >= 2) {
+            agonizingBlastBonus = Math.max(0, char.getModifier('cha'));
         }
         
         // Light Domain (14): Corona of Light - extra 1d8 radiant on damaging spells
@@ -13754,32 +15021,32 @@ class Game {
             lightBonus = this.dm.rollDice("1d8");
         }
         
-        const subclassSpellBonus = evocationBonus + lightBonus;
+        const subclassSpellBonus = evocationBonus + lightBonus + agonizingBlastBonus;
         
         if (spell.autoHit) {
             // Magic Missile - auto hit (not a cantrip, uses spell.damage directly)
-            const damage = this.dm.rollDice(spell.damage) + subclassSpellBonus;
+            const damage = (this.dm.rollDice(spell.damage) + subclassSpellBonus + upcastBonus) * twinnedMultiplier;
             monster.hp -= damage;
-            this.log(`🎯 ${spellName} automatically hits for ${damage} ${spell.damageType} damage!${evocationBonus ? ` (includes +${evocationBonus} Empowered Evocation)` : ''}${lightBonus ? ` (+${lightBonus} radiant Corona)` : ''}`, "combat");
+            this.log(`🎯 ${spellName} automatically hits for ${damage} ${spell.damageType} damage!${upcastBonus ? ` (+${upcastBonus} upcast)` : ''}${evocationBonus ? ` (+${evocationBonus} Empowered Evocation)` : ''}${lightBonus ? ` (+${lightBonus} radiant Corona)` : ''}`, "combat");
         } else if (spell.save) {
             // Saving throw spell  
             const monsterSave = Math.floor(Math.random() * 20) + 1 + 2; // Monster has +2 save
             if (monsterSave >= spellDC) {
-                const halfDamage = Math.floor(this.dm.rollDice(spellDamage) / 2);
+                const halfDamage = Math.floor(((this.dm.rollDice(spellDamage) + upcastBonus) * twinnedMultiplier) / 2);
                 monster.hp -= halfDamage;
-                this.log(`🎲 Enemy ${spell.save.toUpperCase()} save: ${monsterSave} vs DC ${spellDC} - Saved! Half damage: ${halfDamage}`, "combat");
+                this.log(`🎲 Enemy ${spell.save.toUpperCase()} save: ${monsterSave} vs DC ${spellDC} - Saved! Half damage: ${halfDamage}${upcastBonus ? ' (upcast)' : ''}`, "combat");
             } else if (monster.legendaryResistancesRemaining > 0) {
                 // Legendary Resistance: boss chooses to succeed instead
                 monster.legendaryResistancesRemaining--;
-                const halfDamage = Math.floor(this.dm.rollDice(spellDamage) / 2);
+                const halfDamage = Math.floor(((this.dm.rollDice(spellDamage) + upcastBonus) * twinnedMultiplier) / 2);
                 monster.hp -= halfDamage;
                 this.log(`🎲 Enemy ${spell.save.toUpperCase()} save: ${monsterSave} vs DC ${spellDC} - <strong>Failed!</strong>`, "danger");
                 this.log(`⚡ <strong>${monster.name} uses Legendary Resistance!</strong> The save succeeds instead! Half damage: ${halfDamage}`, "danger");
                 this.log(`💀 Legendary Resistances remaining: ${monster.legendaryResistancesRemaining}/${monster.legendaryResistances || '?'}`, "dm");
             } else {
-                const damage = this.dm.rollDice(spellDamage) + subclassSpellBonus;
+                const damage = (this.dm.rollDice(spellDamage) + subclassSpellBonus + upcastBonus) * twinnedMultiplier;
                 monster.hp -= damage;
-                this.log(`🎲 Enemy ${spell.save.toUpperCase()} save: ${monsterSave} vs DC ${spellDC} - Failed! ${damage} ${spell.damageType} damage!${evocationBonus ? ` (+${evocationBonus} Empowered)` : ''}`, "combat");
+                this.log(`🎲 Enemy ${spell.save.toUpperCase()} save: ${monsterSave} vs DC ${spellDC} - Failed! ${damage} ${spell.damageType} damage!${upcastBonus ? ` (+${upcastBonus} upcast)` : ''}${evocationBonus ? ` (+${evocationBonus} Empowered)` : ''}`, "combat");
                 
                 // Necromancy: Grim Harvest - heal when you kill with a spell
                 if (char.subclass === 'Necromancy' && monster.hp <= 0) {
@@ -13794,15 +15061,15 @@ class Game {
             const attackResult = await this.dm.rollAttackAnimated(spellAttack, false, false);
             
             if (attackResult.isCrit) {
-                const damage = this.dm.rollDice(spellDamage) + this.dm.rollDice(spellDamage) + subclassSpellBonus;
+                const damage = (this.dm.rollDice(spellDamage) + this.dm.rollDice(spellDamage) + subclassSpellBonus + upcastBonus) * twinnedMultiplier;
                 monster.hp -= damage;
                 await diceAnimator.rollDamage(spellDamage, damage, `💥 ${damage} ${spell.damageType}`);
-                this.log(`🎯 CRITICAL! Spell attack: ${attackResult.roll}+${spellAttack}=${attackResult.total} vs AC ${monster.ac}. ${damage} ${spell.damageType} damage!`, "success");
+                this.log(`🎯 CRITICAL! Spell attack: ${attackResult.roll}+${spellAttack}=${attackResult.total} vs AC ${monster.ac}. ${damage} ${spell.damageType} damage!${upcastBonus ? ` (+${upcastBonus} upcast)` : ''}`, "success");
             } else if (attackResult.total >= monster.ac) {
-                const damage = this.dm.rollDice(spellDamage) + subclassSpellBonus;
+                const damage = (this.dm.rollDice(spellDamage) + subclassSpellBonus + upcastBonus) * twinnedMultiplier;
                 monster.hp -= damage;
                 await diceAnimator.rollDamage(spellDamage, damage, `${damage} ${spell.damageType}`);
-                this.log(`✨ Spell attack: ${attackResult.roll}+${spellAttack}=${attackResult.total} vs AC ${monster.ac}. ${damage} ${spell.damageType} damage!${evocationBonus ? ` (+${evocationBonus} Empowered)` : ''}`, "combat");
+                this.log(`✨ Spell attack: ${attackResult.roll}+${spellAttack}=${attackResult.total} vs AC ${monster.ac}. ${damage} ${spell.damageType} damage!${upcastBonus ? ` (+${upcastBonus} upcast)` : ''}${evocationBonus ? ` (+${evocationBonus} Empowered)` : ''}`, "combat");
                 
                 // Guiding Bolt grants advantage on next attack
                 if (spellName === "Guiding Bolt") {
@@ -13815,13 +15082,23 @@ class Game {
         }
     }
     
-    handleHealingSpell(spellName, spell, spellMod) {
+    handleHealingSpell(spellName, spell, spellMod, upcastLevel = 0) {
         const char = this.character;
         let healAmount = this.dm.rollDice(spell.healing) + spellMod;
         
+        // Upcast healing: +1d8 per level above base (standard for most healing spells)
+        if (upcastLevel > 0 && spell.level > 0) {
+            let upcastHeal = 0;
+            for (let i = 0; i < upcastLevel; i++) {
+                upcastHeal += Math.floor(Math.random() * 8) + 1; // 1d8 per upcast level
+            }
+            healAmount += upcastHeal;
+            this.log(`⬆️ Upcast +${upcastHeal} healing!`, "success");
+        }
+        
         // Life Domain: Disciple of Life adds 2 + spell level to healing
         if (char.subclass === 'Life') {
-            const spellLevel = spell.level || 1;
+            const spellLevel = (spell.level || 1) + upcastLevel;
             const lifeBonus = 2 + spellLevel;
             healAmount += lifeBonus;
             this.log(`💛 Disciple of Life: +${lifeBonus} bonus healing!`, "success");
@@ -13858,7 +15135,69 @@ class Game {
             }
         }
     }
+
+    // ==================== REACTION SPELLS ====================
     
+    // Check if player can cast Shield as a reaction (auto-triggered when attack would hit)
+    canCastShieldReaction(char, attackTotal, currentDefenseBonus) {
+        // Must have reaction available
+        if (!this.dm.actions.reaction) return false;
+        // Must know/have Shield prepared
+        if (!char.canCastSpell("Shield") && !char.spells.known.includes("Shield")) return false;
+        // Must have a 1st-level slot
+        const hasSlot = (char.spells.slots[1] - char.spells.slotsUsed[1]) > 0;
+        if (!hasSlot) return false;
+        // Only worth casting if Shield's +5 would prevent the hit
+        if (attackTotal >= char.ac + currentDefenseBonus + 5) return false;
+        return true;
+    }
+
+    castShieldReaction(char) {
+        // Use reaction
+        this.dm.useAction('reaction');
+        // Use a 1st-level spell slot
+        char.useSpellSlot(1);
+        // Activate shield buff (lasts until start of next turn)
+        char.buffs.shieldActive = true;
+        this.log(`⚡ REACTION: You cast Shield! (+5 AC, 1st-level slot used)`, "success");
+        this.trackStat('spellsCast');
+        // Abjuration ward recharge
+        if (char.subclass === 'Abjuration') {
+            const recharge = 2;
+            const maxWard = char.subclassFeatures.arcaneWardMaxHp || 0;
+            if (maxWard > 0) {
+                char.subclassFeatures.arcaneWardHp = Math.min(maxWard, (char.subclassFeatures.arcaneWardHp || 0) + recharge);
+            }
+        }
+    }
+
+    // Check if player can Counterspell a monster ability (reaction)
+    canCastCounterspellReaction(char) {
+        if (!this.dm.actions.reaction) return false;
+        // Must know Counterspell
+        const knowsIt = char.spells.known.includes("Counterspell") || (char.preparedSpells && char.preparedSpells.includes("Counterspell"));
+        if (!knowsIt) return false;
+        // Must have a 3rd-level or higher slot
+        for (let lvl = 3; lvl <= 9; lvl++) {
+            if ((char.spells.slots[lvl] - char.spells.slotsUsed[lvl]) > 0) return true;
+        }
+        return false;
+    }
+
+    castCounterspellReaction(char) {
+        // Use reaction
+        this.dm.useAction('reaction');
+        // Use lowest available slot (3rd+)
+        for (let lvl = 3; lvl <= 9; lvl++) {
+            if ((char.spells.slots[lvl] - char.spells.slotsUsed[lvl]) > 0) {
+                char.useSpellSlot(lvl);
+                this.log(`⚡ REACTION: You cast Counterspell! (Level ${lvl} slot used)`, "success");
+                break;
+            }
+        }
+        this.trackStat('spellsCast');
+    }
+
     handleBuffSpell(spellName, spell) {
         if (spellName === "Bless") {
             this.character.buffs.blessActive = true;
@@ -14007,6 +15346,11 @@ class Game {
         if (monster.isBoss) {
             this.trackStat('bossesKilled');
             soundManager.playLevelUp(); // Special sound for boss kills
+            // Inspiration for defeating a boss — the DM rewards heroism!
+            if (this.dm) {
+                const result = this.dm.grantInspiration("Defeating a powerful foe!");
+                if (result.granted) this.log(`⭐ ${result.message}`, "success");
+            }
         }
         
         // Check for dragon kills
@@ -14017,6 +15361,11 @@ class Game {
         // Check for close call victory (less than 5 HP)
         if (char.hp < 5 && char.hp > 0) {
             this.trackStat('closeCallWins');
+            // Close call wins grant Inspiration — the DM rewards dramatic moments!
+            if (this.dm) {
+                const result = this.dm.grantInspiration("A dramatic last-stand victory!");
+                if (result.granted) this.log(`⭐ ${result.message}`, "success");
+            }
         }
         
         // Check for flawless victory (no damage taken this combat)
@@ -15354,6 +16703,7 @@ class Game {
                 }
                 
                 // Detect newly gained spell levels and auto-learn spells
+                const prepFromFullList = ["Cleric", "Druid", "Paladin"];
                 for (let spellLvl = 1; spellLvl <= 9; spellLvl++) {
                     const prevSlots = prevSlotTable[spellLvl] || 0;
                     const newSlots = newSlotTable[spellLvl] || 0;
@@ -15363,27 +16713,45 @@ class Game {
                         const ordinal = spellLvl === 1 ? '1st' : spellLvl === 2 ? '2nd' : spellLvl === 3 ? '3rd' : `${spellLvl}th`;
                         this.log(`✨ You gain ${ordinal} level spell slots!`, "success");
                         
-                        // Auto-learn a spell of the new level for the leveled-up class
-                        const newLevelSpells = Object.keys(GAME_DATA.spells).filter(s => 
-                            GAME_DATA.spells[s].level === spellLvl && 
-                            GAME_DATA.spells[s].classes.includes(levelUpClass) && 
-                            !char.spells.known.includes(s)
-                        );
-                        if (newLevelSpells.length > 0) {
-                            char.spells.known.push(newLevelSpells[0]);
-                            this.log(`📖 You learn: ${newLevelSpells[0]}!`, "success");
-                            // Learn a second spell if available
-                            if (newLevelSpells.length > 1) {
-                                char.spells.known.push(newLevelSpells[1]);
-                                this.log(`📖 You learn: ${newLevelSpells[1]}!`, "success");
+                        if (prepFromFullList.includes(levelUpClass)) {
+                            // Cleric/Druid/Paladin: they already know all class spells — just notify
+                            const newCount = Object.keys(GAME_DATA.spells).filter(s => 
+                                GAME_DATA.spells[s].level === spellLvl && GAME_DATA.spells[s].classes.includes(levelUpClass)
+                            ).length;
+                            this.log(`📖 ${newCount} ${ordinal}-level ${levelUpClass} spells are now available to prepare!`, "success");
+                        } else if (levelUpClass === "Wizard") {
+                            // Wizard: add 2 spells of the new level to spellbook
+                            const newLevelSpells = Object.keys(GAME_DATA.spells).filter(s => 
+                                GAME_DATA.spells[s].level === spellLvl && 
+                                GAME_DATA.spells[s].classes.includes("Wizard") && 
+                                !char.spells.known.includes(s)
+                            );
+                            for (let i = 0; i < Math.min(2, newLevelSpells.length); i++) {
+                                char.spells.known.push(newLevelSpells[i]);
+                                this.log(`📖 Added to spellbook: ${newLevelSpells[i]}!`, "success");
+                            }
+                        } else {
+                            // Known-spell casters (Sorcerer, Bard, Warlock, Ranger): learn 1-2 spells
+                            const newLevelSpells = Object.keys(GAME_DATA.spells).filter(s => 
+                                GAME_DATA.spells[s].level === spellLvl && 
+                                GAME_DATA.spells[s].classes.includes(levelUpClass) && 
+                                !char.spells.known.includes(s)
+                            );
+                            if (newLevelSpells.length > 0) {
+                                char.spells.known.push(newLevelSpells[0]);
+                                this.log(`📖 You learn: ${newLevelSpells[0]}!`, "success");
+                                if (newLevelSpells.length > 1) {
+                                    char.spells.known.push(newLevelSpells[1]);
+                                    this.log(`📖 You learn: ${newLevelSpells[1]}!`, "success");
+                                }
                             }
                         }
-                        // For prep casters, auto-prepare newly learned spells up to max
-                        const prepCasters = ["Wizard", "Cleric", "Druid", "Paladin"];
-                        if (prepCasters.includes(levelUpClass)) {
+                        // For prep casters, auto-prepare some spells of the new level up to max
+                        if (["Wizard", "Cleric", "Druid", "Paladin"].includes(levelUpClass)) {
                             if (!char.preparedSpells) char.preparedSpells = [];
                             const maxPrep = char.maxPreparedSpells ? char.maxPreparedSpells() : Math.max(1, classLevelForFeatures + char.getModifier(GAME_DATA.classes[levelUpClass]?.spellStat || "int"));
-                            char.spells.known.forEach(s => {
+                            const preparable = char.getPreparableSpells();
+                            preparable.forEach(s => {
                                 if (!char.preparedSpells.includes(s) && char.preparedSpells.length < maxPrep) {
                                     char.preparedSpells.push(s);
                                 }
@@ -15393,6 +16761,46 @@ class Game {
                         // Existing spell level got more slots
                         const ordinal = spellLvl === 1 ? '1st' : spellLvl === 2 ? '2nd' : spellLvl === 3 ? '3rd' : `${spellLvl}th`;
                         this.log(`✨ ${ordinal} level spell slots increased to ${newSlots}!`, "success");
+                    }
+                }
+                
+                // Wizard: always learn 2 spells per level-up (into spellbook)
+                if (levelUpClass === "Wizard" && char.level > 1) {
+                    // Check if we already added spells from new spell level access above
+                    const alreadyLearned = Object.keys(GAME_DATA.spells).some(s => {
+                        const sp = GAME_DATA.spells[s];
+                        const prevSlotsForLevel = prevSlotTable[sp?.level] || 0;
+                        return sp && sp.level > 0 && prevSlotsForLevel === 0 && (newSlotTable[sp.level] || 0) > 0;
+                    });
+                    if (!alreadyLearned) {
+                        // Normal level-up: learn 2 wizard spells at any available level
+                        const maxSpellLevel = Math.max(...Object.keys(char.spells.slots).filter(l => char.spells.slots[l] > 0).map(Number), 0);
+                        const learnableSpells = Object.keys(GAME_DATA.spells).filter(s => {
+                            const sp = GAME_DATA.spells[s];
+                            return sp && sp.level > 0 && sp.level <= maxSpellLevel && sp.classes.includes("Wizard") && !char.spells.known.includes(s);
+                        });
+                        // Prefer higher-level spells
+                        learnableSpells.sort((a, b) => GAME_DATA.spells[b].level - GAME_DATA.spells[a].level);
+                        for (let i = 0; i < Math.min(2, learnableSpells.length); i++) {
+                            char.spells.known.push(learnableSpells[i]);
+                            this.log(`📖 Added to spellbook: ${learnableSpells[i]}!`, "success");
+                        }
+                    }
+                }
+
+                // Known-spell casters: learn 1 new spell on every level-up (Sorcerer, Bard, Warlock, Ranger)
+                const knownCasters = ["Sorcerer", "Bard", "Warlock", "Ranger"];
+                if (knownCasters.includes(levelUpClass)) {
+                    const maxSpellLevel = Math.max(...Object.keys(char.spells.slots).filter(l => char.spells.slots[l] > 0).map(Number), 0);
+                    const learnableSpells = Object.keys(GAME_DATA.spells).filter(s => {
+                        const sp = GAME_DATA.spells[s];
+                        return sp && sp.level > 0 && sp.level <= maxSpellLevel && sp.classes.includes(levelUpClass) && !char.spells.known.includes(s);
+                    });
+                    if (learnableSpells.length > 0) {
+                        // Prefer spells at their highest available level
+                        learnableSpells.sort((a, b) => GAME_DATA.spells[b].level - GAME_DATA.spells[a].level);
+                        char.spells.known.push(learnableSpells[0]);
+                        this.log(`📖 You learn: ${learnableSpells[0]}!`, "success");
                     }
                 }
                 
@@ -16315,7 +17723,9 @@ class Game {
 
         sellableItems.forEach(item => {
             const basePrice = prices[item];
-            const sellPrice = Math.floor(basePrice * 0.5); // Sell at 50% value
+            // Criminal Contact: fence goods at 75% instead of 50%
+            const sellMult = this.character.hasBackgroundFeature('fenceBonus') ? 0.75 : 0.5;
+            const sellPrice = Math.floor(basePrice * sellMult);
             const count = itemCounts[item];
             
             // Check item type
@@ -16456,7 +17866,9 @@ class Game {
             // Apply merchants reputation discount/markup
             const repBonuses = this.character.getReputationBonuses();
             const discount = repBonuses.shopDiscount || 0;
-            const price = Math.max(1, Math.round(basePrice * (1 - discount / 100)));
+            // Noble (Position of Privilege): additional 10% shop discount
+            const nobleDiscount = this.character.hasBackgroundFeature('shopDiscount') ? 10 : 0;
+            const price = Math.max(1, Math.round(basePrice * (1 - (discount + nobleDiscount) / 100)));
             
             // Check both standard and campaign-specific items
             const isWeapon = GAME_DATA.weapons[item] || (campaignItems.weapons && campaignItems.weapons[item]);
@@ -19572,6 +20984,21 @@ class Game {
         }
         this.updateUI();
     }
+
+    unattuneItemUI(itemName) {
+        const result = this.character.unattuneItem(itemName);
+        if (result.success) {
+            // If the item is currently equipped, unequip it too
+            if (this.character.equipped.weapon === itemName) {
+                this.character.equipped.weapon = null;
+                this.log(`⚠️ ${itemName} unequipped — it requires attunement to use.`, "warning");
+            }
+            this.log(`✨ ${result.message}`, "dm");
+        } else {
+            this.log(`❌ ${result.message}`, "warning");
+        }
+        this.updateUI();
+    }
     
     updateShopButton() {
         // Add shop button for towns
@@ -19687,6 +21114,10 @@ class Game {
                     <span class="slot-label">Shield:</span>
                     <span class="slot-item">${shieldInfo}</span>
                     ${shield ? `<button class="unequip-btn" onclick="game.unequipItem('shield')">✕</button>` : ''}
+                </div>
+                <div class="equip-slot" style="margin-top:4px;border-top:1px solid rgba(255,255,255,0.08);padding-top:4px;">
+                    <span class="slot-label">Attuned:</span>
+                    <span class="slot-item" style="font-size:0.78rem;">${this.character.attunedItems.length > 0 ? this.character.attunedItems.map(item => `${item} <button class="unattune-btn" onclick="game.unattuneItemUI('${item.replace(/'/g, "\\'")}')" title="Remove attunement">✕</button>`).join(', ') : 'None'} (${this.character.attunedItems.length}/3)</span>
                 </div>
             `;
         }
@@ -20680,6 +22111,9 @@ class Game {
         const canAffordInn = char.gold >= 5;
         const hasHitDice = char.hitDice.current > 0;
         const canShortRest = this.dm.shortRestsTaken < this.dm.maxShortRests;
+        // Background feature: Acolyte (Shelter of the Faithful) & Soldier (Military Rank) get free inn rest
+        const hasFreeInn = char.hasBackgroundFeature('freeInn') || char.hasBackgroundFeature('innDiscount');
+        const bgFeatureName = GAME_DATA.backgrounds[char.background]?.feature || '';
 
         modal.innerHTML = `
             <div class="modal-content rest-modal-content">
@@ -20692,6 +22126,12 @@ class Game {
                         <div class="rest-info">Hit Dice: ${char.hitDice.current}/${char.hitDice.max} | Short Rests: ${this.dm.shortRestsTaken}/${this.dm.maxShortRests}</div>
                     </div>
                     ${inTown ? `
+                        ${hasFreeInn ? `
+                        <div class="rest-option" onclick="game.longRestInnFree()">
+                            <div class="rest-title">🏨 Long Rest — ${bgFeatureName} (8 hours)</div>
+                            <div class="rest-desc">Full HP, spell slots, hit dice restored</div>
+                            <div class="rest-info" style="color:var(--accent);">FREE — ${char.background} background feature</div>
+                        </div>` : ''}
                         <div class="rest-option ${!canAffordInn ? 'disabled' : ''}" 
                              onclick="${canAffordInn ? 'game.longRestInn()' : ''}">
                             <div class="rest-title">🏨 Long Rest at Inn (8 hours)</div>
@@ -20839,6 +22279,18 @@ class Game {
             this.log(`🐉 Breath Weapon recharged!`, "success");
         }
         
+        // Goliath: Stone's Endurance recharges on short rest
+        if (char.race === 'Goliath' && char.racialAbilities?.stonesEnduranceUsed) {
+            char.racialAbilities.stonesEnduranceUsed = false;
+            this.log(`🪨 Stone's Endurance recharged!`, "success");
+        }
+        
+        // Firbolg: Hidden Step recharges on short rest
+        if (char.race === 'Firbolg' && char.racialAbilities?.hiddenStepUsed) {
+            char.racialAbilities.hiddenStepUsed = false;
+            this.log(`👻 Hidden Step recharged!`, "success");
+        }
+        
         // Heal companions on short rest (recover half their max HP) and reset short-rest abilities
         if (this.dm.party && this.dm.party.length > 0) {
             for (const companion of this.dm.party) {
@@ -20889,6 +22341,23 @@ class Game {
         this.log("🏨 You rest at the inn. Fully restored!", "success");
     }
 
+    longRestInnFree() {
+        this.closeRestModal();
+        this.isTraveling = false;
+        const char = this.character;
+        const bgName = GAME_DATA.backgrounds[char.background]?.feature || char.background;
+        this.trackStat('restsCompleted');
+        this.performLongRest(false);
+        if (char.hasBackgroundFeature('freeInn')) {
+            this.log(`⛪ ${bgName}: The temple provides free lodging and care. Fully restored!`, "success");
+            // Acolyte: double church reputation gain
+            char.adjustReputation("church", 2);
+        } else {
+            this.log(`🎖️ ${bgName}: The garrison quarters are open to you. Fully restored!`, "success");
+            char.adjustReputation("military", 1);
+        }
+    }
+
     longRestCamp() {
         this.closeRestModal();
         this.isTraveling = false; // Clear any stuck travel flag
@@ -20913,6 +22382,12 @@ class Game {
         } else {
             this.performLongRest(true);
             this.log("🌙 You rest peacefully through the night. Fully restored!", "success");
+            // Outlander (Wanderer): automatically find food when camping in wilderness
+            if (this.character.hasBackgroundFeature('freeForage') && this.dm.currentLocation?.type === 'wilderness') {
+                const days = Math.floor(Math.random() * 2) + 1;
+                for (let i = 0; i < days; i++) this.character.inventory.push("Rations (1 day)");
+                this.log(`🌿 Wanderer: You forage ${days} day${days > 1 ? 's' : ''} of rations while camping.`, "success");
+            }
         }
     }
 
@@ -21013,9 +22488,11 @@ class Game {
         
         // Trigger spell preparation for Wizard/Cleric/Druid/Paladin
         const prepCasters = ["Wizard", "Cleric", "Druid", "Paladin"];
-        if (prepCasters.includes(char.charClass) && char.spells.known.length > 0) {
-            // Auto-keep previously prepared spells that are still known, then prompt
-            char.preparedSpells = char.preparedSpells.filter(s => char.spells.known.includes(s));
+        if (prepCasters.includes(char.charClass) && char.usesPreparedSpells()) {
+            // For Wizard: keep prepared spells that are still in spellbook
+            // For Cleric/Druid/Paladin: keep prepared spells that are still valid at current level
+            const preparable = char.getPreparableSpells();
+            char.preparedSpells = (char.preparedSpells || []).filter(s => preparable.includes(s));
             setTimeout(() => this.showSpellPreparationModal(), 600);
         }
         
@@ -21023,6 +22500,11 @@ class Game {
         if (char.racialAbilities) {
             if (char.race === "Dragonborn") char.racialAbilities.breathWeaponUsed = false;
             if (char.race === "Half-Orc") char.racialAbilities.relentlessUsed = false;
+            if (char.race === "Aasimar") char.racialAbilities.healingHandsUsed = false;
+            if (char.race === "Goliath") char.racialAbilities.stonesEnduranceUsed = false;
+            if (char.race === "Tabaxi") char.racialAbilities.felineAgilityUsed = false;
+            if (char.race === "Firbolg") char.racialAbilities.hiddenStepUsed = false;
+            if (char.race === "Tiefling") char.racialAbilities.hellishRebukeUsed = false;
         }
         
         // Fully heal all companions on long rest and reset all abilities
@@ -21448,7 +22930,7 @@ class Game {
         const classData = GAME_DATA.classes[char.charClass] || {};
 
         const exportData = {
-            formatVersion: "4.0",
+            formatVersion: "5.0",
             exportType: "dnd-character",
             system: "dnd5e",
             generator: "dnd-text-adventure",

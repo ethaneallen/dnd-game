@@ -2,7 +2,7 @@
 
 ### *An Epic D&D 5th Edition Web RPG Experience*
 
-![Version](https://img.shields.io/badge/version-4.0-gold)
+![Version](https://img.shields.io/badge/version-5.0-gold)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![D&D](https://img.shields.io/badge/D%26D-5e-red)
 
@@ -11,17 +11,17 @@
 ## 🌟 Features
 
 ### **Authentic D&D 5e Mechanics**
-- ✅ **Complete Character Creation** - 7 races, 13 classes, 6 backgrounds
+- ✅ **Complete Character Creation** - 14 races, 13 classes, 6 backgrounds
 - ✅ **True D&D Combat** - Attack rolls, saving throws, advantage/disadvantage
 - ✅ **Spell System** - Full spellcasting with spell slots, preparation, and ritual casting
 - ✅ **18-Skill Proficiency System** - All D&D 5e skills with proficiency bonuses and expertise
 - ✅ **Passive Scores** - Passive Perception, Insight, Investigation for auto-detection
 - ✅ **Leveling System** - XP progression from Level 1-20
-- ✅ **Status Effects** - Poisoned, burning, stunned, blessed, and more
+- ✅ **Status Effects** - All 13 PHB conditions: poisoned, blinded, charmed, frightened, and more
 - ✅ **Equipment Proficiency** - Weapon/armor proficiency by class with penalties
 - ✅ **Attunement** - 3-item magic item attunement limit per D&D 5e rules
 - ✅ **Opportunity Attacks** - Fleeing provokes attacks; Disengage prevents them
-- ✅ **Racial Abilities** - Halfling Lucky, Dragonborn Breath Weapon, Half-Orc Relentless Endurance, and more
+- ✅ **Racial Abilities** - Halfling Lucky, Dragonborn Breath Weapon, Half-Orc Relentless Endurance, Gnome Cunning, Fey Ancestry, and more
 - ✅ **Darkvision** - Mechanical effect on perception, trap detection, and ambush checks
 - ✅ **HP Level-Up Choice** - Roll or take the PHB average on each level up, with full history tracking
 - ✅ **Short Rest Features** - Action Surge, Channel Divinity, and Arcane Recovery with proper recharge
@@ -29,6 +29,20 @@
 - ✅ **Languages** - 16 D&D languages (8 standard + 8 exotic) from race and background
 - ✅ **Variant Encumbrance** - 60+ real item weights with STR-based carry thresholds, enforced penalties
 - ✅ **Drop Items** - Discard unwanted inventory items with safeguards for equipped/quest/valuable items
+- ✅ **Unarmored Defense** - Barbarian, Monk, and Draconic Sorcerer AC calculations per PHB
+- ✅ **Fighting Styles** - Defense, Archery, Dueling, and Great Weapon Fighting for martial classes
+- ✅ **Saving Throw Proficiency** - Class-based save proficiencies with Paladin Aura of Protection
+- ✅ **Brutal Critical** - Barbarian bonus crit dice at levels 9, 13, and 17
+- ✅ **Jack of All Trades** - Bard half-proficiency on non-proficient ability checks
+- ✅ **Deflect Missiles** - Monk reaction to reduce and return ranged attacks
+- ✅ **Spell Upcasting** - Auto-upcast spells to higher slots with scaling damage/healing
+- ✅ **Uncanny Dodge** - Rogue halves attack damage as a reaction
+- ✅ **Divine Smite** - Paladin auto-spends spell slots for radiant burst on hits
+- ✅ **Wild Shape** - Druid transforms into 9 beast forms with HP pools
+- ✅ **Eldritch Invocations** - Agonizing Blast adds CHA to Eldritch Blast damage
+- ✅ **Channel Divinity** - Turn Undead and Sacred Weapon for Cleric and Paladin
+- ✅ **Metamagic** - Sorcerer Twinned Spell doubles spell damage for sorcery points
+- ✅ **Bonus Action Spell Rule** - PHB restriction: only cantrips alongside bonus action spells
 
 ### **Epic Campaign Content**
 - 🛡️ **Keep on the Borderlands** ★ Recommended Start — Defend against chaos (Levels 1-3)
@@ -97,7 +111,7 @@
 
 ### **Character Creation**
 1. Choose your character name
-2. Select a race (Human, Elf, Dwarf, Halfling, Half-Orc, Tiefling, Dragonborn) — each with unique mechanical abilities
+2. Select a race (Human, Elf, Dwarf, Halfling, Half-Orc, Tiefling, Dragonborn, Gnome, Half-Elf, Aasimar, Goliath, Tabaxi, Kenku, Firbolg) — each with unique mechanical abilities
 3. Pick a class (Fighter, Wizard, Rogue, Cleric, Ranger, Barbarian, Paladin, Monk, Warlock, Bard, Sorcerer, Druid, Artificer)
 4. Choose a background (Soldier, Scholar, Criminal, Noble, Outlander, Acolyte)
 5. Your stats are automatically rolled using D&D 5e rules (4d6 drop lowest)
@@ -240,7 +254,7 @@ dnd-game/
 
 - **6,850+ lines of Python** - Comprehensive text adventure engine (`game.py`)
 - **10,900+ lines of JavaScript** - Full web game frontend (`game.js`)
-- **7 playable races** with unique mechanical abilities (Darkvision, Lucky, Breath Weapon, Relentless Endurance)
+- **14 playable races** with unique mechanical abilities (Darkvision, Lucky, Breath Weapon, Relentless Endurance, Gnome Cunning, Fey Ancestry, Stone's Endurance, and more)
 - **13 playable classes** with distinct mechanics and subclasses
 - **18 D&D 5e skills** fully tracked with proficiency and expertise
 - **5 campaign settings** with unique economies, loot, and magic-item tables
@@ -257,7 +271,7 @@ dnd-game/
 - **Attunement system** - 3-item magic item limit per D&D 5e rules
 - **Opportunity attacks** - Tactical flee/disengage decision-making
 - **Ritual casting** - Cast ritual spells without expending spell slots
-- **Racial abilities** - Meaningful mechanical effects for all 7 races
+- **Racial abilities** - Meaningful mechanical effects for all 14 races
 - **100% Dice Animation Coverage** - Every single roll features 3D spinning effects
 - **Immersive Sound System** - Procedurally generated sound effects for all actions
 - **Endless replayability**
@@ -277,6 +291,7 @@ The game supports various settings:
 ## 📝 Development
 
 ### **Version History**
+- **v5.0** - "Hardcore 5e" — 7 new races (14 total), 10 new subclasses, 22+ class features (Unarmored Defense, Fighting Styles, Save Proficiency, Brutal Critical, Jack of All Trades, Deflect Missiles, Spell Upcasting, Uncanny Dodge, Divine Smite, Wild Shape, Agonizing Blast, Channel Divinity, Metamagic, Reckless Attack reciprocal), all 13 PHB conditions, scaled falling damage, bonus action spell restriction, mechanically wired racial abilities (Gnome Cunning, Fey Ancestry, Stone's Endurance, Feline Agility, and more)
 - **v4.0** - "Immersive Experience" — 59 new monsters (~210 total), 15 premium polish features: Google Fonts, typewriter narration, combat animations, parchment log, location transitions, loot effects, campaign map, bestiary, day/night cycle, keyboard labels, and more
 - **v3.4** - "Quality of Life" — Drop items from inventory, encumbrance penalties actually enforced (was broken), professional button redesign, Journal Status tab, decluttered action bar
 - **v3.3** - "Tabletop Fidelity" — Proper HP on level up (roll vs average choice), short rest class features (Action Surge, Channel Divinity, Arcane Recovery), tool proficiencies, 16 D&D languages, real item-weight encumbrance (60+ items)
@@ -291,7 +306,9 @@ The game supports various settings:
 - **v1.0** - Initial release with core D&D mechanics
 
 ### **Future Enhancements**
-- 🌐 Multiplayer support (Big effort, looking into this)
+- 🌐 Multiplayer support
+- 📊 Advanced analytics dashboard
+- 🎨 Additional visual themes and dice designs
 - 📱 Native mobile app version
 - ☁️ Cloud save synchronization
 - 🎵 Background music loops

@@ -11,7 +11,8 @@ D&D 5th Edition web-based game.
 
 1. Open index.html in your web browser to start the game
 2. Create a new character by selecting:
-   - Race (Human, Elf, Dwarf, Halfling, Half-Orc, Tiefling, Dragonborn)
+   - Race (Human, Elf, Dwarf, Halfling, Half-Orc, Tiefling, Dragonborn,
+          Gnome, Half-Elf, Aasimar, Goliath, Tabaxi, Kenku, Firbolg)
    - Class (Fighter, Wizard, Rogue, Cleric, Ranger, Barbarian)
    - Background (Soldier, Scholar, Criminal, Noble, Outlander, Acolyte)
 3. Choose a campaign to play
@@ -214,6 +215,12 @@ CONDITIONS:
   - Prone: Melee advantage, ranged disadvantage against you
   - Restrained: Speed 0, disadvantage on attacks
   - Stunned: Can't act, attackers have advantage
+  - Charmed: Can't attack the charmer
+  - Deafened: Can't hear, auto-fail hearing checks
+  - Incapacitated: Can't take actions or reactions
+  - Invisible: Can't be seen, advantage on attacks
+  - Petrified: Turned to stone, incapacitated
+  - Unconscious: Incapacitated, prone, auto-crit in melee
 
 ================================================================================
                            PARTY SYSTEM
@@ -587,7 +594,74 @@ Campaign content inspired by official D&D adventures:
                       COMPLETE VERSION HISTORY
 ================================================================================
 
-VERSION 4.0 - IMMERSIVE EXPERIENCE (Latest)
+VERSION 5.0 - HARDCORE 5e (Latest)
+--------------------------------------------------------------------------------
+  🎲 COMPLETE D&D 5e CLASS FEATURES (22+ mechanics):
+     - Unarmored Defense: Barbarian (10+DEX+CON), Monk (10+DEX+WIS),
+       Draconic Sorcerer (13+DEX)
+     - Fighting Styles: Defense (+1 AC), Archery (+2 hit), Dueling (+2 dmg),
+       Great Weapon Fighting (reroll 1s and 2s)
+     - Saving Throw Proficiency: Class-based save proficiencies for all 13 classes
+     - Paladin Aura of Protection: +CHA to saves for Paladins at level 6+
+     - Brutal Critical: Barbarian extra crit dice at levels 9, 13, 17
+     - Jack of All Trades: Bard half-proficiency on non-proficient checks
+     - Deflect Missiles: Monk reaction reduces ranged damage (1d10+DEX+level)
+     - Spell Upcasting: Auto-upcast when base slots exhausted, +1d per level
+       for damage spells, +1d8 per level for healing
+     - Uncanny Dodge: Rogue halves attack damage as a reaction (level 5+)
+     - Divine Smite: Paladin auto-spends lowest spell slot on hits for
+       2d8+1d8/slot radiant damage
+     - Wild Shape: Druid transforms into 9 beast forms (Wolf, Cat, Hawk,
+       Boar, Giant Spider, Brown Bear, Dire Wolf, Giant Eagle, Giant Elk)
+       with beast HP pools, beast attacks, and auto-revert on 0 HP
+     - Eldritch Invocations: Agonizing Blast adds CHA modifier to
+       Eldritch Blast damage at Warlock level 2+
+     - Channel Divinity: Turn Undead (frighten/destroy by level) and
+       Sacred Weapon (+CHA to attacks) for Cleric and Paladin
+     - Metamagic: Twinned Spell doubles spell damage for sorcery points
+     - Reckless Attack: Enemies gain advantage while Barbarian is raging
+     - Bonus Action Spell Rule: Can only cast cantrips alongside bonus
+       action spells (PHB p.202)
+
+  🧬 7 NEW PLAYABLE RACES (14 total):
+     - Gnome: +2 INT, Darkvision, Gnome Cunning (advantage on INT/WIS/CHA
+       saves vs magic)
+     - Half-Elf: +2 CHA, Darkvision, Fey Ancestry (advantage vs charm),
+       Skill Versatility
+     - Aasimar: +2 CHA, Darkvision, Celestial Resistance, Healing Hands,
+       Light Bearer
+     - Goliath: +2 STR +1 CON, Stone's Endurance (reduce damage 1d12+CON
+       once per rest), Powerful Build
+     - Tabaxi: +2 DEX +1 CHA, Darkvision, Feline Agility (double speed
+       once per rest), Cat's Claws
+     - Kenku: +2 DEX +1 WIS, Mimicry, Kenku Training
+     - Firbolg: +2 WIS +1 STR, Firbolg Magic, Hidden Step (invisible
+       until next turn once per rest), Speech of Beast and Leaf
+
+  🎭 10 NEW SUBCLASSES:
+     - Each of the 13 classes now has multiple subclass options
+     - Subclasses are mechanically wired with unique abilities
+
+  🛡️ ALL 13 PHB CONDITIONS:
+     - Added 6 new conditions: Charmed, Deafened, Incapacitated,
+       Invisible, Petrified, Unconscious
+     - Now tracks all 13 PHB conditions (was 7)
+
+  🏔️ FALLING DAMAGE SCALING:
+     - Falling damage now scales with height (1d6 per 10 feet)
+     - Random falls range from 10 to 40 feet
+
+  🐛 MECHANICAL WIRING:
+     - Halfling Lucky: Reroll natural 1s on attacks
+     - Dwarven Resilience: Advantage on poison saves
+     - Fey Ancestry: Advantage on saves vs charm
+     - Gnome Cunning: Advantage on INT/WIS/CHA saves vs magic
+     - Dragonborn Breath Weapon: Area damage by ancestry
+     - All racial abilities fully functional in combat
+
+--------------------------------------------------------------------------------
+
+VERSION 4.0 - IMMERSIVE EXPERIENCE
 --------------------------------------------------------------------------------
   🐉 59 NEW MONSTERS ACROSS ALL 5 CAMPAIGNS (~210 total):
      - Keep on the Borderlands: +12 (Gelatinous Cube, Rust Monster, etc.)

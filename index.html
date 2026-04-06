@@ -775,6 +775,392 @@
             display: none !important;
         }
 
+        /* ===== Wizard Progress Bar ===== */
+        .wizard-progress {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin: 10px 0 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .wizard-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .wizard-step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(20, 20, 40, 0.8);
+            border: 2px solid #4a4a6a;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .wizard-step-label {
+            font-size: 0.65rem;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .wizard-step.active .wizard-step-num {
+            background: rgba(201, 162, 39, 0.2);
+            border-color: #c9a227;
+            color: #c9a227;
+            box-shadow: 0 0 12px rgba(201, 162, 39, 0.4);
+        }
+
+        .wizard-step.active .wizard-step-label {
+            color: #c9a227;
+        }
+
+        .wizard-step.completed .wizard-step-num {
+            background: rgba(201, 162, 39, 0.3);
+            border-color: #c9a227;
+            color: transparent;
+            font-size: 0;
+            position: relative;
+        }
+
+        .wizard-step.completed .wizard-step-num::after {
+            content: "✓";
+            position: absolute;
+            font-size: 0.9rem;
+            color: #c9a227;
+        }
+
+        .wizard-step.completed .wizard-step-label {
+            color: #888;
+        }
+
+        .wizard-step-line {
+            flex: 1;
+            height: 2px;
+            background: #4a4a6a;
+            margin: 0 4px;
+            margin-bottom: 18px;
+            transition: background 0.3s ease;
+            max-width: 60px;
+        }
+
+        .wizard-step-line.completed {
+            background: #c9a227;
+        }
+
+        /* ===== Wizard Panels ===== */
+        .wizard-panels {
+            width: 100%;
+            max-width: 780px;
+            min-height: 400px;
+        }
+
+        .wizard-panel {
+            display: none;
+            animation: wizardFadeIn 0.35s ease;
+        }
+
+        .wizard-panel.active {
+            display: block;
+        }
+
+        @keyframes wizardFadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .wizard-panel-title {
+            color: #c9a227;
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== Wizard Tabs ===== */
+        .wizard-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .wizard-tab {
+            background: rgba(20, 20, 40, 0.5);
+            border: 1px solid #4a4a6a;
+            color: #888;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-family: 'Cinzel', serif;
+            transition: all 0.2s ease;
+        }
+
+        .wizard-tab:hover {
+            border-color: #c9a227;
+            color: #c9a227;
+        }
+
+        .wizard-tab.active {
+            background: rgba(201, 162, 39, 0.15);
+            border-color: #c9a227;
+            color: #c9a227;
+        }
+
+        /* ===== Wizard Grid ===== */
+        .wizard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 10px;
+            width: 100%;
+        }
+
+        .wizard-alignment-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ===== Wizard Option Cards ===== */
+        .option-card {
+            background: rgba(20, 20, 40, 0.6);
+            border: 2px solid rgba(74, 74, 106, 0.5);
+            border-radius: 10px;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            text-align: left;
+        }
+
+        .option-card:hover {
+            border-color: rgba(201, 162, 39, 0.7);
+            background: rgba(201, 162, 39, 0.06);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .option-card.selected {
+            border-color: #c9a227;
+            background: rgba(201, 162, 39, 0.15);
+            box-shadow: 0 0 18px rgba(201, 162, 39, 0.25), inset 0 0 12px rgba(201, 162, 39, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .option-card .option-icon {
+            font-size: 1.6rem;
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(201, 162, 39, 0.08);
+            border-radius: 8px;
+        }
+
+        .option-card.selected .option-icon {
+            background: rgba(201, 162, 39, 0.18);
+        }
+
+        .option-card .option-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .option-card .option-info h3 {
+            color: #e4e4e4;
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.3;
+            font-weight: 600;
+        }
+
+        .option-card.selected .option-info h3 {
+            color: #c9a227;
+        }
+
+        .option-card .option-info p {
+            font-size: 0.72rem;
+            color: #888;
+            line-height: 1.3;
+            margin: 3px 0 0 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        /* Legacy support for old option-card h3/p without wrappers */
+        .option-card > h3 {
+            color: #c9a227;
+            margin-bottom: 0px;
+            font-size: 0.85rem;
+        }
+
+        .option-card > p {
+            font-size: 0.65rem;
+            color: #888;
+            line-height: 1.2;
+        }
+
+        /* ===== Wizard Name Step ===== */
+        .wizard-name-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            padding: 20px 0;
+        }
+
+        .name-input {
+            background: rgba(20, 20, 40, 0.6);
+            border: 2px solid rgba(74, 74, 106, 0.6);
+            border-radius: 10px;
+            color: #e4e4e4;
+            padding: 14px 20px;
+            font-family: 'Crimson Text', serif;
+            font-size: 1.2rem;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            transition: all 0.25s ease;
+        }
+
+        .name-input::placeholder {
+            color: #555;
+        }
+
+        .name-input:hover {
+            border-color: rgba(201, 162, 39, 0.5);
+        }
+
+        .name-input:focus {
+            outline: none;
+            border-color: #c9a227;
+            background: rgba(20, 20, 40, 0.9);
+            box-shadow: 0 0 16px rgba(201, 162, 39, 0.3);
+        }
+
+        /* ===== Wizard Summary ===== */
+        .wizard-summary {
+            background: rgba(20, 20, 40, 0.5);
+            border: 1px solid rgba(74, 74, 106, 0.4);
+            border-radius: 10px;
+            padding: 16px 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: left;
+        }
+
+        .wizard-summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 0.85rem;
+        }
+
+        .wizard-summary-row .label {
+            color: #888;
+        }
+
+        .wizard-summary-row .value {
+            color: #c9a227;
+            font-weight: 600;
+        }
+
+        /* ===== Wizard Footer (picks + button) ===== */
+        .wizard-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(10, 10, 20, 0.98) 60%, rgba(10, 10, 20, 0) 100%);
+            padding: 12px 20px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .wizard-picks {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .wizard-pick {
+            font-size: 0.72rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            background: rgba(201, 162, 39, 0.12);
+            border: 1px solid rgba(201, 162, 39, 0.3);
+            color: #c9a227;
+            font-family: 'Cinzel', serif;
+            transition: all 0.2s ease;
+        }
+
+        .wizard-pick.empty {
+            background: rgba(20, 20, 40, 0.4);
+            border-color: #4a4a6a;
+            color: #555;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #c9a227 0%, #a07818 100%);
+            color: #1a1a1a;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 36px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 16px rgba(201, 162, 39, 0.3);
+        }
+
+        .start-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 24px rgba(201, 162, 39, 0.5);
+        }
+
+        .start-btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .start-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: linear-gradient(135deg, #555 0%, #3a3a3a 100%);
+            box-shadow: none;
+        }
+
         /* Campaign Selection Screen */
         .campaign-select-screen {
             text-align: center;
@@ -917,11 +1303,10 @@
 
         .creation-screen h2 {
             color: #c9a227;
-            margin-bottom: 25px;
-            font-size: 2rem;
+            margin-bottom: 0;
+            font-size: 1.6rem;
             letter-spacing: 1px;
             text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
-            width: 100%;
         }
         
         .creation-screen .creation-header {
@@ -930,205 +1315,8 @@
             justify-content: center;
             gap: 14px;
             flex-wrap: wrap;
-            margin-bottom: 8px;
+            margin-bottom: 0;
             width: 100%;
-        }
-
-        .creation-sections {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            width: 100%;
-            max-width: 1000px;
-            margin-bottom: 30px;
-            align-items: start;
-        }
-        
-        @media (max-width: 900px) {
-            .creation-sections {
-                grid-template-columns: 1fr;
-                gap: 18px;
-            }
-        }
-
-        .creation-section {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .creation-section h3 {
-            color: #c9a227;
-            margin-bottom: 12px;
-            font-size: 1.1rem;
-            flex-shrink: 0;
-            text-align: left;
-            letter-spacing: 0.5px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid rgba(201, 162, 39, 0.3);
-        }
-
-        .creation-options {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        /* Class section gets a 2-column grid */
-        .creation-section.class-section .creation-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .creation-section.class-section .class-group-label {
-            grid-column: 1 / -1;
-            color: #888;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 3px 0 1px 4px;
-            border-bottom: 1px solid rgba(74, 74, 106, 0.5);
-            margin-top: 2px;
-        }
-
-        .creation-section.class-section .class-group-label:first-child {
-            margin-top: 0;
-        }
-
-        .option-card {
-            background: rgba(20, 20, 40, 0.6);
-            border: 2px solid rgba(74, 74, 106, 0.6);
-            border-radius: 8px;
-            padding: 10px 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 8px;
-            min-height: 0;
-        }
-
-        .option-card:hover {
-            border-color: #c9a227;
-            background: rgba(201, 162, 39, 0.08);
-            transform: translateX(3px);
-        }
-
-        .option-card.selected {
-            border-color: #c9a227;
-            background: rgba(201, 162, 39, 0.18);
-            box-shadow: 0 0 12px rgba(201, 162, 39, 0.3), inset 0 0 8px rgba(201, 162, 39, 0.1);
-            border-width: 2px;
-        }
-
-        .option-card .option-icon {
-            font-size: 1.1rem;
-            flex-shrink: 0;
-            width: 22px;
-            text-align: center;
-        }
-
-        .option-card .option-info {
-            flex: 1;
-            min-width: 0;
-            text-align: left;
-        }
-
-        .option-card .option-info h3 {
-            color: #c9a227;
-            margin: 0;
-            font-size: 0.9rem;
-            line-height: 1.3;
-            font-weight: 600;
-        }
-
-        .option-card .option-info p {
-            font-size: 0.7rem;
-            color: #999;
-            line-height: 1.3;
-            margin: 2px 0 0 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Legacy support for old option-card h3/p without wrappers */
-        .option-card > h3 {
-            color: #c9a227;
-            margin-bottom: 0px;
-            font-size: 0.85rem;
-        }
-
-        .option-card > p {
-            font-size: 0.65rem;
-            color: #888;
-            line-height: 1.2;
-        }
-
-        .name-input {
-            background: rgba(20, 20, 40, 0.6);
-            border: 2px solid rgba(74, 74, 106, 0.6);
-            border-radius: 8px;
-            color: #e4e4e4;
-            padding: 12px 16px;
-            font-family: 'Crimson Text', serif;
-            font-size: 1.1rem;
-            text-align: center;
-            margin-bottom: 25px;
-            max-width: 500px;
-            width: 100%;
-            transition: all 0.2s ease;
-        }
-
-        .name-input::placeholder {
-            color: #666;
-        }
-
-        .name-input:hover {
-            border-color: #c9a227;
-        }
-
-        .name-input:focus {
-            outline: none;
-            border-color: #c9a227;
-            background: rgba(20, 20, 40, 0.9);
-            box-shadow: 0 0 12px rgba(201, 162, 39, 0.4);
-        }
-
-        .start-btn {
-            background: linear-gradient(135deg, #c9a227 0%, #a07818 100%);
-            color: #1a1a1a;
-            border: none;
-            border-radius: 8px;
-            padding: 15px 40px;
-            font-size: 1.15rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-top: 20px;
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-            box-shadow: 0 6px 20px rgba(201, 162, 39, 0.3);
-        }
-
-        .start-btn:hover:not(:disabled) {
-            transform: translateX(-50%) scale(1.05);
-            box-shadow: 0 8px 28px rgba(201, 162, 39, 0.5);
-        }
-
-        .start-btn:active:not(:disabled) {
-            transform: translateX(-50%) scale(0.98);
-        }
-
-        .start-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: linear-gradient(135deg, #666 0%, #444 100%);
         }
 
         /* Combat UI */
@@ -1948,15 +2136,29 @@
             }
 
             .name-input {
-                padding: 6px;
-                font-size: 0.85rem;
-                margin: 4px auto;
+                padding: 10px;
+                font-size: 0.95rem;
             }
 
             .start-btn {
-                padding: 8px 28px;
-                font-size: 0.9rem;
-                margin-top: 4px;
+                padding: 10px 28px;
+                font-size: 0.95rem;
+            }
+
+            .wizard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .wizard-alignment-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .wizard-progress {
+                max-width: 100%;
+            }
+
+            .wizard-step-label {
+                font-size: 0.55rem;
             }
 
             .classic-dnd-logo .dungeons {
@@ -4810,6 +5012,22 @@
         .unequip-btn:hover {
             background: rgba(180, 60, 60, 0.5);
         }
+        .unattune-btn {
+            background: rgba(180, 120, 60, 0.3);
+            border: 1px solid rgba(180, 120, 60, 0.5);
+            color: #e0b080;
+            border-radius: 3px;
+            cursor: pointer;
+            padding: 0 4px;
+            font-size: 0.65rem;
+            margin-left: 2px;
+            vertical-align: middle;
+            line-height: 1;
+        }
+        .unattune-btn:hover {
+            background: rgba(180, 120, 60, 0.6);
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -4998,44 +5216,72 @@
             <!-- Character Creation Screen -->
             <div id="creationScreen" class="creation-screen hidden">
                 <div class="creation-header">
-                    <button class="back-btn" onclick="game.backToCampaignSelect()">← Back</button>
+                    <button class="back-btn" id="wizardBackBtn" onclick="game.wizardBack()">← Back</button>
                     <h2 style="margin:0; flex: 1;">Create Your Character</h2>
                     <button class="back-btn" onclick="game.showImportCharacterDialog()" style="background: rgba(201, 162, 39, 0.15); border-color: #c9a227; color: #c9a227;">📥 Import</button>
                 </div>
-                
-                <input type="text" class="name-input" id="nameInput" placeholder="Enter your name..." maxlength="20">
-                
-                <div class="creation-sections">
-                    <div class="creation-section race-section">
-                        <h3>Choose Your Race</h3>
-                        <div class="creation-options" id="raceOptions">
-                            <!-- Populated by JS -->
+
+                <!-- Wizard Progress Bar -->
+                <div class="wizard-progress">
+                    <div class="wizard-step active" data-step="1" onclick="game.goToWizardStep(1)"><span class="wizard-step-num">1</span><span class="wizard-step-label">Race</span></div>
+                    <div class="wizard-step-line"></div>
+                    <div class="wizard-step" data-step="2" onclick="game.goToWizardStep(2)"><span class="wizard-step-num">2</span><span class="wizard-step-label">Class</span></div>
+                    <div class="wizard-step-line"></div>
+                    <div class="wizard-step" data-step="3" onclick="game.goToWizardStep(3)"><span class="wizard-step-num">3</span><span class="wizard-step-label">Background</span></div>
+                    <div class="wizard-step-line"></div>
+                    <div class="wizard-step" data-step="4" onclick="game.goToWizardStep(4)"><span class="wizard-step-num">4</span><span class="wizard-step-label">Alignment</span></div>
+                    <div class="wizard-step-line"></div>
+                    <div class="wizard-step" data-step="5" onclick="game.goToWizardStep(5)"><span class="wizard-step-num">5</span><span class="wizard-step-label">Name</span></div>
+                </div>
+
+                <!-- Wizard Panels -->
+                <div class="wizard-panels">
+                    <div class="wizard-panel active" id="wizardStep1">
+                        <h3 class="wizard-panel-title">Choose Your Race</h3>
+                        <div class="wizard-tabs">
+                            <button class="wizard-tab active" onclick="game.switchRaceTab('common')">Common</button>
+                            <button class="wizard-tab" onclick="game.switchRaceTab('exotic')">Exotic</button>
                         </div>
+                        <div class="wizard-options wizard-grid" id="raceOptions"></div>
                     </div>
-                    
-                    <div class="creation-section class-section">
-                        <h3>Choose Your Class</h3>
-                        <div class="creation-options" id="classOptions">
-                            <!-- Populated by JS -->
+                    <div class="wizard-panel" id="wizardStep2">
+                        <h3 class="wizard-panel-title">Choose Your Class</h3>
+                        <div class="wizard-tabs">
+                            <button class="wizard-tab active" onclick="game.switchClassTab('all')">All</button>
+                            <button class="wizard-tab" onclick="game.switchClassTab('Martial')">Martial</button>
+                            <button class="wizard-tab" onclick="game.switchClassTab('Divine')">Divine</button>
+                            <button class="wizard-tab" onclick="game.switchClassTab('Arcane')">Arcane</button>
+                            <button class="wizard-tab" onclick="game.switchClassTab('Hybrid')">Hybrid</button>
                         </div>
+                        <div class="wizard-options wizard-grid" id="classOptions"></div>
                     </div>
-                    
-                    <div class="creation-section bg-section">
-                        <h3>Choose Your Background</h3>
-                        <div class="creation-options" id="backgroundOptions">
-                            <!-- Populated by JS -->
-                        </div>
+                    <div class="wizard-panel" id="wizardStep3">
+                        <h3 class="wizard-panel-title">Choose Your Background</h3>
+                        <div class="wizard-options wizard-grid" id="backgroundOptions"></div>
                     </div>
-                    
-                    <div class="creation-section bg-section">
-                        <h3>Choose Your Alignment</h3>
-                        <div class="creation-options alignment-options" id="alignmentOptions" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-                            <!-- Populated by JS -->
+                    <div class="wizard-panel" id="wizardStep4">
+                        <h3 class="wizard-panel-title">Choose Your Alignment</h3>
+                        <div class="wizard-options wizard-alignment-grid" id="alignmentOptions"></div>
+                    </div>
+                    <div class="wizard-panel" id="wizardStep5">
+                        <h3 class="wizard-panel-title">Name Your Hero</h3>
+                        <div class="wizard-name-step">
+                            <input type="text" class="name-input" id="nameInput" placeholder="Enter your name..." maxlength="20">
+                            <div class="wizard-summary" id="wizardSummary"></div>
                         </div>
                     </div>
                 </div>
-                
-                <button class="start-btn" id="startGameBtn" disabled>🎲 Begin Adventure</button>
+
+                <!-- Summary Strip -->
+                <div class="wizard-footer">
+                    <div class="wizard-picks" id="wizardPicks">
+                        <span class="wizard-pick empty" id="pickRace">Race</span>
+                        <span class="wizard-pick empty" id="pickClass">Class</span>
+                        <span class="wizard-pick empty" id="pickBackground">Background</span>
+                        <span class="wizard-pick empty" id="pickAlignment">Alignment</span>
+                    </div>
+                    <button class="start-btn" id="startGameBtn" disabled>🎲 Begin Adventure</button>
+                </div>
             </div>
 
             <!-- Game Screen (hidden during creation) -->
@@ -5096,6 +5342,11 @@
                                         <span aria-hidden="true">⚔️</span> Aggressive
                                     </button>
                                 </div>
+                                <div id="actionEconomy" class="action-economy-bar" style="display:none;padding:4px 8px;margin-bottom:4px;font-size:0.72rem;display:flex;gap:8px;justify-content:center;color:#aaa;">
+                                    <span id="aeAction" title="Action">🎯 Action</span>
+                                    <span id="aeBonusAction" title="Bonus Action">⚡ Bonus</span>
+                                    <span id="aeReaction" title="Reaction">🔄 Reaction</span>
+                                </div>
                                 <div class="combat-actions" role="group" aria-label="Combat actions">
                                     <button class="action-btn danger" onclick="game.combatAction('attack')" aria-label="Attack with weapon - Keyboard shortcut A">
                                         <span class="icon" aria-hidden="true">⚔️</span>
@@ -5116,6 +5367,14 @@
                                     <button class="action-btn" onclick="game.combatAction('defend')">
                                         <span class="icon">🛡️</span>
                                         Defend <span class="shortcut-hint">[D]</span>
+                                    </button>
+                                    <button class="action-btn" onclick="game.combatAction('grapple')">
+                                        <span class="icon">🤼</span>
+                                        Grapple <span class="shortcut-hint">[G]</span>
+                                    </button>
+                                    <button class="action-btn" onclick="game.combatAction('shove')">
+                                        <span class="icon">🫸</span>
+                                        Shove
                                     </button>
                                     <button class="action-btn" onclick="game.combatAction('flee')">
                                         <span class="icon">🏃</span>
@@ -5234,7 +5493,7 @@
 
     <!-- Version Badge -->
     <div class="version-badge">
-        v4.0 | <a href="#" onclick="game.showTutorial(); return false;">Help</a> | <a href="#" onclick="game.openSettings(); return false;">Settings</a>
+        v5.0 | <a href="#" onclick="game.showTutorial(); return false;">Help</a> | <a href="#" onclick="game.openSettings(); return false;">Settings</a>
     <!-- Weather Effects Overlay -->
     <div id="weatherOverlay" class="weather-overlay"></div>
     <canvas id="weatherCanvas" class="weather-canvas"></canvas>
