@@ -514,50 +514,37 @@
 
         /* Campaign Chapter Banner */
         .chapter-banner {
-            background: linear-gradient(135deg, rgba(139, 0, 0, 0.3), rgba(75, 0, 130, 0.3));
-            border: 2px solid #8b0000;
+            background: linear-gradient(135deg, rgba(30, 20, 40, 0.65), rgba(50, 15, 30, 0.65));
+            border: 1px solid rgba(201, 162, 39, 0.35);
             border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 10px;
+            padding: 8px 14px;
+            margin-bottom: 8px;
             text-align: center;
         }
 
         .chapter-banner .chapter-title {
-            font-size: 0.85rem;
+            font-family: 'Cinzel', serif;
+            font-size: 0.72rem;
             color: #c9a227;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
+            opacity: 0.85;
         }
 
         .chapter-banner .chapter-name {
-            font-size: 1rem;
-            color: #fff;
-            font-weight: bold;
-            margin-bottom: 3px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.95rem;
+            color: #fff4cf;
+            font-weight: 600;
+            letter-spacing: 0.04em;
         }
 
-        .chapter-banner .chapter-objective {
-            font-size: 0.85rem;
-            color: #4fc3f7;
-            font-style: normal;
-            background: rgba(0, 100, 150, 0.3);
-            border: 1px solid rgba(79, 195, 247, 0.4);
-            border-radius: 6px;
-            padding: 8px 12px;
-            margin-top: 8px;
-            display: inline-block;
-        }
-        .chapter-banner .chapter-objective::before {
-            content: "📜 OBJECTIVE: ";
-            color: #ffd700;
-            font-weight: bold;
-        }
+        /* Objective and hint now live in the persistent objective bar above the game log.
+           Hidden here to avoid duplication — chapter-banner is pure chapter-identity. */
+        .chapter-banner .chapter-objective,
         .chapter-banner .chapter-hint {
-            font-size: 0.85rem;
-            color: #90EE90;
-            margin-top: 6px;
-            font-style: italic;
+            display: none;
         }
 
         /* Game Log */
@@ -5376,6 +5363,18 @@
                                         <span class="icon">🫸</span>
                                         Shove
                                     </button>
+                                    <button class="action-btn" onclick="game.combatAction('help')" title="Help an ally or set up your next attack (advantage)">
+                                        <span class="icon">🤝</span>
+                                        Help <span class="shortcut-hint">[H]</span>
+                                    </button>
+                                    <button class="action-btn" onclick="game.combatAction('hide')" title="Stealth check to gain advantage on your next attack">
+                                        <span class="icon">🫥</span>
+                                        Hide
+                                    </button>
+                                    <button class="action-btn" onclick="game.combatAction('ready')" title="Ready an action — advantage on your first attack next round">
+                                        <span class="icon">⏱️</span>
+                                        Ready
+                                    </button>
                                     <button class="action-btn" onclick="game.combatAction('flee')">
                                         <span class="icon">🏃</span>
                                         Retreat <span class="shortcut-hint">[R]</span>
@@ -5385,6 +5384,18 @@
                             <!-- Party status injected here by JS -->
                             <div class="status-effects" id="playerStatusEffects"></div>
                         </div>
+                    </div>
+
+                    <!-- Persistent Current-Objective Bar (always visible above the log) -->
+                    <div class="objective-bar hidden" id="objectiveBar" role="status" aria-live="polite" aria-label="Current objective">
+                        <span class="objective-bar-icon" aria-hidden="true">🎯</span>
+                        <div class="objective-bar-body">
+                            <div class="objective-bar-label">Current Objective</div>
+                            <div class="objective-bar-text" id="objectiveBarText">—</div>
+                            <div class="objective-bar-hint" id="objectiveBarHint" style="display:none;"></div>
+                        </div>
+                        <span class="objective-bar-label-mini">🎯 Objective</span>
+                        <button type="button" class="objective-bar-toggle" id="objectiveBarToggle" onclick="game.toggleObjectiveBar()" aria-label="Collapse or expand objective bar">Hide</button>
                     </div>
 
                     <div class="game-log" id="gameLog" role="log" aria-live="polite" aria-atomic="false" aria-label="Game events and story">
@@ -5493,7 +5504,7 @@
 
     <!-- Version Badge -->
     <div class="version-badge">
-        v5.0 | <a href="#" onclick="game.showTutorial(); return false;">Help</a> | <a href="#" onclick="game.openSettings(); return false;">Settings</a>
+        v5.1 | <a href="#" onclick="game.showTutorial(); return false;">Help</a> | <a href="#" onclick="game.openSettings(); return false;">Settings</a>
     <!-- Weather Effects Overlay -->
     <div id="weatherOverlay" class="weather-overlay"></div>
     <canvas id="weatherCanvas" class="weather-canvas"></canvas>
@@ -5514,6 +5525,15 @@
             <button class="close-modal" onclick="document.getElementById('campaignMapModal').style.display='none'">Close</button>
         </div>
     </div>
+
+    <!-- Objective & Quest Toast Notifications -->
+    <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="false"></div>
+
+    <!-- Floating "Stuck?" help button — always visible once a campaign is loaded -->
+    <button type="button" id="stuckFloatingBtn" class="stuck-floating-btn hidden" onclick="game.showStuckHelp()" aria-label="Show help for progressing the quest" title="Not sure what to do? Click for help.">
+        <span aria-hidden="true">🆘</span>
+        <span class="stuck-floating-label">Stuck?</span>
+    </button>
 
     <script src="accessibility.js"></script>
     <!-- <script src="map-enhancements.js"></script> DISABLED - causing display issues -->

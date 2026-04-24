@@ -487,6 +487,147 @@ const FEATS_DATA = {
         prerequisite: null,
         effect: { savageAttacker: true },
         onApply: (char) => { char.feats.push("Savage Attacker"); }
+    },
+    "Athlete": {
+        description: "+1 STR or DEX (max 20). Standing up costs only 5 feet of movement. Climbing costs no extra movement. Running long jump/high jump after 5ft of movement.",
+        prerequisite: null,
+        effect: { athlete: true },
+        onApply: (char) => { char.feats.push("Athlete"); char.stats.str = Math.min(20, char.stats.str + 1); }
+    },
+    "Durable": {
+        description: "+1 CON (max 20). When you roll a Hit Die to regain HP, the minimum is twice your CON modifier (minimum 2).",
+        prerequisite: null,
+        effect: { durable: true },
+        onApply: (char) => { char.feats.push("Durable"); char.stats.con = Math.min(20, char.stats.con + 1); char.maxHp += 1; char.hp += 1; }
+    },
+    "Keen Mind": {
+        description: "+1 INT (max 20). You always know which way is north, the number of hours until sunrise/sunset, and recall anything seen/heard in the last month.",
+        prerequisite: null,
+        effect: { keenMind: true },
+        onApply: (char) => { char.feats.push("Keen Mind"); char.stats.int = Math.min(20, char.stats.int + 1); }
+    },
+    "Observant": {
+        description: "+1 INT or WIS (max 20). +5 bonus to passive Perception and passive Investigation. Can read lips of creatures you can see.",
+        prerequisite: null,
+        effect: { observant: true },
+        onApply: (char) => { char.feats.push("Observant"); char.stats.wis = Math.min(20, char.stats.wis + 1); }
+    },
+    "Linguist": {
+        description: "+1 INT (max 20). Learn three languages. Can craft written ciphers that others cannot decipher without a DC 10 + INT modifier check.",
+        prerequisite: null,
+        effect: { linguist: true },
+        onApply: (char) => { char.feats.push("Linguist"); char.stats.int = Math.min(20, char.stats.int + 1); }
+    },
+    "Skilled": {
+        description: "Gain proficiency in any combination of three skills or tools of your choice.",
+        prerequisite: null,
+        effect: { skilled: true },
+        onApply: (char) => { char.feats.push("Skilled"); }
+    },
+    "Resilient (WIS)": {
+        description: "+1 WIS (max 20). Gain proficiency in WIS saving throws.",
+        prerequisite: null,
+        effect: { resilientWis: true },
+        onApply: (char) => { char.feats.push("Resilient (WIS)"); char.stats.wis = Math.min(20, char.stats.wis + 1); if (!char.saveProficiencies) char.saveProficiencies = []; if (!char.saveProficiencies.includes("wis")) char.saveProficiencies.push("wis"); }
+    },
+    "Resilient (DEX)": {
+        description: "+1 DEX (max 20). Gain proficiency in DEX saving throws.",
+        prerequisite: null,
+        effect: { resilientDex: true },
+        onApply: (char) => { char.feats.push("Resilient (DEX)"); char.stats.dex = Math.min(20, char.stats.dex + 1); if (!char.saveProficiencies) char.saveProficiencies = []; if (!char.saveProficiencies.includes("dex")) char.saveProficiencies.push("dex"); }
+    },
+    "Resilient (CHA)": {
+        description: "+1 CHA (max 20). Gain proficiency in CHA saving throws.",
+        prerequisite: null,
+        effect: { resilientCha: true },
+        onApply: (char) => { char.feats.push("Resilient (CHA)"); char.stats.cha = Math.min(20, char.stats.cha + 1); if (!char.saveProficiencies) char.saveProficiencies = []; if (!char.saveProficiencies.includes("cha")) char.saveProficiencies.push("cha"); }
+    },
+    "Piercer": {
+        description: "+1 STR or DEX (max 20). Once per turn when you roll damage for a piercing attack, reroll one damage die. On a piercing crit, roll one additional damage die.",
+        prerequisite: null,
+        effect: { piercer: true },
+        onApply: (char) => { char.feats.push("Piercer"); char.stats.dex = Math.min(20, char.stats.dex + 1); }
+    },
+    "Slasher": {
+        description: "+1 STR or DEX (max 20). When you damage a creature with slashing, reduce its speed by 10ft until the start of your next turn. On a slashing crit, the target has disadvantage on its next attack.",
+        prerequisite: null,
+        effect: { slasher: true },
+        onApply: (char) => { char.feats.push("Slasher"); char.stats.str = Math.min(20, char.stats.str + 1); }
+    },
+    "Crusher": {
+        description: "+1 STR or CON (max 20). Once per turn when you deal bludgeoning damage, move the target 5ft. On a bludgeoning crit, attacks against target have advantage until start of your next turn.",
+        prerequisite: null,
+        effect: { crusher: true },
+        onApply: (char) => { char.feats.push("Crusher"); char.stats.str = Math.min(20, char.stats.str + 1); }
+    },
+    "Fey Touched": {
+        description: "+1 INT, WIS, or CHA (max 20). Learn Misty Step and one 1st-level divination or enchantment spell. Cast each once per long rest without a slot; also with slots normally.",
+        prerequisite: null,
+        effect: { feyTouched: true },
+        onApply: (char) => {
+            char.feats.push("Fey Touched");
+            char.stats.cha = Math.min(20, char.stats.cha + 1);
+            if (!char.spells.known.includes("Misty Step")) char.spells.known.push("Misty Step");
+        }
+    },
+    "Shadow Touched": {
+        description: "+1 INT, WIS, or CHA (max 20). Learn Invisibility and one 1st-level illusion or necromancy spell. Cast each once per long rest without a slot.",
+        prerequisite: null,
+        effect: { shadowTouched: true },
+        onApply: (char) => {
+            char.feats.push("Shadow Touched");
+            char.stats.cha = Math.min(20, char.stats.cha + 1);
+            if (!char.spells.known.includes("Invisibility")) char.spells.known.push("Invisibility");
+        }
+    },
+    "Telekinetic": {
+        description: "+1 INT, WIS, or CHA (max 20). Learn the Mage Hand cantrip. Bonus action: shove a creature 5ft with telekinesis (STR save vs your spell save DC to resist).",
+        prerequisite: null,
+        effect: { telekinetic: true },
+        onApply: (char) => {
+            char.feats.push("Telekinetic");
+            char.stats.int = Math.min(20, char.stats.int + 1);
+            if (!char.spells.cantrips.includes("Mage Hand")) char.spells.cantrips.push("Mage Hand");
+        }
+    },
+    "Telepathic": {
+        description: "+1 INT, WIS, or CHA (max 20). Speak telepathically to any creature within 60ft that understands a language. Cast Detect Thoughts once per long rest without a slot.",
+        prerequisite: null,
+        effect: { telepathic: true },
+        onApply: (char) => {
+            char.feats.push("Telepathic");
+            char.stats.wis = Math.min(20, char.stats.wis + 1);
+        }
+    },
+    "Eldritch Adept": {
+        description: "Learn one Eldritch Invocation of your choice. You can change it whenever you gain a level. Requires spellcasting or Pact Magic.",
+        prerequisite: "spellcaster",
+        effect: { eldritchAdept: true },
+        onApply: (char) => { char.feats.push("Eldritch Adept"); }
+    },
+    "Skill Expert": {
+        description: "+1 to any ability score (max 20). Gain proficiency in one skill. Choose one skill you're proficient in; your proficiency bonus is doubled for that skill (Expertise).",
+        prerequisite: null,
+        effect: { skillExpert: true },
+        onApply: (char) => { char.feats.push("Skill Expert"); char.stats.dex = Math.min(20, char.stats.dex + 1); }
+    },
+    "Inspiring Leader": {
+        description: "Prerequisite: CHA 13. Spend 10 minutes inspiring up to 6 allies within 30ft. Each gains temp HP = your level + your CHA modifier. Once per short or long rest.",
+        prerequisite: null,
+        effect: { inspiringLeader: true },
+        onApply: (char) => { char.feats.push("Inspiring Leader"); }
+    },
+    "Healer": {
+        description: "Using a healer's kit stabilizes a dying creature and restores 1 HP. As an action, spend a use of a healer's kit to restore 1d6+4 HP + additional HP equal to the target's max Hit Dice.",
+        prerequisite: null,
+        effect: { healer: true },
+        onApply: (char) => { char.feats.push("Healer"); }
+    },
+    "Dungeon Delver": {
+        description: "Advantage on Perception and Investigation checks to detect hidden passages. Advantage on saves vs traps and resistance to trap damage. Traveling at fast pace doesn't impose a penalty to passive Perception.",
+        prerequisite: null,
+        effect: { dungeonDelver: true },
+        onApply: (char) => { char.feats.push("Dungeon Delver"); }
     }
 };
 
@@ -3044,6 +3185,7 @@ const ALL_LANGUAGES = [
 const GAME_DATA = {
     races: {
         "Human": { bonus: { all: 1 }, traits: ["Versatile", "Extra Skill"], languages: ["Common"], extraLanguages: 1 },
+        "Variant Human": { bonus: { choice2: 1 }, traits: ["Bonus Feat", "Bonus Skill", "Versatile"], languages: ["Common"], extraLanguages: 1, grantsStartingFeat: true },
         "Elf": { bonus: { dex: 2 }, traits: ["Darkvision", "Fey Ancestry"], languages: ["Common", "Elvish"] },
         "Dwarf": { bonus: { con: 2 }, traits: ["Darkvision", "Dwarven Resilience"], languages: ["Common", "Dwarvish"], toolProficiencies: [] },
         "Halfling": { bonus: { dex: 2 }, traits: ["Lucky", "Brave"], languages: ["Common", "Halfling"] },
@@ -4099,12 +4241,52 @@ class Character {
         }
     }
 
+    // PHB Standard Array: 15, 14, 13, 12, 10, 8 assigned by class priority
+    applyStandardArray() {
+        const array = [15, 14, 13, 12, 10, 8];
+        const order = this._statPriorityForClass();
+        order.forEach((stat, i) => { this.stats[stat] = array[i]; });
+    }
+
+    // PHB Point Buy: 27 points, all stats start at 8, cost rises non-linearly
+    applyPointBuy(assignments) {
+        // assignments: {str, dex, con, int, wis, cha} each between 8 and 15
+        const valid = {};
+        const COSTS = { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 };
+        let total = 0;
+        for (const stat of Object.keys(this.stats)) {
+            const v = Math.max(8, Math.min(15, Math.floor(assignments?.[stat] ?? 8)));
+            valid[stat] = v;
+            total += COSTS[v];
+        }
+        if (total > 27) {
+            // Caller should validate before applying; fall back to standard array if invalid
+            this.applyStandardArray();
+            return false;
+        }
+        Object.assign(this.stats, valid);
+        return true;
+    }
+
+    _statPriorityForClass() {
+        // Sensible PHB priority for auto-assigned Standard Array; primary stat first, CON second.
+        const cls = GAME_DATA.classes[this.charClass];
+        const primary = cls?.primary || "str";
+        const order = [primary, "con"];
+        const remaining = ["str", "dex", "int", "wis", "cha"].filter(s => !order.includes(s));
+        return [...order, ...remaining];
+    }
+
     applyRacialBonus() {
         const bonuses = GAME_DATA.races[this.race].bonus;
         if (bonuses.all) {
             for (let stat in this.stats) {
                 this.stats[stat] += bonuses.all;
             }
+        } else if (bonuses.choice2) {
+            // Variant Human: +1 to two different ability scores of choice.
+            // Flag the character so the UI can prompt the player; no auto-pick.
+            this._pendingChoice2 = bonuses.choice2;
         } else {
             for (let stat in bonuses) {
                 this.stats[stat] += bonuses[stat];
@@ -4242,7 +4424,14 @@ class Character {
     }
 
     getPassivePerception() {
-        return 10 + this.getSkillModifier("Perception");
+        let pp = 10 + this.getSkillModifier("Perception");
+        // PHB: passive scores are -5 with disadvantage, +5 with advantage
+        const dm = (typeof window !== "undefined" && window.game && window.game.dm) || null;
+        const lightLevel = dm?.lightLevel || "bright";
+        if (lightLevel === "dim" || lightLevel === "dark") {
+            pp -= 5;
+        }
+        return pp;
     }
 
     getPassiveInsight() {
@@ -5497,13 +5686,13 @@ class DungeonMaster {
     skillCheck(stat, dc, advantage = false, disadvantage = false, skillName = null) {
         let roll1 = Math.floor(Math.random() * 20) + 1;
         let roll2 = Math.floor(Math.random() * 20) + 1;
-        
+
         // Halfling Lucky: reroll natural 1s on ability checks
         if (this.character.race === "Halfling") {
             if (roll1 === 1) roll1 = Math.floor(Math.random() * 20) + 1;
             if (roll2 === 1) roll2 = Math.floor(Math.random() * 20) + 1;
         }
-        
+
         // Exhaustion Level 1+: Disadvantage on ability checks
         if (this.character.exhaustion >= 1) {
             disadvantage = true;
@@ -5512,6 +5701,12 @@ class DungeonMaster {
         // Heavily Encumbered: Disadvantage on STR/DEX/CON ability checks
         const enc = this.calculateEncumbrance();
         if (enc.heavilyEncumbered && ['str', 'dex', 'con'].includes(stat)) {
+            disadvantage = true;
+        }
+
+        // Light-level penalty: sight-based Perception in dim/dark light (PHB p.183).
+        // Darkvision converts darkness into dim light; dim light still imposes disadvantage.
+        if (this._lightLevelImposesDisadvantage(stat, skillName)) {
             disadvantage = true;
         }
 
@@ -5575,6 +5770,19 @@ class DungeonMaster {
         return { success, critical, roll, roll1, roll2, modifier, total, dc, advType, skillName };
     }
 
+    // Returns true if the current light level imposes disadvantage on a sight-based Perception check.
+    // PHB: dim light or darkness → disadvantage on WIS (Perception) checks relying on sight.
+    // Darkvision converts darkness into dim light for the creature, but dim light still imposes disadvantage.
+    _lightLevelImposesDisadvantage(stat, skillName) {
+        const normalized = typeof skillName === "string" ? skillName.toLowerCase() : "";
+        const isPerception = normalized.includes("perception") || (stat === "wis" && normalized === "");
+        if (!isPerception) return false;
+        const lightLevel = this.lightLevel || "bright";
+        if (lightLevel === "bright") return false;
+        // dim or dark → disadvantage (darkvision doesn't cancel it; it just upgrades darkness to dim)
+        return true;
+    }
+
     async skillCheckAnimated(stat, dc, advantage = false, disadvantage = false, skillName = null) {
         // Exhaustion Level 1+: Disadvantage on ability checks
         if (this.character.exhaustion >= 1) {
@@ -5584,6 +5792,11 @@ class DungeonMaster {
         // Heavily Encumbered: Disadvantage on STR/DEX/CON ability checks
         const enc = this.calculateEncumbrance();
         if (enc.heavilyEncumbered && ['str', 'dex', 'con'].includes(stat)) {
+            disadvantage = true;
+        }
+
+        // Light-level penalty: sight-based Perception in dim/dark light
+        if (this._lightLevelImposesDisadvantage(stat, skillName)) {
             disadvantage = true;
         }
 
@@ -8078,10 +8291,10 @@ class Game {
         }
         
         html += '</div><button class="close-modal" onclick="this.parentElement.parentElement.remove()">Close</button>';
-        
-        this.showModal(html);
+
+        this.showModal(html, { size: 'large' });
     }
-    
+
     // Analytics Dashboard
     openAnalytics() {
         const char = this.character;
@@ -8266,15 +8479,19 @@ class Game {
             </div>
             <button class="close-modal" onclick="this.parentElement.parentElement.remove()">Close</button>
         `;
-        
-        this.showModal(html);
+
+        this.showModal(html, { size: 'large' });
     }
-    
+
     // Generic modal display
-    showModal(html) {
+    showModal(html, opts = {}) {
+        // opts: { size: 'small' | 'medium' | 'large' | 'wide' | 'xwide', dense: bool, extraClass: string }
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
-        modal.innerHTML = `<div class="modal-content">${html}</div>`;
+        const sizeClass = opts.size ? ` modal-${opts.size}` : '';
+        const denseClass = opts.dense ? ' modal-dense' : '';
+        const extraClass = opts.extraClass ? ` ${opts.extraClass}` : '';
+        modal.innerHTML = `<div class="modal-content${sizeClass}${denseClass}${extraClass}">${html}</div>`;
         modal.addEventListener('click', (e) => {
             if (e.target === modal) modal.remove();
         });
@@ -8343,8 +8560,15 @@ class Game {
         const quest = this.character.journal.quests.find(q => q.id === questId);
         if (quest && !quest.completed) {
             quest.completed = true;
+            quest.completedAt = Date.now();
             soundManager.playAchievement();
             this.log(`🎉 <strong>QUEST COMPLETE:</strong> ${quest.name}!`, 'success');
+            this.showToast({
+                variant: 'quest',
+                header: 'Quest Complete',
+                title: quest.name,
+                subtitle: 'Open your Journal to review what you earned.'
+            });
         }
     }
     
@@ -8391,14 +8615,21 @@ class Game {
     
     completeSideQuest(quest) {
         quest.completed = true;
+        quest.completedAt = Date.now();
         this.character.gold += quest.reward.gold;
         this.grantExperience(quest.reward.xp);
         this.trackStat('goldEarned', quest.reward.gold);
-        
+
         soundManager.playAchievement();
         this.log(`🎉 <strong>QUEST COMPLETE:</strong> ${quest.title}!`, 'success');
         this.log(`Rewards: ${quest.reward.gold} gold, ${quest.reward.xp} XP`, 'loot');
-        
+        this.showToast({
+            variant: 'quest',
+            header: 'Side Quest Complete',
+            title: quest.title,
+            subtitle: `+${quest.reward.gold} gold • +${quest.reward.xp} XP`
+        });
+
         this.checkAchievements();
         this.autoSaveGame();
     }
@@ -8450,17 +8681,20 @@ class Game {
             // Completed Quests
             if (journalCompleted.length > 0 || sideCompleted.length > 0) {
                 html += '<h3 style="color:#4CAF50;">✅ Completed</h3>';
+                const lastSeen = this._journalLastSeen || 0;
+                const recent = (q) => q.completedAt && q.completedAt > lastSeen ? ' recently-completed' : '';
                 journalCompleted.forEach(q => {
-                    html += `<div class="quest-card completed"><div class="quest-title">✓ ${q.name}</div></div>`;
+                    html += `<div class="quest-card completed${recent(q)}"><div class="quest-title">✓ ${q.name}</div></div>`;
                 });
                 sideCompleted.forEach(q => {
-                    html += `<div class="quest-card completed"><div class="quest-title">✓ ${q.title}</div></div>`;
+                    html += `<div class="quest-card completed${recent(q)}"><div class="quest-title">✓ ${q.title}</div></div>`;
                 });
+                this._journalLastSeen = Date.now();
             }
         }
-        
+
         html += '<button class="close-modal" onclick="this.parentElement.parentElement.remove()">Close</button>';
-        this.showModal(html);
+        this.showModal(html, { size: 'medium' });
     }
     
     // Settings Panel
@@ -8534,6 +8768,21 @@ class Game {
                     <button class="setting-btn ${this.godMode ? 'active' : ''}" onclick="game.toggleGodMode(); game.openSettings();">🛡️ God Mode: ${this.godMode ? 'ON' : 'OFF'}</button>
                 </div>
                 <p class="setting-desc">Testing mode: no damage, no exhaustion, auto-heal to full when enabled.</p>
+
+                <h4 style="margin-top:14px;color:#c9a227;font-family:'Cinzel',serif;font-size:0.9rem;">📖 Chapter Skip</h4>
+                <p class="setting-desc" style="margin-bottom:6px;">Jump to any chapter of the current campaign. Sets the standard quest flags for that chapter.</p>
+                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                    <select id="debugChapterSelect" style="flex:1;min-width:160px;background:rgba(0,0,0,0.4);border:1px solid rgba(201,162,39,0.3);color:#ddd;padding:6px 8px;border-radius:6px;font-size:0.85rem;">
+                        ${this._renderDebugChapterOptions()}
+                    </select>
+                    <button class="setting-btn" onclick="game.debugSkipToChapter(parseInt(document.getElementById('debugChapterSelect').value, 10))">⏭️ Skip</button>
+                </div>
+
+                <h4 style="margin-top:14px;color:#c9a227;font-family:'Cinzel',serif;font-size:0.9rem;">🧪 Flag Audit</h4>
+                <p class="setting-desc" style="margin-bottom:6px;">Dumps all current quest flags to the log for inspection.</p>
+                <div class="settings-buttons">
+                    <button class="setting-btn" onclick="game.debugDumpQuestFlags()">📋 Dump Quest Flags</button>
+                </div>
             </div>
 
             <button class="close-modal" onclick="this.parentElement.parentElement.remove()">Close</button>
@@ -8541,7 +8790,7 @@ class Game {
         
         // Remove any existing modal first
         document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
-        this.showModal(html);
+        this.showModal(html, { size: 'medium' });
 
         // Secret: click the Settings title 5 times to unlock debug
         const settingsTitle = document.querySelector('.modal-overlay h2');
@@ -8582,6 +8831,162 @@ class Game {
         }
         this.saveSettings();
         this.updateUI();
+    }
+
+    // ========== DEBUG: Chapter Skip & Flag Audit ==========
+
+    // Minimum flags that should be set at the *start* of each chapter. Reading the code,
+    // these are the flags set by the previous chapter's progression triggers.
+    // This map doubles as (a) flag preset for skip, (b) ground truth for integrity assertions.
+    _debugChapterFlagMap() {
+        return {
+            keep_on_borderlands: [
+                /* ch 0 */ [],
+                /* ch 1 */ ["arrivedAtKeep", "foundLodging"],
+                /* ch 2 */ ["metCastellan"],
+                /* ch 3 */ ["foundCaves"],
+                /* ch 4 */ ["outerCavesCleared"],
+                /* ch 5 */ ["innerCavesCleared"],
+                /* ch 6 */ ["innerCavesCleared", "enteredHobgoblins"],
+                /* ch 7 */ ["innerCavesCleared", "enteredBugbears"]
+            ],
+            nights_dark_terror: [
+                /* ch 0 */ [],
+                /* ch 1 */ ["metStephan", "clearedWildernessRoad", "reachedSukiskyn"],
+                /* ch 2 */ ["survivedSiege"],
+                /* ch 3 */ ["enteredXitaqasLair"],
+                /* ch 4 */ ["defeatedXitaqa", "rescuedTaras"],
+                /* ch 5 */ ["foundLostValley"],
+                /* ch 6 */ ["defeatedGolthar"]
+            ],
+            curse_of_strahd: [
+                /* ch 0 */ [],
+                /* ch 1 */ ["enteredBarovia"],
+                /* ch 2 */ ["clearedDeathHouse", "metIsmark", "metIreena"],
+                /* ch 3 */ ["visitedMadamEva"],
+                /* ch 4 */ ["reachedVallaki", "foundVanRichten"],
+                /* ch 5 */ ["reachedAmberTemple", "foundTome"],
+                /* ch 6 */ ["foundSunSword", "foundHolySymbol"],
+                /* ch 7 */ ["enteredRavenloft"],
+                /* ch 8 */ ["defeatedStrahd"]
+            ],
+            tomb_of_annihilation: [
+                /* ch 0 */ [],
+                /* ch 1 */ ["metSyndra", "arrivedPort"],
+                /* ch 2 */ ["hiredGuide", "enteredJungle"],
+                /* ch 3 */ ["foundOmu"],
+                /* ch 4 */ ["enteredFane"],
+                /* ch 5 */ ["enteredTomb"],
+                /* ch 6 */ ["defeatedRasNsi", "destroyedSoulmonger"],
+                /* ch 7 */ ["defeatedAcererak"]
+            ],
+            lost_mine_of_phandelver: [
+                /* ch 0 */ [],
+                /* ch 1 */ [],
+                /* ch 2 */ [],
+                /* ch 3 */ [],
+                /* ch 4 */ [],
+                /* ch 5 */ [],
+                /* ch 6 */ []
+            ]
+        };
+    }
+
+    _renderDebugChapterOptions() {
+        if (!this.dm || !this.dm.campaign) return '<option value="0">No campaign loaded</option>';
+        const chapters = this.dm.campaign.chapters || [];
+        const current = this.dm.currentChapter || 0;
+        return chapters.map((ch, i) => {
+            const label = ch?.name || `Chapter ${i}`;
+            const selected = i === current ? 'selected' : '';
+            return `<option value="${i}" ${selected}>Ch ${i}: ${label}</option>`;
+        }).join('');
+    }
+
+    debugSkipToChapter(chapterIndex) {
+        if (!this.dm || !this.dm.campaign) {
+            this.log("⚠️ No campaign loaded.", "warning");
+            return;
+        }
+        const chapters = this.dm.campaign.chapters || [];
+        if (chapterIndex < 0 || chapterIndex >= chapters.length) {
+            this.log(`⚠️ Chapter ${chapterIndex} out of range (0–${chapters.length - 1}).`, "warning");
+            return;
+        }
+
+        const campaignId = this.dm.campaignId;
+        const flagMap = this._debugChapterFlagMap()[campaignId];
+        if (flagMap && flagMap[chapterIndex]) {
+            // Set every flag from chapter 0 through the target chapter, so the chapter's
+            // entry conditions and location gates are satisfied.
+            for (let i = 0; i <= chapterIndex; i++) {
+                for (const flag of (flagMap[i] || [])) {
+                    this.dm.questFlags[flag] = true;
+                }
+            }
+        }
+
+        this.dm.currentChapter = chapterIndex;
+        this._lastChapterKey = null; // force objective bar to show the change
+
+        // Clear any in-progress combat — otherwise the combat UI stays open across the skip
+        if (this.dm.inCombat) {
+            this.dm.inCombat = false;
+            this.dm.currentEnemy = null;
+            const gameScreen = document.getElementById("gameScreen");
+            if (gameScreen) gameScreen.classList.remove("in-combat");
+            const combatPanel = document.getElementById("combatPanel");
+            if (combatPanel) combatPanel.classList.add("hidden");
+        }
+
+        this.log(`🛠️ DEBUG: Skipped to Chapter ${chapterIndex} — ${chapters[chapterIndex]?.name || ''}`, "success");
+        this.updateChapterDisplay();
+        this.updateUI();
+
+        // Close the settings modal since the player wants to play from here
+        document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
+    }
+
+    debugDumpQuestFlags() {
+        if (!this.dm) {
+            this.log("⚠️ No campaign loaded.", "warning");
+            return;
+        }
+        const flags = this.dm.questFlags || {};
+        const setFlags = Object.entries(flags).filter(([_, v]) => v === true).map(([k]) => k);
+        this.log(`🛠️ DEBUG: Campaign=${this.dm.campaignId}, Chapter=${this.dm.currentChapter}, Location=${this.dm.currentLocation?.name || 'none'}`, "dm");
+        if (setFlags.length === 0) {
+            this.log(`🛠️ DEBUG: No quest flags set.`, "dm");
+        } else {
+            this.log(`🛠️ DEBUG: Quest flags (${setFlags.length}): ${setFlags.join(", ")}`, "dm");
+        }
+    }
+
+    // Called on every chapter advance. Verifies the flags that should have been set by the
+    // previous chapter are actually present. If not, logs a console warning (silent to the
+    // player) so you catch silent desyncs during testing.
+    _auditChapterFlags() {
+        if (!this.dm || !this.dm.campaign) return;
+        const campaignId = this.dm.campaignId;
+        const currentChapter = this.dm.currentChapter;
+        const flagMap = this._debugChapterFlagMap()[campaignId];
+        if (!flagMap || currentChapter <= 0) return;
+
+        // The flags recorded under flagMap[currentChapter] are those set by the previous
+        // chapter's triggers (since the convention is "these are the entry conditions").
+        const expected = flagMap[currentChapter] || [];
+        const missing = expected.filter(flag => !this.dm.questFlags[flag]);
+
+        if (missing.length > 0) {
+            const message = `[flag-audit] Campaign "${campaignId}" entering chapter ${currentChapter} but these flags are NOT set: ${missing.join(", ")}`;
+            console.warn(message);
+            // Only surface to the in-game log when god mode is on, so ordinary players don't see it.
+            if (this.godMode) {
+                this.log(`🧪 ${message}`, "warning");
+            }
+        } else if (this.godMode) {
+            console.info(`[flag-audit] Campaign "${campaignId}" chapter ${currentChapter}: all expected flags present.`);
+        }
     }
     
     // Combat Tactics System
@@ -9123,9 +9528,9 @@ class Game {
             </div>
             <button class="close-modal" onclick="this.parentElement.parentElement.remove()">Begin Adventure!</button>
         `;
-        this.showModal(html);
+        this.showModal(html, { size: 'medium' });
     }
-    
+
     // Visual effects for combat
     showFloatingDamage(amount, type = 'damage', x = null, y = null) {
         const el = document.createElement('div');
@@ -9262,7 +9667,7 @@ class Game {
         
         // Icon maps for visual flair
         const raceIcons = {
-            "Human": "👤", "Elf": "🧝", "Dwarf": "⛏️", "Halfling": "🍀",
+            "Human": "👤", "Variant Human": "🧑", "Elf": "🧝", "Dwarf": "⛏️", "Halfling": "🍀",
             "Dragonborn": "🐉", "Tiefling": "😈", "Half-Orc": "🪓",
             "Gnome": "🔧", "Half-Elf": "🧝‍♂️", "Aasimar": "😇",
             "Goliath": "🏔️", "Tabaxi": "🐱", "Kenku": "🐦", "Firbolg": "🌳"
@@ -9280,7 +9685,7 @@ class Game {
         
         // Race groupings
         this.raceGroups = {
-            "common": ["Human", "Elf", "Dwarf", "Halfling", "Half-Orc", "Half-Elf"],
+            "common": ["Human", "Variant Human", "Elf", "Dwarf", "Halfling", "Half-Orc", "Half-Elf"],
             "exotic": ["Tiefling", "Dragonborn", "Gnome", "Aasimar", "Goliath", "Tabaxi", "Kenku", "Firbolg"]
         };
         
@@ -9547,8 +9952,115 @@ class Game {
     }
 
     startGame() {
+        // Step 1: ask the player how they want to generate ability scores.
+        // Actual character creation continues in _finishStartGame() after the pick.
+        if (this._pendingStatMethod) {
+            this._doStartGame();
+        } else {
+            this._showStatMethodPicker();
+        }
+    }
+
+    _showStatMethodPicker() {
+        const html = `
+            <h2>🎲 Ability Score Method</h2>
+            <p style="margin-bottom:14px;color:var(--text-secondary);">Choose how to generate your ability scores. All three are official PHB options.</p>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <div style="border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;transition:all 0.2s;"
+                     onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(255,215,0,0.05)'"
+                     onmouseout="this.style.borderColor='var(--border)';this.style.background=''"
+                     onclick="game._pickStatMethod('roll')">
+                    <div style="font-weight:bold;color:var(--accent);">🎲 Roll 4d6 Drop Lowest</div>
+                    <div style="font-size:0.9em;margin-top:4px;color:var(--text-secondary);">The classic method — roll 4 six-sided dice six times, dropping the lowest each time. High-variance, high-reward.</div>
+                </div>
+                <div style="border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;transition:all 0.2s;"
+                     onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(255,215,0,0.05)'"
+                     onmouseout="this.style.borderColor='var(--border)';this.style.background=''"
+                     onclick="game._pickStatMethod('array')">
+                    <div style="font-weight:bold;color:var(--accent);">📋 Standard Array</div>
+                    <div style="font-size:0.9em;margin-top:4px;color:var(--text-secondary);">15, 14, 13, 12, 10, 8 auto-assigned by class priority. Safe and balanced.</div>
+                </div>
+                <div style="border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;transition:all 0.2s;"
+                     onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(255,215,0,0.05)'"
+                     onmouseout="this.style.borderColor='var(--border)';this.style.background=''"
+                     onclick="game._pickStatMethod('pointbuy')">
+                    <div style="font-weight:bold;color:var(--accent);">🎯 Point Buy</div>
+                    <div style="font-size:0.9em;margin-top:4px;color:var(--text-secondary);">27 points to spend, each stat between 8 and 15. Full control. Click to open the point-buy editor.</div>
+                </div>
+            </div>
+        `;
+        this.showModal(html, { size: 'medium' });
+    }
+
+    _pickStatMethod(method) {
+        const modals = document.querySelectorAll('.modal-overlay');
+        modals.forEach(m => m.remove());
+        if (method === 'pointbuy') {
+            this._showPointBuyEditor();
+            return;
+        }
+        this._pendingStatMethod = { method };
+        this._doStartGame();
+    }
+
+    _showPointBuyEditor() {
+        const stats = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+        const statNames = { str: 'Strength', dex: 'Dexterity', con: 'Constitution', int: 'Intelligence', wis: 'Wisdom', cha: 'Charisma' };
+        if (!this._pointBuyDraft) this._pointBuyDraft = { str: 8, dex: 8, con: 8, int: 8, wis: 8, cha: 8 };
+
+        const COSTS = { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 };
+        const total = stats.reduce((sum, s) => sum + COSTS[this._pointBuyDraft[s]], 0);
+        const left = 27 - total;
+
+        let rows = '';
+        for (const s of stats) {
+            const v = this._pointBuyDraft[s];
+            rows += `
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid var(--border);border-radius:6px;">
+                    <span>${statNames[s]}</span>
+                    <span style="display:flex;gap:6px;align-items:center;">
+                        <button class="stat-stepper-btn" onclick="game._pointBuyAdjust('${s}',-1)">−</button>
+                        <span style="display:inline-block;min-width:28px;text-align:center;font-weight:bold;color:var(--accent);">${v}</span>
+                        <button class="stat-stepper-btn" onclick="game._pointBuyAdjust('${s}',1)">+</button>
+                        <span style="min-width:48px;text-align:right;font-size:0.85em;color:var(--text-secondary);">cost ${COSTS[v]}</span>
+                    </span>
+                </div>
+            `;
+        }
+
+        const html = `
+            <h2>🎯 Point Buy</h2>
+            <p style="margin-bottom:10px;color:var(--text-secondary);">27 points total. Each stat ranges 8–15 before racial bonuses.</p>
+            <div style="margin-bottom:12px;font-weight:bold;color:${left < 0 ? '#ff6b6b' : 'var(--accent)'};">Points remaining: ${left}</div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">${rows}</div>
+            <div class="modal-footer">
+                <button class="modal-btn-secondary" onclick="game._showStatMethodPicker()">← Back</button>
+                <button class="modal-btn-primary" ${left < 0 ? 'disabled' : ''} onclick="game._confirmPointBuy()">✅ Confirm</button>
+            </div>
+        `;
+        const modals = document.querySelectorAll('.modal-overlay');
+        modals.forEach(m => m.remove());
+        this.showModal(html, { size: 'medium' });
+    }
+
+    _pointBuyAdjust(stat, delta) {
+        const v = this._pointBuyDraft[stat] + delta;
+        if (v < 8 || v > 15) return;
+        this._pointBuyDraft[stat] = v;
+        this._showPointBuyEditor();
+    }
+
+    _confirmPointBuy() {
+        this._pendingStatMethod = { method: 'pointbuy', assignments: { ...this._pointBuyDraft } };
+        this._pointBuyDraft = null;
+        const modals = document.querySelectorAll('.modal-overlay');
+        modals.forEach(m => m.remove());
+        this._doStartGame();
+    }
+
+    _doStartGame() {
         const name = document.getElementById("nameInput").value.trim() || "Adventurer";
-        
+
         this.character = new Character();
         this.character.name = name;
         this.character.race = this.selectedRace;
@@ -9556,8 +10068,16 @@ class Game {
         this.character.charClass = this.selectedClass;
         this.character.background = this.selectedBackground;
         this.character.alignment = this.selectedAlignment || "N";
-        
-        this.character.rollStats();
+
+        const pick = this._pendingStatMethod || { method: 'roll' };
+        this._pendingStatMethod = null;
+        if (pick.method === 'array') {
+            this.character.applyStandardArray();
+        } else if (pick.method === 'pointbuy') {
+            this.character.applyPointBuy(pick.assignments);
+        } else {
+            this.character.rollStats();
+        }
         this.character.applyRacialBonus();
         this.character.setupClass();
         this.character.setupBackground();
@@ -9587,7 +10107,21 @@ class Game {
         
         this.log(`Welcome, ${this.character.name} the ${this.character.race} ${this.character.charClass}!`, "dm");
         this.log(`<strong>${campaign.icon} ${campaign.name.toUpperCase()} ${campaign.icon}</strong>`, "dm");
-        
+
+        // Variant Human: pick two ability scores to raise by +1 (PHB)
+        if (this.character._pendingChoice2 && !this.character._choice2Resolved) {
+            this.log(`📊 Variant Human: choose two different ability scores to raise by +1.`, "success");
+            setTimeout(() => this.showVariantHumanStatPicker(), 400);
+        }
+
+        // Variant Human: grant a bonus feat at level 1 (PHB).
+        // Defer the feat picker until after the stat choice completes; confirmVariantHumanStats() will trigger it.
+        if (GAME_DATA.races[this.character.race]?.grantsStartingFeat && !this.character._startingFeatGranted && !this.character._pendingChoice2) {
+            this.character._startingFeatGranted = true;
+            this.log(`🏆 Variant Human grants a bonus feat at 1st level. Choose your feat!`, "success");
+            setTimeout(() => this.showFeatSelection(), 600);
+        }
+
         // Show personality info
         this.log(`<em>Your ideal: ${this.character.personality.ideal}</em>`, "dm");
         
@@ -11462,6 +11996,36 @@ class Game {
         this.dm.inCombat = true;
         this.dm.currentEnemy = monster;
         this.dm.defendingThisTurn = false;
+
+        // Roll environmental cover for the encounter (PHB optional terrain flavor).
+        // 25% half cover, 10% three-quarters cover, otherwise none.
+        // Cover bakes into the monster's AC for the encounter. Sharpshooter feat ignores it.
+        monster.baseAc = monster.ac;
+        const coverRoll = Math.random();
+        const hasSharpshooter = this.character.feats && this.character.feats.includes("Sharpshooter");
+        if (coverRoll < 0.10) {
+            monster.cover = { type: 'three-quarters', acBonus: 5 };
+            if (!hasSharpshooter) {
+                monster.ac = monster.baseAc + 5;
+                this.log(`🧱 The ${monster.name} hunkers behind a broken wall — three-quarters cover (+5 AC against your attacks).`, "dm");
+            } else {
+                this.log(`🏹 The ${monster.name} takes three-quarters cover, but Sharpshooter lets you ignore it!`, "success");
+            }
+        } else if (coverRoll < 0.35) {
+            monster.cover = { type: 'half', acBonus: 2 };
+            if (!hasSharpshooter) {
+                monster.ac = monster.baseAc + 2;
+                this.log(`🪨 The ${monster.name} crouches behind low cover — half cover (+2 AC against your attacks).`, "dm");
+            } else {
+                this.log(`🏹 The ${monster.name} takes half cover, but Sharpshooter lets you ignore it!`, "success");
+            }
+        } else {
+            monster.cover = null;
+        }
+
+        // Flanking: the game's party system already supports companions. When a companion is in combat
+        // alongside the player, both flank the enemy in abstract tactical terms.
+        monster.flanked = Array.isArray(this.dm.party) && this.dm.party.some(c => c.currentHp > 0 && !c.dead);
         
         // Track monster in bestiary
         if (!this.discoveredMonsters.has(monster.name)) {
@@ -11698,7 +12262,7 @@ class Game {
         }
 
         // Action economy enforcement: main actions consume the action
-        const mainActions = ["attack", "defend", "flee", "grapple", "shove"];
+        const mainActions = ["attack", "defend", "flee", "grapple", "shove", "help", "hide", "ready"];
         if (mainActions.includes(action) && !this.dm.actions.action) {
             this.log(`⚠️ You've already used your action this turn!`, "warning");
             this.processingCombatAction = false;
@@ -11728,7 +12292,19 @@ class Game {
             // Check for advantage/disadvantage from various sources
             let hasAdvantage = char.buffs.guidingBolt || false;
             let hasDisadvantage = false;
-            
+
+            // Flanking: +advantage on melee attacks when a living companion is in this fight
+            // (optional rule; active here because the game's party system naturally supports it).
+            const isMelee = !weaponInfo.properties?.includes('ranged');
+            if (isMelee && monster.flanked && !hasAdvantage) {
+                hasAdvantage = true;
+                // Soft log — don't spam every attack, only the first in a fight
+                if (!monster._flankingMessaged) {
+                    this.log(`↔️ Flanking! Your ally lets you strike with advantage.`, "success");
+                    monster._flankingMessaged = true;
+                }
+            }
+
             // Inspiration: auto-spend for advantage when not already advantaged
             if (char.inspiration && !hasAdvantage) {
                 char.inspiration = false;
@@ -11906,13 +12482,18 @@ class Game {
                 }
             }
             
-            // Rogue Sneak Attack (applies once per turn when has advantage or ally adjacent)
+            // Rogue Sneak Attack — PHB: requires advantage on the attack OR an ally adjacent to the
+            // target (and you don't have disadvantage). Once per turn.
             let sneakAttackDamage = 0;
-            if (char.charClass === "Rogue" && char.getSneakAttackDice() > 0) {
-                // Sneak Attack triggers with advantage or in simplified conditions (always in party play)
-                const sneakDice = char.getSneakAttackDice();
-                sneakAttackDamage = this.dm.rollDice(`${sneakDice}d6`);
-                bonusDamageText += ` +${sneakAttackDamage} Sneak Attack (${sneakDice}d6)`;
+            if (char.charClass === "Rogue" && char.getSneakAttackDice() > 0 && !char._sneakAttackUsedThisTurn) {
+                const hasAlly = monster.flanked; // companion in the fight counts as an adjacent ally
+                const qualifies = (hasAdvantage || hasAlly) && !hasDisadvantage;
+                if (qualifies) {
+                    const sneakDice = char.getSneakAttackDice();
+                    sneakAttackDamage = this.dm.rollDice(`${sneakDice}d6`);
+                    bonusDamageText += ` +${sneakAttackDamage} Sneak Attack (${sneakDice}d6)`;
+                    char._sneakAttackUsedThisTurn = true;
+                }
             }
             
             // Subclass combat bonuses
@@ -12247,7 +12828,34 @@ class Game {
             this.dm.useAction('action');
             this.log("🛡️ You take the Dodge action! Attackers have disadvantage against you this round.", "dm");
             this.dm.defendingThisTurn = true;
-            
+
+        } else if (action === "help") {
+            this.dm.useAction('action');
+            // Help action: your next attack this turn against the target has advantage (party-of-one abstraction).
+            // In a party, this would grant advantage to an ally; here we grant it to the player's own
+            // next attack to still preserve the tactical value.
+            this.log("🤝 You take the Help action! Your next attack this round has advantage.", "dm");
+            char.buffs.guidingBolt = true;
+
+        } else if (action === "hide") {
+            this.dm.useAction('action');
+            const check = await this.dm.skillCheckAnimated("dex", 10 + (monster.cr || 1), false, false, "Stealth");
+            if (check.success) {
+                this.log(`🫥 You vanish into cover! (Stealth ${check.total} vs DC ${10 + (monster.cr || 1)}) Your next attack has advantage.`, "success");
+                char.buffs.guidingBolt = true;
+                char.hidden = true;
+            } else {
+                this.log(`👀 The enemy spots you before you can hide. (Stealth ${check.total} vs DC ${10 + (monster.cr || 1)})`, "warning");
+            }
+
+        } else if (action === "ready") {
+            this.dm.useAction('action');
+            // In turn-based digital combat, Ready is abstracted as:
+            //   "Prepare to strike the instant the enemy commits to an attack."
+            // Mechanically: grant advantage on the FIRST attack next round, at the cost of this action.
+            this.log("⏱️ You Ready an action — you'll strike the moment the enemy acts. Your first attack next round has advantage.", "dm");
+            char.readiedAction = true;
+
         } else if (action === "flee") {
             this.dm.useAction('action');
             // Cunning Action: Dash / Step of the Wind gives auto-flee
@@ -12625,9 +13233,11 @@ class Game {
                 }
             } catch (e) {
                 console.error(`Companion ${companion.name} combat error:`, e);
+                // Graceful fallback: skip turn rather than soft-lock the combat loop
+                this.log(`${companion.name} hesitates for a moment, unsure how to act.`, "dm");
             }
         }
-        
+
         this.updateCombatPartyDisplay();
     }
     
@@ -13133,7 +13743,20 @@ class Game {
         
         // Reset actions for next player turn
         this.dm.resetActions();
-        
+        this.character._sneakAttackUsedThisTurn = false;
+
+        // Readied action: grant advantage on first attack this round
+        if (this.character.readiedAction) {
+            this.character.readiedAction = false;
+            this.character.buffs.guidingBolt = true;
+            this.log("⏱️ Your readied action triggers — you strike with advantage!", "success");
+        }
+
+        // Hidden: the advantage persists for one attack; clear the status so it doesn't linger
+        if (this.character.hidden) {
+            this.character.hidden = false;
+        }
+
         // Re-enable bonus action button for new turn
         const bonusBtn = document.getElementById("bonusActionBtn");
         if (bonusBtn) {
@@ -14666,7 +15289,7 @@ class Game {
                 const prepLabel = char.charClass === "Wizard" ? "Spellbook" : "Class Spell List";
                 spellList.innerHTML += `<div style="margin:6px 0 4px;display:flex;justify-content:space-between;align-items:center;">
                     <span style="font-size:0.78rem;color:#aaa;">Prepared: ${char.preparedSpells.length}/${char.maxPreparedSpells()} (from ${prepLabel})</span>
-                    <button onclick="game.showSpellPreparationModal()" style="font-size:0.72rem;padding:3px 8px;border-radius:5px;border:1px solid rgba(212,175,55,0.4);background:rgba(212,175,55,0.1);color:#c9a227;cursor:pointer;">📖 Change Prepared</button>
+                    <button class="modal-btn-primary" style="font-size:0.72rem;padding:3px 8px;" onclick="game.showSpellPreparationModal()">📖 Change Prepared</button>
                 </div>`;
             }
             for (let lvl = 1; lvl <= 9; lvl++) {
@@ -14753,7 +15376,7 @@ class Game {
             let html = `<h2>📖 Prepare Spells</h2>`;
             html += `<p style="margin-bottom:8px;color:var(--text-secondary);">${classLabel}s prepare spells after a long rest from their ${sourceLabel}. Choose up to <strong>${maxPrep}</strong> (Level ${char.level} + ${spellStat.toUpperCase()} mod ${mod >= 0 ? '+' : ''}${mod}).</p>`;
             html += `<p style="margin-bottom:12px;font-size:0.9em;color:var(--accent);">Prepared: ${current.length}/${maxPrep}</p>`;
-            html += `<div style="display:flex;flex-direction:column;gap:6px;max-height:55vh;overflow-y:auto;">`;
+            html += `<div style="display:flex;flex-direction:column;gap:6px;">`;
 
             // Group by level
             const byLevel = {};
@@ -14790,7 +15413,7 @@ class Game {
 
             html += `</div>`;
             html += `<div style="margin-top:14px;display:flex;gap:10px;justify-content:center;">
-                <button onclick="game.confirmSpellPreparation()" style="padding:8px 20px;cursor:pointer;border-radius:6px;border:1px solid var(--accent);background:rgba(212,175,55,0.15);color:var(--accent);font-size:0.95em;">✅ Confirm (${char.preparedSpells.length}/${maxPrep})</button>
+                <button class="modal-btn-primary" onclick="game.confirmSpellPreparation()">✅ Confirm (${char.preparedSpells.length}/${maxPrep})</button>
             </div>`;
             return html;
         };
@@ -15831,24 +16454,14 @@ class Game {
         mapContent.innerHTML = mapHtml;
         
         // Update collapsed preview with the last visible item (objective or current location)
+        // Preview line under the Map header shows current location (objective already lives in the
+        // chapter banner above and the persistent objective bar, so no need to repeat it here).
         const preview = document.getElementById("miniMapPreview");
         if (preview) {
-            const chapter = this.dm.campaign.chapters[currentChapter];
-            if (chapter && chapter.objective) {
-                let previewObjective = chapter.objective;
-                if (this.dm.campaignId === "nights_dark_terror" && currentChapter === 0) {
-                    const flags = this.dm.questFlags;
-                    if (!flags.metStephan) {
-                        previewObjective = "Meet Stephan at Misha's Ferry";
-                    } else if (!flags.clearedWildernessRoad) {
-                        previewObjective = "Escort Stephan down the Wilderness Road";
-                    } else {
-                        previewObjective = "Travel to Sukiskyn homestead";
-                    }
-                }
-                preview.innerHTML = `🎯 ${previewObjective}`;
-            } else if (currentLoc) {
-                preview.innerHTML = `📍 ${currentLoc.icon} ${currentLoc.name}`;
+            if (currentLoc) {
+                preview.innerHTML = `📍 ${currentLoc.icon || ''} ${currentLoc.name}`;
+            } else {
+                preview.innerHTML = '';
             }
         }
     }
@@ -16306,7 +16919,7 @@ class Game {
 
         let html = `<h2>⬆️ Level ${char.level} — Class Choice</h2>`;
         html += `<p style="margin-bottom:12px;">Continue as <strong>${char.charClass}</strong> or multiclass into a new class?</p>`;
-        html += `<div style="display:flex;flex-direction:column;gap:10px;max-height:65vh;overflow-y:auto;">`;
+        html += `<div style="display:flex;flex-direction:column;gap:10px;">`;
 
         // Primary class option
         const primaryLvl = (char.multiclassLevels?.[char.charClass] || (char.level - 1)) + 1;
@@ -16333,7 +16946,7 @@ class Game {
         }
 
         html += `</div>`;
-        this.showModal(html);
+        this.showModal(html, { size: 'medium' });
     }
 
     confirmMulticlassChoice(chosenClass) {
@@ -16484,9 +17097,9 @@ class Game {
             <div style="font-weight:bold;font-size:1.1em;color:var(--accent);">📊 Take the Average: +${avgTotal} HP</div>
             <div style="margin:6px 0;color:var(--text-secondary);font-style:italic;">Average of d${hitDie} = ${averageHp} ${sign}${conMod} CON = ${avgTotal} HP (safe &amp; steady)</div>
         </div>`;
-        
+
         html += `</div>`;
-        this.showModal(html);
+        this.showModal(html, { size: 'small' });
     }
 
     applyHpChoice(choice) {
@@ -16903,7 +17516,7 @@ class Game {
             </div>`;
         }
         html += `</div>`;
-        this.showModal(html);
+        this.showModal(html, { size: 'medium' });
     }
 
     selectSubclass(subclassKey) {
@@ -16966,11 +17579,11 @@ class Game {
                 <div style="margin:6px 0;color:var(--text-secondary);font-style:italic;">Gain a special ability instead of stat increases (${availableFeats.length} available)</div>
             </div>`;
         }
-        
+
         html += `</div>`;
-        this.showModal(html);
+        this.showModal(html, { size: 'small' });
     }
-    
+
     chooseAsi() {
         const char = this.character;
         const modals = document.querySelectorAll('.modal-overlay');
@@ -16999,12 +17612,12 @@ class Game {
         });
 
         html += `</div>`;
-        html += `<div style="margin-top:14px;text-align:center;">
-            <button id="asiConfirmBtn" onclick="game.confirmAsi()" style="padding:8px 20px;cursor:pointer;border-radius:6px;border:1px solid var(--accent);background:rgba(212,175,55,0.15);color:var(--accent);opacity:0.5;" disabled>✅ Confirm</button>
+        html += `<div class="modal-footer" style="justify-content:center;">
+            <button id="asiConfirmBtn" class="modal-btn-primary" onclick="game.confirmAsi()" disabled>✅ Confirm</button>
         </div>`;
 
         this._asiPending = { points: 2, choices: {} };
-        this.showModal(html);
+        this.showModal(html, { size: 'medium' });
     }
 
     asiAddPoint(stat) {
@@ -17064,7 +17677,7 @@ class Game {
         
         let html = `<h2>🏆 Choose a Feat</h2>`;
         html += `<p style="margin-bottom:15px;">Select a feat to learn:</p>`;
-        html += `<div style="display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow-y:auto;">`;
+        html += `<div style="display:flex;flex-direction:column;gap:10px;">`;
         
         for (const [name, feat] of availableFeats) {
             html += `<div style="border:1px solid var(--border);border-radius:8px;padding:10px;cursor:pointer;transition:all 0.2s;" 
@@ -17077,31 +17690,127 @@ class Game {
         }
         
         html += `</div>`;
-        html += `<div style="margin-top:12px;text-align:center;"><button onclick="game.showAsiOrFeatChoice()" style="padding:8px 16px;cursor:pointer;border-radius:4px;border:1px solid var(--border);background:rgba(0,0,0,0.3);color:var(--text);">← Back</button></div>`;
-        
+        html += `<div class="modal-footer" style="justify-content:center;"><button class="modal-btn-secondary" onclick="game.showAsiOrFeatChoice()">← Back</button></div>`;
+
         const modals = document.querySelectorAll('.modal-overlay');
         modals.forEach(m => m.remove());
-        this.showModal(html);
+        this.showModal(html, { size: 'large' });
     }
-    
+
     selectFeat(featName) {
         const char = this.character;
         const feat = FEATS_DATA[featName];
         if (!feat || char.feats.includes(featName)) return;
-        
+
         const modals = document.querySelectorAll('.modal-overlay');
         modals.forEach(m => m.remove());
-        
+
         feat.onApply(char);
-        
+
         this.log(`🏆 <strong>Feat Gained: ${featName}!</strong>`, "success");
         this.log(`📜 ${feat.description}`, "dm");
-        
+
         if (featName === "Tough") {
             this.log(`❤️ Max HP increased by ${char.level * 2}!`, "success");
         }
-        
+
         this.recalculateAfterAsi();
+    }
+
+    // Variant Human +1/+1 ability score picker
+    showVariantHumanStatPicker() {
+        const statNames = { str: 'Strength', dex: 'Dexterity', con: 'Constitution', int: 'Intelligence', wis: 'Wisdom', cha: 'Charisma' };
+        this._vhPicks = {};
+        const amount = this.character._pendingChoice2 || 1;
+
+        let html = `<h2>📊 Variant Human — Ability Score Bonus</h2>`;
+        html += `<p style="margin-bottom:12px;">Choose <strong>two different</strong> ability scores to raise by +${amount}. Click to toggle.</p>`;
+        html += `<div id="vhPicksLeft" style="text-align:center;font-size:1.05em;color:var(--accent);margin-bottom:12px;">Picks remaining: <strong>2</strong></div>`;
+        html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">`;
+
+        for (const [stat, label] of Object.entries(statNames)) {
+            const current = this.character.stats[stat];
+            html += `<div id="vh-${stat}" onclick="game._vhToggle('${stat}')" style="
+                padding:10px 14px;border-radius:8px;cursor:pointer;
+                border:1px solid rgba(255,255,255,0.15);
+                background:rgba(0,0,0,0.2);
+                display:flex;justify-content:space-between;align-items:center;transition:all 0.15s;">
+                <span>${label}</span>
+                <span id="vh-val-${stat}" style="font-weight:bold;color:var(--accent);">${current}</span>
+            </div>`;
+        }
+        html += `</div>`;
+        html += `<div class="modal-footer" style="justify-content:center;">
+            <button id="vhConfirmBtn" class="modal-btn-primary" onclick="game._confirmVariantHumanStats()" disabled>✅ Confirm</button>
+        </div>`;
+
+        this.showModal(html, { size: 'medium' });
+    }
+
+    _vhToggle(stat) {
+        if (!this._vhPicks) this._vhPicks = {};
+        const picked = this._vhPicks[stat];
+        const picksCount = Object.keys(this._vhPicks).filter(k => this._vhPicks[k]).length;
+
+        if (picked) {
+            delete this._vhPicks[stat];
+        } else {
+            if (picksCount >= 2) return;
+            this._vhPicks[stat] = true;
+        }
+
+        const newCount = Object.keys(this._vhPicks).filter(k => this._vhPicks[k]).length;
+        const leftEl = document.getElementById('vhPicksLeft');
+        if (leftEl) leftEl.innerHTML = `Picks remaining: <strong>${2 - newCount}</strong>`;
+
+        // Update per-row highlighting
+        const stats = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+        stats.forEach(s => {
+            const el = document.getElementById(`vh-${s}`);
+            if (!el) return;
+            if (this._vhPicks[s]) {
+                el.style.borderColor = 'var(--accent)';
+                el.style.background = 'rgba(212,175,55,0.15)';
+            } else {
+                el.style.borderColor = 'rgba(255,255,255,0.15)';
+                el.style.background = 'rgba(0,0,0,0.2)';
+            }
+        });
+
+        const btn = document.getElementById('vhConfirmBtn');
+        if (btn) {
+            const ready = newCount === 2;
+            btn.disabled = !ready;
+            btn.style.opacity = ready ? '1' : '0.5';
+            btn.style.cursor = ready ? 'pointer' : 'not-allowed';
+        }
+    }
+
+    _confirmVariantHumanStats() {
+        const char = this.character;
+        const amount = char._pendingChoice2 || 1;
+        const picks = Object.keys(this._vhPicks || {}).filter(k => this._vhPicks[k]);
+        if (picks.length !== 2) return;
+
+        const modals = document.querySelectorAll('.modal-overlay');
+        modals.forEach(m => m.remove());
+
+        const statNames = { str: 'Strength', dex: 'Dexterity', con: 'Constitution', int: 'Intelligence', wis: 'Wisdom', cha: 'Charisma' };
+        picks.forEach(s => {
+            char.stats[s] += amount;
+            this.log(`📊 ${statNames[s]} increased to ${char.stats[s]}`, "success");
+        });
+
+        char._choice2Resolved = true;
+        char._pendingChoice2 = null;
+        this._vhPicks = null;
+
+        // Now trigger the starting feat picker
+        if (GAME_DATA.races[char.race]?.grantsStartingFeat && !char._startingFeatGranted) {
+            char._startingFeatGranted = true;
+            this.log(`🏆 Variant Human grants a bonus feat at 1st level. Choose your feat!`, "success");
+            setTimeout(() => this.showFeatSelection(), 400);
+        }
     }
     
     recalculateAfterAsi() {
@@ -17595,9 +18304,9 @@ class Game {
             shopModal.id = "shopModal";
             shopModal.className = "modal";
             shopModal.innerHTML = `
-                <div class="modal-content shop-modal-content">
+                <div class="modal-content modal-large modal-dense shop-modal-content">
                     <h2 id="shopTitle">🏺 Shop</h2>
-                    <p id="shopGold" style="color: gold; margin-bottom: 15px;"></p>
+                    <p id="shopGold" style="color: gold; margin-bottom: 12px;"></p>
                     <div id="shopExtras" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 8px;"></div>
                     <div id="shopModeTabs" class="shop-mode-tabs">
                         <button class="shop-mode-tab active" data-mode="buy" onclick="game.switchShopMode('buy')">🪙 Buy</button>
@@ -17605,7 +18314,7 @@ class Game {
                     </div>
                     <div id="shopTabs" class="shop-tabs"></div>
                     <div id="shopItems" class="shop-items"></div>
-                    <button class="close-btn" onclick="game.closeShop()">Close Shop</button>
+                    <button class="modal-btn-secondary shop-close-btn" onclick="game.closeShop()">Close Shop</button>
                 </div>
             `;
             document.body.appendChild(shopModal);
@@ -18217,24 +18926,28 @@ class Game {
         const mainQuests = this.character.journal.quests;
         const sideActive = this.sideQuests.filter(q => !q.completed);
         const sideCompleted = this.sideQuests.filter(q => q.completed);
-        
+
         if (mainQuests.length === 0 && sideActive.length === 0 && sideCompleted.length === 0) {
             return '<p style="color: #888;">No quests recorded yet.</p>';
         }
-        
+
+        // Highlight anything completed since the player last opened the journal.
+        const lastSeen = this._journalLastSeen || 0;
+        const isRecent = (q) => q.completed && q.completedAt && q.completedAt > lastSeen;
+
         let html = '';
-        
+
         // Main Campaign Quests
         if (mainQuests.length > 0) {
             html += '<h3 style="color:#c9a227;margin-top:0;">📜 Main Quests</h3>';
             html += mainQuests.map(q => `
-                <div class="journal-entry">
+                <div class="journal-entry${isRecent(q) ? ' recently-completed' : ''}">
                     <div class="journal-title">${q.completed ? '✅' : '📋'} ${q.name || q.id}</div>
                     <div class="journal-text">${q.description || ''}</div>
                 </div>
             `).join('');
         }
-        
+
         // Active Side Quests
         if (sideActive.length > 0) {
             html += '<h3 style="color:#c9a227;margin-top:15px;">⭐ Side Quests</h3>';
@@ -18246,18 +18959,21 @@ class Game {
                 </div>
             `).join('');
         }
-        
+
         // Completed Side Quests
         if (sideCompleted.length > 0) {
             html += '<h3 style="color:#4CAF50;margin-top:15px;">✅ Completed Side Quests</h3>';
             html += sideCompleted.map(q => `
-                <div class="journal-entry">
+                <div class="journal-entry${isRecent(q) ? ' recently-completed' : ''}">
                     <div class="journal-title">✅ ${q.title}</div>
                     <div class="journal-text" style="color:#888;">${q.description}</div>
                 </div>
             `).join('');
         }
-        
+
+        // Stamp "seen" after render so the NEW badges disappear next time the tab opens.
+        this._journalLastSeen = Date.now();
+
         return html;
     }
     
@@ -18707,6 +19423,10 @@ class Game {
         const baseMapHeight = 672;
         const scaledMapWidth = Math.round(baseMapWidth * zoom);
         const scaledMapHeight = Math.round(baseMapHeight * zoom);
+        const fitToContainer = zoom <= 1.0;
+        const canvasSizing = fitToContainer
+            ? `width:100%;aspect-ratio:1000/560;max-width:100%;`
+            : `width:${scaledMapWidth}px;height:${scaledMapHeight}px;min-width:${scaledMapWidth}px;min-height:${scaledMapHeight}px;`;
 
         const placementMode = this.mapPlacementMode ? 'ON' : 'OFF';
         const placementMarker = this.mapPlacementMarker;
@@ -18785,7 +19505,7 @@ class Game {
                 </div>
 
                 <div id="journalMapViewport" style="border:1px solid ${theme.border};box-shadow:0 0 18px ${theme.glow} inset;border-radius:12px;padding:8px;overflow:auto;max-height:min(70vh, 620px);width:100%;background:rgba(8,8,10,0.72);">
-                    <div id="journalMapCanvas" style="position:relative;width:${scaledMapWidth}px;height:${scaledMapHeight}px;min-width:${scaledMapWidth}px;min-height:${scaledMapHeight}px;background:${mapBgImage};background-size:100% 100%;background-repeat:no-repeat;background-position:center;">
+                    <div id="journalMapCanvas" style="position:relative;${canvasSizing}margin:0 auto;background:${mapBgImage};background-size:cover;background-repeat:no-repeat;background-position:center;border-radius:8px;">
                     <svg id="journalMapSvg" viewBox="0 0 1000 560" onclick="game.handleMapCoordinateClick(event)" style="position:absolute;left:0;top:0;width:100%;height:100%;display:block;">
                         <defs>
                             <pattern id="gridMap" width="30" height="30" patternUnits="userSpaceOnUse">
@@ -18822,15 +19542,7 @@ class Game {
     }
 
     fitJournalMapToView() {
-        const viewport = document.getElementById("journalMapViewport");
-        const padding = 16;
-        const baseMapWidth = 1200;
-        if (viewport) {
-            const fittedZoom = (viewport.clientWidth - padding) / baseMapWidth;
-            this.journalMapZoom = Math.max(0.6, Math.min(2.5, +fittedZoom.toFixed(2)));
-        } else {
-            this.journalMapZoom = 1;
-        }
+        this.journalMapZoom = 1;
         const content = document.getElementById("journalContent");
         if (content) {
             content.innerHTML = this.renderJournalMap();
@@ -19321,7 +20033,7 @@ class Game {
         }
         
         modal.innerHTML = `
-            <div class="modal-content crafting-modal-content">
+            <div class="modal-content modal-large modal-dense crafting-modal-content">
                 <h2>🔨 Crafting</h2>
 
                 <div class="crafting-content">
@@ -19339,8 +20051,8 @@ class Game {
                         </div>
                     </div>
                 </div>
-                
-                <button class="close-modal" onclick="game.closeCrafting()">Close</button>
+
+                <button class="modal-btn-secondary shop-close-btn" onclick="game.closeCrafting()">Close</button>
             </div>
         `;
         
@@ -21465,7 +22177,7 @@ class Game {
                 }
                 } catch(encounterErr) {
                     console.error('Travel encounter error:', encounterErr);
-                    this.log(`⚠️ You sense danger but it passes... (${encounterErr.message})`, "warning");
+                    this.log(`⚠️ You sense danger, but the moment passes. You continue on.`, "warning");
                 }
             }
             
@@ -21520,7 +22232,16 @@ class Game {
         this.updateUI();
         } catch(err) {
             console.error('Travel error:', err);
-            this.log(`⚠️ Travel encountered an issue but you continue on. (${err.message})`, "warning");
+            this.log(`⚠️ The path was rough — you arrive shaken but safe.`, "warning");
+            // Best-effort state recovery so a bad roll can't strand the player
+            try {
+                const fallback = this.dm?.campaign?.locations?.[locationIndex];
+                if (fallback && this.dm.currentLocation?.name !== fallback.name) {
+                    this.dm.currentLocation = fallback;
+                    if (this.dm.visitedLocations?.add) this.dm.visitedLocations.add(fallback.name);
+                }
+            } catch(_) {}
+            try { this.updateUI(); } catch(_) {}
         } finally {
             this.isTraveling = false;
         }
@@ -21602,6 +22323,22 @@ class Game {
         
         // Travel takes time (2-4 hours base). Exhaustion Level 2+: speed halved = double travel time.
         let travelHours = 2 + Math.floor(Math.random() * 3);
+
+        // Difficult terrain: doubles movement cost (PHB). Mobile feat ignores it when dashing;
+        // here we reduce the penalty by 1 hour for Mobile.
+        const terrainName = (newLocation.terrain || newLocation.type || newLocation.name || "").toLowerCase();
+        const isDifficult = /swamp|marsh|bog|jungle|forest|dense|ruin|cave|underdark|mountain|snow|deep|thicket|briar|mire|crag/.test(terrainName);
+        if (isDifficult) {
+            const mobileReduction = (this.character.feats && this.character.feats.includes("Mobile")) ? 1 : 0;
+            const penalty = Math.max(0, 1 - mobileReduction);
+            if (penalty > 0) {
+                travelHours += penalty;
+                this.log(`🌿 Difficult terrain slows your pace (+${penalty} hour${penalty > 1 ? 's' : ''}).`, "warning");
+            } else {
+                this.log(`🏃 Difficult terrain, but Mobile lets you move freely.`, "success");
+            }
+        }
+
         if (this.character.exhaustion >= 2) {
             travelHours *= 2;
             this.log(`⚠️ Exhaustion slows your pace — travel takes ${travelHours} hours instead of ${travelHours / 2}.`, "danger");
@@ -21620,6 +22357,29 @@ class Game {
             this.log(`👢 Boots of Speed quicken your journey!`, "success");
         }
         this.dm.advanceTime(travelHours);
+
+        // Light level on arrival — sets a DM state flag the rest of the game can reference.
+        // PHB: bright (normal), dim (disadvantage on Perception checks relying on sight),
+        // dark (heavily obscured; disadvantage; darkvision turns it into dim light).
+        const indoor = /cave|crypt|tomb|dungeon|ruin|cellar|mine|sewer|deep|undercroft|vault/.test(terrainName);
+        let lightLevel = "bright";
+        if (indoor) {
+            lightLevel = "dark";
+        } else if (this.dm.timeOfDay === "night") {
+            lightLevel = "dark";
+        } else if (this.dm.timeOfDay === "dusk" || this.dm.timeOfDay === "dawn") {
+            lightLevel = "dim";
+        }
+        this.dm.lightLevel = lightLevel;
+        if (lightLevel === "dark") {
+            if (this.character.hasDarkvision && this.character.hasDarkvision()) {
+                this.log(`🌒 Darkness — your darkvision lets you see in dim tones (still disadvantage on sight-based Perception).`, "dm");
+            } else {
+                this.log(`🌑 Darkness — you are effectively blinded until you find a light source.`, "warning");
+            }
+        } else if (lightLevel === "dim") {
+            this.log(`🌘 Dim light — disadvantage on Perception checks that rely on sight.`, "dm");
+        }
         
         // Forced march exhaustion: after 16 hours without a long rest, each hour of travel requires a CON save
         // DC 10 + 1 for each hour past 16. Failure = +1 exhaustion level.
@@ -21676,7 +22436,8 @@ class Game {
         this.updateUI();
         } catch(err) {
             console.error('Travel error:', err);
-            // Still update location even on error
+            this.log(`⚠️ The path was rough — you arrive shaken but safe.`, "warning");
+            // Still update location even on error so the player is never stranded
             try {
                 const newLocation = this.dm.campaign.locations[locationIndex];
                 if (newLocation && this.dm.currentLocation?.name !== newLocation.name) {
@@ -21684,10 +22445,12 @@ class Game {
                     this.dm.visitedLocations.add(newLocation.name);
                 }
             } catch(e) {}
-            this.updateUI();
+            try { this.updateUI(); } catch(_) {}
+        } finally {
+            this.isTraveling = false;
         }
     }
-    
+
     checkStoryTriggers(location) {
         const flags = this.dm.questFlags;
         const campaignId = this.dm.campaignId;
@@ -24561,7 +25324,7 @@ class Game {
 
             animateEl(nameEl, chapter.name);
             animateEl(objEl, objectiveText);
-            
+
             // Show hint about where to go next
             const hint = this.getChapterHint();
             const hintEl = document.getElementById("chapterHint");
@@ -24571,6 +25334,220 @@ class Game {
             } else if (hintEl) {
                 hintEl.style.display = "none";
             }
+
+            // --- Persistent objective bar + chapter-change toast ---
+            const prevChapterKey = `${this.dm.campaignId}:${this.dm.currentChapter}`;
+            const prevObjectiveText = this._lastObjectiveText || "";
+            const chapterChanged = this._lastChapterKey && this._lastChapterKey !== prevChapterKey;
+            const objectiveChanged = prevObjectiveText && prevObjectiveText !== objectiveText;
+
+            // --- Quest-flag integrity: when the chapter advances, verify the flags the previous
+            // chapter SHOULD have set are actually set. Catches silent desyncs where a trigger
+            // fired but a flag wasn't stored (or vice versa).
+            if (chapterChanged) {
+                this._auditChapterFlags();
+            }
+
+            this.updateObjectiveBar(objectiveText, hint, chapterChanged || objectiveChanged);
+
+            // Reveal the floating Stuck? button as soon as a chapter is active
+            const stuckBtn = document.getElementById("stuckFloatingBtn");
+            if (stuckBtn) stuckBtn.classList.remove("hidden");
+
+            if (chapterChanged) {
+                this.showToast({
+                    variant: 'chapter',
+                    header: 'New Chapter',
+                    title: chapter.name || `Chapter ${this.dm.currentChapter + 1}`,
+                    subtitle: objectiveText || ''
+                });
+            } else if (objectiveChanged) {
+                this.showToast({
+                    variant: 'objective',
+                    header: 'Objective Updated',
+                    title: objectiveText,
+                    subtitle: hint ? hint.replace(/^💡\s*/, '') : ''
+                });
+            }
+
+            this._lastChapterKey = prevChapterKey;
+            this._lastObjectiveText = objectiveText;
+        }
+    }
+
+    // --- Persistent objective bar ---
+    updateObjectiveBar(objectiveText, hint, pulse = false) {
+        const bar = document.getElementById("objectiveBar");
+        const textEl = document.getElementById("objectiveBarText");
+        const hintEl = document.getElementById("objectiveBarHint");
+        if (!bar || !textEl) return;
+
+        if (!objectiveText) {
+            bar.classList.add("hidden");
+            return;
+        }
+
+        bar.classList.remove("hidden");
+        textEl.textContent = objectiveText;
+
+        if (hintEl) {
+            const cleanHint = hint ? hint.replace(/^💡\s*/, "") : "";
+            if (cleanHint) {
+                hintEl.textContent = cleanHint;
+                hintEl.style.display = "block";
+            } else {
+                hintEl.style.display = "none";
+            }
+        }
+
+        if (pulse) {
+            bar.classList.remove("pulse");
+            // Force reflow so the animation restarts
+            void bar.offsetWidth;
+            bar.classList.add("pulse");
+        }
+    }
+
+    toggleObjectiveBar() {
+        const bar = document.getElementById("objectiveBar");
+        const toggle = document.getElementById("objectiveBarToggle");
+        if (!bar) return;
+        const collapsed = bar.classList.toggle("collapsed");
+        if (toggle) toggle.textContent = collapsed ? "Show" : "Hide";
+    }
+
+    // --- "Stuck?" diagnostic: shows a modal explaining how to progress the current chapter. ---
+    showStuckHelp() {
+        if (!this.dm || !this.dm.campaign) {
+            this.showModal(`<h2>🆘 Progression Help</h2><p>No campaign loaded yet. Pick one from the title screen.</p><button class="close-modal" onclick="this.parentElement.parentElement.remove()">Close</button>`, { size: 'small' });
+            return;
+        }
+
+        const campaignId = this.dm.campaignId;
+        const chapter = this.dm.currentChapter;
+        const chapterData = this.dm.campaign.chapters?.[chapter];
+        const currentLocation = this.dm.currentLocation?.name || "Unknown";
+        const hint = this.getChapterHint();
+
+        // Compute which flags the NEXT chapter expects, and which ones we're missing.
+        const flagMap = this._debugChapterFlagMap()[campaignId];
+        const nextChapterFlags = flagMap?.[chapter + 1] || [];
+        const missingFlags = nextChapterFlags.filter(f => !this.dm.questFlags[f]);
+
+        // Find unlocked locations the player hasn't visited yet — good candidates for the next step.
+        let suggestedDestinations = [];
+        try {
+            const unlocked = this.getAvailableLocations() || [];
+            const visited = this.dm.visitedLocations instanceof Set
+                ? this.dm.visitedLocations
+                : new Set(this.dm.visitedLocations || []);
+            suggestedDestinations = unlocked
+                .filter(loc => loc.name !== currentLocation && !visited.has(loc.name))
+                .slice(0, 4)
+                .map(loc => loc.name);
+        } catch (_) { /* best-effort */ }
+
+        let html = `<h2>🆘 Where Do I Go Next?</h2>`;
+        html += `<div style="background:rgba(201,162,39,0.08);border-left:3px solid #c9a227;padding:12px 14px;margin-bottom:14px;border-radius:6px;">`;
+        html += `<div style="font-size:0.78rem;color:#c9a227;font-family:'Cinzel',serif;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px;">Current Chapter</div>`;
+        html += `<div style="font-weight:bold;color:#fff4cf;margin-bottom:4px;">${chapterData?.name || `Chapter ${chapter}`}</div>`;
+        if (chapterData?.objective) {
+            html += `<div style="color:#ddd;">🎯 <em>${chapterData.objective}</em></div>`;
+        }
+        html += `</div>`;
+
+        if (hint) {
+            html += `<div style="background:rgba(134,214,143,0.08);border-left:3px solid #86d68f;padding:12px 14px;margin-bottom:14px;border-radius:6px;">`;
+            html += `<div style="font-size:0.78rem;color:#86d68f;font-family:'Cinzel',serif;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px;">Suggested Next Step</div>`;
+            html += `<div style="color:#fff4cf;">${hint}</div>`;
+            html += `</div>`;
+        }
+
+        if (suggestedDestinations.length > 0) {
+            html += `<div style="background:rgba(110,197,255,0.08);border-left:3px solid #6ec5ff;padding:12px 14px;margin-bottom:14px;border-radius:6px;">`;
+            html += `<div style="font-size:0.78rem;color:#6ec5ff;font-family:'Cinzel',serif;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px;">Unvisited Unlocked Locations</div>`;
+            html += `<div style="color:#fff4cf;">Try traveling to one of these:</div>`;
+            html += `<ul style="margin:6px 0 0 20px;color:#ddd;">`;
+            for (const dest of suggestedDestinations) {
+                html += `<li>${dest}</li>`;
+            }
+            html += `</ul>`;
+            html += `</div>`;
+        }
+
+        html += `<div style="background:rgba(255,255,255,0.04);padding:12px 14px;margin-bottom:14px;border-radius:6px;font-size:0.88rem;color:#bbb;">`;
+        html += `<div><strong>Current location:</strong> ${currentLocation}</div>`;
+        if (missingFlags.length > 0) {
+            html += `<div style="margin-top:6px;"><strong>Story beats not yet triggered:</strong> ${missingFlags.map(f => this._humanizeFlag(f)).join(", ")}</div>`;
+        }
+        html += `</div>`;
+
+        html += `<div style="font-size:0.82rem;color:#888;font-style:italic;margin-bottom:10px;">`;
+        html += `Tip: Most progression happens by clicking <strong>TRAVEL</strong> (to new locations) or <strong>TALK</strong> (to NPCs at your current location). Check your Journal → Quests tab for active objectives.`;
+        html += `</div>`;
+
+        html += `<button class="close-modal" onclick="this.parentElement.parentElement.remove()">Got it</button>`;
+        this.showModal(html, { size: 'medium' });
+    }
+
+    // Converts a flag name like "clearedWildernessRoad" into "Cleared wilderness road"
+    _humanizeFlag(flag) {
+        return String(flag)
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, c => c.toUpperCase())
+            .trim();
+    }
+
+    // --- Toast system ---
+    showToast({ variant = 'objective', header = '', title = '', subtitle = '', duration = 4500 } = {}) {
+        try {
+            let container = document.getElementById("toastContainer");
+            if (!container) {
+                container = document.createElement("div");
+                container.id = "toastContainer";
+                container.className = "toast-container";
+                container.setAttribute("aria-live", "polite");
+                container.setAttribute("aria-atomic", "false");
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement("div");
+            toast.className = `toast variant-${variant}`;
+            toast.setAttribute("role", "status");
+
+            const icon = variant === 'quest' ? '🎉'
+                : variant === 'chapter' ? '📜'
+                : variant === 'objective' ? '🎯'
+                : '✨';
+
+            const safe = (s) => String(s ?? "")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+
+            toast.innerHTML = `
+                <div class="toast-header"><span aria-hidden="true">${icon}</span> ${safe(header)}</div>
+                <div class="toast-title">${safe(title)}</div>
+                ${subtitle ? `<div class="toast-subtitle">${safe(subtitle)}</div>` : ""}
+            `;
+
+            container.appendChild(toast);
+
+            const remove = () => {
+                if (!toast.parentNode) return;
+                toast.classList.add("toast-out");
+                setTimeout(() => {
+                    if (toast.parentNode) toast.parentNode.removeChild(toast);
+                }, 420);
+            };
+
+            const timer = setTimeout(remove, duration);
+            toast.addEventListener("click", () => {
+                clearTimeout(timer);
+                remove();
+            });
+        } catch (err) {
+            // Toast is purely cosmetic — never let it break the game
+            console.warn("showToast failed:", err);
         }
     }
     
@@ -24940,11 +25917,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         /* Shop Modal Styles */
         .shop-modal-content {
-            max-width: 500px;
             max-height: 75vh;
             overflow: hidden;
             display: flex;
             flex-direction: column;
+        }
+        .shop-close-btn {
+            flex-shrink: 0;
+            margin: 14px auto 4px auto;
+            padding: 10px 24px;
+            min-height: 40px;
+            font-size: 0.95rem;
+            line-height: 1.4;
         }
         .shop-modal-content h2 {
             font-family: 'Cinzel', serif;

@@ -11,13 +11,20 @@ D&D 5th Edition web-based game.
 
 1. Open index.html in your web browser to start the game
 2. Create a new character by selecting:
-   - Race (Human, Elf, Dwarf, Halfling, Half-Orc, Tiefling, Dragonborn,
-          Gnome, Half-Elf, Aasimar, Goliath, Tabaxi, Kenku, Firbolg)
-   - Class (Fighter, Wizard, Rogue, Cleric, Ranger, Barbarian)
+   - Race (Human, Variant Human, Elf, Dwarf, Halfling, Half-Orc, Tiefling,
+          Dragonborn, Gnome, Half-Elf, Aasimar, Goliath, Tabaxi, Kenku,
+          Firbolg)
+   - Class (Fighter, Wizard, Rogue, Cleric, Ranger, Barbarian, Paladin,
+          Monk, Warlock, Bard, Sorcerer, Druid, Artificer)
    - Background (Soldier, Scholar, Criminal, Noble, Outlander, Acolyte)
 3. Choose a campaign to play
-4. Your stats are rolled automatically using the 4d6-drop-lowest method
-5. Your character's personality (trait, ideal, bond, flaw) is generated
+4. Pick your ability-score generation method:
+   - 🎲 Roll 4d6 Drop Lowest (classic, high variance)
+   - 📋 Standard Array (15, 14, 13, 12, 10, 8 auto-assigned by class priority)
+   - 🎯 Point Buy (27 points, each stat 8-15, full manual control)
+5. Variant Human: pick two different ability scores to raise by +1, then
+   pick a starting feat from the PHB/Tasha's list
+6. Your character's personality (trait, ideal, bond, flaw) is generated
 
 ================================================================================
                            CAMPAIGNS
@@ -594,7 +601,93 @@ Campaign content inspired by official D&D adventures:
                       COMPLETE VERSION HISTORY
 ================================================================================
 
-VERSION 5.0 - HARDCORE 5e (Latest)
+VERSION 5.1 - PREMIUM POLISH & HARDCORE RULES (Latest)
+--------------------------------------------------------------------------------
+  🧬 NEW RACE - VARIANT HUMAN:
+     - Pick any two different ability scores to raise by +1 (interactive
+       picker, not auto-assigned)
+     - Grants a bonus feat at 1st level (from the full feat list)
+     - Bonus skill and language, as per PHB
+
+  🎲 THREE ABILITY-SCORE GENERATION METHODS:
+     - 4d6 Drop Lowest: the classic high-variance roll (unchanged)
+     - Standard Array: 15, 14, 13, 12, 10, 8 auto-assigned by class priority
+       (primary stat first, CON second, then the rest)
+     - Point Buy: 27-point editor with +/- controls per stat, live cost
+       display, confirm disabled until the total is legal
+
+  🏆 EXPANDED FEAT LIST (14 → 35+):
+     - New: Athlete, Durable, Keen Mind, Observant, Linguist, Skilled,
+       Resilient (DEX/WIS/CHA), Piercer, Slasher, Crusher, Fey Touched,
+       Shadow Touched, Telekinetic, Telepathic, Eldritch Adept, Skill
+       Expert, Inspiring Leader, Healer, Dungeon Delver
+     - All with proper PHB / Tasha's descriptions and onApply effects
+
+  ⚔️ THREE NEW COMBAT ACTIONS:
+     - Help: spend your action, next attack this round has advantage
+     - Hide: Stealth check vs 10 + CR; success grants advantage on next
+       attack and marks you as hidden for the round
+     - Ready: spend your action; your first attack next round has advantage
+     - All three consume the action economy slot and show proper UI buttons
+       (⚠️ if you try to use two actions on one turn, the game blocks you)
+
+  🛡️ COMBAT RULE ENFORCEMENT:
+     - Cover: encounters roll environmental cover (25% half +2 AC, 10%
+       three-quarters +5 AC, otherwise none). Sharpshooter feat ignores
+       cover per PHB RAW.
+     - Flanking: if a living companion is in the fight, your melee attacks
+       gain advantage. Logged once per encounter.
+     - Sneak Attack tightened: once per turn (reset each round), requires
+       advantage on the roll OR an adjacent ally (flanking), and is
+       denied on disadvantage.
+     - Extra Attack scaling: Fighter gets 2 attacks at L5, 3 at L11, 4 at L20.
+
+  🌿 DIFFICULT TERRAIN:
+     - Travel to locations with "forest", "swamp", "cave", "mountain",
+       "snow", "ruin", etc. adds +1 hour to travel time.
+     - Mobile feat negates the penalty.
+
+  🌒 LIGHT LEVELS:
+     - dm.lightLevel is tracked on every arrival: bright (default), dim
+       (dusk/dawn), or dark (night, caves, crypts, dungeons).
+     - Sight-based Perception checks (both active and passive) automatically
+       apply disadvantage in dim/dark light.
+     - Passive Perception drops by -5 in dim/dark light per PHB.
+     - Darkvision upgrades darkness to dim light (still disadvantage, RAW).
+
+  🎯 QUEST CLARITY UPGRADES:
+     - Toast notifications slide in from the top-right on quest completion,
+       side-quest completion, chapter transitions, and objective updates.
+     - Persistent "Current Objective" bar always visible directly above
+       the game log. Hide/Show toggle.
+     - Journal "NEW" badges + green glow on quests completed since you
+       last opened the quest tab.
+     - Variant Human starting-feat picker appears as a natural part of
+       character creation, not interrupting the intro.
+
+  🗺️ MAP SIZING FIX:
+     - Journal map now uses aspect-ratio preservation (1000:560) so the
+       campaign image fills the container at 100% zoom without stretching.
+     - background-size: cover replaces the old 100%/100% stretch.
+     - Fit-to-View button simplified to reset zoom to 100%.
+     - Still scrolls when you zoom past 100% for detailed exploration.
+
+  🛡️ TRAVEL & COMPANION ERROR HARDENING:
+     - Travel functions now have fallback state-recovery on error so a
+       bad roll can never strand the player.
+     - Raw JS error messages are no longer leaked to the player-facing
+       log — replaced with "The path was rough — you arrive shaken but
+       safe." and similar.
+     - Companion combat errors show "{name} hesitates for a moment,
+       unsure how to act." instead of silently swallowing.
+     - isTraveling flag always cleared in finally blocks.
+
+  🧹 CLEANUP:
+     - Deleted unused premium-ui-enhancements.css (0 bytes, not referenced).
+
+--------------------------------------------------------------------------------
+
+VERSION 5.0 - HARDCORE 5e
 --------------------------------------------------------------------------------
   🎲 COMPLETE D&D 5e CLASS FEATURES (22+ mechanics):
      - Unarmored Defense: Barbarian (10+DEX+CON), Monk (10+DEX+WIS),

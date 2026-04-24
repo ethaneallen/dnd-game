@@ -2,7 +2,7 @@
 
 ### *An Epic D&D 5th Edition Web RPG Experience*
 
-![Version](https://img.shields.io/badge/version-5.0-gold)
+![Version](https://img.shields.io/badge/version-5.1-gold)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![D&D](https://img.shields.io/badge/D%26D-5e-red)
 
@@ -11,9 +11,16 @@
 ## 🌟 Features
 
 ### **Authentic D&D 5e Mechanics**
-- ✅ **Complete Character Creation** - 14 races, 13 classes, 6 backgrounds
+- ✅ **Complete Character Creation** - 15 races (incl. Variant Human), 13 classes, 6 backgrounds
+- ✅ **Three Ability Score Methods** - 4d6 drop lowest, PHB Standard Array (15/14/13/12/10/8), or 27-point Point Buy editor
 - ✅ **True D&D Combat** - Attack rolls, saving throws, advantage/disadvantage
-- ✅ **Spell System** - Full spellcasting with spell slots, preparation, and ritual casting
+- ✅ **Full Action Economy** - Attack, Dodge, Help, Hide, Ready, Grapple, Shove, Disengage, Flee, plus Bonus Actions and Reactions
+- ✅ **Cover Rules** - Half cover (+2 AC), three-quarters cover (+5 AC); Sharpshooter feat ignores it (PHB RAW)
+- ✅ **Flanking Advantage** - Melee attacks gain advantage when a party companion is in the fight
+- ✅ **Difficult Terrain** - Forests, swamps, caves, mountains add +1 hour to travel; Mobile feat negates it
+- ✅ **Light Levels** - Bright/dim/dark tracking; dim or dark light imposes disadvantage on sight-based Perception (with −5 to Passive Perception)
+- ✅ **Concentration Saves** - CON save DC 10 or half damage (whichever is higher) whenever a concentrating spellcaster takes damage
+- ✅ **Spell System** - Full spellcasting with spell slots, preparation, Counterspell reactions, and ritual casting (10-minute cast, no slot)
 - ✅ **18-Skill Proficiency System** - All D&D 5e skills with proficiency bonuses and expertise
 - ✅ **Passive Scores** - Passive Perception, Insight, Investigation for auto-detection
 - ✅ **Leveling System** - XP progression from Level 1-20
@@ -43,6 +50,10 @@
 - ✅ **Channel Divinity** - Turn Undead and Sacred Weapon for Cleric and Paladin
 - ✅ **Metamagic** - Sorcerer Twinned Spell doubles spell damage for sorcery points
 - ✅ **Bonus Action Spell Rule** - PHB restriction: only cantrips alongside bonus action spells
+- ✅ **Two-Weapon Fighting** - Bonus-action off-hand strike; ability modifier omitted from off-hand damage (RAW)
+- ✅ **35+ Feats** - PHB + Tasha's selections including Great Weapon Master, Sharpshooter, Lucky, Sentinel, Alert, Mobile, Polearm Master, Fey Touched, Shadow Touched, Telekinetic, Telepathic, Piercer/Slasher/Crusher, Skill Expert, Inspiring Leader, Healer, and more
+- ✅ **ASI vs Feat Choice** - Every 4 levels (plus Fighter 6/14 and Rogue 10) you choose +2 stat points or a feat
+- ✅ **Sneak Attack (RAW)** - Once per turn; requires advantage or an ally adjacent, denied on disadvantage
 
 ### **Epic Campaign Content**
 - 🛡️ **Keep on the Borderlands** ★ Recommended Start — Defend against chaos (Levels 1-3)
@@ -111,10 +122,25 @@
 
 ### **Character Creation**
 1. Choose your character name
-2. Select a race (Human, Elf, Dwarf, Halfling, Half-Orc, Tiefling, Dragonborn, Gnome, Half-Elf, Aasimar, Goliath, Tabaxi, Kenku, Firbolg) — each with unique mechanical abilities
+2. Select a race (Human, Variant Human, Elf, Dwarf, Halfling, Half-Orc, Tiefling, Dragonborn, Gnome, Half-Elf, Aasimar, Goliath, Tabaxi, Kenku, Firbolg) — each with unique mechanical abilities
 3. Pick a class (Fighter, Wizard, Rogue, Cleric, Ranger, Barbarian, Paladin, Monk, Warlock, Bard, Sorcerer, Druid, Artificer)
 4. Choose a background (Soldier, Scholar, Criminal, Noble, Outlander, Acolyte)
-5. Your stats are automatically rolled using D&D 5e rules (4d6 drop lowest)
+5. Pick your ability-score method:
+   - 🎲 **Roll 4d6 Drop Lowest** — classic high-variance rolls
+   - 📋 **Standard Array** — 15, 14, 13, 12, 10, 8 auto-assigned by class priority
+   - 🎯 **Point Buy** — 27 points, each stat 8–15, full manual control
+6. **Variant Human** extras: pick any two different ability scores to raise by +1, then pick a starting feat
+
+### **Combat Actions**
+- **Attack** (A) - Make weapon or spell attacks
+- **Defend** (D) - Take the Dodge action; attackers have disadvantage
+- **Spell** (S) - Cast prepared spells (spellcasters only)
+- **Help** (H) - Grant yourself advantage on your next attack this round
+- **Hide** - Stealth check vs the enemy; success grants advantage on your next attack
+- **Ready** - Spend your action now; your first attack next round has advantage
+- **Grapple** (G) - Athletics vs Acrobatics/Athletics contest
+- **Shove** - Knock prone or push 5 feet
+- **Retreat** (R) - Attempt to flee (provokes opportunity attack unless you Disengage)
 
 ### **Combat**
 - **Attack** - Make weapon or spell attacks
@@ -291,6 +317,7 @@ The game supports various settings:
 ## 📝 Development
 
 ### **Version History**
+- **v5.1** - "Premium Polish & Hardcore Rules" — Variant Human race (with manual +1/+1 stat picker and starting feat), three ability-score methods (4d6, Standard Array, Point Buy), expanded feat list (14 → 35+ feats including Fey Touched, Shadow Touched, Telekinetic, Telepathic, Piercer/Slasher/Crusher, Skill Expert, Inspiring Leader, Healer, Observant, and more), three new combat actions (Help, Hide, Ready), cover rules (+2/+5 AC, Sharpshooter bypass), flanking advantage with companions, Sneak Attack tightened to PHB RAW (once-per-turn, requires advantage or ally adjacent), difficult terrain travel penalty, light level tracking with Perception disadvantage (−5 passive), quest-completion toast notifications, persistent "Current Objective" banner above the game log, journal diff highlighting for recently-completed quests, map scaling fix (aspect-ratio preservation at all viewport sizes), travel and companion error hardening to prevent soft-locks
 - **v5.0** - "Hardcore 5e" — 7 new races (14 total), 10 new subclasses, 22+ class features (Unarmored Defense, Fighting Styles, Save Proficiency, Brutal Critical, Jack of All Trades, Deflect Missiles, Spell Upcasting, Uncanny Dodge, Divine Smite, Wild Shape, Agonizing Blast, Channel Divinity, Metamagic, Reckless Attack reciprocal), all 13 PHB conditions, scaled falling damage, bonus action spell restriction, mechanically wired racial abilities (Gnome Cunning, Fey Ancestry, Stone's Endurance, Feline Agility, and more)
 - **v4.0** - "Immersive Experience" — 59 new monsters (~210 total), 15 premium polish features: Google Fonts, typewriter narration, combat animations, parchment log, location transitions, loot effects, campaign map, bestiary, day/night cycle, keyboard labels, and more
 - **v3.4** - "Quality of Life" — Drop items from inventory, encumbrance penalties actually enforced (was broken), professional button redesign, Journal Status tab, decluttered action bar

@@ -1683,3 +1683,611 @@ body.shake-crit {
 .heal-received {
     animation: panelHeal 0.4s ease-out;
 }
+
+/* ==================== OBJECTIVE TOAST SYSTEM ==================== */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 6000;
+    pointer-events: none;
+    max-width: 380px;
+}
+
+.toast {
+    pointer-events: auto;
+    background: linear-gradient(135deg, rgba(20, 18, 10, 0.97) 0%, rgba(30, 25, 12, 0.97) 100%);
+    border: 1px solid rgba(201, 162, 39, 0.55);
+    border-left: 4px solid #c9a227;
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: #f3e8c8;
+    font-family: 'Crimson Text', serif;
+    box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.7),
+        0 0 22px rgba(201, 162, 39, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    animation: toastIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transform-origin: right center;
+    min-width: 260px;
+}
+
+.toast.toast-out {
+    animation: toastOut 0.4s ease-in forwards;
+}
+
+.toast-header {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #ffd700;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.toast-title {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #fff4cf;
+    line-height: 1.25;
+    margin-bottom: 2px;
+}
+
+.toast-subtitle {
+    font-size: 0.85rem;
+    color: #bfae86;
+    font-style: italic;
+    line-height: 1.3;
+}
+
+.toast.variant-quest { border-left-color: #86d68f; }
+.toast.variant-quest .toast-header { color: #c4f1cb; }
+
+.toast.variant-chapter { border-left-color: #ffd700; }
+.toast.variant-chapter .toast-header { color: #ffd700; }
+
+.toast.variant-objective { border-left-color: #6ec5ff; }
+.toast.variant-objective .toast-header { color: #b3e5ff; }
+
+@keyframes toastIn {
+    0%   { opacity: 0; transform: translateX(110%) scale(0.9); }
+    60%  { opacity: 1; transform: translateX(-6px) scale(1.02); }
+    100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes toastOut {
+    0%   { opacity: 1; transform: translateX(0) scale(1); }
+    100% { opacity: 0; transform: translateX(110%) scale(0.95); }
+}
+
+/* ==================== PERSISTENT OBJECTIVE BAR ==================== */
+.objective-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    background: linear-gradient(135deg, rgba(18, 15, 8, 0.9) 0%, rgba(26, 20, 10, 0.9) 100%);
+    border: 1px solid rgba(201, 162, 39, 0.35);
+    border-left: 3px solid #c9a227;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    color: #f3e8c8;
+    font-family: 'Crimson Text', serif;
+    transition: opacity 0.25s ease;
+}
+
+.objective-bar.hidden {
+    display: none;
+}
+
+/* Hide the objective bar entirely during combat — the player needs every pixel */
+#gameScreen.in-combat .objective-bar {
+    display: none !important;
+}
+
+/* ==================== FLOATING "STUCK?" BUTTON ==================== */
+.stuck-floating-btn {
+    position: fixed;
+    bottom: 12px;
+    left: 12px;
+    z-index: 5500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: linear-gradient(135deg, rgba(20, 18, 10, 0.92) 0%, rgba(40, 30, 12, 0.92) 100%);
+    border: 1px solid rgba(201, 162, 39, 0.55);
+    border-radius: 999px;
+    color: #ffd700;
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.55);
+    transition: all 0.2s ease;
+    opacity: 0.85;
+}
+
+.stuck-floating-btn:hover {
+    border-color: #ffd700;
+    color: #fff4cf;
+    opacity: 1;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65), 0 0 12px rgba(255, 215, 0, 0.35);
+    transform: translateY(-1px);
+}
+
+.stuck-floating-btn:active {
+    transform: translateY(0);
+}
+
+.stuck-floating-btn.hidden {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .stuck-floating-label {
+        display: none;
+    }
+}
+
+/* ==================== STANDARDIZED MODAL SIZE VARIANTS ==================== */
+/* Add one of these classes to .modal-content to size the modal consistently.
+   These override the default 500px max-width from index.html's base .modal-content rule. */
+
+.modal-content.modal-small {
+    max-width: 420px;
+    width: 92%;
+}
+
+.modal-content.modal-medium {
+    max-width: 560px;
+    width: 92%;
+}
+
+.modal-content.modal-large {
+    max-width: 720px;
+    width: 92%;
+}
+
+.modal-content.modal-wide {
+    max-width: min(95vw, 960px);
+    width: 92%;
+}
+
+.modal-content.modal-xwide {
+    max-width: min(96vw, 1200px);
+    width: 94%;
+}
+
+/* Consistent internal padding for dense modals (merchant/shop/crafting).
+   Reduces the visual noise of the default 20px padding when content is tightly packed. */
+.modal-content.modal-dense {
+    padding: 16px 18px;
+}
+
+/* ==================== UNIFIED BUTTON CLASSES ==================== */
+/* Use these in modal HTML instead of inline styles for consistency. */
+
+.modal-btn,
+.modal-btn-primary,
+.modal-btn-secondary,
+.modal-btn-danger {
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(201, 162, 39, 0.4);
+    background: rgba(20, 18, 10, 0.7);
+    color: #ffd700;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+    line-height: 1.2;
+}
+
+.modal-btn:hover,
+.modal-btn-primary:hover,
+.modal-btn-secondary:hover,
+.modal-btn-danger:hover {
+    border-color: #ffd700;
+    background: rgba(40, 30, 12, 0.9);
+    box-shadow: 0 2px 10px rgba(201, 162, 39, 0.25);
+    transform: translateY(-1px);
+}
+
+.modal-btn:disabled,
+.modal-btn-primary:disabled,
+.modal-btn-secondary:disabled,
+.modal-btn-danger:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.modal-btn-primary {
+    background: linear-gradient(135deg, rgba(201, 162, 39, 0.25) 0%, rgba(143, 107, 19, 0.25) 100%);
+    border-color: rgba(201, 162, 39, 0.7);
+    color: #fff4cf;
+}
+.modal-btn-primary:hover {
+    background: linear-gradient(135deg, rgba(201, 162, 39, 0.4) 0%, rgba(143, 107, 19, 0.4) 100%);
+    border-color: #ffd700;
+}
+
+.modal-btn-secondary {
+    background: rgba(40, 45, 60, 0.75);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #f0f0f0;
+}
+.modal-btn-secondary:hover {
+    background: rgba(60, 65, 85, 0.85);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.modal-btn-danger {
+    background: rgba(90, 25, 25, 0.55);
+    border-color: rgba(200, 70, 70, 0.55);
+    color: #ffb5b5;
+}
+.modal-btn-danger:hover {
+    background: rgba(120, 30, 30, 0.7);
+    border-color: #ff8080;
+    box-shadow: 0 2px 10px rgba(200, 50, 50, 0.4);
+    color: #fff;
+}
+
+/* Standard footer for modals with multiple action buttons */
+.modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(201, 162, 39, 0.15);
+    flex-wrap: wrap;
+}
+
+/* Compact stepper button for stat +/- controls (Point Buy, etc.) */
+.stat-stepper-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    border: 1px solid rgba(201, 162, 39, 0.4);
+    background: rgba(20, 18, 10, 0.7);
+    color: #ffd700;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.95rem;
+    line-height: 1;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.stat-stepper-btn:hover {
+    border-color: #ffd700;
+    background: rgba(40, 30, 12, 0.9);
+    transform: scale(1.08);
+}
+.stat-stepper-btn:active {
+    transform: scale(0.95);
+}
+
+/* Standard section inside a modal (for merchant/shop/crafting lists) */
+.modal-section {
+    margin-bottom: 14px;
+}
+.modal-section:last-child {
+    margin-bottom: 0;
+}
+.modal-section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+    color: #c9a227;
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+}
+
+/* ==================== UNIVERSAL MODAL POLISH ==================== */
+/* Normalizes typography, spacing, and scrollbars across every modal in the game.
+   These rules use class-targeted selectors so they don't fight inline styles more than
+   necessary — they raise defaults to a consistent baseline without touching per-modal
+   customization. */
+
+.modal-content {
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: #e8dfc4;
+}
+
+.modal-content h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #ffd700;
+    text-align: center;
+    margin: 0 0 14px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(201, 162, 39, 0.25);
+}
+
+.modal-content h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.02rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: #c9a227;
+    margin: 12px 0 8px 0;
+}
+
+.modal-content h4 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.06em;
+    color: #c9a227;
+    margin: 10px 0 6px 0;
+}
+
+.modal-content p {
+    margin: 0 0 10px 0;
+    color: #d8d0b8;
+}
+
+.modal-content p:last-child {
+    margin-bottom: 0;
+}
+
+.modal-content .setting-desc,
+.modal-content .quest-desc,
+.modal-content .rest-desc {
+    font-size: 0.85rem;
+    color: #a9a288;
+    font-style: italic;
+    margin: 4px 0 8px 0;
+}
+
+/* Unified button styling inside modals — covers the common explicit classes */
+.modal-content .close-modal,
+.modal-content .setting-btn,
+.modal-content .shop-btn,
+.modal-content .modal-btn {
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 1px solid rgba(201, 162, 39, 0.4);
+    background: rgba(20, 18, 10, 0.7);
+    color: #ffd700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.modal-content .close-modal:hover,
+.modal-content .setting-btn:hover,
+.modal-content .shop-btn:hover,
+.modal-content .modal-btn:hover {
+    border-color: #ffd700;
+    background: rgba(40, 30, 12, 0.85);
+    box-shadow: 0 2px 10px rgba(201, 162, 39, 0.25);
+    transform: translateY(-1px);
+}
+
+.modal-content .setting-btn.active {
+    background: rgba(201, 162, 39, 0.25);
+    border-color: #ffd700;
+    color: #fff4cf;
+}
+
+.modal-content .close-modal {
+    display: block;
+    margin: 16px auto 0 auto;
+    min-width: 120px;
+    text-align: center;
+}
+
+/* Prevent double scrollbars: inner scrollable children inside .modal-content
+   shouldn't introduce their own overflow when the modal itself scrolls. The
+   specialized variants (utility-modal-content, travel-modal-content, etc.)
+   handle their own layout and are excluded. */
+.modal-content:not(.utility-modal-content):not(.travel-modal-content):not(.rest-modal-content):not(.journal-modal-content):not(.map-modal-content) > div[style*="overflow-y"] {
+    /* Soft warning: this is handled by .modal-content's own overflow-y:auto */
+}
+
+/* Settings modal rows: consistent spacing */
+.modal-content .settings-section {
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(201, 162, 39, 0.15);
+}
+.modal-content .settings-section:last-of-type {
+    border-bottom: none;
+}
+.modal-content .settings-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Normalize quest-card look — also used in side-quest popups and journal */
+.modal-content .quest-card,
+.modal-content .rest-option,
+.modal-content .journal-entry {
+    background: linear-gradient(145deg, rgba(14, 18, 28, 0.88), rgba(22, 26, 40, 0.88));
+    border: 1px solid rgba(201, 162, 39, 0.25);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+}
+
+.modal-content .quest-title,
+.modal-content .rest-title,
+.modal-content .journal-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+    color: #ffd700;
+    margin-bottom: 4px;
+}
+
+/* Ensure every scrollable container inside a modal uses the themed scrollbar */
+.modal-content *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.modal-content *::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 999px;
+}
+.modal-content *::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(201, 162, 39, 0.75), rgba(143, 107, 19, 0.75));
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.modal-content * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(201, 162, 39, 0.75) rgba(0, 0, 0, 0.25);
+}
+
+.objective-bar-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.objective-bar-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.objective-bar-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #c9a227;
+}
+
+.objective-bar-text {
+    font-size: 0.98rem;
+    color: #fff4cf;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.objective-bar-hint {
+    font-size: 0.82rem;
+    color: #bfae86;
+    font-style: italic;
+    line-height: 1.3;
+}
+
+.objective-bar-toggle {
+    background: rgba(40, 30, 12, 0.7);
+    border: 1px solid rgba(201, 162, 39, 0.5);
+    color: #ffd700;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    min-width: 56px;
+}
+
+.objective-bar-toggle:hover {
+    background: rgba(201, 162, 39, 0.3);
+    border-color: #ffd700;
+    color: #fff4cf;
+}
+
+.objective-bar.pulse {
+    animation: objectivePulse 1.4s ease-out;
+}
+
+@keyframes objectivePulse {
+    0%   { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), 0 0 0 rgba(201, 162, 39, 0); }
+    50%  { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), 0 0 22px rgba(201, 162, 39, 0.65); }
+    100% { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), 0 0 0 rgba(201, 162, 39, 0); }
+}
+
+/* Collapsed state */
+.objective-bar.collapsed .objective-bar-body,
+.objective-bar.collapsed .objective-bar-hint {
+    display: none;
+}
+
+.objective-bar.collapsed {
+    padding: 6px 12px;
+    opacity: 0.75;
+}
+
+.objective-bar.collapsed .objective-bar-label-mini {
+    display: inline;
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: #c9a227;
+}
+
+.objective-bar-label-mini {
+    display: none;
+}
+
+/* ==================== JOURNAL DIFF HIGHLIGHT ==================== */
+.journal-entry.recently-completed,
+.quest-card.recently-completed {
+    position: relative;
+    border-left: 3px solid #86d68f !important;
+    animation: journalRecentGlow 2.4s ease-in-out;
+    box-shadow: 0 0 18px rgba(134, 214, 143, 0.45);
+}
+
+.journal-entry.recently-completed::after,
+.quest-card.recently-completed::after {
+    content: 'NEW';
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: #0a1a0c;
+    background: #86d68f;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+@keyframes journalRecentGlow {
+    0%   { box-shadow: 0 0 0 rgba(134, 214, 143, 0); }
+    30%  { box-shadow: 0 0 24px rgba(134, 214, 143, 0.7); }
+    100% { box-shadow: 0 0 18px rgba(134, 214, 143, 0.45); }
+}
