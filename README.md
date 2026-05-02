@@ -2,9 +2,9 @@
 
 ### *An Epic D&D 5th Edition Web RPG Experience*
 
-![Version](https://img.shields.io/badge/version-5.1-gold)
+[![Version](https://img.shields.io/badge/version-5.1-gold)](#-development)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE.txt)
-![D&D](https://img.shields.io/badge/D%26D-5e-red)
+[![D&D](https://img.shields.io/badge/D%26D-5e-red)](https://dnd.wizards.com/resources/systems-reference-document)
 
 ---
 
