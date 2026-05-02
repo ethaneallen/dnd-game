@@ -54,6 +54,13 @@
 - ✅ **35+ Feats** - PHB + Tasha's selections including Great Weapon Master, Sharpshooter, Lucky, Sentinel, Alert, Mobile, Polearm Master, Fey Touched, Shadow Touched, Telekinetic, Telepathic, Piercer/Slasher/Crusher, Skill Expert, Inspiring Leader, Healer, and more
 - ✅ **ASI vs Feat Choice** - Every 4 levels (plus Fighter 6/14 and Rogue 10) you choose +2 stat points or a feat
 - ✅ **Sneak Attack (RAW)** - Once per turn; requires advantage or an ally adjacent, denied on disadvantage
+- ✅ **Disease System** - Plague, Leprosy, Mummy Rot, Filth Fever, and Lycanthropy with CON saves and cure requirements (Lesser/Greater Restoration)
+- ✅ **Madness System** - Short-term, long-term, and indefinite madness effects from horror encounters
+- ✅ **Trap System** - 8 trap types (Pit, Poison Dart, Spinning Blades, Magic Glyph, Falling Stones, Fire Jets, Toxic Gas, Symbol of Death) with detection, disarm stages, and damage rolls
+- ✅ **Alignment System** - Full 9-alignment grid (LG/NG/CG/LN/N/CN/LE/NE/CE) tracked on your character
+- ✅ **Mounts** - Horse, Pony, Camel, Warhorse, and Elephant with AC, HP, speed, and carry capacity
+- ✅ **Mini-Games** - Three-Dragon Ante, Arm Wrestling, Drinking Contest, Tavern Card Game, and Dice Game for tavern downtime
+- ✅ **Legendary Resistances & Actions** - Bosses spend resistances to auto-succeed saves and take legendary actions between turns (Multiattack, Melee, Dodge, Dash, Roar, Heal, Spellcast)
 
 ### **Epic Campaign Content**
 - 🛡️ **Keep on the Borderlands** ★ Recommended Start — Defend against chaos (Levels 1-3)
@@ -105,6 +112,17 @@
 - 🗺️ **Campaign Progress Map** - Visual chapter-by-chapter exploration tracker
 - 📖 **Bestiary Journal** - Track every monster you encounter with stats and lore
 - 👤 **Character Portrait** - Race-based emoji portrait on character panel
+- 🗺️ **Interactive Map** - Zoom (Ctrl+Scroll, 0.5×–3×), pan, hover tooltips, and clickable location nodes
+
+### **♿ Accessibility**
+- ✅ **Screen Reader Support** - `aria-live` regions announce combat, rolls, and narration to assistive tech
+- ✅ **Skip-to-Content Link** - Jump straight to the game area from the keyboard
+- ✅ **Focus Trapping & Restoration** - Modal dialogs trap Tab focus and restore it on close
+- ✅ **Keyboard Navigation** - Escape closes modals; full keyboard control of menus and combat
+- ✅ **Reduced Motion** - Respects `prefers-reduced-motion` to dim animations
+- ✅ **High Contrast** - Respects `prefers-contrast` for stronger color differentiation
+- ✅ **Adjustable Font Size** - Resize text from the Settings panel
+- ✅ **WCAG-Aware Markup** - ARIA labels on interactive controls and zoom buttons
 
 ---
 
@@ -261,34 +279,45 @@ Unlock 18+ achievements including:
 ### **File Structure**
 ```
 dnd-game/
-├── index.html          # Main game file
-├── game.js            # Web frontend (10,900+ lines)
-├── game.py            # Text adventure engine (6,850+ lines)
-├── styles.css         # Professional styling
-├── README.md          # This file
-├── CHANGELOG.md       # Full version history
-├── QUICK_START.md     # Quick-start guide
-├── LICENSE.txt        # MIT License
-├── PRESS_KIT.md       # Media kit
-├── readme.txt         # Detailed player's guide
-└── images/            # Campaign artwork
+├── index.html                       # Main game file
+├── game.js                          # Core game engine (~36k lines)
+├── _spells_insert.js                # Expanded spell data
+├── enhancements.js                  # UI/QOL enhancements
+├── accessibility.js                 # Screen reader, focus, keyboard support
+├── map-enhancements.js              # Interactive map zoom/pan
+├── styles.css                       # Core styling
+├── premium-ui.css                   # Premium UI polish
+├── quick-visual-fixes.css           # Visual fixes
+├── map-enhancements.css             # Map styling
+├── accessibility-improvements.css   # A11y styling
+├── README.md                        # This file
+├── LICENSE.txt                      # MIT License + Fan Content Policy notice
+├── readme.txt                       # Detailed player's guide
+└── images/                          # Campaign, monster, and species artwork
 ```
 
 ---
 
 ## 🎯 Game Statistics
 
-- **6,850+ lines of Python** - Comprehensive text adventure engine (`game.py`)
-- **10,900+ lines of JavaScript** - Full web game frontend (`game.js`)
-- **14 playable races** with unique mechanical abilities (Darkvision, Lucky, Breath Weapon, Relentless Endurance, Gnome Cunning, Fey Ancestry, Stone's Endurance, and more)
+- **35,000+ lines of JavaScript** - Full web game engine (`game.js`)
+- **15 playable races** with unique mechanical abilities (Darkvision, Lucky, Breath Weapon, Relentless Endurance, Gnome Cunning, Fey Ancestry, Stone's Endurance, and more)
 - **13 playable classes** with distinct mechanics and subclasses
+- **6 backgrounds** with skill, tool, and language proficiencies
 - **18 D&D 5e skills** fully tracked with proficiency and expertise
 - **5 campaign settings** with unique economies, loot, and magic-item tables
-- **50+ unique enemies** from D&D lore
-- **100+ items** including weapons, armor, and consumables
-- **30+ spells** across multiple spell levels
+- **150+ spells** across cantrips through 9th-level spell slots
+- **100+ unique enemies** drawn from D&D bestiary archetypes
+- **44 weapons** (simple + martial, plus +1/+2/+3 magic and campaign-unique variants)
+- **13 armor types** plus shields and campaign-unique variants
 - **20+ locations** to explore
 - **18+ achievements** to unlock
+- **8 trap types** with detection, disarm stages, and damage rolls
+- **5 mini-games** for tavern downtime (Three-Dragon Ante, Arm Wrestling, Drinking Contest, Tavern Card Game, Dice Game)
+- **5 disease types** with CON saves and cure requirements
+- **3-tier madness system** (short-term, long-term, indefinite)
+- **5 mountable creatures** with AC, HP, speed, and carry capacity
+- **9-alignment grid** tracked on every character
 - **Full action economy** - Action, Bonus Action, Reaction, Movement
 - **6-level exhaustion system** tied to starvation, foraging, and lifestyle
 - **Black market economy** with haggle mechanics, guard encounters, and bounty tracking
@@ -297,7 +326,7 @@ dnd-game/
 - **Attunement system** - 3-item magic item limit per D&D 5e rules
 - **Opportunity attacks** - Tactical flee/disengage decision-making
 - **Ritual casting** - Cast ritual spells without expending spell slots
-- **Racial abilities** - Meaningful mechanical effects for all 14 races
+- **Racial abilities** - Meaningful mechanical effects for all 15 races
 - **100% Dice Animation Coverage** - Every single roll features 3D spinning effects
 - **Immersive Sound System** - Procedurally generated sound effects for all actions
 - **Endless replayability**
@@ -345,9 +374,28 @@ The game supports various settings:
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project's **original code, design, and documentation** are released under the **MIT License**. See [LICENSE.txt](LICENSE.txt) for the full text and third-party notices.
 
-**Note:** This is a fan-made tribute to Dungeons & Dragons. D&D, Wizards of the Coast, and all associated trademarks are property of Wizards of the Coast LLC.
+## ⚖️ Legal & Fan Content Notice
+
+> **This is an unofficial, non-commercial fan project.** It is not approved or endorsed by Wizards of the Coast.
+
+- **Dungeons & Dragons**, **D&D**, the dragon ampersand, **Forgotten Realms**, **Barovia**, **Chult**, **Phandalin**, **Strahd von Zarovich**, **Acererak**, **Curse of Strahd**, **Tomb of Annihilation**, **Lost Mine of Phandelver**, **Keep on the Borderlands**, **Night's Dark Terror**, and all related characters, place names, monsters, and module titles are trademarks and/or copyrighted material of **Wizards of the Coast LLC** and/or its predecessors (TSR, Inc.).
+- Game mechanics in this project are derived from the **D&D 5th Edition System Reference Document (SRD 5.1)** released by Wizards of the Coast under the **Creative Commons Attribution 4.0 International License (CC-BY-4.0)**. Attribution: "This work includes material taken from the System Reference Document 5.1 (“SRD 5.1”) by Wizards of the Coast LLC, available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License, https://creativecommons.org/licenses/by/4.0/legalcode."
+- Campaign **adventure titles and proper nouns** referenced above are **not** in the SRD. They are used here as **unmodifiable references** under nominative fair use to describe the inspiration for fan-made adaptations. The narrative content, dialogue, and encounter designs are **original works** written for this project.
+- This project follows the spirit of the **Wizards of the Coast Fan Content Policy**: it is free, non-commercial, and clearly marked as unofficial.
+- All **fonts** are licensed under the **SIL Open Font License 1.1** via Google Fonts.
+- No analytics, telemetry, or tracking scripts are bundled with this project.
+
+### ⚠️ Important: Before You Distribute or Monetize
+
+If you plan to **publicly distribute, sell, host on a paid platform, or monetize** this project (including ads, donations tied to the game, or paid hosting):
+
+1. **Consult a qualified attorney** familiar with intellectual-property and video-game law in your jurisdiction. The notes here are not legal advice.
+2. **Replace or rename** the WotC-trademarked campaign titles, named NPCs (Strahd, Acererak, etc.), and proprietary settings (Barovia, Chult, Phandalin) with original equivalents — the SRD does **not** grant rights to these.
+3. **Verify** that any artwork in `images/` is either original, properly licensed, or replaced with assets you own.
+4. **Keep attribution intact** for the SRD 5.1 and Google Fonts.
+5. Review the current **WotC Fan Content Policy** and the **Open Gaming License (OGL) / Creative Commons SRD** terms before publishing.
 
 ---
 

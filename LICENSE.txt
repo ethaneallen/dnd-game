@@ -1,3 +1,19 @@
+================================================================================
+                    REALMS OF ADVENTURE - LICENSE & NOTICES
+================================================================================
+
+This package contains:
+  1. The MIT License (covering the original code, design, and documentation)
+  2. Third-party notices (fonts and SRD attribution)
+  3. Trademark and fan-content disclaimer
+  4. Guidance for commercial use
+
+Last Updated: May 1, 2026
+
+================================================================================
+1.  MIT LICENSE  (original code, design, and documentation)
+================================================================================
+
 MIT License
 
 Copyright (c) 2026 Realms of Adventure Development Team
@@ -20,74 +36,126 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
----
+================================================================================
+2.  THIRD-PARTY NOTICES
+================================================================================
 
-THIRD-PARTY NOTICES
+2.1  GOOGLE FONTS
+     - Cinzel (Natanael Gama)
+     - Cinzel Decorative (Natanael Gama)
+     - Crimson Text (Sebastian Kosch)
+     - MedievalSharp (Robert Arkenin)
+     License: SIL Open Font License, Version 1.1
+     URL:     https://fonts.google.com/
+     OFL:     https://scripts.sil.org/OFL
 
-This software uses the following third-party resources:
+2.2  D&D 5E SYSTEM REFERENCE DOCUMENT (SRD 5.1)
 
-1. Google Fonts
-   - Cinzel (Font)
-   - Crimson Text (Font)
-   - MedievalSharp (Font)
-   License: SIL Open Font License 1.1
-   URL: https://fonts.google.com/
+     Game mechanics, spell definitions, monster stat blocks, and rules
+     terminology in this project are derived from material in the
+     System Reference Document 5.1 ("SRD 5.1") by Wizards of the Coast LLC,
+     released under the Creative Commons Attribution 4.0 International
+     License (CC-BY-4.0).
 
-2. D&D 5th Edition System Reference Document (SRD)
-   - Game mechanics and rules based on D&D 5e SRD
-   - Content used under the Open Gaming License (OGL) 1.0a
-   License: Open Gaming License Version 1.0a
-   Copyright: Wizards of the Coast LLC
+     REQUIRED ATTRIBUTION (per CC-BY-4.0):
 
----
+         "This work includes material taken from the System Reference
+          Document 5.1 ("SRD 5.1") by Wizards of the Coast LLC, available
+          at https://dnd.wizards.com/resources/systems-reference-document.
+          The SRD 5.1 is licensed under the Creative Commons Attribution
+          4.0 International License, available at
+          https://creativecommons.org/licenses/by/4.0/legalcode."
 
-DISCLAIMER
+     This attribution must remain in any redistribution or derivative work
+     that uses SRD 5.1 material.
 
-This is a fan-made tribute to Dungeons & Dragons.
+================================================================================
+3.  TRADEMARK & FAN-CONTENT DISCLAIMER
+================================================================================
 
-D&D, Dungeons & Dragons, Wizards of the Coast, and all associated 
-trademarks, logos, and content are property of Wizards of the Coast LLC.
+This software is an UNOFFICIAL, NON-COMMERCIAL fan project. It is not
+affiliated with, endorsed by, sponsored by, or officially approved by
+Wizards of the Coast LLC.
 
-This software is not affiliated with, endorsed by, sponsored by, or 
-officially approved by Wizards of the Coast LLC.
+The following names are TRADEMARKS and/or COPYRIGHTED MATERIAL of
+Wizards of the Coast LLC and/or its predecessor TSR, Inc., and are
+referenced here only descriptively or nominatively to identify the
+inspiration for fan-made adaptations:
 
-All campaign content is adapted from or inspired by official D&D 
-publications and is used for educational and entertainment purposes only.
+  -  Dungeons & Dragons, D&D, the dragon ampersand
+  -  Forgotten Realms, Barovia, Chult, Phandalin, Karameikos
+  -  Curse of Strahd, Tomb of Annihilation, Lost Mine of Phandelver,
+     Keep on the Borderlands, Night's Dark Terror
+  -  Strahd von Zarovich, Acererak, Ireena Kolyana, Madam Eva,
+     Artus Cimber, and other named NPCs from official adventures
+  -  Soulmonger, Iron Ring, Redbrand Ruffians, Lords' Alliance,
+     and similar proprietary factions and artifacts
+  -  Specific monster names introduced by Wizards of the Coast that are
+     NOT included in the SRD 5.1 (e.g., Beholder, Mind Flayer, Yuan-ti,
+     Displacer Beast, Kuo-toa)
 
-Original creative content (code, design, documentation) is licensed 
-under the MIT License as stated above.
+NARRATIVE TEXT, DIALOGUE, AND ENCOUNTER DESIGN in this project are original
+works written for this fan adaptation, inspired by the published modules
+listed above. No verbatim text from any official D&D publication is
+reproduced in this software.
 
----
+================================================================================
+4.  COMMERCIAL USE - IMPORTANT
+================================================================================
 
-COMMERCIAL USE
+The MIT License above grants you broad permission over the ORIGINAL CODE,
+DESIGN, AND DOCUMENTATION in this repository. It DOES NOT, and CANNOT,
+grant you any rights to:
 
-This software may be used for commercial purposes under the MIT License,
-subject to the following conditions:
+  -  Wizards of the Coast trademarks
+  -  Material that is NOT included in the SRD 5.1 (proprietary
+     campaign content, named NPCs, settings, and certain monsters)
+  -  Third-party assets (fonts, images, sounds) governed by their own
+     licenses
 
-1. You may not claim official affiliation with Wizards of the Coast
-2. You must respect D&D trademarks and intellectual property
-3. You must include proper attribution and this license
-4. Campaign content should be clearly marked as fan-made adaptations
+If you intend to PUBLICLY DISTRIBUTE, SELL, HOST ON A PAID PLATFORM,
+OR OTHERWISE MONETIZE this project:
 
-For commercial distribution, we recommend:
-- Consulting with legal counsel regarding D&D IP
-- Considering the Open Gaming License (OGL) requirements
-- Providing proper attribution to source materials
-- Being transparent about unofficial/fan-made status
+  1. CONSULT A QUALIFIED ATTORNEY in your jurisdiction. Nothing in this
+     file is legal advice.
+  2. REPLACE the WotC-trademarked campaign titles, named NPCs, and
+     proprietary settings with original equivalents. The SRD 5.1 does
+     NOT cover these.
+  3. VERIFY that all images, sounds, and other media you ship are
+     either original, properly licensed, or replaced with assets you own.
+  4. KEEP the SRD 5.1 attribution above intact in any redistribution.
+  5. REVIEW the current Wizards of the Coast Fan Content Policy and the
+     Creative Commons / OGL terms applicable to your release.
+  6. ENSURE compliance with the SIL Open Font License for any fonts
+     redistributed with the software.
 
----
+The authors of this project make NO WARRANTY that any particular
+distribution is legally clear in your jurisdiction.
 
-ATTRIBUTION
+================================================================================
+5.  RECOMMENDED ATTRIBUTION FOR DERIVATIVE WORKS
+================================================================================
 
-If you use, modify, or distribute this software, please include:
+If you fork, modify, or distribute this software, please include:
 
-"Based on Realms of Adventure - D&D 5e Web Game
-Original code and design by [Your Name/Team]
-Licensed under MIT License"
+    "Based on Realms of Adventure - D&D 5e Web Game.
+     Original code and design licensed under the MIT License.
+     This work includes material taken from the System Reference Document
+     5.1 (SRD 5.1) by Wizards of the Coast LLC, licensed under
+     CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/legalcode).
+     Dungeons & Dragons and related marks are trademarks of Wizards of
+     the Coast LLC. This is an unofficial fan project not affiliated
+     with Wizards of the Coast."
 
----
+================================================================================
+6.  DISCLAIMER OF WARRANTY (RESTATED)
+================================================================================
 
-For questions about licensing, please contact:
-[Your contact information]
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. THE
+AUTHORS ASSUME NO LIABILITY FOR ANY CLAIM ARISING FROM USE,
+MODIFICATION, OR DISTRIBUTION OF THIS SOFTWARE, INCLUDING BUT NOT
+LIMITED TO INTELLECTUAL-PROPERTY CLAIMS BROUGHT BY THIRD PARTIES.
 
-Last Updated: February 2, 2026
+================================================================================
+End of License
+================================================================================
