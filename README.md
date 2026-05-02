@@ -3,7 +3,7 @@
 ### *An Epic D&D 5th Edition Web RPG Experience*
 
 ![Version](https://img.shields.io/badge/version-5.1-gold)
-![License](https://img.shields.io/badge/license-MIT-blue)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE.txt)
 ![D&D](https://img.shields.io/badge/D%26D-5e-red)
 
 ---
