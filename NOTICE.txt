@@ -1,0 +1,73 @@
+================================================================================
+                          REALMS OF ADVENTURE - NOTICE
+================================================================================
+
+This product includes software, content, and assets developed by multiple
+parties under various licenses. This NOTICE file is provided in compliance
+with the attribution requirements of those licenses.
+
+For the full text of the licenses and additional terms, see LICENSE.txt.
+
+--------------------------------------------------------------------------------
+ORIGINAL WORK
+--------------------------------------------------------------------------------
+
+  Realms of Adventure - D&D 5e Web Game
+  Copyright (c) 2026 Realms of Adventure Development Team
+  Licensed under the MIT License (see LICENSE.txt)
+
+--------------------------------------------------------------------------------
+THIRD-PARTY ATTRIBUTIONS
+--------------------------------------------------------------------------------
+
+1.  D&D 5E SYSTEM REFERENCE DOCUMENT 5.1 (SRD 5.1)
+    --------------------------------------------------------------------
+    This work includes material taken from the System Reference Document
+    5.1 ("SRD 5.1") by Wizards of the Coast LLC, available at
+    https://dnd.wizards.com/resources/systems-reference-document.
+    The SRD 5.1 is licensed under the Creative Commons Attribution 4.0
+    International License, available at
+    https://creativecommons.org/licenses/by/4.0/legalcode.
+
+    No changes are made to the SRD 5.1 itself; portions are reused for
+    game-mechanic descriptions, monster stat blocks, spell descriptions,
+    and class/race feature names within an original software engine.
+
+2.  GOOGLE FONTS
+    --------------------------------------------------------------------
+    The following fonts are loaded from Google Fonts and are licensed
+    under the SIL Open Font License, Version 1.1
+    (https://scripts.sil.org/OFL):
+
+      - Cinzel              Copyright (c) Natanael Gama
+      - Cinzel Decorative   Copyright (c) Natanael Gama
+      - Crimson Text        Copyright (c) Sebastian Kosch
+      - MedievalSharp       Copyright (c) Robert Arkenin
+
+--------------------------------------------------------------------------------
+TRADEMARK ACKNOWLEDGEMENTS (NOMINATIVE USE)
+--------------------------------------------------------------------------------
+
+The following names are referenced in this software for descriptive,
+nominative purposes only. They are trademarks and/or copyrighted material
+of Wizards of the Coast LLC and/or its predecessor TSR, Inc., and their
+use here does not imply endorsement, sponsorship, or affiliation:
+
+  Dungeons & Dragons, D&D, the dragon ampersand, Forgotten Realms,
+  Barovia, Chult, Phandalin, Karameikos, Curse of Strahd,
+  Tomb of Annihilation, Lost Mine of Phandelver, Keep on the Borderlands,
+  Night's Dark Terror, Strahd von Zarovich, Acererak, Soulmonger,
+  Iron Ring, Caves of Chaos, Beholder, Mind Flayer, Yuan-ti,
+  Displacer Beast, Kuo-toa, and other proprietary D&D names.
+
+--------------------------------------------------------------------------------
+NO ANALYTICS OR TELEMETRY
+--------------------------------------------------------------------------------
+
+This software does not bundle any analytics, telemetry, advertising, or
+tracking SDKs. The only outbound network requests are to fonts.googleapis.com
+and fonts.gstatic.com for typeface delivery.
+
+--------------------------------------------------------------------------------
+End of NOTICE
+--------------------------------------------------------------------------------

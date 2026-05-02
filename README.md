@@ -292,6 +292,8 @@ dnd-game/
 ├── accessibility-improvements.css   # A11y styling
 ├── README.md                        # This file
 ├── LICENSE.txt                      # MIT License + Fan Content Policy notice
+├── NOTICE.txt                       # Third-party attributions (SRD, fonts, trademarks)
+├── SECURITY.md                      # Vulnerability reporting policy
 ├── readme.txt                       # Detailed player's guide
 └── images/                          # Campaign, monster, and species artwork
 ```
@@ -399,6 +401,38 @@ If you plan to **publicly distribute, sell, host on a paid platform, or monetize
 
 ---
 
+## 🔒 Privacy
+
+This project does **not** collect, transmit, or store any personal data on remote servers.
+
+- **No analytics, no telemetry, no tracking pixels.** No requests are made to ad networks or analytics providers.
+- **No accounts, no logins.** The game does not ask for a name, email, or any identifier outside the in-game character name you choose.
+- **Local storage only.** Saved games, settings, and progress are stored in your browser's `localStorage` on your own device. You can clear them at any time via your browser's site-data controls.
+- **External resources.** The only outbound network requests are to Google Fonts (`fonts.googleapis.com` / `fonts.gstatic.com`) for the Cinzel and Crimson Text typefaces. Google Fonts may log standard request metadata (IP, user-agent) per Google's privacy policy. To eliminate even this, self-host the fonts.
+- **Children.** This project is not directed at children under 13. Operators who deploy this game publicly are responsible for COPPA / GDPR-K compliance in their own jurisdictions.
+
+---
+
+## 🔞 Content Rating & Warnings
+
+**Suggested rating: Teen+ (13 and up)**
+
+The game contains content that may not be suitable for all audiences:
+
+- ⚔️ **Fantasy violence** — turn-based combat, weapons, monster slaying, descriptions of injuries
+- 🩸 **Blood & death** — death-saving throws, fallen companions, undead, sacrifice mechanics
+- 🧛 **Horror themes** — vampires, gothic horror, undead, eldritch encounters (especially in *Curse of Strahd*)
+- 🤯 **Madness mechanics** — simulated short-term, long-term, and indefinite madness effects from horror encounters
+- 🦠 **Disease & affliction** — Plague, Leprosy, Mummy Rot, Lycanthropy
+- 🎲 **Simulated gambling** — Three-Dragon Ante, Dice Game, Tavern Card Game, Arm Wrestling, Drinking Contest (no real money, no real-world wagering)
+- 🍺 **Mild substance references** — taverns, lifestyle tiers, drinking contests
+- 🏴 **Crime & morally complex choices** — Black Market, slaver-conspiracy plotlines, alignment system
+- 💀 **Mild thematic dread** — references to death, soul-stealing artifacts, and cult activity
+
+Operators redistributing this game on platforms with content-rating requirements (Apple App Store, Google Play, Steam, itch.io, etc.) should self-rate accordingly. This project does not carry any official ESRB, PEGI, or IARC rating.
+
+---
+
 ## 🤝 Credits
 
 **Game Design & Development**
@@ -431,4 +465,4 @@ Open `index.html` in your browser and begin your legendary quest!
 
 ---
 
-*Made with ⚔️ for D&D enthusiasts everywhere*
+✨ May your dice roll high and your adventures be kind ✨
