@@ -2,7 +2,7 @@
 
 ### *An Epic D&D 5th Edition Web RPG Experience*
 
-[![Version](https://img.shields.io/badge/version-5.1-gold)](#-development)
+[![Version](https://img.shields.io/badge/version-5.2-gold)](#-development)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE.txt)
 [![D&D](https://img.shields.io/badge/D%26D-5e-red)](https://dnd.wizards.com/resources/systems-reference-document)
 
@@ -68,9 +68,14 @@
 - 🧛 **Curse of Strahd** - Gothic horror in Barovia (Levels 1-10)
 - ☠️ **Tomb of Annihilation** - Death curse in Chult (Levels 1-11)
 - ⛏️ **Lost Mine of Phandelver** - Classic starter adventure on the Sword Coast (Levels 1-5)
+- 🌄 **The Free Realm** ✦ Sandbox — An open, campaign-free playground: every location is reachable from a central crossroads hub from the start, with no story gates. Pure exploration, combat, and economy
 
 ### **Advanced Game Features**
 - ⚔️ **Tactical Multi-Enemy Combat** - Fights can pit you against a *pack* of foes, not just one. A target strip lets you click which enemy to focus; area spells (Fireball, Burning Hands, Thunderwave…) splash every enemy in range; enemies are tagged melee ⚔️ or ranged 🏹 and act on their own turns. Higher-danger areas field larger groups; bosses still come alone
+- 🧠 **Smarter Enemy Behavior** - Foes now act with intent based on their role: spellcasters sling damaging spells from range, support enemies heal their most-wounded ally, and brutes wade in to melee. Wounded non-boss foes can break morale and flee the fight, retargeting the survivors
+- 📍 **Zone Positioning** - A lightweight engaged / near / far positioning model. Enemies reposition toward their preferred range each turn (archers and casters hang back, brutes close in), melee attacks are gated to engaged range, and you can **Approach** or **Withdraw** to pull the whole fight a band closer or farther. Striking a foe you're not engaged with is at disadvantage. The target strip shows each enemy's 📍 zone
+- 🎬 **Authored Set-Piece Encounters** - Signature locations (Caves of Chaos entrance, Redbrand Hideout cells, Death House) play out as hand-authored discovery beats with fixed enemy rosters, layered over the procedural exploration system
+- 🤖 **AI Dungeon Master (Optional)** - An optional "Improvise" 🎭 action (in both the combat and explore action bars) lets you describe *any* action in your own words. With an Anthropic API key added in Settings, a Claude-powered adjudicator picks the right ability check and difficulty; without a key, an offline keyword adjudicator handles it. Either way **the engine owns the dice and the outcome** — the AI is advisory only and its effects are strictly capped, so a bad response can never corrupt your game state
 - 🌟 **Legend & Renown (Account-Wide Progression)** - A permanent rank — Unknown → Wanderer → Adventurer → Hero → Champion → Legend → Mythic — that grows from the all-time deeds of *every* character you play. A dedicated panel shows your title, total Legend points, progress to the next tier, and a breakdown of what's earning your renown; your current rank appears right on the title screen. A reason to keep playing beyond any single campaign
 - 🗣️ **Interactive NPC Conversations** - Talking to an NPC opens a real conversation: ask about local news, request work, and choose skill-gated approaches — read them with **Insight**, win their help with **Persuasion**, or press them with **Intimidation**. Each rolls a live check with rewards (gold, reputation, journal intel) or consequences, and the game remembers what you've already tried
 - 🧭 **Discovery-Based Exploration** - Each dangerous location hides an ordered set of discoveries (a first look, a telling clue, a hidden cache, a lurking foe, and the heart of the place). Exploring reveals them one at a time, the game remembers what you've found (shown as a 🧭 progress counter), and once a place is fully explored it tells you so and nudges you onward — exploring feels like uncovering a place, not mashing a button
@@ -84,7 +89,7 @@
 - 🏴 **Black Market** - Sell cursed goods to shady fences, haggle (CHA check), risk guard encounters
 - 🎭 **Artifact Trading** - Trade priceless relics for Major Favors with lasting mechanical effects
 - ⚔️ **Boss Encounters** - Legendary Resistances, phase transitions, Last Stand, Heroic Sacrifice, Fail-Forward
-- 🗺️ **5 Campaign Settings** - Each with unique economy, loot tables, and magic items
+- 🗺️ **6 Campaign Settings** - Five story campaigns plus the open-sandbox Free Realm, each with unique economy, loot tables, and magic items
 - 🎒 **Inventory Management** - Equipment, consumables, quest items
 - 📖 **Journal System** - Quests, NPCs, Lore, Reputation, and Character Status in one codex
 - ⚔️ **Combat Tactics** - Defensive, balanced, or aggressive strategies
@@ -95,6 +100,7 @@
 - 🌿 **Environmental Synergy** - Terrain, lighting, and weather affect combat
 - 📏 **Tactical Positioning** - Flanking, high ground, cover, difficult terrain
 - 😴 **Exhaustion System** - 6-level scale with CON saves, tier-gated removal
+- 🍖 **5e-Style Starvation** - Going without food grants grace days (1 + CON modifier) before any harm, then escalating CON saves (DC 10 + days over). Damage ramps with the streak but is capped on Easy/Normal so a single missed meal can't kill you; eating or a long rest resets the clock
 - 🔫 **Multi-Classing & Progression** - Level up with meaningful choices
 
 ### **Professional Polish**
@@ -255,6 +261,13 @@ The game includes immersive background audio that dynamically changes based on y
 - **Theme:** Classic dungeon crawl
 - **Highlights:** Caves of Chaos, multiple factions, strategic choices
 
+### 🌄 **The Free Realm** *(Sandbox)*
+- **Difficulty:** Open / Player-Driven
+- **Length:** Endless (no chapters)
+- **Setting:** A central crossroads hub and its surrounds
+- **Theme:** Open-world freeform play
+- **Highlights:** Every location reachable from the start, no story gates — pure exploration, combat, and economy
+
 ---
 
 ## 🏆 Achievements
@@ -286,7 +299,7 @@ Unlock 18+ achievements including:
 ```
 dnd-game/
 ├── index.html                       # Main game file (loads the scripts/styles below)
-├── game.js                          # Core game engine (~26.6k lines) — includes the journal map + dialogue-encounter consumer
+├── game.js                          # Core game engine (~28.7k lines) — includes the journal map + dialogue-encounter consumer
 ├── accessibility.js                 # Screen reader, focus, keyboard support — LOADED
 ├── enhancements.js                  # DIALOGUE_ENCOUNTERS data, consumed by game.js — LOADED
 ├── styles.css                       # Core styling — LOADED
@@ -307,12 +320,12 @@ dnd-game/
 
 ## 🎯 Game Statistics
 
-- **26,000+ lines of JavaScript** - Full web game engine (`game.js`)
+- **28,000+ lines of JavaScript** - Full web game engine (`game.js`)
 - **15 playable races** with unique mechanical abilities (Darkvision, Lucky, Breath Weapon, Relentless Endurance, Gnome Cunning, Fey Ancestry, Stone's Endurance, and more)
 - **13 playable classes** with distinct mechanics and subclasses
 - **6 backgrounds** with skill, tool, and language proficiencies
 - **18 D&D 5e skills** fully tracked with proficiency and expertise
-- **5 campaign settings** with unique economies, loot, and magic-item tables
+- **6 campaign settings** — five story campaigns plus the open-sandbox Free Realm — with unique economies, loot, and magic-item tables
 - **150+ spells** across cantrips through 9th-level spell slots
 - **100+ unique enemies** drawn from D&D bestiary archetypes
 - **44 weapons** (simple + martial, plus +1/+2/+3 magic and campaign-unique variants)
@@ -353,6 +366,7 @@ The game supports various settings:
 ## 📝 Development
 
 ### **Version History**
+- **v5.2** - "Living Battlefield & The Free Realm" — Combat depth pass: smarter role-based enemy behavior (casters cast from range, support enemies heal allies, brutes melee), enemy morale & fleeing for wounded non-boss foes, lightweight engaged/near/far zone positioning with Approach/Withdraw player actions and disadvantage for striking un-engaged foes, hand-authored set-piece encounters (Caves of Chaos, Redbrand Hideout, Death House) layered over procedural discovery beats. Optional **AI Dungeon Master** "Improvise" action — describe any action in plain language; a Claude adjudicator (with your API key) or offline keyword fallback picks the check while the engine keeps full control of dice and capped outcomes. New **The Free Realm** open-sandbox campaign (gate-free, hub-and-spoke exploration). Economy made fully real: 5-tier **Lifestyle** upkeep, **Bounty Board**, **Black Market** fence with haggle/heat/guard encounters, and **Artifact Trading** for Major Favors. Fairer 5e-style **starvation** (CON-based grace days, escalating saves, difficulty-capped damage). Bug fixes: **Fey Ancestry** charm immunity now actually applies, **Madness** now imposes disadvantage on WIS checks, autosave double-log removed
 - **v5.1** - "Premium Polish & Hardcore Rules" — Variant Human race (with manual +1/+1 stat picker and starting feat), three ability-score methods (4d6, Standard Array, Point Buy), expanded feat list (14 → 35+ feats including Fey Touched, Shadow Touched, Telekinetic, Telepathic, Piercer/Slasher/Crusher, Skill Expert, Inspiring Leader, Healer, Observant, and more), three new combat actions (Help, Hide, Ready), cover rules (+2/+5 AC, Sharpshooter bypass), flanking advantage with companions, Sneak Attack tightened to PHB RAW (once-per-turn, requires advantage or ally adjacent), difficult terrain travel penalty, light level tracking with Perception disadvantage (−5 passive), quest-completion toast notifications, persistent "Current Objective" banner above the game log, journal diff highlighting for recently-completed quests, map scaling fix (aspect-ratio preservation at all viewport sizes), travel and companion error hardening to prevent soft-locks
 - **v5.0** - "Hardcore 5e" — 7 new races (14 total), 10 new subclasses, 22+ class features (Unarmored Defense, Fighting Styles, Save Proficiency, Brutal Critical, Jack of All Trades, Deflect Missiles, Spell Upcasting, Uncanny Dodge, Divine Smite, Wild Shape, Agonizing Blast, Channel Divinity, Metamagic, Reckless Attack reciprocal), all 13 PHB conditions, scaled falling damage, bonus action spell restriction, mechanically wired racial abilities (Gnome Cunning, Fey Ancestry, Stone's Endurance, Feline Agility, and more)
 - **v4.0** - "Immersive Experience" — 59 new monsters (~210 total), 15 premium polish features: Google Fonts, typewriter narration, combat animations, parchment log, location transitions, loot effects, campaign map, bestiary, day/night cycle, keyboard labels, and more
