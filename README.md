@@ -70,6 +70,12 @@
 - ⛏️ **Lost Mine of Phandelver** - Classic starter adventure on the Sword Coast (Levels 1-5)
 
 ### **Advanced Game Features**
+- ⚔️ **Tactical Multi-Enemy Combat** - Fights can pit you against a *pack* of foes, not just one. A target strip lets you click which enemy to focus; area spells (Fireball, Burning Hands, Thunderwave…) splash every enemy in range; enemies are tagged melee ⚔️ or ranged 🏹 and act on their own turns. Higher-danger areas field larger groups; bosses still come alone
+- 🌟 **Legend & Renown (Account-Wide Progression)** - A permanent rank — Unknown → Wanderer → Adventurer → Hero → Champion → Legend → Mythic — that grows from the all-time deeds of *every* character you play. A dedicated panel shows your title, total Legend points, progress to the next tier, and a breakdown of what's earning your renown; your current rank appears right on the title screen. A reason to keep playing beyond any single campaign
+- 🗣️ **Interactive NPC Conversations** - Talking to an NPC opens a real conversation: ask about local news, request work, and choose skill-gated approaches — read them with **Insight**, win their help with **Persuasion**, or press them with **Intimidation**. Each rolls a live check with rewards (gold, reputation, journal intel) or consequences, and the game remembers what you've already tried
+- 🧭 **Discovery-Based Exploration** - Each dangerous location hides an ordered set of discoveries (a first look, a telling clue, a hidden cache, a lurking foe, and the heart of the place). Exploring reveals them one at a time, the game remembers what you've found (shown as a 🧭 progress counter), and once a place is fully explored it tells you so and nudges you onward — exploring feels like uncovering a place, not mashing a button
+- 🎭 **Branching Dialogue Encounters** - Roadside scenes (mysterious stranger, merchant under attack, glowing artifact, tavern gambler) where each choice rolls a real skill check (Persuasion, Stealth, Arcana, Insight…) with distinct success/failure outcomes — rewards, combat, conditions, or gold
+- 🧠 **Consequences That Remember** - Spare or heal a beaten foe and they may later repay the debt, warding off an ambush. Choices persist across saves
 - 👥 **Companion System** - Recruit NPCs, build loyalty, manage your party
 - 🏆 **18+ Achievements** - Track your legendary deeds
 - 🔨 **Crafting System** - Create magical items and equipment
@@ -279,17 +285,16 @@ Unlock 18+ achievements including:
 ### **File Structure**
 ```
 dnd-game/
-├── index.html                       # Main game file
-├── game.js                          # Core game engine (~36k lines)
-├── _spells_insert.js                # Expanded spell data
-├── enhancements.js                  # UI/QOL enhancements
-├── accessibility.js                 # Screen reader, focus, keyboard support
-├── map-enhancements.js              # Interactive map zoom/pan
-├── styles.css                       # Core styling
-├── premium-ui.css                   # Premium UI polish
-├── quick-visual-fixes.css           # Visual fixes
-├── map-enhancements.css             # Map styling
-├── accessibility-improvements.css   # A11y styling
+├── index.html                       # Main game file (loads the scripts/styles below)
+├── game.js                          # Core game engine (~26.6k lines) — includes the journal map + dialogue-encounter consumer
+├── accessibility.js                 # Screen reader, focus, keyboard support — LOADED
+├── enhancements.js                  # DIALOGUE_ENCOUNTERS data, consumed by game.js — LOADED
+├── styles.css                       # Core styling — LOADED
+├── quick-visual-fixes.css           # Visual polish overlay — LOADED (after styles.css)
+├── premium-ui.css                   # Premium dialogue-encounter modal styling — LOADED
+├── accessibility-improvements.css   # A11y styling — LOADED
+├── map-enhancements.js / .css       # Superseded by game.js's built-in map — NOT loaded
+├── _spells_insert.js                # Spare spell data; spells live in game.js — NOT loaded
 ├── README.md                        # This file
 ├── LICENSE.txt                      # MIT License + Fan Content Policy notice
 ├── NOTICE.txt                       # Third-party attributions (SRD, fonts, trademarks)
@@ -302,7 +307,7 @@ dnd-game/
 
 ## 🎯 Game Statistics
 
-- **35,000+ lines of JavaScript** - Full web game engine (`game.js`)
+- **26,000+ lines of JavaScript** - Full web game engine (`game.js`)
 - **15 playable races** with unique mechanical abilities (Darkvision, Lucky, Breath Weapon, Relentless Endurance, Gnome Cunning, Fey Ancestry, Stone's Endurance, and more)
 - **13 playable classes** with distinct mechanics and subclasses
 - **6 backgrounds** with skill, tool, and language proficiencies

@@ -1,0 +1,574 @@
+/* ==================== QUICK VISUAL FIXES & POLISH ==================== */
+/* Apply these improvements to your existing game for instant premium feel */
+/* Add this file AFTER your styles.css */
+
+/* ==================== IMPROVED SHADOWS & DEPTH ==================== */
+
+/* Add depth to all panels */
+.character-panel,
+.game-panel,
+.modal-content,
+.creation-screen {
+    box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.5),
+        0 2px 8px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Enhance button depth */
+button,
+.action-btn,
+.premium-button {
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+button:hover,
+.action-btn:hover {
+    box-shadow: 
+        0 6px 20px rgba(0, 0, 0, 0.4),
+        0 0 15px rgba(201, 162, 39, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* ==================== SMOOTHER TRANSITIONS ==================== */
+
+/* Apply smooth transitions to interactive elements */
+button,
+.action-btn,
+.inventory-item,
+.campaign-card,
+.option-card,
+.dialogue-choice {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Smooth hover states */
+.inventory-item:hover,
+.campaign-card:hover,
+.option-card:hover {
+    transform: translateX(5px) scale(1.02);
+}
+
+/* ==================== ENHANCED TEXT READABILITY ==================== */
+
+/* Improve text contrast */
+.game-log,
+.log-entry,
+.char-info p,
+.dialogue-description {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Better heading visibility */
+h1, h2, h3, h4, h5, h6,
+.chapter-title,
+.location-name {
+    text-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.6),
+        0 0 10px rgba(201, 162, 39, 0.3);
+}
+
+/* ==================== IMPROVED BORDERS ==================== */
+
+/* Subtle gradient borders */
+.character-panel,
+.game-panel {
+    border-image: linear-gradient(
+        135deg,
+        rgba(201, 162, 39, 0.8) 0%,
+        rgba(201, 162, 39, 0.4) 50%,
+        rgba(201, 162, 39, 0.8) 100%
+    ) 1;
+}
+
+/* Glowing borders on hover */
+.campaign-card:hover,
+.option-card:hover {
+    border-image: linear-gradient(
+        135deg,
+        rgba(201, 162, 39, 1) 0%,
+        rgba(255, 215, 0, 0.8) 50%,
+        rgba(201, 162, 39, 1) 100%
+    ) 1;
+}
+
+/* ==================== ENHANCED SCROLLBARS ==================== */
+
+/* Custom scrollbar for all scrollable areas */
+.game-log::-webkit-scrollbar,
+.inventory-list::-webkit-scrollbar,
+.dialogue-content::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.game-log::-webkit-scrollbar-track,
+.inventory-list::-webkit-scrollbar-track,
+.dialogue-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    border: 1px solid rgba(201, 162, 39, 0.1);
+}
+
+.game-log::-webkit-scrollbar-thumb,
+.inventory-list::-webkit-scrollbar-thumb,
+.dialogue-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #c9a227 0%, #a07818 100%);
+    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+}
+
+.game-log::-webkit-scrollbar-thumb:hover,
+.inventory-list::-webkit-scrollbar-thumb:hover,
+.dialogue-content::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #d4af37 0%, #b88a1f 100%);
+}
+
+/* ==================== IMPROVED FOCUS STATES ==================== */
+
+/* Better keyboard navigation visibility */
+button:focus,
+.action-btn:focus,
+.campaign-card:focus,
+.option-card:focus {
+    outline: 3px solid rgba(79, 195, 247, 0.6);
+    outline-offset: 3px;
+    box-shadow: 
+        0 0 0 6px rgba(79, 195, 247, 0.2),
+        0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* ==================== LOADING STATES ==================== */
+
+/* Add loading animation to buttons */
+button.loading,
+.action-btn.loading {
+    position: relative;
+    color: transparent;
+    pointer-events: none;
+}
+
+button.loading::after,
+.action-btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ==================== IMPROVED MODALS ==================== */
+
+/* Better modal backdrop */
+.modal-overlay {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.3s ease;
+}
+
+/* Modal entrance animation */
+.modal-content {
+    animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ==================== ENHANCED TOOLTIPS ==================== */
+
+/* Add tooltips to buttons */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%) scale(0.8);
+    background: linear-gradient(135deg, rgba(20, 20, 35, 0.98) 0%, rgba(30, 25, 40, 0.98) 100%);
+    color: #e8e8f0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #c9a227;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 10000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+[data-tooltip]::after {
+    content: '';
+    position: absolute;
+    bottom: 115%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #c9a227;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+[data-tooltip]:hover::before {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+}
+
+/* ==================== IMPROVED COMBAT UI ==================== */
+
+/* Better combat log entries */
+.log-entry.combat {
+    border-left-width: 4px;
+    padding-left: 12px;
+    position: relative;
+}
+
+.log-entry.combat::before {
+    content: '⚔️';
+    position: absolute;
+    left: -2px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+/* Success entries */
+.log-entry.success::before {
+    content: '✅';
+}
+
+/* Danger entries */
+.log-entry.danger::before {
+    content: '⚠️';
+}
+
+/* Loot entries */
+.log-entry.loot::before {
+    content: '💎';
+}
+
+/* ==================== ENHANCED HP/XP BARS ==================== */
+
+/* Add shine effect to bars */
+.hp-bar-fill::before,
+.xp-bar-fill::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shine 3s ease-in-out infinite;
+}
+
+@keyframes shine {
+    0%, 100% { left: -100%; }
+    50% { left: 150%; }
+}
+
+/* Pulse animation for low HP (toggled via the .low-hp class in game.js, ~<=30% HP) */
+.hp-bar-fill.low-hp {
+    animation: lowHpPulse 1s ease-in-out infinite;
+}
+
+@keyframes lowHpPulse {
+    0%, 100% { 
+        filter: brightness(1);
+        box-shadow: 0 0 10px rgba(220, 20, 60, 0.6);
+    }
+    50% { 
+        filter: brightness(1.3);
+        box-shadow: 0 0 20px rgba(220, 20, 60, 0.9);
+    }
+}
+
+/* ==================== IMPROVED INVENTORY ==================== */
+
+/* Better inventory item hover */
+.inventory-item {
+    position: relative;
+    overflow: hidden;
+}
+
+.inventory-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(201, 162, 39, 0.2),
+        transparent
+    );
+    transition: left 0.5s ease;
+}
+
+.inventory-item:hover::before {
+    left: 100%;
+}
+
+/* ==================== ENHANCED STATS DISPLAY ==================== */
+
+/* Better stat boxes */
+.stat-box {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    padding: 6px;
+    border: 1px solid rgba(201, 162, 39, 0.2);
+    transition: all 0.3s ease;
+}
+
+.stat-box:hover {
+    background: rgba(201, 162, 39, 0.1);
+    border-color: rgba(201, 162, 39, 0.4);
+    transform: scale(1.05);
+}
+
+/* ==================== IMPROVED CHAPTER BANNERS ==================== */
+
+/* Add animated border to chapter banners */
+.chapter-banner {
+    position: relative;
+    overflow: hidden;
+}
+
+.chapter-banner::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(
+        45deg,
+        #8b0000,
+        #4b0082,
+        #8b0000,
+        #4b0082
+    );
+    background-size: 400% 400%;
+    animation: gradientShift 8s ease infinite;
+    z-index: -1;
+    border-radius: 10px;
+}
+
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* ==================== IMPROVED LOCATION BANNER ==================== */
+
+/* Add icon animation to location banner */
+.location-banner {
+    position: relative;
+}
+
+.location-banner::before {
+    content: '📍';
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(-50%); }
+    50% { transform: translateY(calc(-50% - 10px)); }
+}
+
+/* ==================== RESPONSIVE IMPROVEMENTS ==================== */
+
+/* Better mobile experience */
+@media (max-width: 768px) {
+    /* Larger touch targets */
+    button,
+    .action-btn,
+    .inventory-item,
+    .campaign-card {
+        min-height: 44px;
+        padding: 12px;
+    }
+    
+    /* Better spacing */
+    .container {
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    /* Simplified animations on mobile */
+    * {
+        animation-duration: 0.2s !important;
+    }
+}
+
+/* ==================== PRINT STYLES ==================== */
+
+/* Better printing support */
+@media print {
+    .character-panel,
+    .game-panel {
+        box-shadow: none;
+        border: 2px solid #000;
+    }
+    
+    button,
+    .action-btn {
+        display: none;
+    }
+    
+    .game-log {
+        max-height: none;
+        overflow: visible;
+    }
+}
+
+/* ==================== ACCESSIBILITY IMPROVEMENTS ==================== */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .character-panel,
+    .game-panel,
+    button,
+    .action-btn {
+        border-width: 3px;
+    }
+    
+    .log-entry {
+        border-left-width: 5px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ==================== DARK MODE ENHANCEMENTS ==================== */
+
+/* Even darker mode for OLED screens */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: linear-gradient(135deg, #000000 0%, #0a0a0f 50%, #000000 100%);
+    }
+    
+    .character-panel,
+    .game-panel {
+        background: rgba(0, 0, 0, 0.8);
+    }
+}
+
+/* ==================== PERFORMANCE OPTIMIZATIONS ==================== */
+
+/* GPU acceleration for animations */
+.dialogue-modal,
+.skill-check-result,
+.consequence-notification,
+.tactical-situation {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+}
+
+/* Optimize repaints */
+.hp-bar-fill,
+.xp-bar-fill {
+    will-change: width;
+}
+
+/* ==================== FINAL POLISH ==================== */
+
+/* Add subtle texture to backgrounds */
+.character-panel::before,
+.game-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(255, 255, 255, 0.01) 2px,
+            rgba(255, 255, 255, 0.01) 4px
+        );
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+/* Smooth page transitions */
+body {
+    transition: background 2s ease;
+}
+
+/* Add glow to important elements */
+.chapter-banner,
+.location-banner {
+    box-shadow: 
+        0 4px 16px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ==================== USAGE INSTRUCTIONS ==================== */
+
+/*
+ * TO USE THESE FIXES:
+ * 
+ * 1. Add this file to your project
+ * 2. Link it in index.html AFTER styles.css:
+ *    <link rel="stylesheet" href="quick-visual-fixes.css">
+ * 3. Refresh your browser
+ * 4. Enjoy the instant premium polish!
+ * 
+ * These fixes are non-breaking and work with your existing code.
+ * They add visual polish without changing functionality.
+ */

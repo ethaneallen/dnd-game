@@ -8,8 +8,10 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23e8c33a'/%3E%3Cstop offset='100%25' stop-color='%23a07818'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='48' fill='%231a0a0a' stroke='%23c9a227' stroke-width='3'/%3E%3Cpath d='M30 72 Q32 55 38 48 Q42 42 44 35 L42 22 Q44 28 48 32 L50 20 Q52 28 54 32 Q58 28 60 22 L58 35 Q60 42 64 48 Q70 55 72 72 Q65 68 58 66 Q54 72 50 75 Q46 72 42 66 Q36 68 30 72Z' fill='url(%23g)'/%3E%3Ccircle cx='42' cy='46' r='3' fill='%23ff4444'/%3E%3Ccircle cx='58' cy='46' r='3' fill='%23ff4444'/%3E%3Ccircle cx='42' cy='45.5' r='1.5' fill='%231a0a0a'/%3E%3Ccircle cx='58' cy='45.5' r='1.5' fill='%231a0a0a'/%3E%3Cellipse cx='46' cy='58' rx='2' ry='1.5' fill='%231a0a0a'/%3E%3Cellipse cx='54' cy='58' rx='2' ry='1.5' fill='%231a0a0a'/%3E%3Cpath d='M44 64 Q47 67 50 65 Q53 67 56 64' stroke='%23a07818' stroke-width='1.5' fill='none'/%3E%3C/svg%3E">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=MedievalSharp&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="quick-visual-fixes.css">
+    <link rel="stylesheet" href="premium-ui.css">
     <link rel="stylesheet" href="accessibility-improvements.css">
-    <!-- <link rel="stylesheet" href="map-enhancements.css"> DISABLED - causing display issues -->
+    <!-- map-enhancements.css/.js intentionally disabled: superseded by the built-in journal map (adjustJournalMapZoom/fitJournalMapToView in game.js). The old standalone MapEnhancer attached duplicate zoom/pan controls to the same #journalMapSvg, which conflicted. Do not re-enable without removing the built-in map. -->
     <style>
         * {
             margin: 0;
@@ -1387,6 +1389,64 @@
             padding: 6px 10px 4px;
         }
 
+        /* Multi-enemy target strip */
+        .enemy-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .enemy-card {
+            background: rgba(0, 0, 0, 0.35);
+            border: 2px solid rgba(160, 120, 24, 0.5);
+            border-radius: 8px;
+            padding: 6px 10px;
+            min-width: 120px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #e8e8f0;
+            text-align: center;
+        }
+        .enemy-card:hover {
+            border-color: #c9a227;
+            transform: translateY(-2px);
+        }
+        .enemy-card.targeted {
+            border-color: #ffd54f;
+            background: rgba(201, 162, 39, 0.18);
+            box-shadow: 0 0 12px rgba(201, 162, 39, 0.4);
+        }
+        .enemy-card-name {
+            font-family: 'Cinzel', serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .enemy-card-hpbar {
+            height: 6px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-bottom: 3px;
+        }
+        .enemy-card-hpfill {
+            height: 100%;
+            background: linear-gradient(to right, #dc143c, #ff4d6d);
+            transition: width 0.3s ease;
+        }
+        .enemy-card-hp {
+            font-size: 0.7rem;
+            color: #bbb;
+        }
+
+        .enemy-card-zone {
+            font-size: 0.66rem;
+            color: #d8c08a;
+            margin-top: 2px;
+            letter-spacing: 0.02em;
+        }
+
         .enemy-description {
             color: #bbb;
             font-size: 0.78rem;
@@ -2309,6 +2369,26 @@
             line-height: 1.5;
             font-weight: 400;
         }
+
+        .title-legend-badge {
+            display: inline-block;
+            margin: 0 auto 18px;
+            padding: 6px 16px;
+            border-radius: 999px;
+            border: 1px solid #c9a227;
+            background: rgba(201, 162, 39, 0.12);
+            color: #ffd54f;
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .title-legend-badge:hover {
+            background: rgba(201, 162, 39, 0.25);
+            box-shadow: 0 0 14px rgba(201, 162, 39, 0.35);
+        }
+        .title-legend-badge.hidden { display: none; }
 
         .title-buttons {
             display: flex;
@@ -5125,6 +5205,7 @@
                 <p class="title-subtitle">
                     Embark on epic quests, battle fearsome monsters, and forge your destiny in this immersive D&D 5e adventure.
                 </p>
+                <button id="titleLegendBadge" class="title-legend-badge hidden" onclick="game.openLegend()" title="View your Legend &amp; Renown" aria-label="View your Legend and Renown"></button>
 
                 <div class="feature-showcase" role="list" aria-label="Game features">
                     <div class="showcase-item" role="listitem">
@@ -5296,6 +5377,8 @@
                             </div>
                             <!-- Enemy Section -->
                             <div class="combat-enemy-section" role="group" aria-labelledby="combatTitle">
+                                <!-- Multi-enemy target strip (shown only when >1 enemy) -->
+                                <div class="enemy-cards" id="enemyCards" role="group" aria-label="Choose your target" style="display:none;"></div>
                                 <p class="enemy-description" id="enemyDescription">A fearsome foe!</p>
                                 <div class="enemy-image-container" id="enemyImageContainer" style="display: none;">
                                     <img id="enemyImage" src="" alt="">
@@ -5375,6 +5458,18 @@
                                         <span class="icon">⏱️</span>
                                         Ready
                                     </button>
+                                    <button class="action-btn" onclick="game.combatAction('approach')" title="Close the distance — pull ranged foes into melee range">
+                                        <span class="icon">🏃</span>
+                                        Approach
+                                    </button>
+                                    <button class="action-btn" onclick="game.combatAction('withdraw')" title="Open the distance — push melee foes back so they can't strike next turn">
+                                        <span class="icon">🦶</span>
+                                        Withdraw
+                                    </button>
+                                    <button class="action-btn" onclick="game.freeformAction()" title="Improvise — describe any action and the DM adjudicates it with a skill check">
+                                        <span class="icon">🎭</span>
+                                        Improvise
+                                    </button>
                                     <button class="action-btn" onclick="game.combatAction('flee')">
                                         <span class="icon">🏃</span>
                                         Retreat <span class="shortcut-hint">[R]</span>
@@ -5416,6 +5511,10 @@
                         <span class="icon">🛏️</span>
                         Rest <span class="shortcut-hint">[R]</span>
                     </button>
+                    <button class="action-btn" onclick="game.freeformAction()" title="Improvise — describe any action and the DM adjudicates it with a skill check">
+                        <span class="icon">🎭</span>
+                        Improvise
+                    </button>
                     <button class="action-btn" onclick="game.openPartyPanel()">
                         <span class="icon">👥</span>
                         Party <span class="shortcut-hint">[P]</span>
@@ -5437,7 +5536,12 @@
                             <button class="menu-dropdown-item" onclick="game.openSettings(); game.closeMenuDropdown();">⚙️ Settings</button>
                             <button class="menu-dropdown-item" onclick="game.saveGame(); game.closeMenuDropdown();">💾 Save Game</button>
                             <button class="menu-dropdown-item" onclick="game.openAchievements(); game.closeMenuDropdown();">🏆 Achievements</button>
+                            <button class="menu-dropdown-item" onclick="game.openLegend(); game.closeMenuDropdown();">🌟 Legend &amp; Renown</button>
                             <button class="menu-dropdown-item" onclick="game.openAnalytics(); game.closeMenuDropdown();">📊 Analytics</button>
+                            <button class="menu-dropdown-item" onclick="game.openLifestyle(); game.closeMenuDropdown();">🏠 Lifestyle</button>
+                            <button class="menu-dropdown-item" onclick="game.openBountyBoard(); game.closeMenuDropdown();">📜 Bounty Board</button>
+                            <button class="menu-dropdown-item" onclick="game.openBlackMarket(); game.closeMenuDropdown();">🕯️ Black Market</button>
+                            <button class="menu-dropdown-item" onclick="game.openArtifactTrading(); game.closeMenuDropdown();">🏺 Artifact Trading</button>
                             <button class="menu-dropdown-item" onclick="game.exportCharacter(); game.closeMenuDropdown();">📤 Export Character</button>
                             <button class="menu-dropdown-item" onclick="game.returnToMainMenu(); game.closeMenuDropdown();">🏠 Main Menu</button>
                         </div>
@@ -5464,6 +5568,20 @@
             <h2 id="choiceTitle">Choose</h2>
             <p id="choiceDescription" style="margin-bottom: 20px; text-align: center;"></p>
             <div class="travel-options" id="choiceOptions" role="list" aria-label="Available choices">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Premium Dialogue Encounter Modal (styled by premium-ui.css) -->
+    <div class="dialogue-modal" id="dialogueModal" role="dialog" aria-modal="true" aria-labelledby="dialogueTitle" style="display:none;">
+        <div class="dialogue-content">
+            <div class="dialogue-header">
+                <span class="dialogue-icon" id="dialogueIcon">🎭</span>
+                <h2 class="dialogue-title" id="dialogueTitle">Encounter</h2>
+                <p class="dialogue-description" id="dialogueDescription"></p>
+            </div>
+            <div class="dialogue-choices" id="dialogueChoices" role="list" aria-label="Available choices">
                 <!-- Populated by JS -->
             </div>
         </div>
@@ -5557,7 +5675,9 @@
     </footer>
 
     <script src="accessibility.js"></script>
-    <!-- <script src="map-enhancements.js"></script> DISABLED - causing display issues -->
+    <!-- map-enhancements.js intentionally disabled: superseded by game.js's built-in journal map; re-enabling double-binds zoom/pan on #journalMapSvg. -->
+    <!-- enhancements.js provides DIALOGUE_ENCOUNTERS, consumed by game.js's triggerDialogueEncounter(). Must load BEFORE game.js. -->
+    <script src="enhancements.js"></script>
     <script src="game.js"></script>
 </body>
 </html>

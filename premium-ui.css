@@ -1,0 +1,666 @@
+/* ==================== PREMIUM UI ENHANCEMENTS ==================== */
+/* Enhanced visual polish and professional refinements */
+
+/* ==================== DIALOGUE CHOICE MODAL ==================== */
+.dialogue-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+}
+
+.dialogue-content {
+    background: linear-gradient(135deg, rgba(20, 20, 35, 0.98) 0%, rgba(30, 25, 40, 0.98) 100%);
+    border: 3px solid #c9a227;
+    border-radius: 15px;
+    padding: 30px;
+    /* Match .modal-content (500px) so every explore interaction is the same width */
+    max-width: 500px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.8),
+        0 0 40px rgba(201, 162, 39, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.dialogue-header {
+    text-align: center;
+    margin-bottom: 25px;
+    border-bottom: 2px solid rgba(201, 162, 39, 0.3);
+    padding-bottom: 20px;
+}
+
+.dialogue-icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+    display: block;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.dialogue-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    color: #c9a227;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 10px rgba(201, 162, 39, 0.4);
+}
+
+.dialogue-description {
+    font-size: 1.1rem;
+    color: #d0d0e0;
+    line-height: 1.6;
+    font-style: italic;
+    margin-bottom: 5px;
+}
+
+.dialogue-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.dialogue-choice {
+    background: linear-gradient(135deg, rgba(45, 45, 68, 0.6) 0%, rgba(30, 30, 50, 0.8) 100%);
+    border: 2px solid rgba(100, 100, 140, 0.4);
+    border-radius: 10px;
+    padding: 15px 20px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.dialogue-choice::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.dialogue-choice:hover::before {
+    left: 100%;
+}
+
+.dialogue-choice:hover {
+    border-color: #c9a227;
+    background: linear-gradient(135deg, rgba(60, 55, 75, 0.8) 0%, rgba(40, 35, 60, 0.9) 100%);
+    transform: translateX(8px) scale(1.02);
+    box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(201, 162, 39, 0.2);
+}
+
+.dialogue-choice:active {
+    transform: translateX(8px) scale(0.98);
+}
+
+.choice-text {
+    font-size: 1.05rem;
+    color: #e8e8f0;
+    font-weight: 500;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.choice-skill {
+    font-size: 0.85rem;
+    color: #4fc3f7;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.choice-dc {
+    background: rgba(79, 195, 247, 0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.choice-cost {
+    font-size: 0.85rem;
+    color: #ffd54f;
+    margin-top: 5px;
+}
+
+/* ==================== SKILL CHECK RESULT MODAL ==================== */
+.skill-check-result {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background: linear-gradient(135deg, rgba(20, 20, 35, 0.98) 0%, rgba(30, 25, 40, 0.98) 100%);
+    border: 3px solid #c9a227;
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 600px;
+    width: 90%;
+    z-index: 10001;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.9),
+        0 0 40px rgba(201, 162, 39, 0.4);
+    animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes popIn {
+    to {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.result-success {
+    border-color: #4CAF50;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.9),
+        0 0 40px rgba(76, 175, 80, 0.4);
+}
+
+.result-failure {
+    border-color: #dc143c;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.9),
+        0 0 40px rgba(220, 20, 60, 0.4);
+}
+
+.result-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.result-icon {
+    font-size: 3.5rem;
+    margin-bottom: 10px;
+    display: block;
+    animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    25% { transform: translateY(-20px); }
+    50% { transform: translateY(-10px); }
+    75% { transform: translateY(-15px); }
+}
+
+.result-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+}
+
+.result-title.success {
+    color: #4CAF50;
+    text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+}
+
+.result-title.failure {
+    color: #dc143c;
+    text-shadow: 0 0 20px rgba(220, 20, 60, 0.5);
+}
+
+.result-roll {
+    font-size: 1.1rem;
+    color: #c9a227;
+    margin-bottom: 15px;
+}
+
+.result-description {
+    font-size: 1.05rem;
+    color: #d0d0e0;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.result-rewards {
+    background: rgba(201, 162, 39, 0.1);
+    border: 1px solid rgba(201, 162, 39, 0.3);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.reward-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+    font-size: 1rem;
+    color: #ffd54f;
+}
+
+.reward-icon {
+    font-size: 1.3rem;
+}
+
+.continue-button {
+    width: 100%;
+    background: linear-gradient(135deg, #c9a227 0%, #a07818 100%);
+    border: none;
+    color: #1a1a2e;
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.continue-button:hover {
+    background: linear-gradient(135deg, #d4af37 0%, #b88a1f 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(201, 162, 39, 0.4);
+}
+
+.continue-button:active {
+    transform: translateY(0);
+}
+
+/* ==================== TACTICAL COMBAT INDICATORS ==================== */
+.tactical-situation {
+    background: linear-gradient(90deg, transparent, rgba(79, 195, 247, 0.15), transparent);
+    border: 1px solid rgba(79, 195, 247, 0.3);
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    animation: slideInRight 0.5s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.tactical-icon {
+    font-size: 2rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.tactical-info {
+    flex: 1;
+}
+
+.tactical-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    color: #4fc3f7;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.tactical-description {
+    font-size: 0.9rem;
+    color: #b0b0c0;
+}
+
+.tactical-bonuses {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.bonus-badge {
+    background: rgba(76, 175, 80, 0.2);
+    border: 1px solid rgba(76, 175, 80, 0.4);
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    color: #4CAF50;
+    font-weight: 600;
+}
+
+.penalty-badge {
+    background: rgba(220, 20, 60, 0.2);
+    border: 1px solid rgba(220, 20, 60, 0.4);
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    color: #dc143c;
+    font-weight: 600;
+}
+
+/* ==================== ENHANCED COMBAT LOG ==================== */
+.combat-action {
+    padding: 10px 15px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border-left: 4px solid transparent;
+    animation: slideInLeft 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.combat-action::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, currentColor, transparent);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.action-player-attack {
+    background: rgba(79, 195, 247, 0.1);
+    border-left-color: #4fc3f7;
+}
+
+.action-player-critical {
+    background: rgba(255, 215, 0, 0.15);
+    border-left-color: #ffd700;
+    animation: criticalGlow 0.5s ease;
+}
+
+@keyframes criticalGlow {
+    0%, 100% { box-shadow: 0 0 0 rgba(255, 215, 0, 0); }
+    50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
+}
+
+.action-enemy-attack {
+    background: rgba(220, 20, 60, 0.1);
+    border-left-color: #dc143c;
+}
+
+.action-spell-cast {
+    background: rgba(156, 39, 176, 0.1);
+    border-left-color: #9C27B0;
+}
+
+.action-healing {
+    background: rgba(76, 175, 80, 0.1);
+    border-left-color: #4CAF50;
+}
+
+/* ==================== CONSEQUENCE NOTIFICATION ==================== */
+.consequence-notification {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: linear-gradient(135deg, rgba(201, 162, 39, 0.95) 0%, rgba(160, 120, 24, 0.95) 100%);
+    border: 2px solid #ffd54f;
+    border-radius: 10px;
+    padding: 15px 20px;
+    max-width: 350px;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.6),
+        0 0 20px rgba(201, 162, 39, 0.4);
+    animation: slideInFromRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 9999;
+}
+
+@keyframes slideInFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(400px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.consequence-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.consequence-icon {
+    font-size: 1.5rem;
+}
+
+.consequence-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    color: #1a1a2e;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.consequence-text {
+    color: #2a2a3e;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+/* ==================== IMPROVED BUTTON STYLES ==================== */
+.premium-button {
+    background: linear-gradient(135deg, rgba(201, 162, 39, 0.2) 0%, rgba(160, 120, 24, 0.3) 100%);
+    border: 2px solid #c9a227;
+    color: #f0e0b0;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.premium-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.premium-button:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.premium-button:hover {
+    border-color: #ffd54f;
+    background: linear-gradient(135deg, rgba(201, 162, 39, 0.3) 0%, rgba(160, 120, 24, 0.4) 100%);
+    transform: translateY(-3px);
+    box-shadow: 
+        0 8px 20px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(201, 162, 39, 0.3);
+}
+
+.premium-button:active {
+    transform: translateY(-1px);
+}
+
+.premium-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ==================== ENHANCED TOOLTIPS ==================== */
+.premium-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.premium-tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%) scale(0.8);
+    background: linear-gradient(135deg, rgba(20, 20, 35, 0.98) 0%, rgba(30, 25, 40, 0.98) 100%);
+    color: #e8e8f0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #c9a227;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 10000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+.premium-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: 115%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #c9a227;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.premium-tooltip:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}
+
+.premium-tooltip:hover::before {
+    opacity: 1;
+}
+
+/* ==================== LOADING STATES ==================== */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10002;
+    animation: fadeIn 0.3s ease;
+}
+
+.loading-spinner-premium {
+    width: 80px;
+    height: 80px;
+    border: 4px solid rgba(201, 162, 39, 0.2);
+    border-top: 4px solid #c9a227;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    box-shadow: 0 0 20px rgba(201, 162, 39, 0.4);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ==================== RESPONSIVE IMPROVEMENTS ==================== */
+@media (max-width: 768px) {
+    .dialogue-content {
+        padding: 20px;
+        max-width: 95%;
+    }
+    
+    .dialogue-title {
+        font-size: 1.4rem;
+    }
+    
+    .dialogue-description {
+        font-size: 1rem;
+    }
+    
+    .dialogue-choice {
+        padding: 12px 15px;
+    }
+    
+    .consequence-notification {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .skill-check-result {
+        max-width: 95%;
+        padding: 20px;
+    }
+}
+
+/* ==================== ACCESSIBILITY IMPROVEMENTS ==================== */
+.dialogue-choice:focus,
+.premium-button:focus,
+.continue-button:focus {
+    outline: 3px solid #4fc3f7;
+    outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
