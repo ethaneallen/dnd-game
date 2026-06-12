@@ -325,6 +325,67 @@
             border-left: 3px solid #4CAF50;
         }
 
+        /* Rarity-coded left border (premium loot read). Scoped to :not(.equipped) so the
+           equipped accent always wins. Higher specificity than .usable so rare consumables
+           still get their rarity color. */
+        .inventory-item:not(.equipped)[data-rarity="2"] { border-left: 3px solid #1eff5a; }
+        .inventory-item:not(.equipped)[data-rarity="3"] { border-left: 3px solid #2f9bff; }
+        .inventory-item:not(.equipped)[data-rarity="4"] { border-left: 3px solid #c44dff; }
+        .inventory-item:not(.equipped)[data-rarity="5"] {
+            border-left: 3px solid #ff9d00;
+            box-shadow: inset 0 0 14px rgba(255,157,0,0.12);
+        }
+
+        /* Inventory filter bar (category tabs + search) */
+        .inventory-filter {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin: 0 0 8px;
+        }
+        .inventory-search {
+            width: 100%;
+            box-sizing: border-box;
+            background: rgba(20, 20, 40, 0.6);
+            border: 1px solid rgba(201, 162, 39, 0.35);
+            color: #e4e4e4;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 0.78rem;
+        }
+        .inventory-search::placeholder { color: #888; }
+        .inventory-filter-tabs {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .inv-filter-btn {
+            flex: 1 1 auto;
+            min-width: 34px;
+            background: rgba(20, 20, 40, 0.5);
+            border: 1px solid rgba(201, 162, 39, 0.25);
+            color: #cbbf9a;
+            border-radius: 6px;
+            padding: 5px 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .inv-filter-btn:hover { background: rgba(201, 162, 39, 0.18); }
+        .inv-filter-btn.active {
+            background: rgba(201, 162, 39, 0.85);
+            color: #1a1208;
+            border-color: #c9a227;
+            font-weight: 700;
+        }
+        .inventory-empty {
+            padding: 14px 8px;
+            text-align: center;
+            color: #888;
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+
         .rarity-badge {
             display: inline-block;
             margin-left: 6px;
@@ -5218,6 +5279,16 @@
                         <option value="type">Type</option>
                     </select>
                 </div>
+                <div class="inventory-filter" id="inventoryFilterBar">
+                    <input type="text" id="inventorySearchInput" class="inventory-search" placeholder="🔍 Search items..." oninput="game.setInventorySearch(this.value)" autocomplete="off" />
+                    <div class="inventory-filter-tabs">
+                        <button class="inv-filter-btn active" data-filter="all" onclick="game.setInventoryFilter('all', this)" title="All items">All</button>
+                        <button class="inv-filter-btn" data-filter="Weapon" onclick="game.setInventoryFilter('Weapon', this)" title="Weapons">⚔️</button>
+                        <button class="inv-filter-btn" data-filter="Armor" onclick="game.setInventoryFilter('Armor', this)" title="Armor &amp; Shields">🛡️</button>
+                        <button class="inv-filter-btn" data-filter="Consumable" onclick="game.setInventoryFilter('Consumable', this)" title="Consumables">🧪</button>
+                        <button class="inv-filter-btn" data-filter="Misc" onclick="game.setInventoryFilter('Misc', this)" title="Other">📦</button>
+                    </div>
+                </div>
                 <div class="inventory-list" id="inventoryList">
                     <!-- Items populated by JS -->
                 </div>
@@ -5551,7 +5622,7 @@
                         <span class="icon">👁️</span>
                         Scout <span class="shortcut-hint">[X]</span>
                     </button>
-                    <button class="action-btn" onclick="game.explorePressOn()" title="Press On — advance to the next discovery quickly, no skill roll.">
+                    <button class="action-btn" onclick="game.explorePressOn()" title="Press On — skip the exploration check and move quickly to the next discovery. That next discovery may still have its own roll.">
                         <span class="icon">➡️</span>
                         Press On
                     </button>

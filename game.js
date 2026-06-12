@@ -7407,25 +7407,35 @@ class DungeonMaster {
         this.character.gold -= mount.cost;
         this.character.mountedOn = mountType;
         this.character.mount = { ...mount, currentHP: mount.hp };
+        if (typeof this.autoSaveGame === "function") this.autoSaveGame();
         
         return {
             success: true,
             mount: mountType,
-            message: `You purchased a ${mountType}!`
+            message: `You purchased a ${mount.name}! It now appears next to your traits and in the Mounts tab.`
         };
     }
 
     mountSteed(mountType) {
-        if (!this.character.mount || this.character.mount.name !== mountType) {
+        // Accept either the mount key (e.g. "horse") or the display name (e.g. "Horse"),
+        // since callers pass different forms.
+        const owned = this.character.mount;
+        const matches = owned && (
+            this.character.mountedOn === mountType ||
+            owned.name === mountType ||
+            (owned.name && owned.name.toLowerCase() === String(mountType).toLowerCase())
+        );
+        if (!matches) {
             return { success: false, message: "You don't have this mount." };
         }
         
-        this.character.mountedOn = mountType;
+        this.character.mountedOn = this.character.mountedOn || mountType;
+        if (typeof this.autoSaveGame === "function") this.autoSaveGame();
         return {
             success: true,
-            message: `${this.character.name} is now mounted on a ${mountType}.`,
-            ac: this.character.mount.ac,
-            speed: this.character.mount.speed
+            message: `${this.character.name} is now mounted on a ${owned.name}.`,
+            ac: owned.ac,
+            speed: owned.speed
         };
     }
 
@@ -7436,6 +7446,7 @@ class DungeonMaster {
         
         const mountName = this.character.mountedOn;
         this.character.mountedOn = null;
+        if (typeof this.autoSaveGame === "function") this.autoSaveGame();
         return {
             success: true,
             message: `${this.character.name} dismounts from the ${mountName}.`
@@ -8624,6 +8635,9 @@ class Game {
 
         // Inventory sort preference
         this.inventorySort = "default";
+        // Inventory category filter + text search (UX: stop the spreadsheet scroll)
+        this.inventoryFilter = "all";
+        this.inventorySearch = "";
         
         // Log filter settings
         this.logFilters = {
@@ -9457,7 +9471,7 @@ class Game {
         for (const quest of this.sideQuests) {
             if (quest.completed) continue;
 
-            if (quest.type === 'kill' && eventType === 'kill' && quest.target && target.toLowerCase().includes(quest.target.toLowerCase())) {
+            if (quest.type === 'kill' && eventType === 'kill' && quest.target && this._killMatchesQuestTarget(target, quest.target)) {
                 quest.progress++;
                 this.log(`📋 Quest Progress: ${quest.title} (${quest.progress}/${quest.goal})`, 'dm');
 
@@ -9494,6 +9508,24 @@ class Game {
         }
     }
     
+    // Whether a slain monster counts toward a kill quest / bounty. Word-boundary match so a
+    // "Goblin" bounty isn't completed by killing a "Hobgoblin", while still stripping the
+    // "Elite " / "(minion)" encounter affixes so reshaped foes still count.
+    _killMatchesQuestTarget(monsterName, target) {
+        if (!monsterName || !target) return false;
+        const clean = String(monsterName).toLowerCase()
+            .replace(/\belite\s+/g, '')
+            .replace(/\s*\(minion\)\s*/g, ' ')
+            .trim();
+        const t = String(target).toLowerCase().trim();
+        const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        try {
+            return new RegExp(`\\b${escaped}\\b`).test(clean);
+        } catch (e) {
+            return clean.includes(t);
+        }
+    }
+
     completeSideQuest(quest) {
         quest.completed = true;
         quest.completedAt = Date.now();
@@ -11402,9 +11434,16 @@ class Game {
             if (this.character.alignment && ALIGNMENTS[this.character.alignment]) {
                 traitsHtml += `<span class="trait-tag" title="${ALIGNMENTS[this.character.alignment].description}">⚖️ ${ALIGNMENTS[this.character.alignment].name}</span>`;
             }
-            // Mount display
-            if (this.character.mountedOn && this.character.mount) {
-                traitsHtml += `<span class="trait-tag" title="Mounted on ${this.character.mount.name} (${this.character.mount.currentHP}/${this.character.mount.hp} HP)">${this.character.mount.color || '🐴'} ${this.character.mount.name} (${this.character.mount.currentHP}HP)</span>`;
+            // Mount display — show the owned mount whether you're riding it (Mounted) or it's
+            // stabled (dismounted). Previously it only appeared while mounted, so after buying a
+            // mount and dismounting it vanished from the UI entirely ("I don't see it anywhere").
+            if (this.character.mount) {
+                const m = this.character.mount;
+                const hp = m.currentHP != null ? m.currentHP : m.hp;
+                const riding = !!this.character.mountedOn;
+                const dead = hp <= 0;
+                const status = dead ? '💀 dead' : (riding ? 'Riding' : 'Stabled');
+                traitsHtml += `<span class="trait-tag" title="${riding ? 'Mounted on' : 'You own a'} ${m.name} (${hp}/${m.hp} HP) — ${status}. Manage at a town shop's Mounts tab." style="${riding ? 'background:rgba(201,162,39,0.18);border-color:#c9a227;' : ''}">${m.color || '🐴'} ${m.name} · ${status} (${hp}HP)</span>`;
             }
             if (this.character.hasDarkvision && this.character.hasDarkvision()) {
                 traitsHtml += `<span class="trait-tag" title="Darkvision ${this.character.darkvisionRange}ft">🌙 Darkvision ${this.character.darkvisionRange}ft</span>`;
@@ -11819,9 +11858,30 @@ class Game {
         } else {
             sortedItems = [...itemMeta].sort((a, b) => a.idx - b.idx);
         }
+
+        // Apply category filter + text search over the already-built meta (cheap predicates).
+        // Filters group Shields under Armor and Materials under Misc so the tab set stays small.
+        const activeFilter = this.inventoryFilter || "all";
+        const searchTerm = (this.inventorySearch || "").trim().toLowerCase();
+        const matchesInventoryFilter = (entry) => {
+            if (activeFilter !== "all") {
+                if (activeFilter === "Armor") {
+                    if (entry.type !== "Armor" && entry.type !== "Shield") return false;
+                } else if (activeFilter === "Misc") {
+                    if (entry.type !== "Misc" && entry.type !== "Material") return false;
+                } else if (entry.type !== activeFilter) {
+                    return false;
+                }
+            }
+            if (searchTerm && !entry.name.includes(searchTerm)) return false;
+            return true;
+        };
+        const visibleItems = sortedItems.filter(matchesInventoryFilter);
         
-        // Render grouped items
-        for (let entry of sortedItems) {
+        // Render grouped items (build all rows, then assign innerHTML ONCE — avoids the
+        // O(n²) reparse/reflow of `innerHTML +=` once per item inside the loop)
+        const rows = [];
+        for (let entry of visibleItems) {
             const item = entry.item;
             const count = itemCounts[item];
             
@@ -11853,7 +11913,7 @@ class Game {
 
             const isUnidentifiedMagic = this.character.unidentifiedItems.includes(item);
             
-            let itemHtml = `<div class="inventory-item ${isUsable ? 'usable' : ''} ${isEquipped ? 'equipped' : ''} ${isEquippable ? 'equippable' : ''} ${isCampaignItem ? 'campaign-item' : ''}">`;
+            let itemHtml = `<div class="inventory-item ${isUsable ? 'usable' : ''} ${isEquipped ? 'equipped' : ''} ${isEquippable ? 'equippable' : ''} ${isCampaignItem ? 'campaign-item' : ''}" data-rarity="${entry.rarity}">`;
             itemHtml += `<span class="item-name" onclick="game.showItemInfo('${item.replace(/'/g, "\\'")}')" title="Click for info">`;
             const rarityLabel = getItemRarityLabel(entry.rarity);
             const rarityTitle = getItemRarityTitle(entry.rarity);
@@ -11876,11 +11936,11 @@ class Game {
             if (isEquipped) {
                 itemHtml += ` <span class="equipped-badge">✓ Equipped</span>`;
             } else if (isEquippable) {
-                itemHtml += ` <button class="equip-btn" onclick="game.equipItem('${item}')">Equip</button>`;
+                itemHtml += ` <button class="equip-btn" onclick="game.equipItem('${item.replace(/'/g, "\\'")}')">Equip</button>`;
             }
             
             if (isUsable) {
-                itemHtml += ` <button class="use-btn" onclick="game.useItem('${item}')">Use</button>`;
+                itemHtml += ` <button class="use-btn" onclick="game.useItem('${item.replace(/'/g, "\\'")}')">Use</button>`;
             }
             
             // Drop button (not for equipped items)
@@ -11889,7 +11949,12 @@ class Game {
             }
             
             itemHtml += `</div>`;
-            inventoryList.innerHTML += itemHtml;
+            rows.push(itemHtml);
+        }
+        if (rows.length) {
+            inventoryList.innerHTML = rows.join("");
+        } else {
+            inventoryList.innerHTML = `<div class="inventory-empty">${itemMeta.length === 0 ? "Your pack is empty." : "No items match this filter."}</div>`;
         }
         
         // Update location
@@ -11929,6 +11994,24 @@ class Game {
     setInventorySort(mode) {
         this.inventorySort = mode || "default";
         this.updateUI();
+    }
+
+    setInventoryFilter(filter, btnEl) {
+        this.inventoryFilter = filter || "all";
+        // Toggle the active tab styling immediately (the filter bar lives outside the
+        // inventory list, so updateUI's innerHTML rebuild won't touch these buttons).
+        if (btnEl && btnEl.parentElement) {
+            btnEl.parentElement.querySelectorAll(".inv-filter-btn").forEach(b => b.classList.remove("active"));
+            btnEl.classList.add("active");
+        }
+        this.updateUI();
+    }
+
+    setInventorySearch(term) {
+        this.inventorySearch = term || "";
+        // Debounce so we don't run the full updateUI on every keystroke.
+        clearTimeout(this._inventorySearchTimer);
+        this._inventorySearchTimer = setTimeout(() => this.updateUI(), 120);
     }
 
     log(message, type = "dm") {
@@ -13841,9 +13924,15 @@ class Game {
         if (this.autoSaveGame) this.autoSaveGame();
 
         if (combat && combat.enemy) {
-            const monster = this._findEncounterMonster(combat.enemy);
+            const count = Math.max(1, combat.count || 1);
             this.log(`⚔️ Combat breaks out!`, "danger");
-            this.startCombat(monster);
+            if (count > 1) {
+                const roster = Array.from({ length: count }, () => this._findEncounterMonster(combat.enemy));
+                this.startCombatGroup(roster);
+            } else {
+                const monster = this._findEncounterMonster(combat.enemy);
+                this.startCombat(monster);
+            }
         }
         return true;
     }
@@ -18574,8 +18663,12 @@ class Game {
     // ===== ECONOMY: BOUNTY BOARD =====
     // Posts kill-bounties drawn from the current chapter's monsters. Accepting one creates a
     // standard `kill` side quest (so the existing kill-tracking + completion flow handles it).
-    openBountyBoard() {
+    openBountyBoard(feedback = null) {
         const char = this.character;
+        // Re-rendering after accepting a bounty must NOT stack a new overlay on the old one
+        // (that stranded the X/Close button behind duplicate modals). Close any existing
+        // bounty modal first, then build a fresh one.
+        this._closeBountyBoardModal();
         const chapter = this.dm.currentChapter || 0;
         const pools = this.dm.campaign?.monsters || {};
         const tier = pools[chapter] && pools[chapter].length ? chapter : Object.keys(pools)[0];
@@ -18601,12 +18694,27 @@ class Game {
         }).join("");
         // Stash the computed board so acceptBounty can read it by index.
         this._currentBountyBoard = board;
+        // In-modal feedback line: the game log sits BEHIND the overlay, so acceptance
+        // results have to be surfaced here or the player thinks nothing happened.
+        const feedbackHtml = feedback
+            ? `<p class="setting-desc" style="background:${feedback.tone === 'bad' ? 'rgba(231,76,60,0.18)' : 'rgba(76,175,80,0.18)'};border-left:3px solid ${feedback.tone === 'bad' ? '#e74c3c' : '#4CAF50'};border-radius:6px;padding:8px 10px;color:#eee;">${feedback.msg}</p>`
+            : '';
         const html = `
             <h2>📜 Bounty Board</h2>
             <p class="setting-desc">Standing kill-bounties posted by local authorities. Accept one to add it to your quests; collect when the target count is slain. 💰 ${char.gold} gp</p>
+            ${feedbackHtml}
             ${rows || '<p class="setting-desc">No bounties are posted here right now.</p>'}
         `;
-        this.showModal(html, { size: 'medium' });
+        this._bountyModal = this.showModal(html, { size: 'medium', extraClass: 'bounty-board-modal' });
+    }
+
+    _closeBountyBoardModal() {
+        if (this._bountyModal) {
+            this._bountyModal.remove();
+            this._bountyModal = null;
+        }
+        // Belt-and-suspenders: clear any stragglers from earlier stacking bugs.
+        document.querySelectorAll('.bounty-board-modal').forEach(c => c.closest('.modal-overlay')?.remove());
     }
 
     acceptBounty(index) {
@@ -18615,7 +18723,10 @@ class Game {
         if (!b) return;
         const char = this.character;
         char.acceptedBounties = char.acceptedBounties || [];
-        if (char.acceptedBounties.some(x => x.target === b.name)) return;
+        if (char.acceptedBounties.some(x => x.target === b.name)) {
+            this.openBountyBoard({ tone: 'bad', msg: `You've already accepted the bounty on ${b.name}.` });
+            return;
+        }
         char.acceptedBounties.push({ target: b.name });
         // Create a kill side quest so existing tracking/completion applies.
         const quest = {
@@ -18628,15 +18739,19 @@ class Game {
         this.sideQuests.push(quest);
         this.log(`📜 Bounty accepted: slay ${b.count} ${b.name} (Reward: ${b.gold} gp, ${b.xp} XP).`, "loot");
         if (this.autoSaveGame) this.autoSaveGame();
-        this.openBountyBoard();
+        this.openBountyBoard({ tone: 'good', msg: `✓ Bounty accepted: slay ${b.count}× ${b.name} for 💰 ${b.gold} gp · ✨ ${b.xp} XP. Track it in your Quests.` });
     }
 
     // ===== ECONOMY: BLACK MARKET =====
     // A shady fence buys goods at a premium (90% vs the normal 50%), but every sale raises
     // "heat". A CHA (Persuasion) haggle can push the price higher or, on a bad roll, spike
     // heat. Enough heat risks a guard encounter on exit.
-    openBlackMarket() {
+    openBlackMarket(feedback = null) {
         const char = this.character;
+        // Re-rendering after a sale must NOT stack a new overlay on top of the old one
+        // (that stranded the X/Close button behind duplicate modals). Remove any existing
+        // black-market modal first, then build one fresh.
+        this._closeBlackMarketModal();
         const prices = (typeof GAME_DATA !== "undefined" && GAME_DATA.shopPrices) || {};
         const equipped = [char.equipped?.weapon, char.equipped?.armor, char.equipped?.shield];
         const sellable = [...new Set(char.inventory)].filter(item => {
@@ -18647,8 +18762,9 @@ class Game {
             const name = typeof item === "string" ? item : item.name;
             const base = prices[name];
             const fence = Math.floor(base * 0.9);
+            const owned = char.inventory.filter(i => (typeof i === "string" ? i : i?.name) === name).length;
             return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;margin-bottom:6px;background:rgba(0,0,0,0.3);border-radius:6px;">
-                <span>${name} <span style="color:#aaa;font-size:0.8rem;">(~${fence} gp)</span></span>
+                <span>${name}${owned > 1 ? ` <span style="color:#4CAF50;">x${owned}</span>` : ''} <span style="color:#aaa;font-size:0.8rem;">(~${fence} gp)</span></span>
                 <span>
                     <button class="setting-btn" onclick="game.blackMarketSell('${name.replace(/'/g, "\\'")}', false)">Sell</button>
                     <button class="setting-btn" onclick="game.blackMarketSell('${name.replace(/'/g, "\\'")}', true)">Haggle</button>
@@ -18657,14 +18773,30 @@ class Game {
         }).join("");
         const heat = char.blackMarketHeat || 0;
         const heatBar = "🔥".repeat(Math.min(5, Math.floor(heat / 20))) || "—";
+        // In-modal feedback line: the game log sits BEHIND the overlay, so transaction
+        // results have to be surfaced here or the player thinks nothing happened.
+        const feedbackHtml = feedback
+            ? `<p class="setting-desc" style="background:${feedback.tone === 'bad' ? 'rgba(231,76,60,0.18)' : 'rgba(76,175,80,0.18)'};border-left:3px solid ${feedback.tone === 'bad' ? '#e74c3c' : '#4CAF50'};border-radius:6px;padding:8px 10px;color:#eee;">${feedback.msg}</p>`
+            : '';
         const html = `
             <h2>🕯️ Black Market</h2>
             <p class="setting-desc">A fence in the shadows. Sells at ~90% of value (vs. 50% at honest shops). <strong>Haggle</strong> for more with a Persuasion check — but it draws attention. Heat: ${heatBar} (${heat}/100) · 💰 ${char.gold} gp</p>
-            ${heat >= 80 ? '<p class="setting-desc" style="color:#e88;">⚠️ Heat is dangerously high — the guards are watching. Leaving now may trigger a confrontation.</p>' : ''}
+            ${feedbackHtml}
+            ${heat >= 100 ? '<p class="setting-desc" style="color:#ff6b5b;">🚨 The fence is done with you — "Too hot, friend. Take your business elsewhere." Leave before the watch arrives.</p>'
+                : heat >= 80 ? '<p class="setting-desc" style="color:#e88;">⚠️ Heat is dangerously high — the guards are watching. Each sale now risks a raid, and leaving may trigger a confrontation.</p>' : ''}
             ${rows || '<p class="setting-desc">You have nothing worth fencing.</p>'}
             <button class="setting-btn" style="margin-top:10px;" onclick="game.leaveBlackMarket()">Leave the Market</button>
         `;
-        this.showModal(html, { size: 'medium' });
+        this._blackMarketModal = this.showModal(html, { size: 'medium', extraClass: 'black-market-modal' });
+    }
+
+    _closeBlackMarketModal() {
+        if (this._blackMarketModal) {
+            this._blackMarketModal.remove();
+            this._blackMarketModal = null;
+        }
+        // Belt-and-suspenders: clear any stragglers from earlier stacking bugs.
+        document.querySelectorAll('.black-market-modal').forEach(c => c.closest('.modal-overlay')?.remove());
     }
 
     blackMarketSell(name, haggle) {
@@ -18672,52 +18804,75 @@ class Game {
         const prices = (typeof GAME_DATA !== "undefined" && GAME_DATA.shopPrices) || {};
         const base = prices[name];
         if (!base) return;
+        const heatNow = char.blackMarketHeat || 0;
+        // At max heat the fence refuses — a guaranteed, visible consequence so reaching
+        // 100 heat actually means something instead of silently doing nothing.
+        if (heatNow >= 100) {
+            this.openBlackMarket({ tone: 'bad', msg: `🚫 The fence waves you off — "You're too hot. Leave." No deal until you lie low.` });
+            return;
+        }
         const idx = char.inventory.findIndex(i => (typeof i === "string" ? i : i?.name) === name);
         if (idx === -1) return;
         let price = Math.floor(base * 0.9);
         let heatGain = 8;
+        let feedback;
         if (haggle) {
             const check = this.dm.skillCheck("cha", 13, false, false, "Persuasion");
             if (check.success) {
                 price = Math.floor(base * (1.0 + Math.random() * 0.2)); // up to 120%
                 this.log(`🗣️ Haggle success (${check.total} vs DC 13) — the fence pays ${price} gp.`, "success");
+                feedback = { tone: 'good', msg: `🗣️ Haggle won (rolled ${check.total} vs DC 13)! Sold <strong>${name}</strong> for <strong>${price} gp</strong>.` };
                 heatGain = 12;
             } else {
                 price = Math.floor(base * 0.7);
                 heatGain = 25; // a botched haggle makes a scene
                 this.log(`🗣️ Haggle failed (${check.total} vs DC 13) — you settle for ${price} gp and draw eyes.`, "danger");
+                feedback = { tone: 'bad', msg: `🗣️ Haggle failed (rolled ${check.total} vs DC 13). Settled for <strong>${price} gp</strong> and drew attention (+heat).` };
             }
         } else {
             this.log(`🕯️ You quietly fence the ${name} for ${price} gp.`, "dm");
+            feedback = { tone: 'good', msg: `🕯️ Fenced <strong>${name}</strong> for <strong>${price} gp</strong>.` };
         }
         char.inventory.splice(idx, 1);
         char.gold += price;
         this.trackStat && this.trackStat('goldEarned', price);
-        char.blackMarketHeat = Math.min(100, (char.blackMarketHeat || 0) + heatGain);
+        char.blackMarketHeat = Math.min(100, heatNow + heatGain);
         if (this.autoSaveGame) this.autoSaveGame();
-        this.openBlackMarket();
+        // High heat: a sale can draw the watch in immediately, not just on the way out.
+        if (char.blackMarketHeat >= 80 && Math.random() < (char.blackMarketHeat - 70) / 60) {
+            this._blackMarketRaid(`🛡️ Your last deal was one too many — the watch storms the den! "Nobody move!"`);
+            return;
+        }
+        this.openBlackMarket(feedback);
+    }
+
+    _blackMarketRaid(message) {
+        const char = this.character;
+        this._closeBlackMarketModal();
+        this.log(message, "danger");
+        char.blackMarketHeat = Math.floor((char.blackMarketHeat || 0) / 2); // a raid cools things off
+        const tier = Math.min(this.dm.currentLocation?.danger || 2, 3);
+        const pool = (this.dm.campaign.monsters && this.dm.campaign.monsters[tier]) || [];
+        const guard = pool.length ? { ...pool[Math.floor(Math.random() * pool.length)], name: "City Watch Enforcer" }
+                                  : { name: "City Watch Enforcer", hp: 20, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "slashing" };
+        if (this.autoSaveGame) this.autoSaveGame();
+        this.startCombat(guard);
     }
 
     leaveBlackMarket() {
         const char = this.character;
         const heat = char.blackMarketHeat || 0;
-        // Close the modal.
-        document.querySelector(".modal-overlay")?.remove();
-        // High heat → chance the guards move in.
-        const chance = Math.max(0, (heat - 40) / 100); // 0 below 40 heat, up to 0.6 at 100
+        // Close the black-market modal cleanly.
+        this._closeBlackMarketModal();
+        // High heat → chance the guards move in. Scales from 0 at 30 heat to near-certain at 100.
+        const chance = Math.min(0.95, Math.max(0, (heat - 30) / 75));
         if (Math.random() < chance) {
-            this.log(`🛡️ As you slip out, the city watch closes in — "Hold there, fence!"`, "danger");
-            char.blackMarketHeat = Math.floor(heat / 2); // a raid cools things off
-            const tier = Math.min(this.dm.currentLocation?.danger || 2, 3);
-            const pool = (this.dm.campaign.monsters && this.dm.campaign.monsters[tier]) || [];
-            const guard = pool.length ? { ...pool[Math.floor(Math.random() * pool.length)], name: "City Watch Enforcer" }
-                                      : { name: "City Watch Enforcer", hp: 20, ac: 14, damage: "1d8", xp: 100, attackBonus: 4, damageType: "slashing" };
-            this.startCombat(guard);
-        } else {
-            // Heat decays a little when you lie low.
-            char.blackMarketHeat = Math.max(0, heat - 5);
-            this.log(`🕯️ You melt back into the crowd, business concluded.`, "dm");
+            this._blackMarketRaid(`🛡️ As you slip out, the city watch closes in — "Hold there, fence!"`);
+            return;
         }
+        // Heat decays a little when you lie low.
+        char.blackMarketHeat = Math.max(0, heat - 5);
+        this.log(`🕯️ You melt back into the crowd, business concluded.`, "dm");
         if (this.autoSaveGame) this.autoSaveGame();
         this.updateUI();
     }
@@ -18737,8 +18892,12 @@ class Game {
         });
     }
 
-    openArtifactTrading() {
+    openArtifactTrading(feedback = null) {
         const char = this.character;
+        // Re-rendering after a trade/favor must NOT stack a new overlay on the old one
+        // (that stranded the X/Close button behind duplicate modals). Close any existing
+        // artifact modal first, then build a fresh one.
+        this._closeArtifactModal();
         const artifacts = this._artifactItems();
         const favorList = Object.entries(MAJOR_FAVORS).map(([key, f]) =>
             `<label style="display:block;margin:4px 0;"><input type="radio" name="favorChoice" value="${key}"> ${f.icon} <strong>${f.name}</strong> (${f.charges} charges) — ${f.desc}</label>`
@@ -18765,15 +18924,28 @@ class Game {
                 </div>`;
             }).join("")}` : '';
 
-        const html = `<h2>🏺 Artifact Trading</h2>${tradeSection}${ownedSection}`;
-        this.showModal(html, { size: 'medium' });
+        // In-modal feedback line: the game log sits BEHIND the overlay, so trade/favor
+        // results have to be surfaced here or the player thinks nothing happened.
+        const feedbackHtml = feedback
+            ? `<p class="setting-desc" style="background:${feedback.tone === 'bad' ? 'rgba(231,76,60,0.18)' : 'rgba(76,175,80,0.18)'};border-left:3px solid ${feedback.tone === 'bad' ? '#e74c3c' : '#4CAF50'};border-radius:6px;padding:8px 10px;color:#eee;">${feedback.msg}</p>`
+            : '';
+        this._artifactModal = this.showModal(`<h2>🏺 Artifact Trading</h2>${feedbackHtml}${tradeSection}${ownedSection}`, { size: 'medium', extraClass: 'artifact-trading-modal' });
+    }
+
+    _closeArtifactModal() {
+        if (this._artifactModal) {
+            this._artifactModal.remove();
+            this._artifactModal = null;
+        }
+        // Belt-and-suspenders: clear any stragglers from earlier stacking bugs.
+        document.querySelectorAll('.artifact-trading-modal').forEach(c => c.closest('.modal-overlay')?.remove());
     }
 
     tradeArtifact() {
         const char = this.character;
         const sel = document.getElementById("artifactSelect");
         const favorRadio = document.querySelector('input[name="favorChoice"]:checked');
-        if (!sel || !favorRadio) { this.log("Choose both an item and a favor.", "warning"); return; }
+        if (!sel || !favorRadio) { this.openArtifactTrading({ tone: 'bad', msg: 'Choose both an item and a favor before trading.' }); return; }
         const itemName = sel.value;
         const favorKey = favorRadio.value;
         const idx = char.inventory.findIndex(i => (typeof i === "string" ? i : i?.name) === itemName);
@@ -18786,7 +18958,7 @@ class Game {
         else char.majorFavors.push({ key: favorKey, charges: MAJOR_FAVORS[favorKey].charges });
         this.log(`🏺 You trade the ${itemName} for the ${MAJOR_FAVORS[favorKey].name}.`, "loot");
         if (this.autoSaveGame) this.autoSaveGame();
-        this.openArtifactTrading();
+        this.openArtifactTrading({ tone: 'good', msg: `✓ Traded ${itemName} for the ${MAJOR_FAVORS[favorKey].icon} ${MAJOR_FAVORS[favorKey].name} (${MAJOR_FAVORS[favorKey].charges} charge(s)).` });
     }
 
     invokeFavor(key) {
@@ -18825,7 +18997,9 @@ class Game {
         }
         this.updateUI();
         // Refresh the panel only if still open and out of combat.
-        if (!this.dm.inCombat && document.querySelector(".modal-overlay")) this.openArtifactTrading();
+        if (!this.dm.inCombat && document.querySelector(".artifact-trading-modal")) {
+            this.openArtifactTrading(consumed ? { tone: 'good', msg: `✓ Invoked ${def.icon} ${def.name}.` } : null);
+        }
     }
 
     // ===== MONSTER STAT BLOCKS =====
@@ -22944,6 +23118,7 @@ class Game {
             container.innerHTML = "";
             this.populateMountShop(container);
             this.updateUI();
+            this.autoSaveGame();
         } else {
             this.log(`❌ ${result.message}`, "danger");
         }
@@ -22958,6 +23133,7 @@ class Game {
             container.innerHTML = "";
             this.populateMountShop(container);
             this.updateUI();
+            this.autoSaveGame();
         }
     }
     
@@ -22969,6 +23145,7 @@ class Game {
             container.innerHTML = "";
             this.populateMountShop(container);
             this.updateUI();
+            this.autoSaveGame();
         }
     }
     
@@ -24383,11 +24560,25 @@ class Game {
     }
     
     renderMaterials() {
-        const materials = this.character.materials;
-        const entries = Object.entries(materials).filter(([_, count]) => count > 0);
+        // Crafting materials live in THREE places: the dedicated materials map (combat
+        // drops), the main inventory (looted components), and the spell-component map
+        // (shop-bought components like Silver Dust, routed there by buyItem). Merge all
+        // three so the panel reflects everything a recipe can actually consume.
+        const counts = {};
+        for (const [mat, count] of Object.entries(this.character.materials)) {
+            if (count > 0) counts[mat] = (counts[mat] || 0) + count;
+        }
+        const known = this.getKnownCraftingMaterials();
+        for (const item of this.character.inventory) {
+            if (known.has(item)) counts[item] = (counts[item] || 0) + 1;
+        }
+        for (const [comp, count] of Object.entries(this.character.materialComponents || {})) {
+            if (count > 0 && known.has(comp)) counts[comp] = (counts[comp] || 0) + count;
+        }
+        const entries = Object.entries(counts).filter(([_, count]) => count > 0);
         
         if (entries.length === 0) {
-            return '<p class="craft-empty">No materials collected yet. Defeat monsters to gather materials!</p>';
+            return '<p class="craft-empty">No materials collected yet. Defeat monsters or buy components to gather materials!</p>';
         }
         
         return entries.map(([mat, count]) => `
@@ -24403,7 +24594,11 @@ class Game {
         let html = Object.entries(CRAFTING_RECIPES).map(([name, recipe]) => {
             const canCraft = this.canCraftRecipe(recipe);
             const materialsText = Object.entries(recipe.materials)
-                .map(([mat, count]) => `${count}x ${mat}`)
+                .map(([mat, count]) => {
+                    const have = this.getCraftingMaterialCount(mat);
+                    const ok = have >= count;
+                    return `<span class="${ok ? 'ingredient-owned' : 'ingredient-missing'}">${count}x ${mat} (have ${have})</span>`;
+                })
                 .join(', ');
             
             return `
@@ -24458,11 +24653,59 @@ class Game {
     
     canCraftRecipe(recipe) {
         for (const [material, needed] of Object.entries(recipe.materials)) {
-            if ((this.character.materials[material] || 0) < needed) {
+            if (this.getCraftingMaterialCount(material) < needed) {
                 return false;
             }
         }
         return true;
+    }
+
+    // ----- Crafting material helpers -----
+    // Materials can come from the dedicated materials map (combat drops) OR the main
+    // inventory (shop-bought / looted components). These helpers treat both as one pool.
+    getKnownCraftingMaterials() {
+        if (!this._knownCraftingMaterials) {
+            const names = new Set();
+            for (const r of Object.values(CRAFTING_RECIPES)) {
+                for (const m of Object.keys(r.materials)) names.add(m);
+            }
+            for (const r of Object.values(DISCOVERABLE_RECIPES)) {
+                for (const ing of r.ingredients) names.add(ing);
+            }
+            this._knownCraftingMaterials = names;
+        }
+        return this._knownCraftingMaterials;
+    }
+
+    getCraftingMaterialCount(name) {
+        const fromMaterials = this.character.materials[name] || 0;
+        const fromInventory = this.character.inventory.filter(i => i === name).length;
+        const fromComponents = (this.character.materialComponents && this.character.materialComponents[name]) || 0;
+        return fromMaterials + fromInventory + fromComponents;
+    }
+
+    consumeCraftingMaterial(name, amount) {
+        let remaining = amount;
+        // Draw from the materials map first, then inventory copies, then the spell-
+        // component map (where shop-bought components like Silver Dust are stored).
+        const inMaterials = this.character.materials[name] || 0;
+        if (inMaterials > 0) {
+            const take = Math.min(inMaterials, remaining);
+            this.character.useMaterial(name, take);
+            remaining -= take;
+        }
+        while (remaining > 0) {
+            const idx = this.character.inventory.indexOf(name);
+            if (idx === -1) break;
+            this.character.inventory.splice(idx, 1);
+            remaining--;
+        }
+        if (remaining > 0 && this.character.materialComponents && this.character.materialComponents[name] > 0) {
+            const take = Math.min(this.character.materialComponents[name], remaining);
+            this.dm.removeMaterialComponent(name, take);
+            remaining -= take;
+        }
+        return remaining === 0;
     }
     
     craftItem(recipeName) {
@@ -24472,9 +24715,9 @@ class Game {
             return;
         }
         
-        // Consume materials
+        // Consume materials (from materials map first, then inventory)
         for (const [material, needed] of Object.entries(recipe.materials)) {
-            this.character.useMaterial(material, needed);
+            this.consumeCraftingMaterial(material, needed);
         }
         
         // Skill check
@@ -25717,6 +25960,17 @@ class Game {
     }
 
     useItem(item) {
+        // Wrapper: run the consume logic, then persist immediately if it changed the
+        // inventory. Item mutations previously only called updateUI(), so a consume mid-
+        // session was lost if the tab closed before the next unrelated autosave.
+        const beforeLen = this.character.inventory.length;
+        this._useItemInner(item);
+        if (this.character.inventory.length !== beforeLen && this.autoSaveGame) {
+            this.autoSaveGame();
+        }
+    }
+
+    _useItemInner(item) {
         if (this.dm.inCombat) {
             this.log("You can't use items during combat!", "danger");
             return;
@@ -25931,11 +26185,15 @@ class Game {
     }
     
     dropItem(item) {
-        // Check if item is equipped
+        // Count how many of this item we have and how many are free to drop.
+        const itemCount = this.character.inventory.filter(i => i === item).length;
         const isEquipped = item === this.character.equipped.weapon || 
                           item === this.character.equipped.armor || 
                           item === this.character.equipped.shield;
-        if (isEquipped) {
+        // The equipped copy is protected, but SPARES of the same item can still be dropped
+        // (fixes the bug where owning 2 of an equipped item locked BOTH from being dropped).
+        const droppableCount = isEquipped ? itemCount - 1 : itemCount;
+        if (droppableCount <= 0) {
             this.log(`⚠️ Cannot drop ${item} — unequip it first!`, "warning");
             return;
         }
@@ -25949,12 +26207,9 @@ class Game {
             return;
         }
         
-        // Count how many of this item we have
-        const itemCount = this.character.inventory.filter(i => i === item).length;
-        
-        if (itemCount > 1) {
-            // Show quantity selector
-            this.showDropQuantityModal(item, itemCount);
+        if (droppableCount > 1) {
+            // Show quantity selector (capped to the spare count so the equipped copy is safe)
+            this.showDropQuantityModal(item, droppableCount);
             return;
         }
         
@@ -26067,6 +26322,7 @@ class Game {
             const totalWeight = weight * dropped;
             this.log(`🗑️ Dropped ${dropped}x ${item} (${totalWeight} lb${totalWeight !== 1 ? 's' : ''}).`, "dm");
             this.updateUI();
+            if (this.autoSaveGame) this.autoSaveGame();
         }
     }
 
@@ -26079,6 +26335,7 @@ class Game {
             this.log(`❌ ${result.message}`, "danger");
         }
         this.updateUI();
+        if (result.success && this.autoSaveGame) this.autoSaveGame();
     }
     
     unequipItem(slot) {
@@ -26088,6 +26345,7 @@ class Game {
             this.log(`${result.message}`, "dm");
         }
         this.updateUI();
+        if (result.success && this.autoSaveGame) this.autoSaveGame();
     }
 
     unattuneItemUI(itemName) {
