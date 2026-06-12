@@ -2,13 +2,9 @@
 
 ### *An Epic D&D 5th Edition Web RPG Experience*
 
-[![Version](https://img.shields.io/badge/version-5.2-gold)](#-development)
+[![Version](https://img.shields.io/badge/version-5.3-gold)](#-development)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE.txt)
 [![D&D](https://img.shields.io/badge/D%26D-5e-red)](https://dnd.wizards.com/resources/systems-reference-document)
-
-
-<img width="1390" height="888" alt="image" src="https://github.com/user-attachments/assets/21b82193-a840-426e-8b4a-484acae6ddb1" />
-
 
 ---
 
@@ -64,7 +60,18 @@
 - ✅ **Alignment System** - Full 9-alignment grid (LG/NG/CG/LN/N/CN/LE/NE/CE) tracked on your character
 - ✅ **Mounts** - Horse, Pony, Camel, Warhorse, and Elephant with AC, HP, speed, and carry capacity
 - ✅ **Mini-Games** - Three-Dragon Ante, Arm Wrestling, Drinking Contest, Tavern Card Game, and Dice Game for tavern downtime
-- ✅ **Legendary Resistances & Actions** - Bosses spend resistances to auto-succeed saves and take legendary actions between turns (Multiattack, Melee, Dodge, Dash, Roar, Heal, Spellcast)
+- ✅ **Legendary Resistances & Signature Actions** - Bosses spend resistances to auto-succeed saves and take **archetype-specific legendary actions** between turns — dragons use Tail/Wing/Frightful Presence, liches Paralyzing Touch & Drain Life, vampires bite-and-charm, demons teleport, giants stomp, aberrations mind-spike (un-archetyped bosses use a generic pool)
+- ✅ **Boss Phase Two** - On dropping below 50% HP a boss enrages once: an extra attack, bonus damage, a refreshed legendary resistance, and shrugging off control — the back half of a boss fight is categorically more dangerous
+- ✅ **Condition Immunities** - Creatures resist conditions they can't suffer: undead are immune to poisoned/charmed/frightened, constructs ignore most body/mind conditions, oozes can't be grappled or knocked prone (Turn Undead still frightens undead, per RAW)
+- ✅ **"Save Ends" Conditions** - Frightened, poisoned, charmed and the like let the afflicted creature roll a saving throw at the end of each of its turns to shake the effect off — for both the player and monsters
+- ✅ **Two-Way Opportunity Attacks** - Foes that flee or back out of your reach provoke a free melee strike (one reaction per round); you provoke when you withdraw without Disengaging
+- ✅ **Persistent Combat HUD** - Range band, active condition chips (player & enemy), action-economy tracker, and a round counter stay visible above the log
+- ✅ **Action Surge (usable)** - Fighters can declare Action Surge to take a second action on their turn (once, twice at L17, per short rest)
+- ✅ **Per-Spell Upcasting** - Iconic spells scale correctly: Magic Missile gains a dart per level, Scorching Ray gains a ray, others gain dice
+- ✅ **Parley / Social Combat** - Talk a wounded, non-mindless foe down with Persuasion, Intimidation, or Deception (reputation-modified) to end a fight without bloodshed
+- ✅ **Environmental Hazards** - Some battlefields have a hazard (spiked pit, brazier, ravine) you can Shove foes into, and a careless foe risks stumbling into it
+- ✅ **Minion / Elite Encounters** - At higher levels groups can form a tough elite leader backed by fragile minions, or a swarm of weak foes — so high-level fights feel different, not just bigger
+- ✅ **Rules-Complexity Toggle** - Simple / Standard / Hardcore gates the optional punishing systems (variant encumbrance, light penalties, madness, harsh starvation) so new players aren't buried while veterans keep the full grind
 
 ### **Epic Campaign Content**
 - 🛡️ **Keep on the Borderlands** ★ Recommended Start — Defend against chaos (Levels 1-3)
@@ -82,7 +89,10 @@
 - 🤖 **AI Dungeon Master (Optional)** - An optional "Improvise" 🎭 action (in both the combat and explore action bars) lets you describe *any* action in your own words. With an Anthropic API key added in Settings, a Claude-powered adjudicator picks the right ability check and difficulty; without a key, an offline keyword adjudicator handles it. Either way **the engine owns the dice and the outcome** — the AI is advisory only and its effects are strictly capped, so a bad response can never corrupt your game state
 - 🌟 **Legend & Renown (Account-Wide Progression)** - A permanent rank — Unknown → Wanderer → Adventurer → Hero → Champion → Legend → Mythic — that grows from the all-time deeds of *every* character you play. A dedicated panel shows your title, total Legend points, progress to the next tier, and a breakdown of what's earning your renown; your current rank appears right on the title screen. A reason to keep playing beyond any single campaign
 - 🗣️ **Interactive NPC Conversations** - Talking to an NPC opens a real conversation: ask about local news, request work, and choose skill-gated approaches — read them with **Insight**, win their help with **Persuasion**, or press them with **Intimidation**. Each rolls a live check with rewards (gold, reputation, journal intel) or consequences, and the game remembers what you've already tried
-- 🧭 **Discovery-Based Exploration** - Each dangerous location hides an ordered set of discoveries (a first look, a telling clue, a hidden cache, a lurking foe, and the heart of the place). Exploring reveals them one at a time, the game remembers what you've found (shown as a 🧭 progress counter), and once a place is fully explored it tells you so and nudges you onward — exploring feels like uncovering a place, not mashing a button
+- 🧭 **Intent-Driven Exploration** - Instead of one "Explore" button, choose *how* you explore: **Search** (Investigation — more loot, hidden caches), **Scout** (Perception/Stealth — get the drop on a fight or risk being surprised), or **Press On** (advance quickly). Each dangerous location hides an ordered set of discoveries (first look, telling clue, hidden cache, lurking foe, the heart of the place) plus seeded variety beats — traps, omens, resource nodes, forked paths, and **build-gated** challenges only your particular character can fully exploit (a Rogue's lock, an Arcana ritual, a Strength door, a face's negotiation). The game tracks progress (🧭 counter) and nudges you onward when a place is fully explored
+- 🌍 **World Reactivity** - Clearing a dangerous location eases the threat in nearby areas and earns regional goodwill — the map reacts to your deeds instead of being a set of isolated dungeons
+- ⚖️ **Faction Rivalries** - Reputation has teeth: rising with one faction erodes standing with its rival (the watch vs. the thieves' guild; nobility vs. commoners), and making an enemy of the merchants' guild bars reputable shops, pushing you to the black market
+- ⏳ **Downtime Activities** - Rest in a safe haven to bank downtime days, then spend them training a new proficiency, crafting, working for gold, researching, or recuperating
 - 🎭 **Branching Dialogue Encounters** - Roadside scenes (mysterious stranger, merchant under attack, glowing artifact, tavern gambler) where each choice rolls a real skill check (Persuasion, Stealth, Arcana, Insight…) with distinct success/failure outcomes — rewards, combat, conditions, or gold
 - 🧠 **Consequences That Remember** - Spare or heal a beaten foe and they may later repay the debt, warding off an ambush. Choices persist across saves
 - 👥 **Companion System** - Recruit NPCs, build loyalty, manage your party
@@ -114,7 +124,7 @@
 - 📱 **Responsive Design** - Play on desktop, tablet, or mobile
 - 🎵 **Immersive Experience** - Atmospheric design and feedback
 - 🌓 **Theme Support** - Multiple visual themes + day/night cycle
-- 🎲 **3D Dice Animations** - Spinning dice for ALL rolls with immersive sound effects
+- 🎲 **Faceted Polyhedral Dice** - Every die type (d4/d6/d8/d10/d12/d20/d%) renders as its correct shape with shaded facet planes for a solid, resin-like look, a toss-and-settle bounce, and a true **reroll animation** — Halfling Lucky and Great Weapon Fighting visibly sweep the rejected die away and roll its replacement. Multi-die clusters (e.g. 8d6 Fireball) throw a full set of dice, optimized so big spells don't bog down on mobile
 - 🎯 **Landing Page** - Clean, responsive hero interface with optimized spacing
 - 🏅 **Combat Toast Notifications** - Quick victory summaries that auto-dismiss, expandable for full details
 - 🌲 **Ambient Soundscapes** - Immersive background audio that changes based on your location
@@ -129,6 +139,15 @@
 - 📖 **Bestiary Journal** - Track every monster you encounter with stats and lore
 - 👤 **Character Portrait** - Race-based emoji portrait on character panel
 - 🗺️ **Interactive Map** - Zoom (Ctrl+Scroll, 0.5×–3×), pan, hover tooltips, and clickable location nodes
+
+### **🧑‍🏫 New-Player Onboarding**
+- ✅ **First-Visit Tutorial** - A 7-step walkthrough auto-opens the first time you play (skippable, revisitable via "How to Play"), plus a one-time plain-English primer the first time you enter combat
+- ✅ **Rolls That Explain Themselves** - Attacks and ability checks now state *why* they have advantage or disadvantage ("📉 Disadvantage — you are frightened, heavily encumbered"), so worse/better dice are never a mystery
+- ✅ **Rules-Complexity Toggle** - Simple / Standard / Hardcore lets newcomers turn off the punishing optional systems and veterans keep them all
+- ✅ **In-Game Rules Glossary** - A searchable reference for AC, advantage, saves, every condition, rest, attunement, and more — look up "what does poisoned do?" without leaving the game
+- ✅ **Next-Level Previews** - The XP bar and level-up tell you exactly what your next level unlocks, so you always have a build payoff to grind toward
+- ✅ **Expedition Recaps** - Returning to a safe town summarizes what you accomplished and nudges the rest → downtime → shop loop, giving open-ended play a session rhythm
+- ✅ **"Where Do I Go Next?" Helper** - An always-available stuck-help button shows your current objective, suggested next step, and unvisited unlocked destinations — verified soft-lock-free across all five story campaigns
 
 ### **♿ Accessibility**
 - ✅ **Screen Reader Support** - `aria-live` regions announce combat, rolls, and narration to assistive tech
@@ -370,6 +389,7 @@ The game supports various settings:
 ## 📝 Development
 
 ### **Version History**
+- **v5.3** - "Depth, Onboarding & Polish" — A broad pass deepening combat, replayability, and accessibility, plus a full cross-campaign progression audit. **Combat depth:** end-of-turn saving throws for "save ends" conditions (player & monsters), two-way **opportunity attacks**, correct prone melee-vs-ranged advantage, a persistent combat **HUD** (range band, condition chips, action economy, round counter), **condition immunities** (undead shrug off poison/charm/fright, constructs ignore most, oozes can't be grappled/proned), **per-monster signature legendary actions** (dragons/liches/vampires/demons/giants/aberrations each act distinctly) and a **bloodied phase-two** boss escalation at 50% HP, a usable **Action Surge** control, and **per-spell upcasting** (Magic Missile gains darts, Scorching Ray gains rays). **Encounter feel:** once-per-day long-rest gating that activates the resource game, a post-victory short-rest nudge, smarter **focus-fire** enemy AI, **minion/elite** encounter templates, mid-fight **environmental hazards** (shove foes in / stumble risk), and a **Parley** social action to talk wounded foes down. **Replayability:** intent-driven exploration (**Search / Scout / Press On**), richer discovery beats (trap, omen, resource, forked path, **build-gated** skill challenges), **faction rivalries** with shop lockout, **world reactivity** (clearing a place eases nearby danger), and a wired-up **Downtime** panel (training/crafting/working with banked days). **Onboarding & accessibility:** rolls now **explain why** they have advantage/disadvantage, a **Simple / Standard / Hardcore** rules-complexity toggle gates the punishing optional systems, **next-level previews** telegraph the build payoff, an **expedition recap** gives the loop a session shape, and an in-game searchable **Rules Glossary**. **Premium dice:** faceted, shaded polyhedral dice (d4/d6/d8/d10/d12/d20/d%) with toss-and-settle physics easing, multi-die clusters optimized for mobile, and a real **reroll animation** (Halfling Lucky / Great Weapon Fighting now show the rejected die swept away). **Fixes:** dialogue-encounter failures now apply their consequences (trap damage/conditions), every modal (Bounty Board, Black Market, Artifact Trading) is guaranteed a close button + Escape, Point Buy no longer flashes on each ± and now requires spending all 27 points, and a verified soft-lock-free progression audit across all five campaigns with clearer per-chapter "what to do next" guidance
 - **v5.2** - "Living Battlefield & The Free Realm" — Combat depth pass: smarter role-based enemy behavior (casters cast from range, support enemies heal allies, brutes melee), enemy morale & fleeing for wounded non-boss foes, lightweight engaged/near/far zone positioning with Approach/Withdraw player actions and disadvantage for striking un-engaged foes, hand-authored set-piece encounters (Caves of Chaos, Redbrand Hideout, Death House) layered over procedural discovery beats. Optional **AI Dungeon Master** "Improvise" action — describe any action in plain language; a Claude adjudicator (with your API key) or offline keyword fallback picks the check while the engine keeps full control of dice and capped outcomes. New **The Free Realm** open-sandbox campaign (gate-free, hub-and-spoke exploration). Economy made fully real: 5-tier **Lifestyle** upkeep, **Bounty Board**, **Black Market** fence with haggle/heat/guard encounters, and **Artifact Trading** for Major Favors. Fairer 5e-style **starvation** (CON-based grace days, escalating saves, difficulty-capped damage). Bug fixes: **Fey Ancestry** charm immunity now actually applies, **Madness** now imposes disadvantage on WIS checks, autosave double-log removed
 - **v5.1** - "Premium Polish & Hardcore Rules" — Variant Human race (with manual +1/+1 stat picker and starting feat), three ability-score methods (4d6, Standard Array, Point Buy), expanded feat list (14 → 35+ feats including Fey Touched, Shadow Touched, Telekinetic, Telepathic, Piercer/Slasher/Crusher, Skill Expert, Inspiring Leader, Healer, Observant, and more), three new combat actions (Help, Hide, Ready), cover rules (+2/+5 AC, Sharpshooter bypass), flanking advantage with companions, Sneak Attack tightened to PHB RAW (once-per-turn, requires advantage or ally adjacent), difficult terrain travel penalty, light level tracking with Perception disadvantage (−5 passive), quest-completion toast notifications, persistent "Current Objective" banner above the game log, journal diff highlighting for recently-completed quests, map scaling fix (aspect-ratio preservation at all viewport sizes), travel and companion error hardening to prevent soft-locks
 - **v5.0** - "Hardcore 5e" — 7 new races (14 total), 10 new subclasses, 22+ class features (Unarmored Defense, Fighting Styles, Save Proficiency, Brutal Critical, Jack of All Trades, Deflect Missiles, Spell Upcasting, Uncanny Dodge, Divine Smite, Wild Shape, Agonizing Blast, Channel Divinity, Metamagic, Reckless Attack reciprocal), all 13 PHB conditions, scaled falling damage, bonus action spell restriction, mechanically wired racial abilities (Gnome Cunning, Fey Ancestry, Stone's Endurance, Feline Agility, and more)
@@ -432,6 +452,7 @@ This project does **not** collect, transmit, or store any personal data on remot
 - **No accounts, no logins.** The game does not ask for a name, email, or any identifier outside the in-game character name you choose.
 - **Local storage only.** Saved games, settings, and progress are stored in your browser's `localStorage` on your own device. You can clear them at any time via your browser's site-data controls.
 - **External resources.** The only outbound network requests are to Google Fonts (`fonts.googleapis.com` / `fonts.gstatic.com`) for the Cinzel and Crimson Text typefaces. Google Fonts may log standard request metadata (IP, user-agent) per Google's privacy policy. To eliminate even this, self-host the fonts.
+- **Optional AI key.** If you enable the optional AI Dungeon Master, your Anthropic API key is stored **in plaintext in your browser's local storage** and sent directly from your machine to Anthropic — never to any other server. Because it lives client-side, any cross-site-scripting on the page could read it. **Do not enter a key on a shared or public computer**, prefer a key scoped/rate-limited to this use, and clear it from Settings (or your browser's site-data controls) when finished. Leaving it blank uses the offline keyword judge, which makes no network requests.
 - **Children.** This project is not directed at children under 13. Operators who deploy this game publicly are responsible for COPPA / GDPR-K compliance in their own jurisdictions.
 
 ---

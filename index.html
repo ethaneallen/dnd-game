@@ -1629,6 +1629,38 @@
             max-height: 80vh;
             overflow-y: auto;
             box-shadow: 0 22px 42px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            position: relative; /* anchor the injected ✕ close button */
+        }
+
+        /* Always-present close affordances injected by showModal() so no modal can trap the player */
+        .modal-x-close {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            width: 34px;
+            height: 34px;
+            line-height: 1;
+            font-size: 1.1rem;
+            border-radius: 50%;
+            border: 1px solid rgba(201, 162, 39, 0.5);
+            background: rgba(0, 0, 0, 0.45);
+            color: #e8d9a0;
+            cursor: pointer;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s ease, transform 0.15s ease;
+        }
+        .modal-x-close:hover {
+            background: rgba(180, 30, 30, 0.7);
+            color: #fff;
+            transform: scale(1.08);
+        }
+        .modal-auto-close-row {
+            display: flex;
+            justify-content: center;
+            margin-top: 16px;
         }
 
         .modal-content h2 {
@@ -5396,6 +5428,8 @@
                                         <div class="value" id="enemyAc" aria-label="Enemy armor class">0</div>
                                     </div>
                                 </div>
+                                <!-- Enemy condition chips (range band + active conditions), kept out of the log -->
+                                <div class="condition-chips" id="enemyConditions" aria-label="Enemy conditions" style="display:none;"></div>
                             </div>
                             <!-- Divider -->
                             <div class="combat-divider" aria-hidden="true"></div>
@@ -5412,7 +5446,7 @@
                                         <span aria-hidden="true">⚔️</span> Aggressive
                                     </button>
                                 </div>
-                                <div id="actionEconomy" class="action-economy-bar" style="display:none;padding:4px 8px;margin-bottom:4px;font-size:0.72rem;display:flex;gap:8px;justify-content:center;color:#aaa;">
+                                <div id="actionEconomy" class="action-economy-bar" style="display:none;align-items:center;padding:4px 8px;margin-bottom:4px;font-size:0.72rem;gap:8px;justify-content:center;color:#aaa;">
                                     <span id="aeAction" title="Action">🎯 Action</span>
                                     <span id="aeBonusAction" title="Bonus Action">⚡ Bonus</span>
                                     <span id="aeReaction" title="Reaction">🔄 Reaction</span>
@@ -5429,6 +5463,10 @@
                                     <button class="action-btn rage-btn hidden" id="rageCombatBtn" onclick="game.combatAction('rage')" aria-label="Enter rage - Barbarian ability">
                                         <span class="icon" aria-hidden="true">💢</span>
                                         Rage
+                                    </button>
+                                    <button class="action-btn hidden" id="actionSurgeBtn" onclick="game.combatAction('actionSurge')" title="Action Surge — take an additional action this turn (once per short rest). Use your first action first.">
+                                        <span class="icon" aria-hidden="true">⚡</span>
+                                        Surge
                                     </button>
                                     <button class="action-btn hidden" id="bonusActionBtn" onclick="game.showBonusActionMenu()" aria-label="Use bonus action">
                                         <span class="icon">⚡</span>
@@ -5450,6 +5488,10 @@
                                         <span class="icon">🤝</span>
                                         Help <span class="shortcut-hint">[H]</span>
                                     </button>
+                                    <button class="action-btn hidden" id="parleyBtn" onclick="game.openParley()" title="Parley — try to end the fight with words. Best against a wounded, non-mindless foe.">
+                                        <span class="icon">🕊️</span>
+                                        Parley
+                                    </button>
                                     <button class="action-btn" onclick="game.combatAction('hide')" title="Stealth check to gain advantage on your next attack">
                                         <span class="icon">🫥</span>
                                         Hide
@@ -5466,9 +5508,9 @@
                                         <span class="icon">🦶</span>
                                         Withdraw
                                     </button>
-                                    <button class="action-btn" onclick="game.freeformAction()" title="Improvise — describe any action and the DM adjudicates it with a skill check">
+                                    <button class="action-btn" data-improvise-btn onclick="game.freeformAction()" title="Improvise — describe any action in your own words and the DM adjudicates it with a skill check.">
                                         <span class="icon">🎭</span>
-                                        Improvise
+                                        Improvise <span class="shortcut-hint">[I]</span>
                                     </button>
                                     <button class="action-btn" onclick="game.combatAction('flee')">
                                         <span class="icon">🏃</span>
@@ -5476,6 +5518,8 @@
                                     </button>
                                 </div>
                             </div>
+                            <!-- Player condition chips (active conditions on you), kept out of the log -->
+                            <div class="condition-chips player-chips" id="playerConditions" aria-label="Your conditions" style="display:none;"></div>
                             <!-- Party status injected here by JS -->
                             <div class="status-effects" id="playerStatusEffects"></div>
                         </div>
@@ -5499,9 +5543,17 @@
                 </div>
 
                 <div class="actions-panel" id="actionsPanel">
-                    <button class="action-btn primary" onclick="game.explore()">
+                    <button class="action-btn primary" onclick="game.exploreSearch()" title="Search — Investigation check. Find more loot, clues, and hidden caches.">
                         <span class="icon">🔍</span>
-                        Explore <span class="shortcut-hint">[E]</span>
+                        Search <span class="shortcut-hint">[E]</span>
+                    </button>
+                    <button class="action-btn" onclick="game.exploreScout()" title="Scout — Perception/Stealth check. Spot danger first: a good roll gets the drop on a fight, a bad one risks being surprised.">
+                        <span class="icon">👁️</span>
+                        Scout <span class="shortcut-hint">[X]</span>
+                    </button>
+                    <button class="action-btn" onclick="game.explorePressOn()" title="Press On — advance to the next discovery quickly, no skill roll.">
+                        <span class="icon">➡️</span>
+                        Press On
                     </button>
                     <button class="action-btn" onclick="game.openTravelModal()">
                         <span class="icon">🗺️</span>
@@ -5511,9 +5563,9 @@
                         <span class="icon">🛏️</span>
                         Rest <span class="shortcut-hint">[R]</span>
                     </button>
-                    <button class="action-btn" onclick="game.freeformAction()" title="Improvise — describe any action and the DM adjudicates it with a skill check">
+                    <button class="action-btn" data-improvise-btn onclick="game.freeformAction()" title="Improvise — describe any action in your own words and the DM adjudicates it with a skill check.">
                         <span class="icon">🎭</span>
-                        Improvise
+                        Improvise <span class="shortcut-hint">[I]</span>
                     </button>
                     <button class="action-btn" onclick="game.openPartyPanel()">
                         <span class="icon">👥</span>
@@ -5539,6 +5591,8 @@
                             <button class="menu-dropdown-item" onclick="game.openLegend(); game.closeMenuDropdown();">🌟 Legend &amp; Renown</button>
                             <button class="menu-dropdown-item" onclick="game.openAnalytics(); game.closeMenuDropdown();">📊 Analytics</button>
                             <button class="menu-dropdown-item" onclick="game.openLifestyle(); game.closeMenuDropdown();">🏠 Lifestyle</button>
+                            <button class="menu-dropdown-item" onclick="game.openDowntimePanel(); game.closeMenuDropdown();">⏳ Downtime</button>
+                            <button class="menu-dropdown-item" onclick="game.openGlossary(); game.closeMenuDropdown();">📖 Rules Glossary</button>
                             <button class="menu-dropdown-item" onclick="game.openBountyBoard(); game.closeMenuDropdown();">📜 Bounty Board</button>
                             <button class="menu-dropdown-item" onclick="game.openBlackMarket(); game.closeMenuDropdown();">🕯️ Black Market</button>
                             <button class="menu-dropdown-item" onclick="game.openArtifactTrading(); game.closeMenuDropdown();">🏺 Artifact Trading</button>
@@ -5622,7 +5676,7 @@
 
     <!-- Version Badge -->
     <div class="version-badge">
-        v5.1 | <a href="#" onclick="game.showTutorial(); return false;">Help</a> | <a href="#" onclick="game.openSettings(); return false;">Settings</a>
+        v5.3 | <a href="#" onclick="game.showTutorial(); return false;">Help</a> | <a href="#" onclick="game.openSettings(); return false;">Settings</a>
     <!-- Weather Effects Overlay -->
     <div id="weatherOverlay" class="weather-overlay"></div>
     <canvas id="weatherCanvas" class="weather-canvas"></canvas>

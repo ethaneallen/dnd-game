@@ -252,29 +252,56 @@ button.loading::after,
     position: relative;
 }
 
-.log-entry.combat::before {
-    content: '⚔️';
-    position: absolute;
-    left: -2px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.2rem;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+/* (Removed the ::before icons on combat/success/danger/loot entries: each log
+   message already begins with its own contextual emoji — ⚔️ hit, ❌ miss, 💀 crit,
+   💎 loot, etc. — so the injected icon produced a doubled/overlapping icon at the
+   left edge of every line. The text emoji are more specific than a blanket icon.) */
+
+/* Improvise gated off (AI disabled / no key): greyed and visually inert, but still
+   hoverable so the explanatory tooltip shows. The click is blocked in JS, not via
+   pointer-events:none (which would also suppress the tooltip). */
+.action-btn.improvise-disabled {
+    opacity: 0.45;
+    filter: grayscale(0.8);
+    cursor: not-allowed;
+}
+.action-btn.improvise-disabled:hover {
+    transform: none;
 }
 
-/* Success entries */
-.log-entry.success::before {
-    content: '✅';
+/* ==================== PERSISTENT COMBAT HUD: CONDITION CHIPS ==================== */
+/* Active conditions (and the enemy's range band) shown as compact chips above the log,
+   so players don't have to scroll the combat log to know what's afflicting whom. */
+.condition-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+    margin: 6px 0 2px;
 }
-
-/* Danger entries */
-.log-entry.danger::before {
-    content: '⚠️';
+.condition-chips.player-chips {
+    margin-top: 8px;
 }
-
-/* Loot entries */
-.log-entry.loot::before {
-    content: '💎';
+.cond-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.72rem;
+    line-height: 1;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(139, 0, 0, 0.25);
+    border: 1px solid rgba(220, 20, 60, 0.5);
+    color: #ffd9d9;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+/* Player chips read as afflictions on you — same danger styling is fine, but the range
+   chip on the enemy is neutral/informational. */
+.cond-chip.cond-range {
+    background: rgba(79, 195, 247, 0.15);
+    border-color: rgba(79, 195, 247, 0.5);
+    color: #cfeffd;
 }
 
 /* ==================== ENHANCED HP/XP BARS ==================== */
@@ -398,25 +425,12 @@ button.loading::after,
 
 /* ==================== IMPROVED LOCATION BANNER ==================== */
 
-/* Add icon animation to location banner */
 .location-banner {
     position: relative;
 }
 
-.location-banner::before {
-    content: '📍';
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.5rem;
-    animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(-50%); }
-    50% { transform: translateY(calc(-50% - 10px)); }
-}
+/* (Removed the decorative ::before 📍 pin: its infinite up/down float read as a
+   visual glitch next to the centered location title.) */
 
 /* ==================== RESPONSIVE IMPROVEMENTS ==================== */
 
@@ -440,6 +454,56 @@ button.loading::after,
     /* Simplified animations on mobile */
     * {
         animation-duration: 0.2s !important;
+    }
+
+    /* Sticky combat action bar: on a phone the combat panel can be tall (enemy art,
+       stats, conditions), so the action buttons risk scrolling away. Pinning the action
+       row to the bottom of its scroll container keeps Attack/Defend/Retreat visible as
+       the player scrolls the panel, with a safe-area inset for notched devices.
+       (Selector is doubled — #gameScreen#gameScreen — to outrank the inline <style>
+       block in index.html, which loads after this file and would otherwise win at
+       equal specificity.) */
+    #gameScreen#gameScreen.in-combat .combat-actions {
+        position: sticky;
+        bottom: 0;
+        z-index: 50;
+        background: linear-gradient(to top, rgba(10, 10, 18, 0.97) 70%, rgba(10, 10, 18, 0.0));
+        padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+        padding-top: 8px;
+        margin-top: 4px;
+        border-top: 1px solid rgba(201, 162, 39, 0.25);
+    }
+
+    /* Keep the most-used actions comfortably tappable (doubled id to beat inline rules) */
+    #gameScreen#gameScreen.in-combat .combat-actions .action-btn {
+        min-height: 46px;
+        min-width: 84px;
+        font-size: 0.82rem;
+    }
+
+    /* Condition chips wrap nicely and stay legible on small screens */
+    .condition-chips {
+        gap: 5px;
+    }
+    .cond-chip {
+        font-size: 0.7rem;
+        padding: 4px 9px;
+    }
+}
+
+/* On very small phones, let the action bar scroll horizontally in one row instead of
+   building a tall wrapped grid that eats the screen. */
+@media (max-width: 480px) {
+    #gameScreen#gameScreen.in-combat .combat-actions {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        justify-content: flex-start;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+    #gameScreen#gameScreen.in-combat .combat-actions .action-btn {
+        flex: 0 0 auto;
     }
 }
 

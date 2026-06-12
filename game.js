@@ -319,6 +319,50 @@ const LEGENDARY_ACTIONS = {
     spellcast: { name: "Cast Spell", description: "Cast a spell of 6th level or lower" }
 };
 
+// ==================== SIGNATURE LEGENDARY ACTIONS ====================
+// Per-archetype legendary action sets so a dragon, a lich, and a vampire feel DISTINCT instead
+// of drawing from the same generic melee/roar/heal/spellcast menu. A boss is matched to a set
+// by name/description keywords (see _signatureLegendarySet). Each action has:
+//   name, log (flavor), and an effect descriptor the resolver applies:
+//     dmg: dice string (damage to player), save: {ability, dc, condition, half} for save-based,
+//     heal: dice, selfBuffAc: n (dodge), reposition: true, drain: dice (damage+selfheal).
+const SIGNATURE_LEGENDARY_ACTIONS = {
+    dragon: [
+        { name: "Tail Attack", log: "sweeps its massive tail", dmg: "2d8" },
+        { name: "Wing Attack", log: "beats its wings, buffeting you with gale-force wind", save: { ability: "dex", dc: 16, condition: "prone", half: false }, dmg: "2d6" },
+        { name: "Detect", log: "scans the battlefield with predatory eyes", reposition: true },
+        { name: "Frightful Presence", log: "fixes you with a terrible draconic glare", save: { ability: "wis", dc: 16, condition: "frightened" } }
+    ],
+    lich: [
+        { name: "Paralyzing Touch", log: "reaches out with a withered, glowing hand", save: { ability: "con", dc: 16, condition: "paralyzed" }, dmg: "3d6" },
+        { name: "Frightening Gaze", log: "turns its hollow gaze upon you", save: { ability: "wis", dc: 15, condition: "frightened" } },
+        { name: "Drain Life", log: "siphons your vitality through the air", drain: "2d6" },
+        { name: "Disrupt Life", log: "unleashes a wave of necrotic force", dmg: "3d6", damageType: "necrotic" }
+    ],
+    vampire: [
+        { name: "Bite", log: "lunges with gleaming fangs", drain: "2d6" },
+        { name: "Charm", log: "meets your eyes with hypnotic intensity", save: { ability: "wis", dc: 15, condition: "charmed" } },
+        { name: "Move (Unseen)", log: "melts into mist and repositions", reposition: true },
+        { name: "Claws", log: "rakes you with unnatural speed", dmg: "2d6" }
+    ],
+    demon: [
+        { name: "Claw Flurry", log: "tears at you with abyssal claws", dmg: "2d8" },
+        { name: "Teleport", log: "vanishes and reappears at an angle", reposition: true },
+        { name: "Terrifying Visage", log: "reveals its true abyssal form", save: { ability: "wis", dc: 15, condition: "frightened" } },
+        { name: "Hurl Flame", log: "flings a gout of hellfire", dmg: "2d6", damageType: "fire" }
+    ],
+    giant: [
+        { name: "Sweeping Blow", log: "swings its weapon in a wide arc", dmg: "2d10" },
+        { name: "Stomp", log: "raises a tree-trunk leg and stomps down", save: { ability: "dex", dc: 15, condition: "prone", half: false }, dmg: "2d6" },
+        { name: "Boulder Toss", log: "hurls a massive rock", dmg: "2d8" }
+    ],
+    aberration: [
+        { name: "Tentacle", log: "lashes out with a writhing tentacle", dmg: "2d6" },
+        { name: "Mind Spike", log: "assaults your thoughts directly", save: { ability: "int", dc: 15, condition: "stunned" }, dmg: "2d6", damageType: "psychic" },
+        { name: "Reality Warp", log: "bends the space around it", reposition: true }
+    ]
+};
+
 // ==================== MATERIAL COMPONENTS ====================
 const MATERIAL_COMPONENTS = {
     "Diamond": { gp: 100, consumed: true, spells: ["Revivify", "True Resurrection"] },
@@ -1161,6 +1205,8 @@ const KEYBOARD_SHORTCUTS = {
     'g': 'grapple',
     'r': 'retreat_or_rest',
     'e': 'explore',
+    'x': 'scout',
+    'i': 'improvise',
     'j': 'journal',
     'p': 'party',
     'f': 'craft',
@@ -1852,6 +1898,11 @@ class MusicManager {
         this.currentTrack = null;
         this.isPlaying = false;
         this.oscillators = [];
+        // 4c: handle for the recursive music-loop timer so stop() can cancel it. Without
+        // this, each playAmbient()/playBossMusic() left its old setTimeout running; the
+        // orphaned timer would see isPlaying re-set true by the next track and restart the
+        // PREVIOUS theme, stacking overlapping loops on every transition.
+        this.musicLoopTimer = null;
         
         // Ambient soundscapes
         this.ambientAudio = null;
@@ -1876,7 +1927,7 @@ class MusicManager {
     }
     
     saveAmbientSettings() {
-        localStorage.setItem('ambientSettings', JSON.stringify({
+        safeLocalStorageSet('ambientSettings', JSON.stringify({
             enabled: this.ambientEnabled,
             volume: this.ambientVolume
         }));
@@ -1959,6 +2010,11 @@ class MusicManager {
     }
 
     stop() {
+        // Cancel the pending loop timer FIRST so it can't fire and restart the old theme.
+        if (this.musicLoopTimer) {
+            clearTimeout(this.musicLoopTimer);
+            this.musicLoopTimer = null;
+        }
         this.oscillators.forEach(osc => {
             try { osc.stop(); } catch(e) {}
         });
@@ -2069,7 +2125,7 @@ class MusicManager {
         this.oscillators.push({ stop: () => clearTimeout(loopTimer) });
     }
 
-    plasBossMusic() {
+    playBossMusic() {
         if (!this.isPlaying || !this.enabled) return;
         const ctx = this.audioContext;
         const vol = this.volume;
@@ -2127,13 +2183,14 @@ class MusicManager {
         playDrone(now, 55, beat * 9);
 
         const loopDuration = beat * 9;
-        const loopTimer = setTimeout(() => {
+        if (this.musicLoopTimer) clearTimeout(this.musicLoopTimer);
+        this.musicLoopTimer = setTimeout(() => {
+            this.musicLoopTimer = null;
             if (this.isPlaying) {
                 this.oscillators = [];
-                this.plasBossMusic();
+                this.playBossMusic();
             }
         }, loopDuration * 1000);
-        this.oscillators.push({ stop: () => clearTimeout(loopTimer) });
     }
 
     playMusicLoop(theme) {
@@ -2161,8 +2218,10 @@ class MusicManager {
             this.oscillators.push(osc);
         });
 
-        // Loop
-        setTimeout(() => {
+        // Loop — track the timer so stop() can cancel it; clear any prior one first.
+        if (this.musicLoopTimer) clearTimeout(this.musicLoopTimer);
+        this.musicLoopTimer = setTimeout(() => {
+            this.musicLoopTimer = null;
             if (this.isPlaying) {
                 this.oscillators = [];
                 this.playMusicLoop(theme);
@@ -2260,13 +2319,17 @@ class DiceAnimator {
             // Animate through random numbers with faster updates during spin
             let count = 0;
             const animInterval = setInterval(() => {
-                dice.querySelector('.dice-value').textContent = Math.floor(Math.random() * 20) + 1;
+                // Guard: another (e.g. fire-and-forget) roll may have wiped the shared container,
+                // detaching our node. If so, stop this interval cleanly instead of throwing.
+                const vEl = dice.querySelector('.dice-value');
+                if (!vEl || !dice.isConnected) { clearInterval(animInterval); resolve(finalValue); return; }
+                vEl.textContent = Math.floor(Math.random() * 20) + 1;
                 count++;
                 if (count > 15) {
                     clearInterval(animInterval);
                     dice.classList.remove('rolling');
-                    dice.querySelector('.dice-value').textContent = finalValue;
-                    
+                    vEl.textContent = finalValue;
+
                     // Add result class
                     if (finalValue === 20) {
                         dice.classList.add('critical');
@@ -2279,6 +2342,75 @@ class DiceAnimator {
                         container.classList.remove('active');
                         resolve(finalValue);
                     }, 1200);
+                }
+            }, 50);
+        });
+    }
+
+    // Roll a single d20 where a feature (Halfling Lucky, Reliable Talent, etc.) caused the
+    // ORIGINAL die to be rerolled. The player sees the original face land, flash red as
+    // "illegal", get swept away, and the replacement roll in. originalNat / rerolledNat are the
+    // raw d20 faces (1-20); finalValue is the displayed total (rerolledNat + modifier).
+    async rollD20WithReroll(originalNat, rerolledNat, finalValue, reason = "Lucky", label = "") {
+        return new Promise(resolve => {
+            soundManager.playDiceSpinning();
+            const container = this.createContainer();
+            container.innerHTML = '';
+            container.classList.add('active');
+
+            const dice = document.createElement('div');
+            dice.className = 'dice d20 rolling';
+            const valueEl = document.createElement('span');
+            valueEl.className = 'dice-value';
+            valueEl.textContent = '?';
+            dice.appendChild(valueEl);
+            container.appendChild(dice);
+
+            if (label) {
+                const labelEl = document.createElement('div');
+                labelEl.className = 'dice-label';
+                labelEl.textContent = label;
+                container.appendChild(labelEl);
+            }
+
+            // Phase 1: spin to the ORIGINAL (illegal) face.
+            let count = 0;
+            const spin1 = setInterval(() => {
+                if (!dice.isConnected) { clearInterval(spin1); resolve(finalValue); return; }
+                valueEl.textContent = Math.floor(Math.random() * 20) + 1;
+                if (++count > 10) {
+                    clearInterval(spin1);
+                    dice.classList.remove('rolling');
+                    valueEl.textContent = originalNat;
+                    // Flag it as the rejected die.
+                    dice.classList.add('rerolled-original');
+                    const reasonEl = document.createElement('div');
+                    reasonEl.className = 'dice-reroll-reason';
+                    reasonEl.textContent = `🍀 ${reason} — rerolling the ${originalNat}!`;
+                    container.appendChild(reasonEl);
+                    soundManager.playDiceSpinning?.();
+                    // Phase 2: sweep the original away, then roll the replacement.
+                    setTimeout(() => {
+                        dice.classList.add('sweep-away');
+                        setTimeout(() => {
+                            dice.classList.remove('sweep-away', 'rerolled-original');
+                            dice.classList.add('rolling');
+                            valueEl.textContent = '?';
+                            let count2 = 0;
+                            const spin2 = setInterval(() => {
+                                if (!dice.isConnected) { clearInterval(spin2); resolve(finalValue); return; }
+                                valueEl.textContent = Math.floor(Math.random() * 20) + 1;
+                                if (++count2 > 12) {
+                                    clearInterval(spin2);
+                                    dice.classList.remove('rolling');
+                                    valueEl.textContent = finalValue;
+                                    if (rerolledNat === 20) { dice.classList.add('critical'); soundManager.playCritical?.(); }
+                                    else if (rerolledNat === 1) { dice.classList.add('fumble'); }
+                                    setTimeout(() => { container.classList.remove('active'); resolve(finalValue); }, 1100);
+                                }
+                            }, 50);
+                        }, 360); // sweep duration
+                    }, 650); // linger on the rejected die so the player reads it
                 }
             }, 50);
         });
@@ -2313,15 +2445,18 @@ class DiceAnimator {
 
             let count = 0;
             const animInterval = setInterval(() => {
-                d1.querySelector('.dice-value').textContent = Math.floor(Math.random() * 20) + 1;
-                d2.querySelector('.dice-value').textContent = Math.floor(Math.random() * 20) + 1;
+                const v1 = d1.querySelector('.dice-value');
+                const v2 = d2.querySelector('.dice-value');
+                if (!v1 || !v2 || !d1.isConnected) { clearInterval(animInterval); resolve(finalValue); return; }
+                v1.textContent = Math.floor(Math.random() * 20) + 1;
+                v2.textContent = Math.floor(Math.random() * 20) + 1;
                 count++;
                 if (count > 15) {
                     clearInterval(animInterval);
                     d1.classList.remove('rolling');
                     d2.classList.remove('rolling');
-                    d1.querySelector('.dice-value').textContent = dice1;
-                    d2.querySelector('.dice-value').textContent = dice2;
+                    v1.textContent = dice1;
+                    v2.textContent = dice2;
 
                     // Highlight the chosen die
                     if (advType === 'advantage') {
@@ -2358,13 +2493,38 @@ class DiceAnimator {
             diceWrapper.className = 'dice-wrapper damage-dice-wrapper';
             diceWrapper.dataset.diceCount = String(diceCount);
 
-            const diceElements = finalFaces.map(() => {
+            // Performance: a high-level spell (12d6, 20d6...) renders far too many heavy,
+            // filter+clip-path dice to animate every one each frame on mobile. We render up to
+            // ANIMATE_CAP dice individually (with the spin), and collapse any overflow into a
+            // single "+N more" tile that snaps to its summed value — so the screen stays premium
+            // without hundreds of per-frame style writes.
+            const ANIMATE_CAP = 10;
+            const animatedCount = Math.min(diceCount, ANIMATE_CAP);
+            const overflowCount = diceCount - animatedCount;
+
+            // Cache the value nodes at creation — NEVER querySelector inside the animation loop.
+            const valueNodes = [];
+            const dieNodes = [];
+            for (let i = 0; i < animatedCount; i++) {
                 const die = document.createElement('div');
                 die.className = `dice d${sides} rolling`;
-                die.innerHTML = `<span class="dice-value">?</span>`;
+                const v = document.createElement('span');
+                v.className = 'dice-value';
+                v.textContent = '?';
+                die.appendChild(v);
                 diceWrapper.appendChild(die);
-                return die;
-            });
+                dieNodes.push(die);
+                valueNodes.push(v);
+            }
+            // Overflow tile (e.g. "+10 more" for a 20d6) — shows the summed remainder.
+            let overflowNode = null, overflowSum = 0;
+            if (overflowCount > 0) {
+                overflowSum = finalFaces.slice(animatedCount).reduce((a, b) => a + b, 0);
+                overflowNode = document.createElement('div');
+                overflowNode.className = `dice d${sides} dice-overflow rolling`;
+                overflowNode.innerHTML = `<span class="dice-value">+${overflowCount}</span>`;
+                diceWrapper.appendChild(overflowNode);
+            }
 
             container.appendChild(diceWrapper);
 
@@ -2380,26 +2540,43 @@ class DiceAnimator {
             totalEl.textContent = `${diceCount}d${sides}${bonus ? (bonus > 0 ? ` + ${bonus}` : ` - ${Math.abs(bonus)}`) : ''} = ${finalValue}`;
             container.appendChild(totalEl);
 
-            const maxRandom = Math.max(finalValue, sides);
-            let spinCount = 0;
-            const animInterval = setInterval(() => {
-                diceElements.forEach(die => {
-                    die.querySelector('.dice-value').textContent = Math.floor(Math.random() * maxRandom) + 1;
-                });
-                spinCount++;
-                if (spinCount > 10) {
-                    clearInterval(animInterval);
-                    diceElements.forEach((die, index) => {
-                        die.classList.remove('rolling');
-                        die.querySelector('.dice-value').textContent = finalFaces[index];
-                    });
-
+            // Single requestAnimationFrame loop, throttled to ~28ms (≈35fps) so we're not
+            // writing on every display frame. One loop drives all dice, not one timer per die.
+            const maxRandom = Math.max(2, sides);
+            const SPIN_MS = 420;        // total spin duration
+            const STEP_MS = 28;         // ms between number flickers
+            let lastStep = -Infinity;
+            let startTs = null;
+            const step = (ts) => {
+                if (startTs === null) startTs = ts;
+                const elapsed = ts - startTs;
+                if (ts - lastStep >= STEP_MS) {
+                    lastStep = ts;
+                    for (let i = 0; i < valueNodes.length; i++) {
+                        valueNodes[i].textContent = Math.floor(Math.random() * maxRandom) + 1;
+                    }
+                }
+                if (elapsed < SPIN_MS) {
+                    requestAnimationFrame(step);
+                } else {
+                    // Settle: write final faces once, drop the rolling class.
+                    for (let i = 0; i < valueNodes.length; i++) {
+                        dieNodes[i].classList.remove('rolling');
+                        dieNodes[i].classList.add('settled');
+                        valueNodes[i].textContent = finalFaces[i];
+                    }
+                    if (overflowNode) {
+                        overflowNode.classList.remove('rolling');
+                        overflowNode.classList.add('settled');
+                        overflowNode.querySelector('.dice-value').textContent = `+${overflowSum}`;
+                    }
                     setTimeout(() => {
                         container.classList.remove('active');
                         resolve(finalValue);
                     }, 700);
                 }
-            }, 35);
+            };
+            requestAnimationFrame(step);
         });
     }
 
@@ -2472,6 +2649,29 @@ const NPC_SPEECH_PATTERNS = {
 const SAVE_PREFIX = "dndSave_";
 const MAX_SAVES = 5;
 
+// Bump this whenever the persisted save shape changes in a backward-incompatible way.
+// loadGameFromData() routes old saves through migrateSaveData() based on this number.
+const SAVE_SCHEMA_VERSION = 1;
+
+// Single guarded entry point for ALL localStorage writes. A raw setItem throws
+// (uncaught) on QuotaExceededError or in private-browsing modes, which previously
+// killed autosave silently and could lose a session. Returns true on success.
+// `onQuota` lets callers surface a user-facing message only where it matters.
+function safeLocalStorageSet(key, value, onQuota) {
+    try {
+        localStorage.setItem(key, value);
+        return true;
+    } catch (err) {
+        const quota = err && (err.name === 'QuotaExceededError' ||
+            err.name === 'NS_ERROR_DOM_QUOTA_REACHED' || err.code === 22 || err.code === 1014);
+        console.error(`localStorage write failed for "${key}":`, err);
+        if (quota && typeof onQuota === 'function') {
+            try { onQuota(err); } catch (_) { /* never let the handler mask the failure */ }
+        }
+        return false;
+    }
+}
+
 function getSaveSlots() {
     const saves = [];
     for (let i = 0; i < localStorage.length; i++) {
@@ -2495,6 +2695,23 @@ function deleteSave(key) {
 
 function generateSaveKey() {
     return SAVE_PREFIX + Date.now();
+}
+
+// Forward-migrate a loaded save to the current SAVE_SCHEMA_VERSION. Each step mutates
+// the data in place and bumps the version; steps run in order so a very old save walks
+// every step. Saves written before versioning existed have no schemaVersion (v0).
+// Character-field backfills still live in Character.fromJSON(); this handles top-level
+// save-shape changes that fromJSON can't see.
+function migrateSaveData(saveData) {
+    if (!saveData || typeof saveData !== 'object') return saveData;
+    let v = typeof saveData.schemaVersion === 'number' ? saveData.schemaVersion : 0;
+    // v0 -> v1: no structural change beyond stamping the version. Future incompatible
+    // changes add a `if (v < N) { ...; v = N; }` block here.
+    if (v < 1) {
+        v = 1;
+    }
+    saveData.schemaVersion = SAVE_SCHEMA_VERSION;
+    return saveData;
 }
 
 const CAMPAIGNS = {
@@ -4252,6 +4469,11 @@ class Character {
             petrified: false,
             unconscious: false
         };
+        // Per-condition metadata for end-of-turn saving throws (5e "save ends").
+        // Keyed by condition name → { saveDc, saveAbility, duration } when a source
+        // specifies one; conditions present here roll a save at the end of each of the
+        // afflicted creature's turns and clear on success. See addCondition / tickConditionSaves.
+        this.conditionMeta = {};
         // Rest system
         this.hitDice = { current: 1, max: 1 };
         this.longRestTaken = false;
@@ -4308,6 +4530,7 @@ class Character {
         // Fighter: Action Surge (resets on short rest)
         this.actionSurgeUses = 0;
         this.actionSurgeUsed = false;
+        this.actionSurgeUsesThisRest = 0; // how many surges spent since last rest (supports 2 uses at L17)
         // Cleric/Paladin: Channel Divinity (resets on short rest)
         this.channelDivinityUses = 0;
         this.channelDivinityUsed = false;
@@ -4517,6 +4740,44 @@ class Character {
     getProficiencyBonus() {
         // D&D 5e proficiency bonus: +2 at L1-4, +3 at L5-8, +4 at L9-12, +5 at L13-16, +6 at L17-20
         return Math.floor((this.level - 1) / 4) + 2;
+    }
+
+    // Telegraph what the NEXT level unlocks, so players grind toward a visible carrot (the core
+    // of 5e's level-up addictiveness). Returns a short array of plain-English unlock strings.
+    getNextLevelPreview() {
+        const next = this.level + 1;
+        if (next > 20) return ["You've reached the pinnacle — level 20!"];
+        const out = [];
+        // Proficiency bonus bumps at 5/9/13/17.
+        if ([5, 9, 13, 17].includes(next)) out.push(`Proficiency bonus rises to +${Math.floor((next - 1) / 4) + 2}`);
+        // Extra Attack for martials at 5.
+        if (next === 5 && ["Fighter", "Barbarian", "Paladin", "Ranger", "Monk"].includes(this.charClass)) out.push("Extra Attack — strike twice per turn");
+        if (next === 11 && this.charClass === "Fighter") out.push("Extra Attack (2) — three attacks per turn");
+        if (next === 20 && this.charClass === "Fighter") out.push("Extra Attack (3) — four attacks per turn");
+        // ASI / feat at 4, 8, 12, 16, 19 (Fighter also 6 & 14).
+        const asiLevels = this.charClass === "Fighter" ? [4, 6, 8, 12, 14, 16, 19] : [4, 8, 12, 16, 19];
+        if (asiLevels.includes(next)) out.push("Ability Score Improvement or a Feat");
+        // Subclass choice at the class's subclass level.
+        const sub = (typeof SUBCLASS_DATA !== "undefined") && SUBCLASS_DATA[this.charClass];
+        if (sub && sub.level === next && !this.subclass) out.push(`Choose your ${sub.name}`);
+        // Subclass feature unlocking at next level.
+        if (this.subclass && sub && sub.options && sub.options[this.subclass]) {
+            const feats = sub.options[this.subclass].features || {};
+            if (feats[next]) out.push(`${this.subclass}: ${feats[next].name}`);
+        }
+        // New spell tier for full casters (slots open at odd-ish levels: 3rd@5, 4th@7, 5th@9...).
+        const fullCasters = ["Wizard", "Cleric", "Druid", "Bard", "Sorcerer"];
+        if (fullCasters.includes(this.charClass)) {
+            const newSpellTier = { 3: 2, 5: 3, 7: 4, 9: 5, 11: 6, 13: 7, 15: 8, 17: 9 }[next];
+            if (newSpellTier) out.push(`Access to level ${newSpellTier} spells`);
+        }
+        // Warlock pact magic tiers.
+        if (this.charClass === "Warlock") {
+            const wl = { 3: 2, 5: 3, 7: 4, 9: 5 }[next];
+            if (wl) out.push(`Pact slots rise to level ${wl}`);
+        }
+        if (out.length === 0) out.push("More HP and refined abilities");
+        return out;
     }
 
     // ========== Skill Proficiency System ==========
@@ -5355,6 +5616,10 @@ class Character {
         if (this.hp === 0) {
             // Reset death saves when first hitting 0 HP
             this.deathSaves = { successes: 0, failures: 0, stable: false };
+            // 5e RAW: dropping to 0 HP makes you unconscious, which breaks
+            // concentration. Clearing here also prevents a dangling concentration
+            // reference from surviving into a save taken while down.
+            this.concentrating = null;
         }
         return this.hp > 0;
     }
@@ -5368,9 +5633,20 @@ class Character {
     }
 
     // Condition management
-    addCondition(condition) {
+    // addCondition(name) sets the flag. Pass opts to make it a "save ends" condition:
+    //   { saveDc: 13, saveAbility: "con" } → the creature rolls that save at the end of
+    //   each of its turns (see tickConditionSaves) and the condition clears on success.
+    //   Omit opts for a flat condition that only clears explicitly (legacy behavior).
+    addCondition(condition, opts = null) {
         if (this.conditions.hasOwnProperty(condition)) {
             this.conditions[condition] = true;
+            if (!this.conditionMeta) this.conditionMeta = {};
+            if (opts && opts.saveDc) {
+                this.conditionMeta[condition] = {
+                    saveDc: opts.saveDc,
+                    saveAbility: opts.saveAbility || "con"
+                };
+            }
             return true;
         }
         return false;
@@ -5379,9 +5655,29 @@ class Character {
     removeCondition(condition) {
         if (this.conditions.hasOwnProperty(condition)) {
             this.conditions[condition] = false;
+            if (this.conditionMeta) delete this.conditionMeta[condition];
             return true;
         }
         return false;
+    }
+
+    // Roll end-of-turn saving throws for every "save ends" condition currently afflicting
+    // this creature. Returns an array of { condition, roll, dc, ability, success } results
+    // so the caller can log them. Conditions added without save metadata are left untouched.
+    tickConditionSaves() {
+        const results = [];
+        if (!this.conditionMeta) return results;
+        for (const cond of Object.keys(this.conditionMeta)) {
+            if (!this.conditions[cond]) { delete this.conditionMeta[cond]; continue; }
+            const meta = this.conditionMeta[cond];
+            const mod = this.getSaveModifier ? this.getSaveModifier(meta.saveAbility) : (this.getModifier(meta.saveAbility) || 0);
+            const d20 = Math.floor(Math.random() * 20) + 1;
+            const total = d20 + mod;
+            const success = d20 === 20 || total >= meta.saveDc;
+            if (success) this.removeCondition(cond);
+            results.push({ condition: cond, roll: total, dc: meta.saveDc, ability: meta.saveAbility, success });
+        }
+        return results;
     }
 
     hasCondition(condition) {
@@ -5424,7 +5720,20 @@ class Character {
     }
 
     // Reputation management
-    adjustReputation(faction, amount) {
+    // Faction rivalries: rising with one faction costs you standing with its rival, so the
+    // world reacts to your allegiances and choices genuinely close off others. Pairs are
+    // symmetric; the ripple is a fraction of the primary change. _rippling guards recursion.
+    static get FACTION_RIVALS() {
+        return {
+            thieves_guild: "military",   // the law and the underworld are at odds
+            military: "thieves_guild",
+            nobility: "commoners",       // privilege vs the common folk
+            commoners: "nobility"
+            // church & merchants have no hard rival — they deal with everyone.
+        };
+    }
+
+    adjustReputation(faction, amount, _rippling = false) {
         if (this.reputation.hasOwnProperty(faction)) {
             // Background feature: Acolyte doubles church rep, Criminal doubles thieves_guild rep
             let adjusted = amount;
@@ -5433,7 +5742,30 @@ class Character {
                 if (faction === 'thieves_guild' && this.hasBackgroundFeature('fenceBonus')) adjusted = amount * 2;
             }
             this.reputation[faction] = Math.max(-100, Math.min(100, this.reputation[faction] + adjusted));
+
+            // Rivalry ripple: a meaningful GAIN with a faction erodes standing with its rival
+            // (about half, rounded). Only on gains, only top-level (not the ripple itself), and
+            // only for changes large enough to matter — so tiny +1 kill-rep nudges don't churn.
+            if (!_rippling && adjusted >= 2) {
+                const rival = Game.FACTION_RIVALS[faction];
+                if (rival && this.reputation.hasOwnProperty(rival)) {
+                    const ripple = -Math.ceil(adjusted / 2);
+                    this.reputation[rival] = Math.max(-100, Math.min(100, this.reputation[rival] + ripple));
+                    if (typeof window !== "undefined" && window.game && window.game.log) {
+                        window.game.log(`⚖️ Your growing standing with the ${this._factionLabel(faction)} costs you favor with the ${this._factionLabel(rival)}. (${ripple})`, "dm");
+                    }
+                }
+            }
         }
+    }
+
+    // Human-readable faction names for log messages.
+    _factionLabel(faction) {
+        const labels = {
+            commoners: "common folk", nobility: "nobility", merchants: "merchants' guild",
+            thieves_guild: "thieves' guild", military: "city watch", church: "church"
+        };
+        return labels[faction] || faction;
     }
 
     getReputationLevel(faction) {
@@ -5534,6 +5866,7 @@ class Character {
             secondWindUsed: this.secondWindUsed,
             actionSurgeUses: this.actionSurgeUses || 0,
             actionSurgeUsed: this.actionSurgeUsed || false,
+            actionSurgeUsesThisRest: this.actionSurgeUsesThisRest || 0,
             channelDivinityUses: this.channelDivinityUses || 0,
             channelDivinityUsed: this.channelDivinityUsed || false,
             arcaneRecoveryUsed: this.arcaneRecoveryUsed || false,
@@ -5550,6 +5883,18 @@ class Character {
             silveredWeapon: this.silveredWeapon || false,
             giantStrengthActive: this.giantStrengthActive || false,
             giantStrengthOldStr: this.giantStrengthOldStr || 0,
+            // Wild Shape state must persist so a save/reload mid-transform can still
+            // revert. Without these, wildShapeActive defaults falsy on load, the revert
+            // guard short-circuits forever, and the character is stuck at beast AC with
+            // the restore value gone (unrecoverable).
+            wildShapeActive: this.wildShapeActive || false,
+            wildShapeForm: this.wildShapeForm || null,
+            wildShapeHp: this.wildShapeHp || 0,
+            wildShapeMaxHp: this.wildShapeMaxHp || 0,
+            wildShapeOriginalHp: this.wildShapeOriginalHp || 0,
+            wildShapeOriginalAc: this.wildShapeOriginalAc || 0,
+            wildShapeUses: this.wildShapeUses || 0,
+            wildShapeCR: this.wildShapeCR || 0,
             cloakOfShadows: this.cloakOfShadows || false,
             bootsOfSpeed: this.bootsOfSpeed || false,
             ringOfProtection: this.ringOfProtection || false,
@@ -5568,7 +5913,8 @@ class Character {
             lifestyleDaysPaid: this.lifestyleDaysPaid || 0,
             acceptedBounties: this.acceptedBounties || [],
             blackMarketHeat: this.blackMarketHeat || 0,
-            majorFavors: this.majorFavors || []
+            majorFavors: this.majorFavors || [],
+            downtime: this.downtime || { daysAvailable: 0, currentActivity: null, progress: 0 }
         };
     }
 
@@ -5603,6 +5949,9 @@ class Character {
         if (!char.reputation) {
             char.reputation = { commoners: 0, nobility: 0, merchants: 0, thieves_guild: 0, military: 0, church: 0 };
         }
+        if (!char.downtime) {
+            char.downtime = { daysAvailable: 0, currentActivity: null, progress: 0 };
+        }
         if (!char.journal) {
             char.journal = { quests: [], npcs: [], lore: [] };
         }
@@ -5635,6 +5984,7 @@ class Character {
         if (char.exhaustion === undefined) char.exhaustion = 0;
         // Short rest resource defaults for older saves
         if (char.charClass === 'Fighter' && char.actionSurgeUsed === undefined) char.actionSurgeUsed = false;
+        if (char.actionSurgeUsesThisRest === undefined) char.actionSurgeUsesThisRest = 0;
         if ((char.charClass === 'Cleric' || char.charClass === 'Paladin') && char.channelDivinityUsed === undefined) char.channelDivinityUsed = false;
         if (char.charClass === 'Wizard' && char.arcaneRecoveryUsed === undefined) char.arcaneRecoveryUsed = false;
         // New system defaults for older saves
@@ -5651,6 +6001,17 @@ class Character {
             if (char.darkvisionRange > 0) char.visionTypes.push("darkvision");
         }
         if (!char.visionRanges) char.visionRanges = { normal: null, darkvision: char.darkvisionRange || 0, blindsight: 0, truesight: 0 };
+        // Wild Shape defaults so older saves (and saves taken outside beast form) load
+        // with well-defined values rather than undefined, which would break the
+        // `(char.wildShapeUses || 0)` guards and the revert path.
+        if (char.wildShapeActive === undefined) char.wildShapeActive = false;
+        if (char.wildShapeForm === undefined) char.wildShapeForm = null;
+        if (char.wildShapeHp === undefined) char.wildShapeHp = 0;
+        if (char.wildShapeMaxHp === undefined) char.wildShapeMaxHp = 0;
+        if (char.wildShapeOriginalHp === undefined) char.wildShapeOriginalHp = 0;
+        if (char.wildShapeOriginalAc === undefined) char.wildShapeOriginalAc = 0;
+        if (char.wildShapeUses === undefined) char.wildShapeUses = (char.charClass === 'Druid' ? 2 : 0);
+        if (char.wildShapeCR === undefined) char.wildShapeCR = (char.charClass === 'Druid' ? 0.25 : 0);
         return char;
     }
 }
@@ -5858,6 +6219,26 @@ class DungeonMaster {
         return total + bonus;
     }
 
+    // Roll weapon damage dice with Great Weapon Fighting: reroll any 1 or 2 ONCE and keep the
+    // new value (PHB — even if it's another 1 or 2). Returns { total, faces } where faces are
+    // the FINAL per-die values (post-reroll) so the dice animation shows real numbers.
+    rollDiceGWF(notation) {
+        const m = String(notation || '').match(/(\d+)d(\d+)([+-]\d+)?/i);
+        if (!m) return { total: this.rollDice(notation), faces: [] };
+        const num = Math.max(1, parseInt(m[1], 10));
+        const sides = Math.max(2, parseInt(m[2], 10));
+        const bonus = m[3] ? parseInt(m[3], 10) : 0;
+        const faces = [];
+        let total = bonus;
+        for (let i = 0; i < num; i++) {
+            let v = Math.floor(Math.random() * sides) + 1;
+            if (v <= 2) v = Math.floor(Math.random() * sides) + 1; // GWF: reroll 1s and 2s once
+            faces.push(v);
+            total += v;
+        }
+        return { total, faces };
+    }
+
     skillCheck(stat, dc, advantage = false, disadvantage = false, skillName = null) {
         let roll1 = Math.floor(Math.random() * 20) + 1;
         let roll2 = Math.floor(Math.random() * 20) + 1;
@@ -5868,26 +6249,26 @@ class DungeonMaster {
             if (roll2 === 1) roll2 = Math.floor(Math.random() * 20) + 1;
         }
 
-        // Exhaustion Level 1+: Disadvantage on ability checks
+        const _optionalOn = !(typeof window !== "undefined" && window.game && window.game.optionalRulesActive && !window.game.optionalRulesActive());
+
+        // Exhaustion Level 1+: Disadvantage on ability checks (core rule, always on)
         if (this.character.exhaustion >= 1) {
             disadvantage = true;
         }
 
-        // Heavily Encumbered: Disadvantage on STR/DEX/CON ability checks
+        // Heavily Encumbered: Disadvantage on STR/DEX/CON ability checks (optional rule)
         const enc = this.calculateEncumbrance();
-        if (enc.heavilyEncumbered && ['str', 'dex', 'con'].includes(stat)) {
+        if (_optionalOn && enc.heavilyEncumbered && ['str', 'dex', 'con'].includes(stat)) {
             disadvantage = true;
         }
 
-        // Madness: a mind in turmoil falters on Wisdom-based checks (maddening whispers,
-        // distorted perception). Any active madness imposes disadvantage on WIS checks.
-        if (this.character.hasActiveMadness && this.character.hasActiveMadness() && stat === 'wis') {
+        // Madness: a mind in turmoil falters on Wisdom-based checks (optional rule).
+        if (_optionalOn && this.character.hasActiveMadness && this.character.hasActiveMadness() && stat === 'wis') {
             disadvantage = true;
         }
 
-        // Light-level penalty: sight-based Perception in dim/dark light (PHB p.183).
-        // Darkvision converts darkness into dim light; dim light still imposes disadvantage.
-        if (this._lightLevelImposesDisadvantage(stat, skillName)) {
+        // Light-level penalty: sight-based Perception in dim/dark light (optional rule).
+        if (_optionalOn && this._lightLevelImposesDisadvantage(stat, skillName)) {
             disadvantage = true;
         }
 
@@ -5965,46 +6346,72 @@ class DungeonMaster {
     }
 
     async skillCheckAnimated(stat, dc, advantage = false, disadvantage = false, skillName = null) {
-        // Exhaustion Level 1+: Disadvantage on ability checks
+        // Why-tracking: collect plain-English reasons for adv/disadv so the player learns WHY a
+        // check is harder/easier instead of silently rolling worse dice. (#1)
+        const _advReasons = [];
+        const _disReasons = [];
+        if (advantage) _advReasons.push("a favorable circumstance");
+        if (disadvantage) _disReasons.push("an unfavorable circumstance");
+
+        // Whether the OPTIONAL/punishing systems are active (off in Simple rules mode). Exhaustion
+        // is a CORE 5e system, so it always applies; encumbrance/light/madness are optional.
+        const optionalOn = !(typeof window !== "undefined" && window.game && window.game.optionalRulesActive && !window.game.optionalRulesActive());
+
+        // Exhaustion Level 1+: Disadvantage on ability checks (core rule, always on)
         if (this.character.exhaustion >= 1) {
             disadvantage = true;
+            _disReasons.push(`exhaustion (level ${this.character.exhaustion})`);
         }
 
-        // Heavily Encumbered: Disadvantage on STR/DEX/CON ability checks
+        // Heavily Encumbered: Disadvantage on STR/DEX/CON ability checks (optional rule)
         const enc = this.calculateEncumbrance();
-        if (enc.heavilyEncumbered && ['str', 'dex', 'con'].includes(stat)) {
+        if (optionalOn && enc.heavilyEncumbered && ['str', 'dex', 'con'].includes(stat)) {
             disadvantage = true;
+            _disReasons.push("heavily encumbered");
         }
 
-        // Madness: disadvantage on WIS-based checks (see skillCheck for rationale).
-        if (this.character.hasActiveMadness && this.character.hasActiveMadness() && stat === 'wis') {
+        // Madness: disadvantage on WIS-based checks (optional rule).
+        if (optionalOn && this.character.hasActiveMadness && this.character.hasActiveMadness() && stat === 'wis') {
             disadvantage = true;
+            _disReasons.push("active madness");
         }
 
-        // Light-level penalty: sight-based Perception in dim/dark light
-        if (this._lightLevelImposesDisadvantage(stat, skillName)) {
+        // Light-level penalty: sight-based Perception in dim/dark light (optional rule)
+        if (optionalOn && this._lightLevelImposesDisadvantage(stat, skillName)) {
             disadvantage = true;
+            _disReasons.push(`${this.lightLevel || "dim"} light`);
         }
 
         // Background feature skill advantages
         const bgFeat = this.character.getBackgroundFeature();
         if (bgFeat) {
             const sn = (skillName || '').toLowerCase();
-            if (bgFeat.loreAdvantage && ['arcana', 'history', 'religion'].includes(sn)) advantage = true;
-            if (bgFeat.survivalAdvantage && sn === 'survival' && this.currentLocation?.type === 'wilderness') advantage = true;
-            if (bgFeat.intimidationAdvantage && sn === 'intimidation') advantage = true;
-            if (bgFeat.persuasionAdvantage && sn === 'persuasion') advantage = true;
+            if (bgFeat.loreAdvantage && ['arcana', 'history', 'religion'].includes(sn)) { advantage = true; _advReasons.push("your background's lore expertise"); }
+            if (bgFeat.survivalAdvantage && sn === 'survival' && this.currentLocation?.type === 'wilderness') { advantage = true; _advReasons.push("your wilderness training"); }
+            if (bgFeat.intimidationAdvantage && sn === 'intimidation') { advantage = true; _advReasons.push("your intimidating background"); }
+            if (bgFeat.persuasionAdvantage && sn === 'persuasion') { advantage = true; _advReasons.push("your silver tongue"); }
         }
-        
+
+        // Consolidated, plain-English explanation so the player understands the check's odds.
+        if (advantage && disadvantage) {
+            this.log(`⚖️ Advantage and disadvantage cancel — you roll normally. (For: ${_advReasons.join(", ") || "—"} · Against: ${_disReasons.join(", ") || "—"})`, "dm");
+        } else if (advantage && _advReasons.length) {
+            this.log(`📈 Advantage on this check — ${_advReasons.join(", ")}.`, "success");
+        } else if (disadvantage && _disReasons.length) {
+            this.log(`📉 Disadvantage on this check — ${_disReasons.join(", ")}.`, "warning");
+        }
+
         let roll1 = Math.floor(Math.random() * 20) + 1;
         let roll2 = Math.floor(Math.random() * 20) + 1;
-        
-        // Halfling Lucky: reroll natural 1s on ability checks
+
+        // Halfling Lucky: reroll natural 1s on ability checks. Remember the original for the
+        // single-die reroll animation.
+        let luckyOriginal = null;
         if (this.character.race === "Halfling") {
-            if (roll1 === 1) roll1 = Math.floor(Math.random() * 20) + 1;
+            if (roll1 === 1) { luckyOriginal = 1; roll1 = Math.floor(Math.random() * 20) + 1; }
             if (roll2 === 1) roll2 = Math.floor(Math.random() * 20) + 1;
         }
-        
+
         let roll = roll1;
         let advType = null;
         
@@ -6052,9 +6459,11 @@ class DungeonMaster {
         const success = total >= dc;
         const critical = (roll === 20 || roll === 1); // Critical for narrative, but not auto-success/fail
 
-        // Show animation based on advantage/disadvantage
+        // Show animation based on advantage/disadvantage / Lucky reroll.
         if (advType) {
             await diceAnimator.rollMultiple(roll1, roll2, roll + modifier, advType);
+        } else if (luckyOriginal !== null) {
+            await diceAnimator.rollD20WithReroll(luckyOriginal, roll1, roll + modifier, "Halfling Lucky", `${stat.toUpperCase()} Check`);
         } else {
             await diceAnimator.rollD20(roll + modifier, `${stat.toUpperCase()} Check`);
         }
@@ -6085,16 +6494,20 @@ class DungeonMaster {
         let roll2 = Math.floor(Math.random() * 20) + 1;
         let roll = roll1;
         let advType = null;
-        
-        // Halfling Lucky: reroll natural 1s on d20 attack rolls
-        if (this.character && this.character.race === "Halfling" && roll1 === 1) {
+
+        // Halfling Lucky: reroll natural 1s on d20 attack rolls. Remember the original face so
+        // the animation can show the illegal 1 being swept away and rerolled.
+        const isHalfling = this.character && this.character.race === "Halfling";
+        let luckyOriginal = null; // the natural-1 that got rerolled (single-die path only)
+        if (isHalfling && roll1 === 1) {
+            luckyOriginal = roll1;
             roll1 = Math.floor(Math.random() * 20) + 1;
             roll = roll1;
         }
-        if (this.character && this.character.race === "Halfling" && roll2 === 1) {
+        if (isHalfling && roll2 === 1) {
             roll2 = Math.floor(Math.random() * 20) + 1;
         }
-        
+
         if (advantage && !disadvantage) {
             roll = Math.max(roll1, roll2);
             advType = "advantage";
@@ -6102,15 +6515,23 @@ class DungeonMaster {
             roll = Math.min(roll1, roll2);
             advType = "disadvantage";
         }
-        
-        // Show animation based on advantage/disadvantage
+
+        // Show animation based on advantage/disadvantage / Lucky reroll.
         if (advType) {
             await diceAnimator.rollMultiple(roll1, roll2, roll + modifier, advType);
+        } else if (luckyOriginal !== null) {
+            await diceAnimator.rollD20WithReroll(luckyOriginal, roll1, roll + modifier, "Halfling Lucky", "Attack Roll");
         } else {
             await diceAnimator.rollD20(roll + modifier, "Attack Roll");
         }
-        
+
         return { roll, roll1, roll2, total: roll + modifier, advType, isCrit: roll >= critRange, isFumble: roll === 1 };
+    }
+
+    // Monotonic in-game clock in hours since the campaign began. Used to gate the
+    // once-per-24h long-rest benefit (5e PHB p.186).
+    totalHours() {
+        return (this.day - 1) * 24 + this.hour;
     }
 
     // Time management
@@ -6196,6 +6617,8 @@ class DungeonMaster {
         this.initiative.player = Math.floor(Math.random() * 20) + 1 + playerDex + thievesInitiativeBonus;
         this.initiative.enemy = Math.floor(Math.random() * 20) + 1 + monsterDexMod;
         this.initiative.playerGoesFirst = this.initiative.player >= this.initiative.enemy;
+        // Show the player's initiative d20 (fire-and-forget — combat setup continues underneath).
+        if (typeof diceAnimator !== "undefined") diceAnimator.rollD20(this.initiative.player, "⚡ Initiative");
         return this.initiative;
     }
 
@@ -6586,26 +7009,32 @@ class DungeonMaster {
 
     advanceDowntime(days) {
         if (!this.character.downtime.currentActivity) return { success: false };
-        
+
         const activity = DOWNTIME_ACTIVITIES[this.character.downtime.currentActivity];
         const cost = activity.costPerDay * days;
-        
+
+        // Must have downtime days banked to spend (earned by resting in a settlement).
+        if ((this.character.downtime.daysAvailable || 0) < days) {
+            return { success: false, message: `You only have ${this.character.downtime.daysAvailable || 0} downtime day(s). Rest in a town to free up more time.` };
+        }
         if (this.character.gold < cost) {
             return { success: false, message: "Not enough gold for this activity." };
         }
-        
+
         this.character.gold -= cost;
         this.character.downtime.progress += days;
         this.character.downtime.daysAvailable -= days;
-        
-        if (this.character.downtime.progress >= activity.daysRequired) {
+
+        // "varies" (Crafting) resolves quickly — treat as a 7-day project so it can complete.
+        const required = (typeof activity.daysRequired === "number") ? activity.daysRequired : 7;
+        if (this.character.downtime.progress >= required) {
             return this.completeDowntimeActivity();
         }
-        
+
         return {
             success: true,
             progress: this.character.downtime.progress,
-            remaining: activity.daysRequired - this.character.downtime.progress
+            remaining: required - this.character.downtime.progress
         };
     }
 
@@ -6638,6 +7067,30 @@ class DungeonMaster {
                 const rumor = this.getRandomRumor();
                 result.message = `Your research revealed: "${rumor}"`;
                 break;
+            case "newProficiency": {
+                // Training: grant proficiency in a skill the character doesn't yet have.
+                const allSkills = Object.keys(SKILL_ABILITY_MAP);
+                const missing = allSkills.filter(s => !this.character.isSkillProficient(s));
+                if (missing.length) {
+                    const learned = missing[Math.floor(Math.random() * missing.length)];
+                    this.character.skillProficiencies = this.character.skillProficiencies || {};
+                    this.character.skillProficiencies[learned] = true;
+                    result.message = `Your training pays off — you gain proficiency in ${learned}!`;
+                } else {
+                    // Already proficient in everything — reward Inspiration instead.
+                    if (this.grantInspiration) this.grantInspiration("Honed your skills through training.");
+                    result.message = `You're already a master of every skill — but the practice sharpens your edge (Inspiration).`;
+                }
+                break;
+            }
+            case "craftedItem": {
+                // Crafting: produce a useful consumable from your downtime.
+                const craftables = ["Healing Potion", "Antidote", "Trail Rations", "Trail Rations"];
+                const made = craftables[Math.floor(Math.random() * craftables.length)];
+                this.character.inventory.push(made);
+                result.message = `You craft a ${made} during your downtime.`;
+                break;
+            }
             default:
                 result.message = `You completed ${activity}.`;
         }
@@ -7050,6 +7503,23 @@ class DungeonMaster {
     }
 
     // ===== LEGENDARY/LAIR ACTIONS =====
+    // Match a boss to its signature legendary action archetype by name/description keywords.
+    // Returns the archetype key (into SIGNATURE_LEGENDARY_ACTIONS) or null for the generic pool.
+    _signatureLegendarySet(enemy) {
+        if (!enemy) return null;
+        if (enemy._legendarySet !== undefined) return enemy._legendarySet; // cache (incl. null)
+        const text = `${enemy.name || ""} ${enemy.description || ""} ${enemy.type || ""}`.toLowerCase();
+        let key = null;
+        if (/dragon|wyvern|drake|wyrm/.test(text)) key = "dragon";
+        else if (/lich|necromancer|death knight|skeletal lord|bone/.test(text)) key = "lich";
+        else if (/vampire|nosferatu|strahd|blood/.test(text)) key = "vampire";
+        else if (/demon|devil|fiend|balor|pit fiend|abyssal|infernal/.test(text)) key = "demon";
+        else if (/giant|ogre|troll|titan|colossus|behemoth/.test(text)) key = "giant";
+        else if (/beholder|mind flayer|illithid|aboleth|aberration|eldritch|elder/.test(text)) key = "aberration";
+        enemy._legendarySet = key;
+        return key;
+    }
+
     applyLegendaryAction(enemy, actionType, targetOrLevel = null) {
         const action = LEGENDARY_ACTIONS[actionType];
         if (!action) return { success: false, message: "Unknown legendary action." };
@@ -8087,7 +8557,14 @@ class Game {
         // Weather effects renderer
         this.weatherRenderer = new WeatherRenderer();
         this.weatherEnabled = true;
-        
+        // Instant text: off by default (typewriter on); loadSettings may flip it.
+        this.instantText = false;
+        // Rules complexity: gates the optional/punishing systems so newbies aren't buried.
+        //   'simple'   → optional rules OFF (no variant encumbrance, light, madness, starvation harshness)
+        //   'standard' → 5e-as-tuned (default; current behavior)
+        //   'hardcore' → optional rules ON and unforgiving
+        this.rulesComplexity = 'standard';
+
         // All-time statistics (persisted in settings across all characters)
         this.stats = {
             enemiesKilled: 0,
@@ -8241,9 +8718,20 @@ class Game {
                 break;
             case 'explore':
                 if (!inCombat) {
-                    this.explore();
+                    this.exploreSearch();
                     event.preventDefault();
                 }
+                break;
+            case 'scout':
+                if (!inCombat) {
+                    this.exploreScout();
+                    event.preventDefault();
+                }
+                break;
+            case 'improvise':
+                // Available both in and out of combat; freeformAction() branches on state.
+                this.freeformAction();
+                event.preventDefault();
                 break;
             case 'journal':
                 if (!inCombat) {
@@ -8301,6 +8789,9 @@ class Game {
             this.theme = parsed.theme || 'dark';
             this.fontSize = parsed.fontSize || 'medium';
             this.weatherEnabled = parsed.weatherEnabled !== undefined ? parsed.weatherEnabled : true;
+            // Instant text: skip the DM typewriter animation and print lines immediately.
+            this.instantText = parsed.instantText === true;
+            if (['simple', 'standard', 'hardcore'].includes(parsed.rulesComplexity)) this.rulesComplexity = parsed.rulesComplexity;
             this.godMode = parsed.godMode === true;
             // Optional Claude API key for the AI "Do Something Else" improvisation feature.
             this.aiKey = parsed.aiKey || "";
@@ -8325,6 +8816,8 @@ class Game {
             theme: this.theme,
             fontSize: this.fontSize,
             weatherEnabled: this.weatherEnabled,
+            instantText: this.instantText === true,
+            rulesComplexity: this.rulesComplexity || 'standard',
             godMode: this.godMode,
             aiKey: this.aiKey || "",
             aiEnabled: this.aiEnabled === true,
@@ -8333,9 +8826,15 @@ class Game {
             stats: this.stats,
             lastLegendTier: (typeof this._lastLegendTier === "number") ? this._lastLegendTier : (this.lastLegendTier || 0)
         };
-        localStorage.setItem('dndGameSettings', JSON.stringify(settings));
+        const ok = safeLocalStorageSet('dndGameSettings', JSON.stringify(settings), () => {
+            if (this.log) this.log("⚠️ Couldn't save settings — browser storage is full. Free space or delete old saves.", "danger");
+        });
+        // Reflect any AI-key/enable change on the Improvise tooltip immediately, without
+        // waiting for the next updateUI() pass.
+        this.updateImproviseTooltip();
+        return ok;
     }
-    
+
     // Theme system
     applyTheme() {
         document.body.classList.remove('theme-dark', 'theme-light');
@@ -8365,6 +8864,36 @@ class Game {
         this.log(`📝 Font size changed to ${size}`, 'dm');
     }
     
+    // Instant text: toggle the DM typewriter animation on/off (also exposed in Settings).
+    toggleInstantText() {
+        this.instantText = !this.instantText;
+        this.saveSettings();
+        this.log(this.instantText
+            ? "⚡ Instant text ON — DM narration prints immediately."
+            : "⌨️ Instant text OFF — DM narration types out.", "dm");
+    }
+
+    // Rules complexity: are the OPTIONAL/punishing systems (variant encumbrance, light-level
+    // penalties, madness, harsh starvation) active? Off in Simple mode so newbies aren't buried.
+    optionalRulesActive() {
+        return this.rulesComplexity !== 'simple';
+    }
+    // Are we in the unforgiving Hardcore tier? (intensifies optional systems)
+    isHardcoreRules() {
+        return this.rulesComplexity === 'hardcore';
+    }
+    setRulesComplexity(mode) {
+        if (!['simple', 'standard', 'hardcore'].includes(mode)) return;
+        this.rulesComplexity = mode;
+        this.saveSettings();
+        const blurb = {
+            simple: "📗 Simple Rules — optional systems off: no encumbrance penalties, light penalties, madness, or harsh starvation. Focus on the adventure.",
+            standard: "📘 Standard Rules — the full tuned 5e experience.",
+            hardcore: "📕 Hardcore Rules — optional systems on and unforgiving. For veterans who want the full grind."
+        };
+        this.log(blurb[mode], "dm");
+    }
+
     // Difficulty system
     setDifficulty(diff) {
         this.difficulty = diff;
@@ -8819,11 +9348,35 @@ class Game {
         const sizeClass = opts.size ? ` modal-${opts.size}` : '';
         const denseClass = opts.dense ? ' modal-dense' : '';
         const extraClass = opts.extraClass ? ` ${opts.extraClass}` : '';
-        modal.innerHTML = `<div class="modal-content${sizeClass}${denseClass}${extraClass}">${html}</div>`;
+        // ALWAYS inject a corner ✕ close button so a modal can never trap the player even if its
+        // own HTML forgot a close control and the backdrop isn't clickable (the bug that stranded
+        // Bounty Board / Black Market / Artifact Trading). Escape and backdrop-click also close.
+        // Only add a footer "Close" when the caller's HTML doesn't already include one, to avoid
+        // a doubled button on modals that bring their own.
+        const callerHasClose = /close-modal|close-btn|modal-auto-close|>\s*Close\s*</i.test(html);
+        const footerClose = callerHasClose ? '' :
+            `<div class="modal-auto-close-row"><button class="setting-btn modal-auto-close">Close</button></div>`;
+        modal.innerHTML = `<div class="modal-content${sizeClass}${denseClass}${extraClass}">
+            <button class="modal-x-close" aria-label="Close" title="Close">✕</button>
+            ${html}
+            ${footerClose}
+        </div>`;
+        const close = () => {
+            modal.remove();
+            document.removeEventListener('keydown', onKey);
+        };
+        const onKey = (e) => { if (e.key === 'Escape') close(); };
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.remove();
+            if (e.target === modal) { close(); return; }            // backdrop click
+            // Our injected buttons AND any caller-supplied close control all route through close()
+            // so the Escape listener is always cleaned up (no orphaned listeners).
+            if (e.target.closest('.modal-x-close, .modal-auto-close, .close-modal, .close-btn')) {
+                close();
+            }
         });
+        document.addEventListener('keydown', onKey);
         document.body.appendChild(modal);
+        return modal;
     }
     
     // Side Quest System
@@ -9030,6 +9583,60 @@ class Game {
     }
     
     // Settings Panel
+    // In-game rules glossary: a searchable plain-English reference so a new player can look up
+    // "what does poisoned do?" / "what's AC?" without leaving the game. Addresses the onboarding
+    // gap that the one-time tutorial doesn't cover the deeper systems.
+    openGlossary(filter = "") {
+        const terms = [
+            { term: "Armor Class (AC)", text: "How hard you are to hit. An attacker must roll a d20 + bonuses equal to or higher than your AC to land a blow." },
+            { term: "Advantage", text: "Roll two d20s and take the HIGHER. Granted by good positioning, flanking, a prone target (in melee), and more." },
+            { term: "Disadvantage", text: "Roll two d20s and take the LOWER. Caused by exhaustion, being frightened/prone/restrained, attacking at range into melee, etc. Advantage and disadvantage cancel out." },
+            { term: "Proficiency Bonus", text: "A bonus (+2 to +6 by level) added to things you're trained in — attacks with your weapons, your spells, and your proficient skills/saves." },
+            { term: "Saving Throw", text: "A d20 roll to resist an effect (poison, fear, a fireball). Each save uses one of the six abilities (e.g. DEX save to dodge, CON save to endure poison)." },
+            { term: "Initiative", text: "Determines who acts first in combat — a DEX-based roll at the start of a fight." },
+            { term: "Reaction", text: "A special action you can take once per round even when it isn't your turn — like an opportunity attack when a foe flees your reach." },
+            { term: "Opportunity Attack", text: "A free melee attack you get when an enemy leaves your reach without disengaging (and vice-versa)." },
+            { term: "Concentration", text: "Some spells require concentration to maintain. You can only concentrate on ONE at a time, and taking damage forces a CON save or you lose it." },
+            { term: "Exhaustion", text: "Stacking fatigue (levels 1–6). Level 1: disadvantage on ability checks. It worsens through halved speed, disadvantage on attacks/saves, halved HP, and finally death. Reduced by a long rest." },
+            { term: "Encumbrance", text: "Carrying too much weight. Heavily encumbered = disadvantage on STR/DEX/CON checks and attacks, and reduced speed. (Optional rule — off in Simple mode.)" },
+            { term: "Cover", text: "Terrain between you and a foe at range raises their effective AC (+2 half / +5 three-quarters). Closing to melee or flanking negates it." },
+            { term: "Prone", text: "Knocked down. Your attacks have disadvantage; melee attacks against you have advantage, ranged have disadvantage. Standing up costs half your movement." },
+            { term: "Poisoned", text: "Disadvantage on attack rolls and ability checks." },
+            { term: "Frightened", text: "Disadvantage on attacks and checks while the source of fear is in sight; you can't willingly move closer to it." },
+            { term: "Charmed", text: "You can't attack the charmer, and they have advantage on social interactions with you." },
+            { term: "Stunned / Paralyzed", text: "Incapacitated — you can't act. Attacks against you have advantage; paralyzed melee hits are automatic critical hits." },
+            { term: "Restrained / Grappled", text: "Grappled: your speed is 0. Restrained: speed 0, your attacks have disadvantage, attacks against you have advantage, and you have disadvantage on DEX saves." },
+            { term: "Condition Immunity", text: "Some creatures can't suffer certain conditions — undead can't be poisoned/charmed/frightened, constructs ignore most, oozes can't be grappled or knocked prone." },
+            { term: "Rest", text: "Short rest (1 hour): spend Hit Dice to heal, recover short-rest abilities. Long rest (once per day): full HP, spell slots, and most resources back." },
+            { term: "Attunement", text: "Powerful magic items require attunement, and you can attune to at most 3 at once." }
+        ];
+        const f = (filter || "").trim().toLowerCase();
+        const shown = f ? terms.filter(t => t.term.toLowerCase().includes(f) || t.text.toLowerCase().includes(f)) : terms;
+        const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+        const rows = shown.map(t => `<div style="padding:8px 0;border-bottom:1px solid rgba(201,162,39,0.15);">
+            <strong style="color:#e8d9a0;">${t.term}</strong><br><span style="font-size:0.9rem;color:#cfcfe0;">${t.text}</span></div>`).join("")
+            || `<p class="setting-desc">No entries match "${esc(filter)}".</p>`;
+        const html = `
+            <h2>📖 Rules Glossary</h2>
+            <p class="setting-desc">Quick plain-English reference for the game's terms and conditions.</p>
+            <input type="text" id="glossarySearch" placeholder="Search… (e.g. poisoned, advantage)" value="${esc(filter)}"
+                   oninput="game.openGlossary(this.value)"
+                   style="width:100%;padding:8px 10px;margin-bottom:10px;border-radius:6px;border:1px solid rgba(201,162,39,0.4);background:rgba(0,0,0,0.4);color:#e8e8f0;" />
+            <div style="max-height:50vh;overflow-y:auto;">${rows}</div>`;
+        // Re-render in place if already open (live search), else open fresh.
+        const existing = document.querySelector('.modal-overlay .modal-content #glossarySearch');
+        if (existing) {
+            const content = existing.closest('.modal-content');
+            // Re-add both the corner ✕ and the footer Close so close affordances survive a live
+            // re-render (the outer overlay's click/Escape handlers persist and catch both).
+            content.innerHTML = `<button class="modal-x-close" aria-label="Close" title="Close">✕</button>${html}<div class="modal-auto-close-row"><button class="setting-btn modal-auto-close">Close</button></div>`;
+            const input = content.querySelector('#glossarySearch');
+            if (input) { input.focus(); input.setSelectionRange(input.value.length, input.value.length); }
+        } else {
+            this.showModal(html, { size: 'medium' });
+        }
+    }
+
     openSettings() {
         const html = `
             <h2>⚙️ Settings</h2>
@@ -9042,6 +9649,20 @@ class Game {
                     <button class="setting-btn ${this.difficulty === 'hard' ? 'active' : ''}" onclick="game.setDifficulty('hard'); game.openSettings();">Hard</button>
                 </div>
                 <p class="setting-desc">${DIFFICULTY_SETTINGS[this.difficulty].description}</p>
+            </div>
+
+            <div class="settings-section">
+                <h3>📚 Rules Complexity</h3>
+                <div class="settings-buttons">
+                    <button class="setting-btn ${this.rulesComplexity === 'simple' ? 'active' : ''}" onclick="game.setRulesComplexity('simple'); game.openSettings();">📗 Simple</button>
+                    <button class="setting-btn ${this.rulesComplexity === 'standard' ? 'active' : ''}" onclick="game.setRulesComplexity('standard'); game.openSettings();">📘 Standard</button>
+                    <button class="setting-btn ${this.rulesComplexity === 'hardcore' ? 'active' : ''}" onclick="game.setRulesComplexity('hardcore'); game.openSettings();">📕 Hardcore</button>
+                </div>
+                <p class="setting-desc">${this.rulesComplexity === 'simple'
+                    ? 'Simple: optional systems OFF — no encumbrance penalties, light penalties, madness, or harsh starvation. Best for new players. (Separate from combat Difficulty above.)'
+                    : this.rulesComplexity === 'hardcore'
+                    ? 'Hardcore: every optional 5e system on and unforgiving — for veterans who want the full grind.'
+                    : 'Standard: the full tuned 5e experience with all systems at normal severity.'}</p>
             </div>
 
             <div class="settings-section">
@@ -9083,8 +9704,9 @@ class Game {
                 <h3>✨ Visual Effects</h3>
                 <div class="settings-buttons">
                     <button class="setting-btn ${this.weatherEnabled ? 'active' : ''}" onclick="game.weatherEnabled = !game.weatherEnabled; game.saveSettings(); game.updateUI(); game.openSettings();">🌧️ Weather: ${this.weatherEnabled ? 'ON' : 'OFF'}</button>
+                    <button class="setting-btn ${this.instantText ? 'active' : ''}" onclick="game.toggleInstantText(); game.openSettings();">⚡ Instant Text: ${this.instantText ? 'ON' : 'OFF'}</button>
                 </div>
-                <p class="setting-desc">Toggle rain, fog, storms, and other weather visual effects.</p>
+                <p class="setting-desc">Weather toggles rain/fog/storm effects. Instant Text skips the DM typewriter animation and prints narration immediately.</p>
             </div>
 
             <div class="settings-section">
@@ -9106,6 +9728,7 @@ class Game {
                         style="width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(201,162,39,0.3);color:#ddd;padding:6px 8px;border-radius:6px;font-size:0.85rem;">
                     <button class="setting-btn" style="margin-top:8px;" onclick="game.aiKey = document.getElementById('aiKeyInput').value.trim(); game.saveSettings(); game.log('🔑 API key saved locally.', 'success'); game.openSettings();">Save Key</button>
                     <p class="setting-desc" style="margin-top:6px;">The key is kept in your browser's local storage and sent directly to Anthropic from your machine. Never shared with any other server. Leave blank to use the offline judge only.</p>
+                    <p class="setting-desc" style="margin-top:6px;color:#e0a030;">⚠️ Stored in plaintext in this browser. <strong>Don't enter a key on a shared or public computer</strong>, and use a key scoped/limited to this use. Clear it here or via your browser's site-data controls when you're done.</p>
                 </div>
             </div>
 
@@ -9229,11 +9852,11 @@ class Game {
             ],
             lost_mine_of_phandelver: [
                 /* ch 0 */ [],
-                /* ch 1 */ [],
-                /* ch 2 */ [],
-                /* ch 3 */ [],
-                /* ch 4 */ [],
-                /* ch 5 */ [],
+                /* ch 1 */ ["ambushed"],
+                /* ch 2 */ ["arrivedPhandalin"],
+                /* ch 3 */ ["enteredRedbrandHideout"],
+                /* ch 4 */ ["clearedRedbrands"],
+                /* ch 5 */ ["rescuedGundren"],
                 /* ch 6 */ []
             ]
         };
@@ -9721,8 +10344,11 @@ class Game {
         this.log(`💡 <strong>First fight!</strong> Here's how combat works:`, "dm");
         this.log(`⚔️ <strong>Attack</strong> rolls a d20 — beat the enemy's Armor Class (AC) to hit, then deal damage.`, "dm");
         this.log(`🛡️ <strong>Defend</strong> makes you harder to hit this turn. <strong>Retreat</strong> tries to flee.`, "dm");
+        this.log(`📏 <strong>Range matters.</strong> Foes start at Engaged, Near, or Far range (shown as a chip above). Melee swings at a non-Engaged foe are at <em>disadvantage</em> — use <strong>Approach</strong> to close in, or <strong>Withdraw</strong> to open distance.`, "dm");
+        this.log(`⚡ <strong>Reactions.</strong> When an enemy backs out of melee or flees, you get a free <strong>opportunity attack</strong> — one per round. Knock a foe <strong>prone</strong> (Shove) for advantage on your melee strikes.`, "dm");
+        this.log(`⏳ <strong>Conditions end on saves.</strong> Frightened, poisoned, charmed and the like let the afflicted creature roll a saving throw at the end of its turn to shake the effect off — watch the chips above the log.`, "dm");
         if (this.character.isSpellcaster && this.character.isSpellcaster()) {
-            this.log(`✨ <strong>Spell</strong> casts from your prepared spells — great for damage or healing.`, "dm");
+            this.log(`✨ <strong>Spell</strong> casts from your prepared spells — great for damage or healing. Slots only refresh on a <strong>long rest</strong> (once per in-game day), so spend them wisely.`, "dm");
         }
         this.log(`⌨️ Shortcuts: [A]ttack, [D]efend${this.character.isSpellcaster && this.character.isSpellcaster() ? ", [S]pell" : ""}, [R]etreat. Reduce the enemy to 0 HP to win!`, "dm");
     }
@@ -10393,22 +11019,23 @@ class Game {
                     <span>${statNames[s]}</span>
                     <span style="display:flex;gap:6px;align-items:center;">
                         <button class="stat-stepper-btn" onclick="game._pointBuyAdjust('${s}',-1)">−</button>
-                        <span style="display:inline-block;min-width:28px;text-align:center;font-weight:bold;color:var(--accent);">${v}</span>
+                        <span id="pb-val-${s}" style="display:inline-block;min-width:28px;text-align:center;font-weight:bold;color:var(--accent);">${v}</span>
                         <button class="stat-stepper-btn" onclick="game._pointBuyAdjust('${s}',1)">+</button>
-                        <span style="min-width:48px;text-align:right;font-size:0.85em;color:var(--text-secondary);">cost ${COSTS[v]}</span>
+                        <span id="pb-cost-${s}" style="min-width:48px;text-align:right;font-size:0.85em;color:var(--text-secondary);">cost ${COSTS[v]}</span>
                     </span>
                 </div>
             `;
         }
 
+        // Confirm requires spending ALL points (left === 0) — not just "not overspent".
         const html = `
             <h2>🎯 Point Buy</h2>
-            <p style="margin-bottom:10px;color:var(--text-secondary);">27 points total. Each stat ranges 8–15 before racial bonuses.</p>
-            <div style="margin-bottom:12px;font-weight:bold;color:${left < 0 ? '#ff6b6b' : 'var(--accent)'};">Points remaining: ${left}</div>
+            <p style="margin-bottom:10px;color:var(--text-secondary);">27 points total. Each stat ranges 8–15 before racial bonuses. Spend <strong>all</strong> points to confirm.</p>
+            <div id="pb-remaining" style="margin-bottom:12px;font-weight:bold;color:${left === 0 ? 'var(--accent)' : '#ff6b6b'};">Points remaining: ${left}</div>
             <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">${rows}</div>
             <div class="modal-footer">
                 <button class="modal-btn-secondary" onclick="game._showStatMethodPicker()">← Back</button>
-                <button class="modal-btn-primary" ${left < 0 ? 'disabled' : ''} onclick="game._confirmPointBuy()">✅ Confirm</button>
+                <button id="pb-confirm" class="modal-btn-primary" ${left !== 0 ? 'disabled' : ''} onclick="game._confirmPointBuy()">✅ Confirm</button>
             </div>
         `;
         const modals = document.querySelectorAll('.modal-overlay');
@@ -10416,14 +11043,44 @@ class Game {
         this.showModal(html, { size: 'medium' });
     }
 
+    // Adjust one stat and patch the DOM IN PLACE — no full modal rebuild, so the screen doesn't
+    // flash on every +/− click.
     _pointBuyAdjust(stat, delta) {
         const v = this._pointBuyDraft[stat] + delta;
         if (v < 8 || v > 15) return;
         this._pointBuyDraft[stat] = v;
-        this._showPointBuyEditor();
+
+        const COSTS = { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 };
+        const stats = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+        const total = stats.reduce((sum, st) => sum + COSTS[this._pointBuyDraft[st]], 0);
+        const left = 27 - total;
+
+        // If the editor DOM isn't present (defensive), fall back to a full render.
+        const valEl = document.getElementById(`pb-val-${stat}`);
+        if (!valEl) { this._showPointBuyEditor(); return; }
+
+        valEl.textContent = v;
+        const costEl = document.getElementById(`pb-cost-${stat}`);
+        if (costEl) costEl.textContent = `cost ${COSTS[v]}`;
+        const remEl = document.getElementById('pb-remaining');
+        if (remEl) {
+            remEl.textContent = `Points remaining: ${left}`;
+            remEl.style.color = left === 0 ? 'var(--accent)' : '#ff6b6b';
+        }
+        const confirmBtn = document.getElementById('pb-confirm');
+        if (confirmBtn) confirmBtn.disabled = (left !== 0);
     }
 
     _confirmPointBuy() {
+        // Re-validate: all 27 points must be spent (defensive — the Confirm button is also
+        // disabled unless points remaining === 0).
+        const COSTS = { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 };
+        const stats = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+        const left = 27 - stats.reduce((sum, s) => sum + COSTS[this._pointBuyDraft?.[s] ?? 8], 0);
+        if (left !== 0) {
+            this.log?.(`You still have ${left} point(s) to spend before confirming.`, "warning");
+            return;
+        }
         this._pendingStatMethod = { method: 'pointbuy', assignments: { ...this._pointBuyDraft } };
         this._pointBuyDraft = null;
         const modals = document.querySelectorAll('.modal-overlay');
@@ -10558,6 +11215,9 @@ class Game {
     updateUI() {
         if (!this.character) return;
 
+        // Keep the Improvise tooltip in sync with whether an AI key is configured.
+        this.updateImproviseTooltip();
+
         // Update character info
         document.getElementById("charName").textContent = this.character.name;
         document.getElementById("charRace").textContent = this.character.race;
@@ -10665,9 +11325,20 @@ class Game {
         // Update XP bar
         const xpNeeded = getXpThreshold(this.character.level);
         const xpPercent = (this.character.experience / xpNeeded) * 100;
-        document.getElementById("xpBar").style.width = Math.min(xpPercent, 100) + "%";
+        const xpBarEl = document.getElementById("xpBar");
+        xpBarEl.style.width = Math.min(xpPercent, 100) + "%";
         document.getElementById("currentXp").textContent = this.character.experience;
         document.getElementById("nextLevelXp").textContent = xpNeeded === Infinity ? 'MAX' : xpNeeded;
+        // Telegraph the next-level payoff on the XP bar's tooltip (hover to see the carrot).
+        if (this.character.getNextLevelPreview) {
+            const preview = this.character.getNextLevelPreview();
+            const xpLeft = xpNeeded === Infinity ? 0 : Math.max(0, xpNeeded - this.character.experience);
+            const tip = xpNeeded === Infinity
+                ? "Level 20 — maximum level reached."
+                : `Level ${this.character.level + 1} (${xpLeft} XP to go) unlocks:\n• ${preview.join("\n• ")}`;
+            const xpWrap = xpBarEl.closest(".xp-bar, .xp-bar-container, .xp-bar-wrap") || xpBarEl.parentElement || xpBarEl;
+            if (xpWrap) xpWrap.title = tip;
+        }
         
         // Update stats
         const statsGrid = document.getElementById("statsGrid");
@@ -11268,7 +11939,11 @@ class Game {
         const entry = document.createElement("div");
         entry.className = `log-entry ${type}`;
         
-        if (type === "dm") {
+        if (type === "dm" && this.instantText) {
+            // Instant text mode: render the DM line immediately with no typewriter animation.
+            entry.innerHTML = `<div class="speaker">🎭 Dungeon Master</div><span class="typewriter-text">${message}</span>`;
+            gameLog.appendChild(entry);
+        } else if (type === "dm") {
             entry.innerHTML = `<div class="speaker">🎭 Dungeon Master</div><span class="typewriter-text"></span>`;
             gameLog.appendChild(entry);
             // Typewriter effect for DM messages
@@ -11277,22 +11952,32 @@ class Game {
             cursor.className = 'typewriter-cursor';
             entry.appendChild(cursor);
             const plainText = message.replace(/<[^>]*>/g, '');
-            let i = 0;
+            // 4a: drive the typewriter from ONE requestAnimationFrame loop that slices by
+            // elapsed time, instead of one setTimeout per character. The old approach
+            // spawned N timers per line (100+ for a long line) and forced a reflow per
+            // character; in a busy combat that meant thousands of live timers. This uses a
+            // single rAF and reveals however many characters the elapsed time warrants.
             const speed = 12; // ms per character
-            const typeNext = () => {
-                if (i < plainText.length) {
-                    textEl.textContent += plainText.charAt(i);
-                    i++;
-                    setTimeout(typeNext, speed);
-                } else {
-                    // Replace with full HTML version after typing
-                    textEl.innerHTML = message;
-                    cursor.remove();
-                }
-            };
-            // Only animate if text is short enough, otherwise show instantly
             if (plainText.length < 200) {
-                typeNext();
+                let i = 0;
+                let last = null;
+                const step = (ts) => {
+                    if (last === null) last = ts;
+                    const due = Math.floor((ts - last) / speed);
+                    if (due > 0) {
+                        i = Math.min(plainText.length, i + due);
+                        textEl.textContent = plainText.slice(0, i);
+                        last = ts;
+                        gameLog.scrollTop = gameLog.scrollHeight;
+                    }
+                    if (i < plainText.length) {
+                        requestAnimationFrame(step);
+                    } else {
+                        textEl.innerHTML = message; // swap in trusted markup once typing ends
+                        cursor.remove();
+                    }
+                };
+                requestAnimationFrame(step);
             } else {
                 textEl.innerHTML = message;
                 cursor.remove();
@@ -11300,6 +11985,14 @@ class Game {
         } else {
             entry.innerHTML = message;
             gameLog.appendChild(entry);
+        }
+        // 4a: cap the log at a fixed number of DOM nodes. The log previously grew
+        // unbounded, so a long session accumulated thousands of nodes and every new line
+        // (which scrolls to the bottom) reflowed the entire list — the first thing to jank
+        // on a low-memory mobile device. Trimming the oldest entries keeps it bounded.
+        const MAX_LOG_ENTRIES = 200;
+        while (gameLog.childElementCount > MAX_LOG_ENTRIES) {
+            gameLog.removeChild(gameLog.firstElementChild);
         }
         // Ensure scroll happens after the DOM has rendered the new entry
         requestAnimationFrame(() => {
@@ -11427,6 +12120,25 @@ class Game {
             });
         }
 
+        // 3.5) VARIETY BEAT — a seeded "middle" discovery so locations don't all share the
+        // same five-beat rhythm. Each location deterministically gets one of several flavors
+        // (trap, omen, resource node, forked path), keyed off its name-hash so it's stable.
+        if (danger >= 1) {
+            const varietyBeats = this._buildVarietyBeats(location, type, danger, seed);
+            if (varietyBeats.length) {
+                // Pick 1 (low danger) or 2 (danger 3+) distinct variety beats by seed.
+                const count = danger >= 3 ? 2 : 1;
+                for (let i = 0; i < count && varietyBeats.length; i++) {
+                    const idx = (seed + i * 7) % varietyBeats.length;
+                    beats.push(varietyBeats.splice(idx, 1)[0]);
+                }
+            }
+            // 3.6) BUILD-GATED beat — always appended (not part of the seed-picked pool above),
+            // so it appears at every dangerous location and the variety-pool indexing stays
+            // stable for existing saves.
+            beats.push(this._buildGatedBeat(location, danger, seed));
+        }
+
         // 4) Signature encounter — the thing that lairs here. Pulled from campaign monsters.
         if (danger >= 1) {
             const tier = Math.min(danger, 3);
@@ -11459,6 +12171,117 @@ class Game {
         return beats;
     }
 
+    // Build the pool of optional "variety" beats for a location. These break up the repetitive
+    // feature→clue→find→fight→landmark rhythm with trap/omen/resource/forked-path discoveries.
+    _buildVarietyBeats(location, type, danger, seed) {
+        const beats = [];
+
+        // TRAP — a hazard to detect & avoid. DEX save (or INT to disarm) vs damage; passing
+        // it cleanly grants XP. Themed by location type.
+        const trapFlavor = {
+            dungeon: { text: "A pressure plate clicks beneath your boot — darts whirr from the wall!", save: "dex", dmg: "2d6", dtype: "piercing" },
+            wilderness: { text: "A concealed snare-pit gapes open beneath the leaf litter!", save: "dex", dmg: "2d6", dtype: "bludgeoning" },
+            town: { text: "A rigged crossbow trap guards a smuggler's stash in the alley!", save: "dex", dmg: "1d10", dtype: "piercing" }
+        };
+        const tf = trapFlavor[type] || trapFlavor.dungeon;
+        beats.push({
+            kind: "trap", title: "A Hidden Trap", text: tf.text,
+            save: tf.save, damage: tf.dmg, damageType: tf.dtype,
+            dc: 11 + Math.min(danger, 5),
+            reward: { xp: 25 + danger * 5 }
+        });
+
+        // OMEN — a lore/atmosphere beat that grants a small boon (Inspiration) for engaging
+        // with the world. Pure flavor + a light mechanical pat on the back.
+        const omenFlavor = {
+            dungeon: "Strange sigils glow faintly on an arch. You study them — and feel a flicker of insight about what dwells here.",
+            wilderness: "You find a standing stone older than any kingdom. Tracing its worn carvings steadies your resolve.",
+            town: "An old seer catches your eye and murmurs a portent before vanishing into the crowd."
+        };
+        beats.push({
+            kind: "omen", title: "An Ill Omen", text: omenFlavor[type] || omenFlavor.wilderness,
+            journal: { title: `Omen at ${location.name}`, text: "You witnessed something that felt significant." }
+        });
+
+        // RESOURCE NODE — a place to gather crafting materials / minor treasure. Rewards the
+        // player for exploring even peaceful corners.
+        const resFlavor = {
+            dungeon: "A vein of strange ore glitters in the rock, and discarded supplies lie nearby.",
+            wilderness: "A thicket of rare reagents and a forager's forgotten cache.",
+            town: "A back-alley fence is quietly unloading salvage at a discount."
+        };
+        beats.push({
+            kind: "resource", title: "Useful Pickings", text: resFlavor[type] || resFlavor.wilderness,
+            reward: { treasure: true, xp: 10 + danger * 3 }
+        });
+
+        // FORKED PATH — two routes; one is quicker (XP), one is richer (treasure). A light
+        // choice that gives the player a moment of agency mid-explore.
+        beats.push({
+            kind: "forked", title: "A Forked Path",
+            text: "The way splits ahead: a narrow shortcut, or a longer route that looks more promising.",
+            choices: [
+                { label: "⏩ Take the shortcut (quick XP)", reward: { xp: 30 + danger * 6 }, log: "You take the quick way and make good time." },
+                { label: "💰 Explore the long way (treasure)", reward: { treasure: true }, log: "The longer route hides something worth the detour." }
+            ]
+        });
+
+        return beats;
+    }
+
+    // BUILD-GATED OBSTACLE — a feature only a particular kind of character can fully exploit.
+    // The player is offered a path keyed to a skill/ability; passing the check yields a bonus
+    // reward, and there's always a mundane fallback so no build is hard-blocked. This is what
+    // makes locations feel different to a Rogue vs a Wizard vs a Barbarian. Deterministic by seed.
+    _buildGatedBeat(location, danger, seed) {
+        const gates = [
+            {
+                title: "A Sealed Strongbox",
+                text: "A heavy iron strongbox is bolted to the floor, its lock intricate and old.",
+                skill: "Sleight of Hand", ability: "dex", dc: 12 + Math.min(danger, 5),
+                passText: "Your nimble fingers coax the lock open — the strongbox spills its contents!",
+                failText: "You can't crack the lock. You pry loose one coin pouch and move on.",
+                pass: { treasure: true, xp: 30 + danger * 5 }, fail: { xp: 10 }
+            },
+            {
+                title: "Arcane Glyphs",
+                text: "A wall is covered in pulsing arcane glyphs — clearly a ward, perhaps a clue.",
+                skill: "Arcana", ability: "int", dc: 12 + Math.min(danger, 5),
+                passText: "You decipher the glyphs and siphon the bound magic safely.",
+                failText: "The glyphs resist your understanding; you note their shape and leave them be.",
+                pass: { xp: 40 + danger * 6, buff: "blessed" }, fail: { xp: 10 }
+            },
+            {
+                title: "A Collapsed Passage",
+                text: "Rubble blocks a side passage that clearly hides something beyond.",
+                skill: "Athletics", ability: "str", dc: 12 + Math.min(danger, 5),
+                passText: "You heave the rubble aside and claim what was sealed away!",
+                failText: "The rubble won't budge. You squeeze through a gap and grab what you can reach.",
+                pass: { treasure: true, xp: 35 + danger * 5 }, fail: { xp: 10 }
+            },
+            {
+                title: "A Wary Local",
+                text: "Someone here knows more than they're letting on — and is sizing you up.",
+                skill: "Persuasion", ability: "cha", dc: 12 + Math.min(danger, 5),
+                passText: "You win their trust, and they share a valuable secret.",
+                failText: "They clam up and turn away. You glean only scraps.",
+                pass: { xp: 40 + danger * 6, info: "local_secret" }, fail: { xp: 10 }
+            },
+            {
+                title: "Faint Tracks",
+                text: "Subtle tracks lead off the main path — easy to miss, telling to those who can read them.",
+                skill: "Survival", ability: "wis", dc: 12 + Math.min(danger, 5),
+                passText: "You follow the trail to a hidden cache the careless would never find.",
+                failText: "The trail peters out into confusion; you double back empty-handed.",
+                pass: { treasure: true, xp: 30 + danger * 5 }, fail: { xp: 10 }
+            }
+        ];
+        const gate = gates[seed % gates.length];
+        return { kind: "gated", title: gate.title, text: gate.text,
+            skill: gate.skill, ability: gate.ability, dc: gate.dc,
+            passText: gate.passText, failText: gate.failText, pass: gate.pass, fail: gate.fail };
+    }
+
     _getDiscoveryCount(locationName) {
         if (!this.dm.discoveredBeats) this.dm.discoveredBeats = {};
         return this.dm.discoveredBeats[locationName] || 0;
@@ -11482,12 +12305,35 @@ class Game {
         const beat = beats[found];
         this._setDiscoveryCount(loc.name, found + 1);
 
+        // Consume the exploration edge set by the intent the player chose (Search/Scout/Press On).
+        const edge = this._exploreEdge || { mode: 'pressOn' };
+        this._exploreEdge = null;
+
         // Progress header so the player feels forward motion.
         this.log(`🧭 <strong>${loc.name}</strong> — Discovery ${found + 1} of ${beats.length}: ${beat.title}`, "dm");
         this.log(beat.text, "dm");
 
         // Apply the beat's payoff.
         if (beat.kind === "encounter") {
+            // Scouting shapes how you meet a fight: a good Perception/Stealth roll gets you the
+            // drop (advantage on your first strike, assassinate for rogues); a bad one risks
+            // being caught flat-footed (the foe acts first). Search/Press On enter normally.
+            if (edge.mode === 'scout') {
+                if (edge.success) {
+                    this.character.buffs = this.character.buffs || {};
+                    this.character.buffs.guidingBolt = true; // advantage on first attack
+                    this._scoutGotTheDrop = true; // startCombat reads this for surprise framing
+                    this.log(`🎯 Your scouting pays off — you spot them first and ready a strike! (Advantage on your opening attack.)`, "success");
+                    if (this.character.subclass === 'Assassin') {
+                        this.character.subclassFeatures = this.character.subclassFeatures || {};
+                        this.character.subclassFeatures.assassinateActive = true;
+                        this.log(`🗡️ Assassinate! Your first hit will be a critical strike!`, "success");
+                    }
+                } else if (edge.fail) {
+                    this._scoutWasSurprised = true;
+                    this.log(`⚠️ You stumble right into them — caught off guard, they get the first move!`, "danger");
+                }
+            }
             const tier = beat.tier || 1;
             const pool = (this.dm.campaign.monsters && this.dm.campaign.monsters[tier]) || [];
             // Authored set-piece: beat.group is an explicit list of foes (by name, optional
@@ -11513,15 +12359,76 @@ class Game {
                     this.startCombatGroup(group);
                 }
             }
+        } else if (beat.kind === "trap") {
+            // Trap: detect/avoid with a save. Scouting or a Trap-savvy build gives advantage;
+            // success negates damage and grants the XP, failure takes the hit.
+            const ability = beat.save || "dex";
+            const dc = beat.dc || 13;
+            const scouted = edge.mode === 'scout' && edge.success;
+            let r1 = Math.floor(Math.random() * 20) + 1;
+            let r2 = Math.floor(Math.random() * 20) + 1;
+            const trapAdv = scouted || (this.character.feats && this.character.feats.includes("Alert"));
+            const natRoll = trapAdv ? Math.max(r1, r2) : r1;
+            const total = natRoll + this.character.getSaveModifier(ability);
+            if (total >= dc) {
+                this.log(`🪤 ${ability.toUpperCase()} save ${total} vs DC ${dc} — ✓ You spot and avoid the trap!${scouted ? ' (Your scouting gave you the edge.)' : ''}`, "success");
+                if (beat.reward?.xp) { this.grantExperience(beat.reward.xp); this.log(`✨ +${beat.reward.xp} XP`, "loot"); }
+            } else {
+                const dmg = this.dm.rollDice(beat.damage || "2d6");
+                this.log(`🪤 ${ability.toUpperCase()} save ${total} vs DC ${dc} — ✗ The trap catches you for ${dmg} ${beat.damageType || 'damage'}!`, "danger");
+                this.character.takeDamage(dmg);
+                // A trap sprung while exploring shouldn't be an instant, save-less death — if it
+                // would drop you, you're left clinging to 1 HP and warned to rest/heal instead.
+                if (this.character.hp <= 0) {
+                    this.character.hp = 1;
+                    this.log(`🩸 The trap nearly kills you — you're at 1 HP! Rest or heal before pressing on.`, "danger");
+                }
+            }
+        } else if (beat.kind === "omen") {
+            // Omen: atmosphere + a small boon (Inspiration) for engaging with the world.
+            if (beat.journal) this.character.addJournalEntry("lore", beat.journal);
+            if (this.dm.grantInspiration) {
+                const res = this.dm.grantInspiration("A portent witnessed in your travels.");
+                if (res.granted) this.log(`⭐ ${res.message}`, "success");
+            }
+        } else if (beat.kind === "forked") {
+            // Forked path: present a quick choice. Defer the payoff until the player picks.
+            this._pendingForkedBeat = beat;
+            this._showForkedPathChoice(beat);
+            // NOTE: discovery count was already incremented; the choice only applies rewards.
+        } else if (beat.kind === "gated") {
+            // Build-gated obstacle: roll the keyed skill. A character who invested in it (or whose
+            // class/ability suits it) clears the gate for a bonus reward; everyone else gets a
+            // smaller fallback. Searching/Scouting gives a small edge to the roll.
+            const mod = this.character.getSkillModifier(beat.skill);
+            const proficient = this.character.isSkillProficient && this.character.isSkillProficient(beat.skill);
+            let edgeBonus = 0;
+            if (edge.mode === "search" && edge.success) edgeBonus += 2;
+            const roll = Math.floor(Math.random() * 20) + 1;
+            const total = roll + mod + edgeBonus;
+            const passed = roll === 20 || total >= beat.dc;
+            this.log(`🎲 ${beat.skill}: ${roll}${mod >= 0 ? '+' : ''}${mod}${edgeBonus ? `+${edgeBonus}` : ''} = ${total} vs DC ${beat.dc} — ${passed ? "✓ Success!" : "✗ Failed"}${proficient ? " (proficient)" : ""}`, passed ? "success" : "danger");
+            this.log(passed ? beat.passText : beat.failText, passed ? "success" : "dm");
+            this._applyBeatReward(passed ? beat.pass : beat.fail);
         } else {
+            // Searching well finds more: a successful Investigation roll boosts XP payoff and,
+            // on a strong/crit roll, turns up an extra cache. Scouting/Press On take base rewards.
+            const searchedWell = edge.mode === 'search' && edge.success;
             if (beat.reward) {
                 if (typeof beat.reward.xp === "number") {
-                    this.grantExperience(beat.reward.xp);
-                    this.log(`✨ +${beat.reward.xp} XP`, "loot");
+                    let xp = beat.reward.xp;
+                    if (searchedWell) xp = Math.floor(xp * 1.5);
+                    this.grantExperience(xp);
+                    this.log(`✨ +${xp} XP${searchedWell ? ' (thorough search!)' : ''}`, "loot");
                 }
                 if (beat.reward.treasure) {
                     this.findTreasure();
                 }
+            }
+            // A keen search uncovers something even on beats that didn't promise loot.
+            if (searchedWell && (edge.crit || (!beat.reward?.treasure && Math.random() < 0.5))) {
+                this.log(`🔎 Your careful search turns up something hidden!`, "success");
+                this.findTreasure();
             }
             if (beat.journal) {
                 this.character.addJournalEntry("lore", beat.journal);
@@ -11532,6 +12439,8 @@ class Game {
         if (found + 1 >= beats.length) {
             this.log(`✅ You've fully explored <strong>${loc.name}</strong>. There's nothing more to find here — consider <strong>Travel</strong>ing onward.`, "success");
             this.showToast?.({ variant: "quest", header: "Area Explored", title: loc.name, subtitle: "Fully discovered" });
+            // World reactivity: clearing a place changes the region around it.
+            this.applyWorldReactivity(loc);
         }
 
         this.updateUI();
@@ -11539,7 +12448,170 @@ class Game {
         return true;
     }
 
-    async explore() {
+    // Apply a simple reward block ({ xp, treasure, buff, info }) used by build-gated beats.
+    _applyBeatReward(reward) {
+        if (!reward) return;
+        const char = this.character;
+        if (typeof reward.xp === "number" && reward.xp > 0) {
+            this.grantExperience(reward.xp);
+            this.log(`✨ +${reward.xp} XP`, "loot");
+        }
+        if (reward.treasure) this.findTreasure();
+        if (reward.buff) {
+            char.buffs = char.buffs || {};
+            if (String(reward.buff).toLowerCase() === "blessed") {
+                char.buffs.blessActive = true;
+                this.log(`🌟 You are blessed! (+1d4 to your next attacks and saves)`, "success");
+            } else {
+                char.inspiration = true;
+                this.log(`🌟 You feel ${reward.buff}! (Inspiration gained)`, "success");
+            }
+        }
+        if (reward.info) {
+            char.addJournalEntry("lore", { title: "A Useful Secret", text: `You learned something worth knowing: ${String(reward.info).replace(/_/g, " ")}.` });
+            this.log(`📖 You learn something useful.`, "success");
+        }
+    }
+
+    // World reactivity: fully clearing a dangerous location makes the REGION react, so the 20
+    // maps feel like a connected place rather than isolated dungeons. Clearing a place:
+    //   • flags it cleared (idempotent — only reacts the first time),
+    //   • eases the danger of nearby locations (the threat radiating from here is gone),
+    //   • earns goodwill with the common folk / lowers nearby shop prices (merchants rep),
+    //   • can open a previously-blocked road by setting a campaign quest flag if one matches.
+    applyWorldReactivity(loc) {
+        if (!loc || !loc.name) return;
+        this.dm.clearedLocations = this.dm.clearedLocations || {};
+        if (this.dm.clearedLocations[loc.name]) return; // already reacted once
+        this.dm.clearedLocations[loc.name] = true;
+        if (this._trackExpedition) this._trackExpedition("cleared", 1);
+
+        // Clearing a *dangerous* place is a deed that earns regional goodwill.
+        if ((loc.danger || 0) >= 2) {
+            this.character.adjustReputation("commoners", 3);
+            this.log(`📣 Word spreads that you cleared ${loc.name} — the common folk are grateful, and the roads nearby feel safer.`, "success");
+        }
+
+        // Ease danger in nearby locations: the monsters lairing here threatened the area, so
+        // with them gone, adjacent places become a touch less deadly. We record the reduction in
+        // a per-playthrough override map (this.dm.dangerOverrides) rather than mutating the
+        // shared campaign template — the effective danger is read via effectiveDanger().
+        this.dm.dangerOverrides = this.dm.dangerOverrides || {};
+        const all = (this.dm.campaign && this.dm.campaign.locations) || [];
+        let easedNames = [];
+        for (const other of all) {
+            if (other === loc || other.name === loc.name) continue;
+            if (this.effectiveDanger(other) <= 1) continue; // already low / safe
+            const dist = this.calculateDistance(loc, other);
+            if (dist > 0 && dist <= 40) { // "nearby"
+                this.dm.dangerOverrides[other.name] = (this.dm.dangerOverrides[other.name] || 0) + 1;
+                easedNames.push(other.name);
+            }
+        }
+        if (easedNames.length) {
+            this.log(`🗺️ With ${loc.name} cleared, the threat eases in: ${easedNames.join(", ")}.`, "dm");
+        }
+
+        // NOTE: world reactivity stays AMBIENT (danger easing + reputation). It deliberately
+        // does NOT set campaign progression/quest flags — those are owned by the scripted
+        // story-event system (triggerStoryEvent), which also delivers the proper rewards,
+        // narration, and chapter advancement. Force-setting flags here would let a player skip
+        // that content by merely exploring, so we don't.
+    }
+
+    // A location's danger after world-reactivity reductions (clearing nearby threats). Never
+    // drops a dangerous area below 1, and leaves safe hubs (danger 0) untouched.
+    effectiveDanger(loc) {
+        if (!loc) return 0;
+        const base = loc.danger || 0;
+        if (base <= 0) return 0;
+        const reduction = (this.dm.dangerOverrides && this.dm.dangerOverrides[loc.name]) || 0;
+        return Math.max(1, base - reduction);
+    }
+
+    // Forked-path choice prompt. Reuses the lightweight choice-modal pattern; each option
+    // applies its own reward when picked.
+    _showForkedPathChoice(beat) {
+        let modal = document.getElementById("forkedPathModal");
+        if (!modal) {
+            modal = document.createElement("div");
+            modal.id = "forkedPathModal";
+            modal.className = "modal";
+            document.body.appendChild(modal);
+        }
+        const opts = (beat.choices || []).map((c, i) =>
+            `<button class="choice-btn skill-option" onclick="game.resolveForkedPath(${i})"><span>${c.label}</span></button>`
+        ).join("");
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h2>🛤️ ${beat.title}</h2>
+                <p style="margin-bottom:20px;">${beat.text}</p>
+                <div class="choice-options">${opts}</div>
+            </div>`;
+        modal.classList.add("active");
+    }
+
+    resolveForkedPath(index) {
+        const modal = document.getElementById("forkedPathModal");
+        if (modal) modal.classList.remove("active");
+        const beat = this._pendingForkedBeat;
+        this._pendingForkedBeat = null;
+        if (!beat || !beat.choices || !beat.choices[index]) return;
+        const choice = beat.choices[index];
+        if (choice.log) this.log(choice.log, "dm");
+        if (choice.reward) {
+            if (typeof choice.reward.xp === "number") {
+                this.grantExperience(choice.reward.xp);
+                this.log(`✨ +${choice.reward.xp} XP`, "loot");
+            }
+            if (choice.reward.treasure) this.findTreasure();
+        }
+        this.updateUI();
+        if (this.autoSaveGame) this.autoSaveGame();
+    }
+
+    // ===== Intent-driven exploration =====
+    // Instead of one passive "Explore" button, the player chooses HOW they explore. Each
+    // intent rolls a relevant skill and stashes an "edge" that exploreDiscovery() consumes:
+    //   • Search — Investigation: better loot/clue payoffs on discovery beats.
+    //   • Scout  — Perception: spot danger first. A good roll gets the drop on a beat
+    //              encounter (advantage + a free opening); a bad roll risks being surprised.
+    //   • Press On — no roll, no edge: just advance to the next discovery quickly.
+    // All three funnel into the same explore() engine; the edge only changes payoffs/openers.
+
+    async exploreSearch() {
+        if (this.dm.inCombat || this.character.hp <= 0) return this.explore('search');
+        const dc = 10 + (this.dm.currentLocation.danger || 0);
+        const mod = this.character.getSkillModifier("Investigation");
+        const roll = Math.floor(Math.random() * 20) + 1;
+        const total = roll + mod;
+        this._exploreEdge = { mode: 'search', success: total >= dc, crit: roll === 20, roll: total, dc };
+        this.log(`🔍 You search the area carefully. (Investigation ${roll}${mod >= 0 ? '+' : ''}${mod} = ${total} vs DC ${dc}${total >= dc ? ' ✓' : ''})`, "dm");
+        await this.explore('search');
+    }
+
+    async exploreScout() {
+        if (this.dm.inCombat || this.character.hp <= 0) return this.explore('scout');
+        const dc = 10 + (this.dm.currentLocation.danger || 0);
+        // Perception, or Stealth if it's higher — a sneaky scout uses whichever serves better.
+        const perc = this.character.getSkillModifier("Perception");
+        const stealth = this.character.getSkillModifier("Stealth");
+        const useStealth = stealth > perc;
+        const mod = useStealth ? stealth : perc;
+        const roll = Math.floor(Math.random() * 20) + 1;
+        const total = roll + mod;
+        this._exploreEdge = { mode: 'scout', success: total >= dc, crit: roll === 20, fail: total < dc - 5, roll: total, dc };
+        this.log(`👁️ You scout ahead, ${useStealth ? 'moving quietly' : 'watching for danger'}. (${useStealth ? 'Stealth' : 'Perception'} ${roll}${mod >= 0 ? '+' : ''}${mod} = ${total} vs DC ${dc}${total >= dc ? ' ✓' : ''})`, "dm");
+        await this.explore('scout');
+    }
+
+    async explorePressOn() {
+        if (this.dm.inCombat || this.character.hp <= 0) return this.explore('pressOn');
+        this._exploreEdge = { mode: 'pressOn' };
+        await this.explore('pressOn');
+    }
+
+    async explore(mode = 'pressOn') {
         if (this.dm.inCombat) return;
 
         // Cannot explore while unconscious
@@ -11547,6 +12619,19 @@ class Game {
             this.log("You're unconscious and need medical attention! Rest to recover.", "danger");
             return;
         }
+        // Don't advance while a forked-path choice is still open — resolve it first so its
+        // reward isn't silently lost.
+        if (this._pendingForkedBeat) {
+            this.log("🛤️ Choose your path first.", "warning");
+            this._showForkedPathChoice(this._pendingForkedBeat);
+            this._exploreEdge = null;
+            return;
+        }
+        // Default edge for callers that invoke explore() directly (legacy / keyboard).
+        if (!this._exploreEdge) this._exploreEdge = { mode };
+        // Clear stale scout outcome flags so they can never leak into an unrelated later fight.
+        this._scoutGotTheDrop = false;
+        this._scoutWasSurprised = false;
 
         this.dm.turn++;
         const locType = this.dm.currentLocation.type;
@@ -11567,6 +12652,9 @@ class Game {
                 await this.exploreDiscovery();
                 return;
             }
+            // Fully explored: the edge won't be consumed by exploreDiscovery, so clear it
+            // here to avoid leaking a stale rich edge into a later direct explore() call.
+            this._exploreEdge = null;
             // Fully explored: brief reminder + only a small chance of a wandering encounter.
             this.log(`🧭 You've already explored ${this.dm.currentLocation.name}. Wandering further turns up little.`, "dm");
             const isNightFull = this.dm.timeOfDay === "night";
@@ -11578,6 +12666,9 @@ class Game {
             }
             return;
         }
+
+        // No discovery beats here (safe town hub): clear any unconsumed exploration edge.
+        this._exploreEdge = null;
 
         // Ambient event - use campaign-specific events (towns/safe hubs without beats)
         const campaignEvents = this.dm.campaign.events[locType];
@@ -11592,12 +12683,14 @@ class Game {
         // Track explore-type side quest progress
         this.checkSideQuestProgress('explore', this.dm.currentLocation.name);
         
-        const danger = this.dm.currentLocation.danger;
-        
+        // Use the world-reactivity-adjusted danger so clearing nearby threats actually makes
+        // this area calmer (fewer/weaker encounters).
+        const danger = this.effectiveDanger(this.dm.currentLocation);
+
         // Night encounters are more dangerous
         const isNight = this.dm.timeOfDay === "night";
         const effectiveDanger = isNight ? danger + 1 : danger;
-        
+
         // Premium dialogue encounters (12% chance) - branching skill/choice scenes
         if (typeof DIALOGUE_ENCOUNTERS !== "undefined" && Math.random() < 0.12) {
             const ran = await this.triggerDialogueEncounter();
@@ -12620,20 +13713,40 @@ class Game {
             this.log(`${rewards.reputation > 0 ? "👍" : "👎"} Your reputation with the common folk ${rewards.reputation > 0 ? "rises" : "falls"}.`, rewards.reputation > 0 ? "success" : "danger");
         }
         if (rewards.damage) {
-            const dmg = this.rollDice(rewards.damage);
+            const dmg = this.dm.rollDice(rewards.damage);
             char.takeDamage(dmg);
             this.log(`💥 You take ${dmg} damage!`, "danger");
+            if (char.hp <= 0) this.gameOver();
         }
         if (rewards.condition && char.conditions.hasOwnProperty(this._mapEncounterCondition(rewards.condition))) {
             const cond = this._mapEncounterCondition(rewards.condition);
             char.addCondition(cond);
             this.log(`⚠️ You are now ${cond}!`, "danger");
         } else if (rewards.condition) {
-            // Non-PHB flavor states (weakened, etc.) — log without a mechanical hook.
-            this.log(`⚠️ You feel ${rewards.condition}.`, "danger");
+            // Non-PHB flavor states (weakened, cursed, etc.) now carry a real cost: a level of
+            // exhaustion, so the negative outcome actually bites instead of being just text.
+            if (typeof char.exhaustion === "number") {
+                char.exhaustion = Math.min(6, char.exhaustion + 1);
+                this.log(`⚠️ You feel ${rewards.condition} — you gain a level of exhaustion (level ${char.exhaustion}).`, "danger");
+            } else {
+                this.log(`⚠️ You feel ${rewards.condition}.`, "danger");
+            }
         }
         if (rewards.buff) {
-            this.log(`🌟 You feel ${rewards.buff}!`, "success");
+            // Map flavor buffs to a real mechanical benefit so "blessed" etc. isn't just text.
+            char.buffs = char.buffs || {};
+            const b = String(rewards.buff).toLowerCase();
+            if (b === "blessed" || b === "bless") {
+                char.buffs.blessActive = true;
+                this.log(`🌟 You are blessed! (+1d4 to your next attacks and saves)`, "success");
+            } else if (b === "inspired" || b === "lucky") {
+                char.inspiration = true;
+                this.log(`🌟 You feel ${rewards.buff} — you gain Inspiration!`, "success");
+            } else {
+                // Unknown flavor buff: grant Inspiration as a generic tangible boon.
+                char.inspiration = true;
+                this.log(`🌟 You feel ${rewards.buff}! (Inspiration gained)`, "success");
+            }
         }
         if (typeof rewards.exhaustion === "number" && rewards.exhaustion > 0 && typeof char.exhaustion === "number") {
             char.exhaustion = Math.min(6, char.exhaustion + rewards.exhaustion);
@@ -12706,7 +13819,15 @@ class Game {
             const verdict = check.success ? "✓ Success!" : "✗ Failed!";
             const cls = check.success ? "success" : "danger";
             this.log(`🎲 ${norm.skillName}: ${check.total} vs DC ${choice.dc} — ${verdict}`, cls);
-            outcome = check.success ? choice.success : (choice.failure || choice.success);
+            if (check.success) {
+                outcome = choice.success;
+            } else if (choice.failure) {
+                outcome = choice.failure;
+            } else {
+                // No authored failure: DON'T fall back to the success reward (that would reward
+                // failing). Apply a small default setback so a failed roll always costs something.
+                outcome = { text: "Your attempt comes to nothing.", rewards: { xp: 0 } };
+            }
             if (outcome) this.log(outcome.text, cls);
         }
 
@@ -12732,6 +13853,34 @@ class Game {
     // pack; bosses always come alone. This is the SINGLE source of group-size scaling — every
     // combat-entry path (ambush, discovery beat, travel) routes through it so multi-enemy
     // fights actually appear, not just on the rarely-hit ambush path.
+    // Roll an optional battlefield hazard for the current encounter. Returns null most of the
+    // time; otherwise a { name, desc, tip, damage, damageType } the combat code uses for
+    // shove-into-hazard bonus damage and a per-round stumble check. Themed by location type.
+    _rollCombatHazard() {
+        const loc = this.dm.currentLocation || {};
+        const danger = loc.danger || 1;
+        if (danger < 2) return null;            // safe areas have no hazards
+        if (Math.random() > 0.30) return null;  // ~30% of dangerous fights
+        const byType = {
+            dungeon: [
+                { name: "spiked pit", desc: "A spiked pit yawns in the floor.", tip: "Shove a foe in for extra damage.", damage: "2d6", damageType: "piercing" },
+                { name: "rubble", desc: "Loose rubble and broken flagstones litter the ground.", tip: "Footing is treacherous near the edge.", damage: "1d6", damageType: "bludgeoning" },
+                { name: "green flame brazier", desc: "A toppled brazier spills eldritch green fire.", tip: "Shove a foe into the flames.", damage: "2d6", damageType: "fire" }
+            ],
+            wilderness: [
+                { name: "thorn bramble", desc: "Dense thorn brambles ring the clearing.", tip: "Shove a foe into the thorns.", damage: "1d6", damageType: "piercing" },
+                { name: "ravine edge", desc: "The fight rages at the lip of a steep ravine.", tip: "Shove a foe over the edge for a nasty fall.", damage: "2d6", damageType: "bludgeoning" },
+                { name: "bog", desc: "Sucking bog mud grips the low ground.", tip: "Footing is treacherous here.", damage: "1d4", damageType: "bludgeoning" }
+            ],
+            town: [
+                { name: "burning wreckage", desc: "Burning wreckage blocks part of the street.", tip: "Shove a foe into the flames.", damage: "2d6", damageType: "fire" },
+                { name: "broken glass", desc: "Shattered glass and debris cover the cobbles.", tip: "Footing is treacherous underfoot.", damage: "1d6", damageType: "slashing" }
+            ]
+        };
+        const pool = byType[loc.type] || byType.wilderness;
+        return { ...pool[Math.floor(Math.random() * pool.length)] };
+    }
+
     buildEncounterGroup(primary, danger, pool) {
         const group = [primary];
         if (primary.boss || danger < 2 || !pool || !pool.length) return group;
@@ -12745,7 +13894,67 @@ class Game {
             if (extra.boss) continue; // never pad with a boss
             group.push(extra);
         }
+        // Mid/high-level encounter shaping: turn a flat pack into a structured fight so high
+        // levels FEEL different from low ones. Two templates, chosen by player level + size:
+        //   • Elite + minions (lvl 7+, 3+ foes): promote one to an ELITE (tougher, hits harder,
+        //     extra attack) and demote the rest to MINIONS (fragile, drop in ~1 solid hit).
+        //   • Minion swarm (lvl 5+, 4+ foes): everyone becomes a minion — your AoE and action
+        //     economy matter more than single-target damage.
+        this._applyEncounterTemplate(group, danger);
         return group;
+    }
+
+    // Apply a minion/elite template to a built group. Mutates the monster clones in place.
+    _applyEncounterTemplate(group, danger) {
+        const lvl = this.character ? this.character.level : 1;
+        if (!group || group.length < 3 || lvl < 5) return; // only meaningful for bigger fights
+        // Don't reshape if a boss is present.
+        if (group.some(m => m.boss || m.isBoss)) return;
+
+        const roll = Math.random();
+        // Elite+minions: needs at least 3 foes and a higher-level party.
+        if (lvl >= 7 && group.length >= 3 && roll < 0.45) {
+            // Promote the toughest (highest maxHp/hp) to elite.
+            let elite = group[0];
+            for (const m of group) if ((m.hp || 0) > (elite.hp || 0)) elite = m;
+            this._makeElite(elite);
+            for (const m of group) if (m !== elite) this._makeMinion(m);
+            this._encounterBanner = `⚔️ <strong>${elite.name}</strong> leads a band of lesser fighters — a tough leader backed by fragile minions. Drop the minions fast or focus the elite.`;
+        } else if (lvl >= 5 && group.length >= 4 && roll < 0.75) {
+            // Minion swarm: everyone fragile, but numerous.
+            for (const m of group) this._makeMinion(m);
+            this._encounterBanner = `🐾 A <strong>swarm</strong> of ${group.length} weak foes closes in — each drops easily, but together they're dangerous. Area effects shine here.`;
+        } else {
+            this._encounterBanner = null;
+        }
+    }
+
+    // Elite: a mini-boss. Boosts HP, damage output, and gives it an extra attack + a small
+    // morale anchor (won't flee). Tagged so the HUD/log can mark it.
+    _makeElite(m) {
+        if (!m) return;
+        m.isElite = true;
+        m.hp = Math.floor((m.hp || 10) * 1.8);
+        m.maxHp = m.hp;
+        m.attackBonus = (m.attackBonus || 3) + 2;
+        m.multiattack = Math.max(2, (m.multiattack || 1) + 1);
+        m.xp = Math.floor((m.xp || 25) * 1.75);
+        m._fledCheckedThisFight = true; // elites hold the line — no morale flee
+        m.name = `Elite ${m.name}`;
+    }
+
+    // Minion: fragile shock troop. Caps HP very low so a solid hit drops it (the 5e "minion"
+    // fantasy), trims XP to match, but keeps its attack so a swarm still threatens.
+    _makeMinion(m) {
+        if (!m) return;
+        if (m.isElite) return; // never minionize the elite
+        m.isMinion = true;
+        const cap = Math.max(4, 3 + Math.floor((this.character ? this.character.level : 1) / 2));
+        m.hp = Math.min(m.hp || cap, cap);
+        m.maxHp = m.hp;
+        m.xp = Math.floor((m.xp || 10) * 0.5);
+        m.multiattack = 1;
+        m.name = `${m.name} (minion)`;
     }
 
     async triggerAmbushCheck(forced = false) {
@@ -12891,6 +14100,11 @@ class Game {
             } else {
                 this.log(`⚔️ They move to surround you — fighting outnumbered is dangerous.`, "dm");
             }
+            // Surface the minion/elite encounter shape if one was applied.
+            if (this._encounterBanner) {
+                this.log(this._encounterBanner, "dm");
+                this._encounterBanner = null; // consume it
+            }
         }
         this.renderEnemies();
     }
@@ -13010,16 +14224,102 @@ class Game {
 
     // An enemy repositions toward its preferred zone before acting. Melee foes close in;
     // ranged foes back off if the player has closed to engaged. Logs only on a real move.
+    // Player opportunity attack: when a hostile creature leaves the player's melee reach
+    // (was engaged, now backing off / fleeing), the player may use their reaction to make
+    // one melee weapon attack against it (PHB p.195). Resolves automatically when the
+    // player has a reaction free and is using a melee weapon. Returns true if the OA
+    // dropped the monster to 0 HP (caller may want to skip further movement logging).
+    playerOpportunityAttack(monster) {
+        const char = this.character;
+        if (!monster || monster.hp <= 0) return false;
+        if (!this.dm.inCombat) return false;
+        // Reaction must be available.
+        if (!this.dm.actions || this.dm.actions.reaction !== true) return false;
+        // Disengage (player readied it) or being unable to act = no OA.
+        if (char.hp <= 0 || char.hasCondition("incapacitated") ||
+            char.hasCondition("paralyzed") || char.hasCondition("stunned")) return false;
+        // Need a melee weapon to threaten. Ranged-only attackers don't get melee OAs.
+        const weaponInfo = char.getWeaponDamage(this.dm.campaignId);
+        const isRanged = weaponInfo.properties?.includes("ranged");
+        if (isRanged) return false;
+
+        this.dm.useAction('reaction');
+        const profBonus = char.getProficiencyBonus();
+        const statMod = char.getModifier(weaponInfo.stat || "str");
+        const magicBonus = weaponInfo.magicBonus || 0;
+        const roll = Math.floor(Math.random() * 20) + 1;
+        const total = roll + statMod + profBonus + magicBonus;
+        const targetAc = monster.ac;
+        this.log(`⚔️ <strong>Opportunity Attack!</strong> The ${monster.name} drops its guard to move away — you strike!`, "success");
+        if (roll === 1) {
+            this.log(`…your reaction swing goes wide. (1 → miss)`, "dm");
+            return false;
+        }
+        if (roll !== 20 && total < targetAc) {
+            this.log(`…your reaction swing misses. (${roll}+${statMod + profBonus + magicBonus}=${total} vs AC ${targetAc})`, "dm");
+            return false;
+        }
+        let dmg = this.dm.rollDice(weaponInfo.damage) + statMod + magicBonus;
+        if (roll === 20) {
+            dmg += this.dm.rollDice(weaponInfo.damage);
+            this.log(`💥 CRITICAL opportunity attack!`, "success");
+        }
+        dmg = Math.max(1, dmg);
+        monster.hp -= dmg;
+        this.log(`🗡️ Your opportunity attack hits for ${dmg} damage! (${monster.name}: ${Math.max(0, monster.hp)} HP)`, "success");
+        if (monster === this.dm.currentEnemy) {
+            const hpEl = document.getElementById("enemyHp");
+            if (hpEl) hpEl.textContent = Math.max(0, monster.hp);
+            this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp);
+        }
+        if (this.updateCombatHud) this.updateCombatHud();
+        if (monster.hp <= 0) {
+            this.log(`💀 Your opportunity attack fells the ${monster.name}!`, "success");
+            // Route the kill through the normal death handler so XP, loot, retargeting and
+            // (if it was the last foe) endCombat all fire — same as any other killing blow.
+            this.handleMonsterDeath(monster);
+            return true;
+        }
+        this.renderEnemies();
+        return false;
+    }
+
+    // Returns true if the reposition provoked an OA that KILLED the monster (caller should
+    // stop acting on it). Otherwise returns false.
     enemyReposition(monster) {
         const want = this._preferredZone(monster);
-        if (monster.zone === want) return;
+        if (monster.zone === want) return false;
         const next = this._zoneStep(monster.zone, want);
-        if (next === monster.zone) return;
+        if (next === monster.zone) return false;
         const closing = next === "engaged" || (monster.zone === "far" && next === "near");
+        // Backing out of melee provokes a player opportunity attack.
+        if (!closing && monster.zone === "engaged") {
+            const fell = this.playerOpportunityAttack(monster);
+            if (fell) return true; // OA killed it before it could move — death already handled
+        }
         monster.zone = next;
         this.log(closing
             ? `🏃 The ${monster.name} closes to ${this._zoneLabel(next)} range.`
             : `🏃 The ${monster.name} repositions to ${this._zoneLabel(next)} range.`, "dm");
+        // Per-round hazard stumble: a foe moving across a hazardous battlefield risks
+        // stumbling into the hazard (~20%). This is the two-way half of the hazard system —
+        // the terrain threatens enemies who maneuver, not just ones you shove.
+        if (this.dm.combatHazard && this.dm.combatHazard.damage && Math.random() < 0.20) {
+            const hz = this.dm.combatHazard;
+            const dmg = this.dm.rollDice(hz.damage);
+            const res = this.applyDamageToMonster(monster, dmg, hz.damageType || "bludgeoning");
+            this.log(`⚠️ The ${monster.name} stumbles into the ${hz.name} while moving — ${res.finalDamage} ${hz.damageType} damage!`, "success");
+            if (monster === this.dm.currentEnemy) {
+                const hpEl = document.getElementById("enemyHp");
+                if (hpEl) hpEl.textContent = Math.max(0, monster.hp);
+                this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp);
+            }
+            if (monster.hp <= 0) {
+                this.handleMonsterDeath(monster);
+                return true; // treat like the OA-kill case: caller stops acting on it
+            }
+        }
+        return false;
     }
 
     // Morale: a wounded, lone, non-boss enemy may break and flee. Higher when badly hurt and
@@ -13039,6 +14339,12 @@ class Game {
     // An enemy flees the battlefield: remove it, retarget, end combat if it was the last foe.
     enemyFlees(monster) {
         this.log(`💨 The ${monster.name} loses its nerve and flees the battle!`, "dm");
+        // Fleeing out of melee provokes a player opportunity attack. If that OA kills it,
+        // handleMonsterDeath already removed it, granted XP/loot and (if last) ended combat —
+        // so we must NOT run the splice/endCombat tail again.
+        if (monster.zone === "engaged") {
+            if (this.playerOpportunityAttack(monster)) return;
+        }
         const idx = this.dm.enemies.indexOf(monster);
         if (idx !== -1) this.dm.enemies.splice(idx, 1);
         const remaining = this.dm.enemies.filter(e => e && e.hp > 0);
@@ -13105,36 +14411,39 @@ class Game {
 
     startCombat(monster) {
         this.dm.inCombat = true;
+        this.dm.playerHasActedThisCombat = false;
+        this.dm.combatRound = 1;
+        this.dm.surgePending = false;
         this.dm.currentEnemy = monster;
         if (!monster.range) monster.range = this.inferEnemyRange(monster);
         if (!monster.role) monster.role = this.inferEnemyRole(monster);
         if (!monster.zone) monster.zone = this._preferredZone(monster);
         this.dm.defendingThisTurn = false;
 
-        // Roll environmental cover for the encounter (PHB optional terrain flavor).
-        // 25% half cover, 10% three-quarters cover, otherwise none.
-        // Cover bakes into the monster's AC for the encounter. Sharpshooter feat ignores it.
+        // Positional cover (PHB p.196): the terrain offers cover, but it only protects a foe
+        // while it stays at range behind it. We record the terrain's cover here WITHOUT baking
+        // it into AC; the bonus is applied per-attack in getCoverBonusVs(), and it EVAPORATES
+        // once you close to Engaged range (you've flushed them out) or flank them. This makes
+        // "Approach to negate their cover" a real tactical choice instead of flat flavor.
         monster.baseAc = monster.ac;
         const coverRoll = Math.random();
-        const hasSharpshooter = this.character.feats && this.character.feats.includes("Sharpshooter");
         if (coverRoll < 0.10) {
             monster.cover = { type: 'three-quarters', acBonus: 5 };
-            if (!hasSharpshooter) {
-                monster.ac = monster.baseAc + 5;
-                this.log(`🧱 The ${monster.name} hunkers behind a broken wall — three-quarters cover (+5 AC against your attacks).`, "dm");
-            } else {
-                this.log(`🏹 The ${monster.name} takes three-quarters cover, but Sharpshooter lets you ignore it!`, "success");
-            }
+            this.log(`🧱 The ${monster.name} takes three-quarters cover behind a broken wall (+5 AC vs ranged attacks while it stays at distance).`, "dm");
         } else if (coverRoll < 0.35) {
             monster.cover = { type: 'half', acBonus: 2 };
-            if (!hasSharpshooter) {
-                monster.ac = monster.baseAc + 2;
-                this.log(`🪨 The ${monster.name} crouches behind low cover — half cover (+2 AC against your attacks).`, "dm");
-            } else {
-                this.log(`🏹 The ${monster.name} takes half cover, but Sharpshooter lets you ignore it!`, "success");
-            }
+            this.log(`🪨 The ${monster.name} crouches behind low cover (+2 AC vs ranged attacks while it stays at distance).`, "dm");
         } else {
             monster.cover = null;
+        }
+
+        // Environmental hazard (PHB/DMG terrain): some battlefields have a dangerous feature
+        // you can use against foes. ~30% of fights in dangerous areas get one. The player can
+        // Shove an Engaged foe INTO it for bonus damage, and each round a careless foe risks
+        // stumbling into it. Set once per encounter, keyed to the location type for flavor.
+        this.dm.combatHazard = this._rollCombatHazard();
+        if (this.dm.combatHazard) {
+            this.log(`⚠️ <strong>Battlefield hazard:</strong> ${this.dm.combatHazard.desc} ${this.dm.combatHazard.tip}`, "dm");
         }
 
         // Flanking: the game's party system already supports companions. When a companion is in combat
@@ -13183,6 +14492,7 @@ class Game {
         // Initialize legendary resistances for bosses
         if (monster.legendaryResistances && monster.legendaryResistances > 0) {
             monster.legendaryResistancesRemaining = monster.legendaryResistances;
+            monster.legendaryResistancesMax = monster.legendaryResistances; // for phase-two refresh cap
         }
         
         // Check if this is a boss
@@ -13268,7 +14578,10 @@ class Game {
                 bonusBtn.classList.add("hidden");
             }
         }
-        
+
+        // Show/refresh the Action Surge button (Fighter only).
+        this.updateActionSurgeButton();
+
         this.log(`⚔️ A ${monster.name} appears!`, "combat");
         this.log(`📊 Initiative: You (${init.player}) vs ${monster.name} (${init.enemy})`, "dm");
 
@@ -13317,6 +14630,16 @@ class Game {
             this.log("You're unconscious! Roll a death saving throw.", "danger");
         }
         
+        // Scouting outcome overrides initiative: getting the drop guarantees you act first;
+        // being surprised hands the enemy the opening. Consumed here (one-shot per fight).
+        if (this._scoutGotTheDrop) {
+            init.playerGoesFirst = true;
+            this._scoutGotTheDrop = false;
+        } else if (this._scoutWasSurprised) {
+            init.playerGoesFirst = false;
+            this._scoutWasSurprised = false;
+        }
+
         // If enemy goes first, they attack
         if (!init.playerGoesFirst) {
             this.log(`${monster.name} acts first!`, "danger");
@@ -13344,6 +14667,9 @@ class Game {
         // Prevent multiple actions while processing (fixes XP spam exploit)
         if (this.processingCombatAction) return;
         this.processingCombatAction = true;
+        // Mark that the player has taken a turn this combat, so end-of-turn condition saves
+        // only fire after a real player turn (not on an enemy-first / surprise opener).
+        this.dm.playerHasActedThisCombat = true;
         try {
         
         const monster = this.dm.currentEnemy;
@@ -13378,6 +14704,44 @@ class Game {
             char.buffs.shieldActive = false;
         }
 
+        // Action Surge (Fighter): arm a one-shot flag so that after this turn's action
+        // resolves, the player is granted ANOTHER action instead of passing the turn to the
+        // monsters. Once (twice at L17) per short rest. Can be pressed before OR after the
+        // first action — the post-action tail consumes the flag. Handled before the
+        // action-economy gate so it never trips the "already used your action" guard.
+        if (action === "actionSurge") {
+            if (char.charClass !== "Fighter" || !char.actionSurgeUses || char.actionSurgeUses < 1) {
+                this.log("You don't have Action Surge.", "warning");
+                this.processingCombatAction = false;
+                return;
+            }
+            if (char.actionSurgeUsesThisRest === undefined) char.actionSurgeUsesThisRest = 0;
+            if (char.actionSurgeUsesThisRest >= char.actionSurgeUses) {
+                this.log("⚡ Action Surge is spent — recover it on a short or long rest.", "warning");
+                this.processingCombatAction = false;
+                return;
+            }
+            if (this.dm.surgePending) {
+                this.log("⚡ Action Surge is already armed for this turn.", "warning");
+                this.processingCombatAction = false;
+                return;
+            }
+            if (!this.dm.actions.action) {
+                // Action already spent and the turn is resolving — too late to declare it.
+                this.log("⚡ Declare Action Surge at the start of your turn, before you act.", "warning");
+                this.processingCombatAction = false;
+                return;
+            }
+            char.actionSurgeUsesThisRest++;
+            char.actionSurgeUsed = char.actionSurgeUsesThisRest >= char.actionSurgeUses;
+            this.dm.surgePending = true; // after this turn's action resolves, grant a second one
+            this.log(`⚡ <strong>ACTION SURGE!</strong> Take your action — you'll get a second one before the enemies act. (${char.actionSurgeUses - char.actionSurgeUsesThisRest} left this rest)`, "success");
+            this.updateActionSurgeButton();
+            if (this.updateCombatHud) this.updateCombatHud();
+            this.processingCombatAction = false;
+            return; // arming only; player now takes their first action
+        }
+
         // Action economy enforcement: main actions consume the action
         const mainActions = ["attack", "defend", "flee", "grapple", "shove", "help", "hide", "ready"];
         if (mainActions.includes(action) && !this.dm.actions.action) {
@@ -13407,78 +14771,103 @@ class Game {
             const magicBonus = weaponInfo.magicBonus || 0;
             
             // Check for advantage/disadvantage from various sources
-            let hasAdvantage = char.buffs.guidingBolt || false;
+            const _guidingBoltAdv = !!char.buffs.guidingBolt;
+            let hasAdvantage = _guidingBoltAdv;
             let hasDisadvantage = false;
 
             // Flanking: +advantage on melee attacks when a living companion is in this fight
             // (optional rule; active here because the game's party system naturally supports it).
             const isMelee = !weaponInfo.properties?.includes('ranged');
+            // Positional cover: recompute the foe's effective AC for THIS attack from its base
+            // AC + whatever cover its current position grants against this attack type. Closing
+            // to Engaged or flanking negates it (see getCoverBonusVs). Restored to base each
+            // attack so the value never drifts.
+            if (monster.baseAc != null) {
+                const coverBonus = this.getCoverBonusVs(monster, !isMelee);
+                monster.ac = monster.baseAc + coverBonus;
+                if (coverBonus > 0 && !monster._coverMessagedThisTurn) {
+                    this.log(`🛡️ The ${monster.name}'s cover raises its effective AC to ${monster.ac} against your ranged attack. (Close to Engaged to negate it.)`, "dm");
+                    monster._coverMessagedThisTurn = true;
+                }
+            }
             // Positioning: striking a foe that isn't at Engaged range with a melee weapon is
             // a lunge — disadvantage. Use Approach to close first, or a ranged weapon/spell.
+            // (Range and flanking adv/disadv are applied here; the consolidated "why" line below
+            // reports them in plain English so we don't double-log per site.)
             if (isMelee && monster.zone && monster.zone !== "engaged") {
                 hasDisadvantage = true;
-                this.log(`📏 The ${monster.name} is at ${this._zoneLabel(monster.zone)} range — your melee swing is at disadvantage. (Approach to close in.)`, "warning");
             }
             if (isMelee && monster.flanked && !hasAdvantage) {
                 hasAdvantage = true;
-                // Soft log — don't spam every attack, only the first in a fight
-                if (!monster._flankingMessaged) {
-                    this.log(`↔️ Flanking! Your ally lets you strike with advantage.`, "success");
-                    monster._flankingMessaged = true;
-                }
             }
 
             // Inspiration: auto-spend for advantage when not already advantaged
+            char._spentInspirationThisAttack = false;
             if (char.inspiration && !hasAdvantage) {
                 char.inspiration = false;
                 hasAdvantage = true;
-                this.log(`⭐ You spend your Inspiration for advantage on this attack!`, "success");
+                char._spentInspirationThisAttack = true;
             }
             
-            // Exhaustion Level 3+: Disadvantage on attack rolls
-            if (char.exhaustion >= 3) hasDisadvantage = true;
+            // --- Why-tracking: collect plain-English reasons so the player learns WHY a roll is
+            // advantaged/disadvantaged instead of silently getting better/worse dice. (#1) ---
+            const advReasons = [];
+            const disReasons = [];
+            if (_guidingBoltAdv) advReasons.push("a magical/setup effect marks the target");
+            if (isMelee && monster.zone && monster.zone !== "engaged") disReasons.push(`${monster.name} is at ${this._zoneLabel(monster.zone)} range (melee lunge)`);
+            if (isMelee && monster.flanked) advReasons.push("flanking with an ally");
+            if (char._spentInspirationThisAttack) advReasons.push("Inspiration");
 
-            // Heavily Encumbered: Disadvantage on attack rolls
-            if (this.dm) {
+            // Exhaustion Level 3+: Disadvantage on attack rolls
+            if (char.exhaustion >= 3) { hasDisadvantage = true; disReasons.push(`exhaustion (level ${char.exhaustion})`); }
+
+            // Heavily Encumbered: Disadvantage on attack rolls (optional rule — off in Simple)
+            if (this.dm && this.optionalRulesActive()) {
                 const enc = this.dm.calculateEncumbrance();
-                if (enc.heavilyEncumbered) hasDisadvantage = true;
+                if (enc.heavilyEncumbered) { hasDisadvantage = true; disReasons.push("heavily encumbered"); }
             }
-            
+
             // Conditions affecting attacks
-            if (char.hasCondition("blinded")) hasDisadvantage = true;
-            if (char.hasCondition("prone")) hasDisadvantage = true;
-            if (char.hasCondition("restrained")) hasDisadvantage = true;
-            if (char.hasCondition("frightened")) hasDisadvantage = true;
-            
+            if (char.hasCondition("blinded")) { hasDisadvantage = true; disReasons.push("you are blinded"); }
+            if (char.hasCondition("prone")) { hasDisadvantage = true; disReasons.push("you are prone"); }
+            if (char.hasCondition("restrained")) { hasDisadvantage = true; disReasons.push("you are restrained"); }
+            if (char.hasCondition("frightened")) { hasDisadvantage = true; disReasons.push("you are frightened"); }
+
             // Monster conditions giving advantage
-            if (monster.conditions?.paralyzed || monster.conditions?.stunned) hasAdvantage = true;
-            if (monster.conditions?.restrained || monster.conditions?.prone) hasAdvantage = true;
-            
-            // Mounted combat advantage on melee attacks
-            if (this.character.mountedOn && !weaponInfo.properties?.includes("ranged")) {
-                hasAdvantage = true;
+            if (monster.conditions?.paralyzed || monster.conditions?.stunned) { hasAdvantage = true; advReasons.push(`${monster.name} is ${monster.conditions?.paralyzed ? "paralyzed" : "stunned"}`); }
+            if (monster.conditions?.restrained) { hasAdvantage = true; advReasons.push(`${monster.name} is restrained`); }
+            // Prone (PHB p.292): attacking a prone creature has ADVANTAGE if you're within
+            // 5 ft (melee), but DISADVANTAGE if the attack is ranged.
+            if (monster.conditions?.prone) {
+                if (isMelee) { hasAdvantage = true; advReasons.push(`${monster.name} is prone (melee)`); }
+                else { hasDisadvantage = true; disReasons.push(`${monster.name} is prone (ranged)`); }
             }
-            
+
+            // Mounted combat advantage on melee attacks
+            if (this.character.mountedOn && !weaponInfo.properties?.includes("ranged")) { hasAdvantage = true; advReasons.push("mounted charge"); }
+
             // Barbarian Rage grants advantage on STR attacks (Reckless Attack)
-            if (char.raging && char.charClass === "Barbarian") hasAdvantage = true;
-            
+            if (char.raging && char.charClass === "Barbarian") { hasAdvantage = true; advReasons.push("Reckless Attack (raging)"); }
+
             // Rogue gets advantage if monster has a condition (simplified Sneak Attack condition)
             if (char.charClass === "Rogue" && (monster.conditions?.restrained || monster.conditions?.stunned || monster.conditions?.paralyzed || monster.conditions?.prone)) {
                 hasAdvantage = true;
             }
-            
+
             // Hidden Strike from Cunning Action: Hide
             if (char.buffs.hiddenStrike) {
                 hasAdvantage = true;
+                advReasons.push("attacking from hiding");
                 char.buffs.hiddenStrike = false;
             }
-            
+
             // Weather affects ranged attacks
             const weatherEffects = this.dm.getWeatherEffects();
             if (weaponInfo.properties?.includes("ranged") && weatherEffects.rangedDisadvantage) {
                 hasDisadvantage = true;
+                disReasons.push("weather hampers ranged attacks");
             }
-            
+
             // Clear guiding bolt buff after use
             if (char.buffs.guidingBolt) {
                 char.buffs.guidingBolt = false;
@@ -13523,17 +14912,31 @@ class Game {
                 armorPenalty = true;
                 hasDisadvantage = true;
             }
-            
+            if (armorPenalty) disReasons.push("not proficient with your armor/shield");
+
             // Feat: Great Weapon Master / Sharpshooter power attack (-5 hit, +10 damage)
             let powerAttackActive = false;
             if (char.feats.includes("Great Weapon Master") && weaponInfo.properties?.includes("heavy")) {
                 totalAttackMod -= 5;
                 powerAttackActive = true;
+                this.log(`💪 Great Weapon Master: −5 to hit for +10 damage on a hit.`, "dm");
             } else if (char.feats.includes("Sharpshooter") && weaponInfo.properties?.includes("ranged")) {
                 totalAttackMod -= 5;
                 powerAttackActive = true;
+                this.log(`🎯 Sharpshooter: −5 to hit for +10 damage on a hit.`, "dm");
             }
-            
+
+            // Consolidated, plain-English explanation of the net adv/disadv state — so a new
+            // player always understands WHY the dice changed. 5e: advantage and disadvantage
+            // cancel to a normal roll regardless of how many sources of each.
+            if (hasAdvantage && hasDisadvantage) {
+                this.log(`⚖️ Advantage and disadvantage cancel out — you roll one die normally. (For: ${advReasons.join(", ") || "—"} · Against: ${disReasons.join(", ") || "—"})`, "dm");
+            } else if (hasAdvantage && advReasons.length) {
+                this.log(`📈 Advantage — ${advReasons.join(", ")}.`, "success");
+            } else if (hasDisadvantage && disReasons.length) {
+                this.log(`📉 Disadvantage — ${disReasons.join(", ")}.`, "warning");
+            }
+
             // Roll attack with advantage/disadvantage support - with animation
             // Champion subclass: expanded crit range
             const critRange = char.subclassFeatures?.critRange || 20;
@@ -13719,11 +15122,11 @@ class Game {
                 if (critEffect.special === "maxDie") {
                     critDamage += parseInt(weaponInfo.damage.split("d")[1]) || 6;
                 }
-                if (critEffect.condition) {
+                if (critEffect.condition && !this.monsterIsImmuneToCondition(monster, critEffect.condition)) {
                     monster.conditions = monster.conditions || {};
                     monster.conditions[critEffect.condition] = true;
                 }
-                
+
                 const critResult = this.applyDamageToMonster(monster, critDamage, weaponInfo.type);
                 soundManager.playCritical();
                 await diceAnimator.rollDamage(weaponInfo.damage, critResult.finalDamage, `💥 ${critResult.finalDamage} ${weaponInfo.type}`);
@@ -13750,16 +15153,16 @@ class Game {
                     }
                 }
             } else if (attackResult.total >= monster.ac) {
-                // Normal hit: weapon die + ability mod + magic bonus + bonus damage
-                let damage = this.dm.rollDice(weaponInfo.damage) + attackMod + magicBonus + bonusDamage + sneakAttackDamage;
+                // Normal hit: weapon die + ability mod + magic bonus + bonus damage.
+                // Fighting Style: Great Weapon Fighting actually rerolls 1s and 2s on the weapon
+                // dice (PHB), instead of the old flat +1-2 fudge — so the damage shown is real.
+                const gwfActive = char.fightingStyle === 'Great Weapon Fighting' &&
+                    (weaponInfo.properties?.includes('two-handed') || weaponInfo.properties?.includes('heavy'));
+                const weaponRoll = gwfActive ? this.dm.rollDiceGWF(weaponInfo.damage).total : this.dm.rollDice(weaponInfo.damage);
+                let damage = weaponRoll + attackMod + magicBonus + bonusDamage + sneakAttackDamage;
                 // Fighting Style: Dueling (+2 damage with one-handed melee weapon)
                 if (char.fightingStyle === 'Dueling' && !weaponInfo.properties?.includes('two-handed') && !weaponInfo.properties?.includes('ranged')) {
                     damage += 2;
-                }
-                // Fighting Style: Great Weapon Fighting (reroll 1s and 2s on damage dice)
-                // Simplified: +1 average damage bonus for two-handed/heavy weapons
-                if (char.fightingStyle === 'Great Weapon Fighting' && (weaponInfo.properties?.includes('two-handed') || weaponInfo.properties?.includes('heavy'))) {
-                    damage += Math.floor(Math.random() * 2) + 1; // +1-2 bonus (simulates reroll benefit)
                 }
                 const hitResult = this.applyDamageToMonster(monster, damage, weaponInfo.type);
                 soundManager.playHit();
@@ -13847,7 +15250,12 @@ class Game {
                     this.log(`❌ War Priest attack misses!`, "combat");
                 }
             }
-            
+
+            // Restore the foe's true AC now that the PLAYER's own attacks are done. The
+            // companion/beast attacks below have their own line of sight, so they shouldn't
+            // be hampered (or helped) by the player's positional-cover calc against this foe.
+            if (monster.baseAc != null) monster.ac = monster.baseAc;
+
             // Beast Master: Animal Companion attacks
             if (char.subclass === 'BeastMaster' && char.subclassFeatures.companion && char.subclassFeatures.companion.hp > 0 && monster.hp > 0) {
                 const companion = char.subclassFeatures.companion;
@@ -13893,9 +15301,12 @@ class Game {
                 }
                 this.updateCombatPartyDisplay();
             }
-            
+
+            // (AC already restored to base above, before the companion attacks — the transient
+            // cover value never leaks to spells, the HUD, or the monster turn that follow.)
+
             this.dm.defendingThisTurn = false;
-            
+
         } else if (action === "grapple") {
             this.dm.useAction('action');
             // GRAPPLE: Contested Athletics check (attacker Athletics vs target Athletics/Acrobatics)
@@ -13911,10 +15322,14 @@ class Game {
             this.log(`🤼 You attempt to grapple the ${monster.name}!`, "combat");
             this.log(`🎲 Athletics: You ${playerRoll} vs ${monster.name} ${monsterRoll}`, "dm");
             
-            if (playerRoll >= monsterRoll) {
+            if (this.monsterIsImmuneToCondition(monster, "grappled")) {
+                this.log(`🛡️ The ${monster.name} can't be grappled — there's nothing to grab hold of!`, "dm");
+            } else if (playerRoll >= monsterRoll) {
                 monster.conditions = monster.conditions || {};
                 monster.conditions.grappled = true;
-                monster.conditions.restrained = true; // Speed 0, disadvantage on DEX saves
+                if (!this.monsterIsImmuneToCondition(monster, "restrained")) {
+                    monster.conditions.restrained = true; // Speed 0, disadvantage on DEX saves
+                }
                 this.log(`✅ Grapple successful! The ${monster.name} is grappled! (speed 0, disadvantage on attacks)`, "success");
                 // Grappled enemies have disadvantage on attacks and can't flee
             } else {
@@ -13937,11 +15352,32 @@ class Game {
             this.log(`🫸 You attempt to shove the ${monster.name}!`, "combat");
             this.log(`🎲 Athletics: You ${playerRoll} vs ${monster.name} ${monsterRoll}`, "dm");
             
+            const proneImmune = this.monsterIsImmuneToCondition(monster, "prone");
             if (playerRoll >= monsterRoll) {
                 monster.conditions = monster.conditions || {};
-                monster.conditions.prone = true;
-                this.log(`✅ Shove successful! The ${monster.name} is knocked prone! (Melee attacks have advantage, ranged have disadvantage)`, "success");
-                // Prone: advantage on melee attacks against them
+                // If there's a hazard and the foe is in reach (Engaged), you can shove it INTO
+                // the hazard for damage instead of just knocking it prone.
+                const hazard = this.dm.combatHazard;
+                if (hazard && hazard.damage && (monster.zone === "engaged" || !monster.zone)) {
+                    const hazDmg = this.dm.rollDice(hazard.damage);
+                    const res = this.applyDamageToMonster(monster, hazDmg, hazard.damageType || "bludgeoning");
+                    if (!proneImmune) monster.conditions.prone = true;
+                    this.log(`✅ Shove successful! You hurl the ${monster.name} into the ${hazard.name} for ${res.finalDamage} ${hazard.damageType} damage${proneImmune ? '' : ' — and it is knocked prone'}!`, "success");
+                    if (res.message) this.log(res.message, "dm");
+                    document.getElementById("enemyHp").textContent = Math.max(0, monster.hp);
+                    this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp);
+                    if (monster.hp <= 0) {
+                        this.handleMonsterDeath(monster);
+                        if (!this.dm.inCombat) { this.processingCombatAction = false; return; }
+                    }
+                } else if (proneImmune) {
+                    this.log(`🛡️ You shove the ${monster.name}, but it can't be knocked prone — it gives ground instead.`, "dm");
+                    // Push it back a zone instead, as a consolation tactical effect.
+                    if (monster.zone === "engaged") monster.zone = "near";
+                } else {
+                    monster.conditions.prone = true;
+                    this.log(`✅ Shove successful! The ${monster.name} is knocked prone! (Melee attacks have advantage, ranged have disadvantage)`, "success");
+                }
             } else {
                 this.log(`❌ The ${monster.name} holds their ground!`, "danger");
             }
@@ -14146,6 +15582,19 @@ class Game {
             // Otherwise enemies remain — the fight continues this same turn.
         }
 
+        // Action Surge: if armed, the player's action just resolved — grant a fresh action
+        // and DON'T pass the turn to monsters. The player acts again (companion/monster
+        // turns wait until the surged action is also spent).
+        if (this.dm.surgePending && this.dm.inCombat && char.hp > 0) {
+            this.dm.surgePending = false;
+            this.dm.actions.action = true;
+            this.log(`⚡ Action Surge — take your additional action!`, "success");
+            this.updateActionSurgeButton();
+            if (this.updateCombatHud) this.updateCombatHud();
+            this.processingCombatAction = false;
+            return;
+        }
+
         // Companion attacks target the current (possibly retargeted) living enemy.
         const compTarget = this.dm.currentEnemy;
         if (compTarget && compTarget.hp > 0) {
@@ -14278,7 +15727,8 @@ class Game {
                         const dc = 8 + wisMod + profBonus;
                         const saveRoll = Math.floor(Math.random() * 20) + 1 + (monster.wisMod || 0);
                         if (saveRoll < dc) {
-                            // Stun the undead for 1 round
+                            // Turn Undead frightens the undead (the 5e exception that bypasses
+                            // undead fright-immunity by design — so it writes the flag directly).
                             if (!monster.conditions) monster.conditions = {};
                             monster.conditions.frightened = true;
                             this.log(`✝️ ${companion.name} presents their holy symbol! The ${monster.name} recoils in terror! (Frightened)`, "success");
@@ -14697,7 +16147,10 @@ class Game {
     rollDeathSave() {
         const char = this.character;
         const roll = Math.floor(Math.random() * 20) + 1;
-        
+        // Show the d20 for this death save (fire-and-forget — the result resolves immediately
+        // while the animation plays; death saves have no modifier so total === roll).
+        if (typeof diceAnimator !== "undefined") diceAnimator.rollD20(roll, "💀 Death Save");
+
         if (roll === 20) {
             // Natural 20 - regain 1 HP!
             char.heal(1);
@@ -14741,18 +16194,192 @@ class Game {
         this.monsterTurn();
     }
 
+    // 2b: decide whether to auto-spend the once-per-round reaction on a damage-reducing
+    // ability (Uncanny Dodge / Deflect Missiles). Previously these fired on the FIRST
+    // qualifying hit regardless of size, so the reaction was routinely wasted halving a
+    // trivial hit, leaving none for the big one. Heuristic: only auto-react when the hit
+    // is meaningful — would drop a noticeable fraction of current HP, or is large in
+    // absolute terms. (A future enhancement is a per-reaction "always / big hits / ask"
+    // setting; this threshold is the safe default that needs no new persisted state.)
+    worthAutoReaction(damage, char) {
+        if (damage <= 0) return false;
+        const hp = Math.max(1, char.hp || 1);
+        return damage >= 10 || damage >= hp * 0.25;
+    }
+
     // Orchestrates the enemies' phase: every living enemy acts, then end-of-round
     // bookkeeping runs ONCE. Single-enemy fights behave exactly as before.
+    // Roll the player's end-of-turn saving throws for any "save ends" conditions and log
+    // each result. Called at the end of the player's turn (top of monsterTurn).
+    tickPlayerConditionSaves() {
+        const char = this.character;
+        if (!char.tickConditionSaves) return;
+        const results = char.tickConditionSaves();
+        for (const r of results) {
+            if (r.success) {
+                this.log(`✨ You shake off <strong>${r.condition}</strong>! (${r.ability.toUpperCase()} save ${r.roll} vs DC ${r.dc})`, "success");
+            } else {
+                this.log(`…you're still <strong>${r.condition}</strong>. (${r.ability.toUpperCase()} save ${r.roll} vs DC ${r.dc})`, "danger");
+            }
+        }
+        if (results.length && this.updateCombatHud) this.updateCombatHud();
+    }
+
+    // ==================== CONDITION IMMUNITIES (5e) ====================
+    // Determine which conditions a monster is immune to, from its explicit stat-block
+    // `conditionImmunities` array if present, otherwise inferred from its creature type
+    // (name/description/type text). This mirrors the PHB/MM: undead shrug off poison/charm/
+    // fright, constructs ignore nearly everything mind/body, oozes have no anatomy to grapple
+    // or frighten, elementals/plants resist many bodily conditions, etc.
+    _monsterConditionImmunities(monster) {
+        if (!monster) return [];
+        // Explicit data wins.
+        if (Array.isArray(monster.conditionImmunities)) return monster.conditionImmunities.map(c => String(c).toLowerCase());
+        // Cache the inferred set so we don't re-regex every attack.
+        if (monster._condImmCache) return monster._condImmCache;
+        const text = `${monster.name || ""} ${monster.description || ""} ${monster.type || ""}`.toLowerCase();
+        const imm = new Set();
+        const add = (...cs) => cs.forEach(c => imm.add(c));
+        // Undead: immune to poison & being charmed/frightened (and exhaustion).
+        if (/undead|skeleton|zombie|ghoul|ghast|wight|wraith|specter|spectre|vampire|lich|ghost|mummy|shadow|bodak|revenant|draugr/.test(text)) {
+            add("poisoned", "charmed", "frightened", "exhaustion");
+        }
+        // Constructs / animated objects: immune to most body & mind conditions.
+        if (/golem|construct|automaton|animated|homunculus|scarecrow|guardian|statue|defender/.test(text)) {
+            add("poisoned", "charmed", "frightened", "paralyzed", "exhaustion", "petrified");
+        }
+        // Oozes/slimes: no clear anatomy — can't be grappled/prone/frightened/charmed; blind but unaffected.
+        if (/ooze|slime|jelly|pudding|cube|gelatinous/.test(text)) {
+            add("prone", "grappled", "restrained", "charmed", "frightened", "exhaustion", "blinded", "deafened");
+        }
+        // Elementals: immune to poison, exhaustion, paralysis, petrification, being unconscious.
+        if (/elemental|fire elemental|water elemental|air elemental|earth elemental|salamander/.test(text)) {
+            add("poisoned", "exhaustion", "paralyzed", "petrified", "unconscious");
+        }
+        // Plants (shambling/blights): immune to being charmed.
+        if (/shambling mound|plant|blight|treant|twig|needle|vine blight/.test(text)) {
+            add("charmed");
+        }
+        // Mindless beasts/vermin can still be frightened; no extra immunities by default.
+        monster._condImmCache = Array.from(imm);
+        return monster._condImmCache;
+    }
+
+    // True if the monster is immune to the given condition. "stunned"/"paralyzed" also covered
+    // by incapacitation-style immunity sets above.
+    monsterIsImmuneToCondition(monster, condition) {
+        if (!monster || !condition) return false;
+        const c = String(condition).toLowerCase();
+        return this._monsterConditionImmunities(monster).includes(c);
+    }
+
+    // Inflict a condition on a monster. If saveDc is given the monster rolls a save at the
+    // end of each of its turns (see tickMonsterConditionSaves) and the condition clears on
+    // success. The monster's save bonus is estimated from its attackBonus / HP when not
+    // explicitly statted. Without saveDc the condition is flat (cleared only explicitly).
+    // Returns true if the condition was applied, false if the monster was immune.
+    inflictMonsterCondition(monster, condition, saveDc = null, saveMod = null) {
+        if (!monster || !condition) return false;
+        // 5e condition immunity: undead/constructs/oozes/etc. shrug off conditions they can't be subjected to.
+        if (this.monsterIsImmuneToCondition(monster, condition)) {
+            this.log(`🛡️ The ${monster.name} is immune to being ${condition} — the effect fails!`, "dm");
+            return false;
+        }
+        monster.conditions = monster.conditions || {};
+        monster.conditions[condition] = true;
+        if (saveDc) {
+            // Estimate a save bonus when the stat block doesn't give one.
+            const est = (typeof saveMod === "number")
+                ? saveMod
+                : (monster.attackBonus != null ? Math.floor(monster.attackBonus / 2) : Math.floor((monster.maxHp || monster.hp || 10) / 25));
+            monster.conditionMeta = monster.conditionMeta || {};
+            monster.conditionMeta[condition] = { saveDc, saveMod: est };
+        }
+        return true;
+    }
+
+    // Focus-fire target selection: pick the target a tactically-minded enemy would strike.
+    // 70% of the time it goes for the weakest (lowest current HP) — finishing the wounded;
+    // 30% it picks randomly so the player can't perfectly predict it. Expects each target
+    // to expose currentHp (companions) — the beast-wolf wrapper carries it too.
+    _pickFocusFireTarget(targets) {
+        if (!targets || targets.length === 0) return null;
+        if (targets.length === 1) return targets[0];
+        if (Math.random() < 0.30) {
+            return targets[Math.floor(Math.random() * targets.length)];
+        }
+        let weakest = targets[0];
+        for (const t of targets) {
+            const thp = (t.currentHp != null ? t.currentHp : 9999);
+            const whp = (weakest.currentHp != null ? weakest.currentHp : 9999);
+            if (thp < whp) weakest = t;
+        }
+        return weakest;
+    }
+
+    // Positional cover bonus the monster currently enjoys against an incoming attack.
+    // Cover only helps a foe that's still at range (Near/Far) behind its terrain; closing to
+    // Engaged or flanking it negates the cover. Sharpshooter ignores cover entirely. isRanged
+    // is the attacker's weapon/spell type — melee at Engaged inherently bypasses it.
+    getCoverBonusVs(monster, isRanged) {
+        if (!monster || !monster.cover) return 0;
+        const char = this.character;
+        if (char.feats && char.feats.includes("Sharpshooter")) return 0;
+        // Flushed out: at Engaged range the foe is no longer behind its cover relative to you.
+        if (monster.zone === "engaged") return 0;
+        // Flanked by a companion — the ally has an angle that denies the cover.
+        if (monster.flanked) return 0;
+        // A melee strike that somehow reaches a non-engaged foe doesn't benefit them from cover
+        // in this abstraction; cover is a ranged-line-of-fire concept here.
+        if (!isRanged) return 0;
+        return monster.cover.acBonus || 0;
+    }
+
+    // Roll a single monster's end-of-turn saving throws for "save ends" conditions.
+    tickMonsterConditionSaves(monster) {
+        if (!monster || !monster.conditionMeta) return;
+        for (const cond of Object.keys(monster.conditionMeta)) {
+            if (!monster.conditions || !monster.conditions[cond]) { delete monster.conditionMeta[cond]; continue; }
+            const meta = monster.conditionMeta[cond];
+            const mod = meta.saveMod || 0;
+            const d20 = Math.floor(Math.random() * 20) + 1;
+            const total = d20 + mod;
+            if (d20 === 20 || total >= meta.saveDc) {
+                monster.conditions[cond] = false;
+                delete monster.conditionMeta[cond];
+                this.log(`The ${monster.name} shakes off <strong>${cond}</strong>! (save ${total} vs DC ${meta.saveDc})`, "danger");
+            }
+        }
+    }
+
     monsterTurn() {
         const char = this.character;
+        // End of the player's turn: roll any "save ends" conditions afflicting the player —
+        // but only if the player has actually taken a turn (skip on enemy-first openers).
+        if (this.dm.playerHasActedThisCombat) this.tickPlayerConditionSaves();
         const actingEnemies = (this.dm.enemies || []).filter(e => e && e.hp > 0);
+
+        // 2a soft-lock guard: this is the single chokepoint every monsterTurn() caller
+        // funnels through (spell-kill, flee, surprise round, etc.). If combat is still
+        // flagged active but no living enemy remains, the last foe died on the player's
+        // action and no endCombat() ran on that path — iterating an empty roster would
+        // strand the UI in-combat against a null currentEnemy. End it as a victory here
+        // so EVERY victory path is covered, no matter which caller reached us.
+        if (this.dm.inCombat && actingEnemies.length === 0) {
+            this.endCombat(true);
+            return;
+        }
 
         for (const enemy of actingEnemies) {
             if (char.hp <= 0 && char.deathSaves.failures >= 3) break; // Player is dead — stop
+            if (!this.dm.inCombat) break; // A player OA (or other effect) ended combat mid-round
+            if (enemy.hp <= 0) continue; // This enemy died earlier this round (e.g. to an OA)
             this.monsterAct(enemy);
         }
 
-        this.endMonsterRound();
+        // If combat ended mid-round (last foe fell to an opportunity attack), endCombat
+        // already ran — don't do end-of-round bookkeeping against a finished fight.
+        if (this.dm.inCombat) this.endMonsterRound();
     }
 
     // A single enemy's actions for the round (conditions, attacks, legendary actions).
@@ -14788,10 +16415,16 @@ class Game {
             }
         }
 
-        // Prone: monster uses half movement to stand up (narrative only in this system)
+        // Prone: standing up costs half the creature's movement (PHB p.190). In this zone
+        // model that means it spends its move standing and CANNOT reposition this turn — so a
+        // foe you knocked prone at Near/Far range can't also close to Engaged the same turn,
+        // and a melee foe knocked prone stays out of reach for a round. This makes Shove a
+        // real tempo play, not just a flat advantage toggle.
+        let stoodThisTurn = false;
         if (monster.conditions?.prone) {
-            this.log(`🔄 The ${monster.name} stands up from prone.`, "dm");
+            this.log(`🔄 The ${monster.name} spends its movement standing up from prone.`, "dm");
             delete monster.conditions.prone;
+            stoodThisTurn = true;
         }
         
         // Execute special abilities at start of monster turn (if any)
@@ -14818,7 +16451,12 @@ class Game {
         }
 
         // Positioning: the enemy repositions toward its preferred range band before acting.
-        this.enemyReposition(monster);
+        // A reposition out of melee can provoke a player OA that kills it — stop if so.
+        // If it spent its movement standing up from prone, it can't reposition this turn.
+        if (!stoodThisTurn) {
+            if (this.enemyReposition(monster)) return;
+            if (!monster || monster.hp <= 0) return;
+        }
 
         // Role action: casters fling a spell, support enemies heal a hurt ally — instead of
         // a normal attack. If it acts here, skip the attack loop this turn.
@@ -14853,9 +16491,13 @@ class Game {
             
             if (attackCompanion) {
                 const targets = [...activeCompanions];
-                if (beastComp) targets.push({ _isBeastMasterWolf: true });
-                const target = targets[Math.floor(Math.random() * targets.length)];
-                
+                if (beastComp) targets.push({ _isBeastMasterWolf: true, currentHp: char.subclassFeatures.companion.hp, maxHp: char.subclassFeatures.companion.maxHp || char.subclassFeatures.companion.hp });
+                // Focus-fire: smart enemies pick the WEAKEST target (lowest current HP, with a
+                // tiebreak toward lowest HP fraction) rather than a uniform-random one — this is
+                // how a real DM plays monsters: finish the wounded, drop the healer's wall.
+                // A small random element keeps it from being perfectly predictable.
+                const target = this._pickFocusFireTarget(targets);
+
                 if (target._isBeastMasterWolf) {
                     this.monsterAttacksBeastCompanion(monster, char.subclassFeatures.companion);
                 } else {
@@ -14880,55 +16522,53 @@ class Game {
         }
 
         // ===== LEGENDARY ACTIONS PHASE =====
-        // Boss monsters with legendaryResistances get legendary actions after their turn
+        // Boss monsters with legendaryResistances get legendary actions after their turn.
         if (monster.isBoss && monster.legendaryResistances > 0) {
-            // Reset legendary action count each round
             this.dm.resetLegendaryActions(monster);
-            
-            // Boss gets 1-3 legendary actions depending on CR/power
             const numLegendaryActions = Math.min(3, monster.legendaryResistances);
-            const actionKeys = Object.keys(LEGENDARY_ACTIONS);
-            
+            // Use the boss's SIGNATURE action set if it matches an archetype (dragon/lich/etc.);
+            // otherwise fall back to the generic pool.
+            const sigKey = this.dm._signatureLegendarySet(monster);
+            const sigSet = sigKey ? SIGNATURE_LEGENDARY_ACTIONS[sigKey] : null;
+
             for (let i = 0; i < numLegendaryActions; i++) {
                 if (char.hp <= 0) break;
-                
-                // Pick a random legendary action (prefer melee/heal when hurt)
-                let chosenAction;
-                if (monster.hp < (monster.maxHp || monster.hp) * 0.3 && Math.random() < 0.5) {
-                    chosenAction = "heal";
+                if (monster.hp <= 0 || !this.dm.inCombat) break; // boss died / combat ended mid-phase
+
+                if (sigSet && sigSet.length) {
+                    const stop = this._resolveSignatureLegendaryAction(monster, sigSet);
+                    if (stop) break;
                 } else {
-                    const combatActions = ["melee", "roar", "heal", "spellcast"];
-                    chosenAction = combatActions[Math.floor(Math.random() * combatActions.length)];
-                }
-                
-                const result = this.dm.applyLegendaryAction(monster, chosenAction);
-                if (result.success) {
-                    this.log(`⚜️ LEGENDARY ACTION: ${result.message}`, "danger");
-                    
-                    // Apply damage to player if applicable
-                    if (result.damage && result.damage > 0) {
-                        let damage = result.damage;
-                        if (typeof window !== "undefined" && window.game && window.game.godMode) {
-                            damage = 0;
-                        } else {
-                            char.takeDamage(damage);
-                        }
-                        this.log(`💥 You take ${damage} damage from the legendary action!`, "danger");
+                    // Generic fallback (unchanged behavior for un-archetyped bosses).
+                    let chosenAction;
+                    if (monster.hp < (monster.maxHp || monster.hp) * 0.3 && Math.random() < 0.5) {
+                        chosenAction = "heal";
+                    } else {
+                        const combatActions = ["melee", "roar", "heal", "spellcast"];
+                        chosenAction = combatActions[Math.floor(Math.random() * combatActions.length)];
                     }
-                    
-                    // Apply frightened condition from roar
-                    if (result.condition === "frightened") {
-                        const wisSave = Math.floor(Math.random() * 20) + 1 + (char.getModifier("wis") || 0);
-                        if (wisSave < 15) {
-                            char.addCondition("frightened");
-                            this.log(`😱 You are frightened by the ${monster.name}! (WIS save: ${wisSave} vs DC 15)`, "danger");
-                        } else {
-                            this.log(`💪 You resist the frightening roar! (WIS save: ${wisSave} vs DC 15)`, "success");
+                    const result = this.dm.applyLegendaryAction(monster, chosenAction);
+                    if (result.success) {
+                        this.log(`⚜️ LEGENDARY ACTION: ${result.message}`, "danger");
+                        if (result.damage && result.damage > 0) {
+                            let damage = result.damage;
+                            if (typeof window !== "undefined" && window.game && window.game.godMode) damage = 0;
+                            else char.takeDamage(damage);
+                            this.log(`💥 You take ${damage} damage from the legendary action!`, "danger");
+                        }
+                        if (result.condition === "frightened") {
+                            const wisSave = Math.floor(Math.random() * 20) + 1 + (char.getModifier("wis") || 0);
+                            if (wisSave < 15) {
+                                char.addCondition("frightened", { saveDc: 15, saveAbility: "wis" });
+                                this.log(`😱 You are frightened by the ${monster.name}! (WIS save: ${wisSave} vs DC 15)`, "danger");
+                            } else {
+                                this.log(`💪 You resist the frightening roar! (WIS save: ${wisSave} vs DC 15)`, "success");
+                            }
                         }
                     }
                 }
             }
-            
+
             // Reset dodge AC bonus at end of legendary actions
             if (monster._legendaryDodgeBonus) {
                 monster.ac -= monster._legendaryDodgeBonus;
@@ -14937,9 +16577,78 @@ class Game {
         }
     }
 
+    // Resolve a single SIGNATURE legendary action: pick one from the archetype set and apply
+    // its distinct effect (damage / save-or-condition / life drain / reposition). godMode zeroes
+    // damage. Each archetype thus plays differently from the generic pool.
+    // Returns true if combat should stop resolving further legendary actions (boss died or
+    // combat ended mid-action — e.g. a reposition provoked a player OA that killed the boss).
+    _resolveSignatureLegendaryAction(monster, sigSet) {
+        const char = this.character;
+        const act = sigSet[Math.floor(Math.random() * sigSet.length)];
+        const godMode = typeof window !== "undefined" && window.game && window.game.godMode;
+        this.log(`⚜️ LEGENDARY ACTION — ${monster.name} ${act.log}! (${act.name})`, "danger");
+
+        // Reposition: nudge the boss toward its preferred band (pure positioning, no damage).
+        // enemyReposition can provoke a player opportunity attack that KILLS the boss — if so it
+        // returns true and has already run death handling; stop the legendary phase immediately.
+        if (act.reposition) {
+            const fell = this.enemyReposition(monster);
+            return fell || monster.hp <= 0 || !this.dm.inCombat;
+        }
+
+        // Life drain: damages the player and heals the boss for the same amount.
+        if (act.drain) {
+            const dmg = godMode ? 0 : this.dm.rollDice(act.drain);
+            if (!godMode) char.takeDamage(dmg);
+            const healed = Math.min((monster.maxHp || monster.hp) - monster.hp, dmg);
+            monster.hp += healed;
+            this.log(`🩸 You take ${dmg} damage and the ${monster.name} heals ${healed} HP!`, "danger");
+            const hpEl = document.getElementById("enemyHp");
+            if (hpEl && monster === this.dm.currentEnemy) { hpEl.textContent = Math.max(0, monster.hp); this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp); }
+            if (char.hp <= 0 && !godMode) { this.gameOver(); return true; }
+            return false;
+        }
+
+        // Save-based effect: a save to avoid a condition (and possibly half/zero damage).
+        if (act.save) {
+            const s = act.save;
+            const roll = Math.floor(Math.random() * 20) + 1;
+            const mod = char.getSaveModifier ? char.getSaveModifier(s.ability) : (char.getModifier(s.ability) || 0);
+            const total = roll + mod;
+            const saved = total >= s.dc;
+            this.log(`🎲 ${s.ability.toUpperCase()} save: ${total} vs DC ${s.dc} — ${saved ? "✓ resisted" : "✗ failed"}`, saved ? "success" : "danger");
+            // Damage component, if any (save halves when half:true, negates when half:false and it's a "dex for none" style — default: full on fail, half on save).
+            if (act.dmg) {
+                let dmg = godMode ? 0 : this.dm.rollDice(act.dmg);
+                if (saved) dmg = Math.floor(dmg / 2);
+                if (!godMode && dmg > 0) { char.takeDamage(dmg); this.log(`💥 You take ${dmg}${act.damageType ? ' ' + act.damageType : ''} damage!`, "danger"); }
+            }
+            if (!saved && s.condition) {
+                char.addCondition(s.condition, { saveDc: s.dc, saveAbility: s.ability });
+                this.log(`⚠️ You are ${s.condition}! (save ends)`, "danger");
+            }
+            if (char.hp <= 0 && !godMode) { this.gameOver(); return true; }
+            return false;
+        }
+
+        // Straight damage action.
+        if (act.dmg) {
+            const dmg = godMode ? 0 : this.dm.rollDice(act.dmg);
+            if (!godMode) char.takeDamage(dmg);
+            this.log(`💥 You take ${dmg}${act.damageType ? ' ' + act.damageType : ''} damage!`, "danger");
+            if (char.hp <= 0 && !godMode) { this.gameOver(); return true; }
+        }
+        return false;
+    }
+
     // End-of-round bookkeeping — runs once after ALL enemies have acted.
     endMonsterRound() {
         const char = this.character;
+
+        // End of the enemies' turn: roll any "save ends" conditions afflicting each monster.
+        for (const e of (this.dm.enemies || [])) {
+            if (e && e.hp > 0) this.tickMonsterConditionSaves(e);
+        }
 
         // Clear prone after being attacked (you can stand up)
         char.removeCondition("prone");
@@ -14973,10 +16682,33 @@ class Game {
             }
         }
         
+        // New player turn coming up — clear any stale surge flag and refresh its button.
+        this.dm.surgePending = false;
+        this.updateActionSurgeButton();
+        // Reset per-turn cover messaging so the cover note can show again next turn, and
+        // make sure no enemy is left with a transient cover-inflated AC.
+        for (const e of (this.dm.enemies || [])) {
+            if (!e) continue;
+            e._coverMessagedThisTurn = false;
+            if (e.baseAc != null) e.ac = e.baseAc;
+        }
+
+        // A full round (player + all enemies) has resolved — advance the round counter.
+        this.dm.combatRound = (this.dm.combatRound || 1) + 1;
+
         this.updateCombatPartyDisplay();
         this.updateUI();
     }
-    
+
+    // INVARIANT (2c): the damage pipeline below is NON-RE-ENTRANT. It reads and writes
+    // shared combat state (this.dm.currentEnemy / target index, the local `damage`, the
+    // reaction budget) without any re-entrancy guard. Every reaction it resolves today
+    // (Deflect Missiles, Uncanny Dodge, Shield, Counterspell) is SYNCHRONOUS and does
+    // NOT call back into monsterSingleAttack / monsterTurn / castSpell before returning.
+    // If you ever make a reaction interactive (await a modal) or have it trigger another
+    // attack, you MUST snapshot per-attack state into locals first — a nested call will
+    // otherwise clobber `currentEnemy`/`damage` mid-resolution. Do not break this without
+    // adding a guard.
     monsterSingleAttack(monster, char, isExtraAttack = false) {
         // Monster attack roll against player
         let monsterAdvantage = (!isExtraAttack && this.dm.enemyAdvantageNextAttack) || false;
@@ -14985,7 +16717,12 @@ class Game {
         if (monster.conditions?.blinded) monsterDisadvantage = true;
         if (monster.conditions?.frightened) monsterDisadvantage = true;
         if (monster.conditions?.restrained) monsterDisadvantage = true;
-        if (char.hasCondition("prone")) monsterAdvantage = true;
+        // Prone player (PHB p.292): melee attackers (engaged range) gain advantage; a
+        // ranged attacker striking a prone target instead has disadvantage.
+        if (char.hasCondition("prone")) {
+            if (monster.range === "ranged" && monster.zone !== "engaged") monsterDisadvantage = true;
+            else monsterAdvantage = true;
+        }
         // Dodge action: attacker has disadvantage (PHB p.194)
         if (this.dm.defendingThisTurn) monsterDisadvantage = true;
         // Barbarian Reckless Attack: enemies have advantage while you're raging
@@ -15061,10 +16798,18 @@ class Game {
             }
             
             let damage = this.dm.rollDice(damageDice);
-            
-            // Critical hit from monster
+
+            // Critical hit from monster (double the rolled dice BEFORE flat riders, per 5e —
+            // only dice double, not flat bonuses like the enrage rider below).
             if (isCrit) {
                 damage *= 2;
+            }
+            // Enraged boss (phase two): flat bonus damage rider, added after the crit doubling.
+            if (monster.enrageBonusDamage) {
+                damage += monster.enrageBonusDamage;
+            }
+
+            if (isCrit) {
                 soundManager.playCritical();
                 this.log(`💀 CRITICAL HIT! The ${monster.name} crits you for ${damage} ${damageType} damage! (${rollMsg})`, "danger");
             } else {
@@ -15075,6 +16820,7 @@ class Game {
             // Monk Deflect Missiles: reduce damage from ranged attacks (reaction, level 3+)
             // Treats piercing attacks and ~30% of other attacks as ranged (game abstraction)
             if (char.charClass === 'Monk' && char.level >= 3 && this.dm.actions.reaction &&
+                this.worthAutoReaction(damage, char) &&
                 (damageType === 'piercing' || Math.random() < 0.3)) {
                 const deflectAmount = this.dm.rollDice("1d10") + char.getModifier("dex") + char.level;
                 damage = Math.max(0, damage - deflectAmount);
@@ -15088,7 +16834,8 @@ class Game {
             }
 
             // Rogue Uncanny Dodge: halve damage from an attack as reaction (level 5+)
-            if (char.charClass === 'Rogue' && char.level >= 5 && this.dm.actions.reaction) {
+            if (char.charClass === 'Rogue' && char.level >= 5 && this.dm.actions.reaction &&
+                this.worthAutoReaction(damage, char)) {
                 damage = Math.floor(damage / 2);
                 this.dm.useAction('reaction');
                 this.log(`🗡️ UNCANNY DODGE! You halve the incoming damage to ${damage}!`, "success");
@@ -15267,8 +17014,8 @@ class Game {
                 if (wisSave < frightDC) {
                     // Note: Fey Ancestry only grants charm immunity (handled in the "charm" case);
                     // frightened applies normally here.
-                    char.addCondition("frightened");
-                    this.log(`😱 ${monster.name} uses ${abilityName}! (WIS save ${wisSave} vs DC ${frightDC}) You are frightened!`, "danger");
+                    char.addCondition("frightened", { saveDc: frightDC, saveAbility: "wis" });
+                    this.log(`😱 ${monster.name} uses ${abilityName}! (WIS save ${wisSave} vs DC ${frightDC}) You are frightened! (save ends)`, "danger");
                     if (braveAdvantage) this.log(`(Brave gave you advantage on the save)`, "dm");
                 } else {
                     this.log(`💪 ${monster.name} uses ${abilityName}! (WIS save ${wisSave} vs DC ${frightDC}) You resist the fear!${braveAdvantage ? ' (Brave advantage!)' : ''}`, "success");
@@ -15299,8 +17046,8 @@ class Game {
                     const charmSave = ((char.exhaustion >= 3 ? Math.min(cRoll1, cRoll2) : (gnomeCunningCharm ? Math.max(cRoll1, cRoll2) : cRoll1))) + char.getSaveModifier("wis");
                     const charmDC = ability.dc || this.getMonsterSaveDC(monster);
                     if (charmSave < charmDC) {
-                        char.addCondition("charmed");
-                        this.log(`💗 ${monster.name} uses ${abilityName}! (WIS save ${charmSave} vs DC ${charmDC}) You are charmed — you can't attack the charmer!`, "danger");
+                        char.addCondition("charmed", { saveDc: charmDC, saveAbility: "wis" });
+                        this.log(`💗 ${monster.name} uses ${abilityName}! (WIS save ${charmSave} vs DC ${charmDC}) You are charmed — you can't attack the charmer! (save ends)`, "danger");
                     } else {
                         this.log(`💪 ${monster.name} uses ${abilityName}! (WIS save ${charmSave} vs DC ${charmDC}) You resist the charm!${gnomeCunningCharm ? ' (Gnome Cunning!)' : ''}`, "success");
                     }
@@ -15317,8 +17064,8 @@ class Game {
                 const poisonDC = ability.dc || this.getMonsterSaveDC(monster);
                 const poisonDmg = this.dm.rollDice(ability.damage || "2d6");
                 if (conSave < poisonDC) {
-                    char.addCondition("poisoned");
-                    this.log(`☠️ ${monster.name} uses ${abilityName}! (CON save ${conSave} vs DC ${poisonDC}) You take ${poisonDmg} poison damage and are poisoned!`, "danger");
+                    char.addCondition("poisoned", { saveDc: poisonDC, saveAbility: "con" });
+                    this.log(`☠️ ${monster.name} uses ${abilityName}! (CON save ${conSave} vs DC ${poisonDC}) You take ${poisonDmg} poison damage and are poisoned! (save ends)`, "danger");
                     this.applyMonsterDamageToPlayer(char, poisonDmg);
                 } else {
                     const halfPoison = Math.floor(poisonDmg / 2);
@@ -15495,6 +17242,33 @@ class Game {
         }
     }
     
+    // Show the Action Surge button only for a Fighter who has it, has surges left this rest,
+    // and has already spent their action (so the surge grants a meaningful second action).
+    updateActionSurgeButton() {
+        const btn = document.getElementById("actionSurgeBtn");
+        if (!btn) return;
+        const char = this.character;
+        const has = char.charClass === "Fighter" && char.actionSurgeUses > 0;
+        const left = has ? (char.actionSurgeUses - (char.actionSurgeUsesThisRest || 0)) : 0;
+        if (!this.dm.inCombat || !has || left <= 0) {
+            btn.classList.add("hidden");
+            return;
+        }
+        btn.classList.remove("hidden");
+        // Arm it while the player still has their action this turn (in this engine, spending
+        // the action passes the turn, so the surge must be declared first). Once armed, the
+        // player's next action resolves and then a second action is granted before the turn
+        // passes. Disable if already armed this turn.
+        const armable = this.dm.actions.action && !this.dm.surgePending;
+        btn.disabled = !armable;
+        btn.style.opacity = armable ? "" : "0.5";
+        btn.title = this.dm.surgePending
+            ? `Action Surge armed — your next action grants a second one. (${left} left this rest)`
+            : (armable
+                ? `Action Surge — declare it, then take two actions this turn. (${left} left this rest)`
+                : `Action Surge — available at the start of your turn. (${left} left this rest)`);
+    }
+
     updateActionEconomyDisplay() {
         const bar = document.getElementById("actionEconomy");
         if (!bar) return;
@@ -15507,11 +17281,93 @@ class Game {
         if (aeAction) { aeAction.style.opacity = a.action ? '1' : '0.3'; aeAction.style.textDecoration = a.action ? 'none' : 'line-through'; }
         if (aeBonusAction) { aeBonusAction.style.opacity = a.bonusAction ? '1' : '0.3'; aeBonusAction.style.textDecoration = a.bonusAction ? 'none' : 'line-through'; }
         if (aeReaction) { aeReaction.style.opacity = a.reaction ? '1' : '0.3'; aeReaction.style.textDecoration = a.reaction ? 'none' : 'line-through'; }
+        // Round counter — give players a clear sense of turn timing now that conditions
+        // end on saves and durations matter.
+        let aeRound = document.getElementById("aeRound");
+        if (!aeRound) {
+            aeRound = document.createElement("span");
+            aeRound.id = "aeRound";
+            aeRound.style.cssText = "margin-left:auto;color:#c9a227;font-weight:600;";
+            bar.appendChild(aeRound);
+        }
+        aeRound.textContent = `Round ${this.dm.combatRound || 1}`;
+    }
+
+    // Build the chip markup for a set of active conditions. `extra` is an optional leading
+    // chip (e.g. the enemy's range band). Returns an HTML string of <span class="cond-chip">.
+    _conditionChipsHtml(conditions, extra) {
+        const icons = {
+            poisoned: "🤢", frightened: "😱", paralyzed: "💫", blinded: "🌫️",
+            prone: "🔻", restrained: "🕸️", stunned: "💫", charmed: "💗",
+            deafened: "🔇", incapacitated: "😵", invisible: "👻", petrified: "🗿",
+            unconscious: "😵", grappled: "🤼"
+        };
+        // Plain-English 5e rules text so a player can hover a chip and learn what it does.
+        const rules = {
+            poisoned: "Poisoned: disadvantage on attack rolls and ability checks.",
+            frightened: "Frightened: disadvantage on attacks/checks while the source is in sight; can't willingly move closer to it.",
+            paralyzed: "Paralyzed: incapacitated, can't move or speak; attacks against you have advantage; melee hits are critical.",
+            blinded: "Blinded: can't see; your attacks have disadvantage, attacks against you have advantage.",
+            prone: "Prone: your attacks have disadvantage; melee attacks against you have advantage, ranged have disadvantage. Stand up to end it.",
+            restrained: "Restrained: speed 0; your attacks have disadvantage, attacks against you have advantage; disadvantage on DEX saves.",
+            stunned: "Stunned: incapacitated, can't move, can barely speak; attacks against you have advantage.",
+            charmed: "Charmed: you can't attack the charmer; they have advantage on social checks with you.",
+            deafened: "Deafened: can't hear; automatically fail hearing-based checks.",
+            incapacitated: "Incapacitated: can't take actions or reactions.",
+            invisible: "Invisible: heavily obscured; your attacks have advantage, attacks against you have disadvantage.",
+            petrified: "Petrified: turned to stone — incapacitated, resistant to all damage, immune to poison/disease.",
+            unconscious: "Unconscious: incapacitated, prone, drops everything; attacks against you have advantage and melee hits crit.",
+            grappled: "Grappled: speed 0; ends if the grappler is incapacitated or you break free."
+        };
+        const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const chips = [];
+        if (extra) chips.push(`<span class="cond-chip cond-range" title="Range band — how far this foe is. Melee swings beyond Engaged range are at disadvantage.">${extra}</span>`);
+        const active = Object.keys(conditions || {}).filter(c => conditions[c]);
+        for (const c of active) {
+            const ico = icons[c] || "•";
+            const tip = rules[c] || c;
+            chips.push(`<span class="cond-chip" title="${esc(tip)}">${ico} ${c}</span>`);
+        }
+        return chips.join("");
+    }
+
+    // Persistent combat HUD: keeps the action economy, the active target's range + conditions,
+    // and the player's conditions visible above the log instead of buried in scrollback.
+    updateCombatHud() {
+        this.updateActionEconomyDisplay();
+        this.updateActionSurgeButton();
+        this.updateParleyButton();
+
+        // Enemy condition chips (current target).
+        const enemyChips = document.getElementById("enemyConditions");
+        if (enemyChips) {
+            const target = this.dm.currentEnemy;
+            if (this.dm.inCombat && target) {
+                const rangeLabel = target.zone ? `📏 ${this._zoneLabel(target.zone)}` : "";
+                const html = this._conditionChipsHtml(target.conditions, rangeLabel);
+                enemyChips.innerHTML = html;
+                enemyChips.style.display = html ? "flex" : "none";
+            } else {
+                enemyChips.style.display = "none";
+            }
+        }
+
+        // Player condition chips.
+        const playerChips = document.getElementById("playerConditions");
+        if (playerChips) {
+            if (this.dm.inCombat) {
+                const html = this._conditionChipsHtml(this.character.conditions, "");
+                playerChips.innerHTML = html;
+                playerChips.style.display = html ? "flex" : "none";
+            } else {
+                playerChips.style.display = "none";
+            }
+        }
     }
 
     updateCombatPartyDisplay() {
-        // Update action economy bar
-        this.updateActionEconomyDisplay();
+        // Update action economy bar + condition HUD
+        this.updateCombatHud();
         // Update party status display during combat
         let partyDisplay = document.getElementById("combatPartyStatus");
         
@@ -16345,16 +18201,32 @@ class Game {
                 effect = { type: "damage", amount: "1d4", target: "current", damageType: "bludgeoning" };
             }
         } else {
-            if (/heal|bandage|rest|tend|mend/.test((intent||"").toLowerCase())) effect = { type: "heal", amount: "1d6" };
-            else if (/search|loot|find|treasure|gather|forage/.test((intent||"").toLowerCase())) effect = { type: "treasure" };
-            else effect = { type: "xp", amount: 15 };
+            const t = (intent || "").toLowerCase();
+            if (/heal|bandage|rest|tend|mend/.test(t)) effect = { type: "heal", amount: "1d6" };
+            else if (/search|loot|find|treasure|gather|forage|dig|pry|pick (the )?lock/.test(t)) effect = { type: "treasure" };
+            else if (/study|examine|read|investigate|decipher|recall|research|learn|inspect/.test(t)) effect = { type: "xp", amount: 20 };
+            else if (/climb|jump|swim|sneak|hide|scout|explore|track|navigate/.test(t)) effect = { type: "xp", amount: 15 };
+            else effect = { type: "xp", amount: 10 };
         }
+        // Out of combat, a failure should sting a little so the roll matters — a minor
+        // setback rather than nothing. In combat, a failed improvisation just wastes the
+        // action (the monster turn is the cost).
+        const failEffect = inCombat
+            ? { type: "none" }
+            : (effect.type === "heal" || effect.type === "xp"
+                ? { type: "none" }
+                : { type: "damage", amount: "1d4", target: "self", damageType: "bludgeoning" });
+        const failText = inCombat
+            ? `It doesn't go as planned — ${intent}.`
+            : (failEffect.type === "damage"
+                ? `It goes badly — ${intent} — and you take a knock for your trouble.`
+                : `It doesn't go as planned — ${intent}.`);
         return {
             ability, skill, dc,
             successText: `Your attempt works — ${intent}.`,
-            failureText: `It doesn't go as planned — ${intent}.`,
+            failureText: failText,
             effectOnSuccess: effect,
-            effectOnFailure: inCombat ? { type: "none" } : { type: "none" },
+            effectOnFailure: failEffect,
         };
     }
 
@@ -16373,32 +18245,43 @@ class Game {
             player: { class: char.charClass, level: char.level, hp: char.hp, maxHp: char.maxHp },
             enemy: enemy ? { name: enemy.name, hp: enemy.hp } : null,
         };
+        // Structured-outputs schema. Anthropic strict structured outputs require: every
+        // property listed in `required`, `additionalProperties: false`, and unions
+        // expressed via `anyOf` — NOT JSON-Schema's array-form `type` (e.g.
+        // `type: ["string","null"]`), which returns a 400. Nullable fields use
+        // `anyOf: [{type:"..."}, {type:"null"}]`; optional-by-meaning fields are made
+        // required + nullable so the model can return null.
+        const effectSchema = {
+            type: "object", additionalProperties: false,
+            properties: {
+                type: { type: "string", enum: ["damage", "heal", "condition", "advantage", "treasure", "xp", "narrative", "none"] },
+                amount: { anyOf: [{ type: "string" }, { type: "integer" }, { type: "null" }] },
+                target: { anyOf: [{ type: "string", enum: ["current", "self"] }, { type: "null" }] },
+                damageType: { anyOf: [{ type: "string" }, { type: "null" }] },
+                condition: { anyOf: [{ type: "string" }, { type: "null" }] },
+            },
+            required: ["type", "amount", "target", "damageType", "condition"],
+        };
         const schema = {
             type: "object", additionalProperties: false,
             properties: {
                 ability: { type: "string", enum: ["str", "dex", "con", "int", "wis", "cha"] },
-                skill: { type: ["string", "null"] },
+                skill: { anyOf: [{ type: "string" }, { type: "null" }] },
                 dc: { type: "integer" },
                 successText: { type: "string" },
                 failureText: { type: "string" },
-                effectOnSuccess: {
-                    type: "object", additionalProperties: false,
-                    properties: {
-                        type: { type: "string", enum: ["damage", "heal", "condition", "advantage", "treasure", "xp", "narrative", "none"] },
-                        amount: { type: ["string", "integer", "null"] },
-                        target: { type: ["string", "null"], enum: ["current", "self", null] },
-                        damageType: { type: ["string", "null"] },
-                        condition: { type: ["string", "null"] },
-                    },
-                    required: ["type"],
-                },
+                effectOnSuccess: effectSchema,
+                effectOnFailure: effectSchema,
             },
-            required: ["ability", "dc", "successText", "failureText", "effectOnSuccess"],
+            required: ["ability", "skill", "dc", "successText", "failureText", "effectOnSuccess", "effectOnFailure"],
         };
-        const sys = "You are a fair Dungeons & Dragons 5e Dungeon Master adjudicating a single improvised player action. "
-            + "Decide which ability check fits, a reasonable DC (5 trivial, 10 easy, 15 medium, 20 hard, 25 very hard), and ONE bounded effect on success. "
-            + "Do NOT roll dice or decide success — the game engine rolls. Keep effects small and genre-appropriate: damage amounts like '1d6' or '2d6', heal like '1d8', conditions from the 5e list (prone, frightened, poisoned, blinded, restrained, stunned). "
-            + "Never instantly kill, never end the encounter outright, never grant huge rewards. Refuse impossible actions by setting effect type 'none' and explaining in failureText.";
+        const sys = "You are a fair, vivid Dungeons & Dragons 5e Dungeon Master adjudicating a single improvised player action. "
+            + "Decide which ability check fits, a reasonable DC (5 trivial, 10 easy, 15 medium, 20 hard, 25 very hard), and a bounded effect for BOTH success and failure. "
+            + "Do NOT roll dice or decide success — the game engine rolls. Tailor the effect to what the player actually described; do not default to a generic outcome. "
+            + "successText and failureText should be one punchy sentence each, specific to the intent. "
+            + "effectOnSuccess and effectOnFailure each pick ONE effect type: damage (amount '1d6'/'2d6', target 'current'), heal ('1d8', target 'self'), condition (from prone/frightened/poisoned/blinded/restrained/stunned, target 'current'), advantage, treasure, xp (amount 5-30), narrative, or none. "
+            + "Make failure meaningful when it fits: a failed risky stunt can deal small self-damage (type 'damage', target 'self', '1d4'); a botched social or search attempt is usually 'none'. "
+            + "Keep effects small and genre-appropriate. Never instantly kill, never end the encounter outright, never grant huge rewards. Refuse impossible actions by setting both effect types to 'none' and explaining in failureText.";
         const body = {
             model: "claude-opus-4-8",
             max_tokens: 1024,
@@ -16418,7 +18301,14 @@ class Game {
                 body: JSON.stringify(body),
             });
             if (!resp.ok) {
-                this.log(`⚠️ AI DM unavailable (HTTP ${resp.status}); using the offline judge.`, "warning");
+                // Surface the API's error message (e.g. a schema validation 400) so the
+                // failure is diagnosable instead of an opaque status code.
+                let detail = "";
+                try {
+                    const errJson = await resp.json();
+                    detail = errJson?.error?.message ? ` — ${errJson.error.message}` : "";
+                } catch (_) { /* body not JSON */ }
+                this.log(`⚠️ AI DM unavailable (HTTP ${resp.status})${detail}; using the offline judge.`, "warning");
                 return null;
             }
             const data = await resp.json();
@@ -16432,6 +18322,37 @@ class Game {
             this.log(`⚠️ AI DM error (${e.message || e}); using the offline judge.`, "warning");
             return null;
         }
+    }
+
+    // 3a: the only conditions an adjudicated effect may apply. Without this, the AI (or a
+    // malformed response) could write an arbitrary key into monster.conditions; harmless
+    // today, but it silently becomes a write path the moment any code reads a new key.
+    // Restricted to the 13 PHB conditions the engine actually understands.
+    static get FREEFORM_ALLOWED_CONDITIONS() {
+        return ["blinded", "charmed", "deafened", "frightened", "grappled", "incapacitated",
+            "invisible", "paralyzed", "petrified", "poisoned", "prone", "restrained", "stunned"];
+    }
+
+    // 3b: escape untrusted text (AI narrative, raw player intent) before it reaches
+    // log(), which renders via innerHTML. The effect SCHEMA constrains these to strings,
+    // but we don't trust the response shape for XSS safety — a schema bypass or a future
+    // non-Anthropic backend could deliver markup. Escaping here keeps the narrative as
+    // literal text while leaving the engine's own trusted log markup untouched.
+    _escapeHtml(s) {
+        return String(s == null ? "" : s)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
+    // Normalize + validate an adjudicated condition against the allowlist. Returns the
+    // canonical condition name, or null if it isn't a recognized PHB condition.
+    _sanitizeFreeformCondition(cond) {
+        if (!cond || typeof cond !== "string") return null;
+        const c = cond.trim().toLowerCase();
+        return Game.FREEFORM_ALLOWED_CONDITIONS.includes(c) ? c : null;
     }
 
     // Apply a bounded adjudicated effect. All numbers are clamped; the model/keyword judge
@@ -16450,14 +18371,29 @@ class Game {
         };
         switch (effect.type) {
             case "damage": {
+                // target "self" lets a failed out-of-combat improvisation deal a small
+                // setback to the player (capped at 1 die). Default/"current" targets the
+                // enemy as before.
+                if (effect.target === "self") {
+                    const selfDmg = clampDice(effect.amount || "1d4", 1);
+                    char.hp = Math.max(0, char.hp - selfDmg);
+                    this.log(`💥 You take ${selfDmg} damage from the mishap. (HP: ${char.hp}/${char.maxHp})`, "danger");
+                    if (char.hp <= 0) this.gameOver();
+                    break;
+                }
                 if (!monster || monster.hp <= 0) return;
                 const dmg = clampDice(effect.amount || "1d6", 3); // cap improvised damage at 3 dice
                 this.applyDamageToMonster(monster, dmg, (effect.damageType || "bludgeoning"));
                 this.log(`💥 Your improvised action deals ${dmg} damage to the ${monster.name}!`, "combat");
-                if (effect.condition && monster.hp > 0) {
-                    monster.conditions = monster.conditions || {};
-                    monster.conditions[effect.condition] = true;
-                    this.log(`✨ The ${monster.name} is now ${effect.condition}!`, "combat");
+                const dmgCond = this._sanitizeFreeformCondition(effect.condition);
+                if (dmgCond && monster.hp > 0) {
+                    // prone doesn't get a "save ends" — it's cleared by standing up (handled
+                    // in monsterAct). Other inflicted conditions end on the monster's save.
+                    const dc = dmgCond === "prone" ? null : (char.getSpellSaveDC ? char.getSpellSaveDC() : 13);
+                    // inflictMonsterCondition logs its own immunity message and returns false.
+                    if (this.inflictMonsterCondition(monster, dmgCond, dc)) {
+                        this.log(`✨ The ${monster.name} is now ${dmgCond}!${dc ? " (save ends)" : ""}`, "combat");
+                    }
                 }
                 if (monster.hp <= 0) this.handleMonsterDeath(monster);
                 break;
@@ -16469,10 +18405,12 @@ class Game {
                 break;
             }
             case "condition": {
-                if (monster && monster.hp > 0 && effect.condition) {
-                    monster.conditions = monster.conditions || {};
-                    monster.conditions[effect.condition] = true;
-                    this.log(`✨ The ${monster.name} is now ${effect.condition}!`, "combat");
+                const cond = this._sanitizeFreeformCondition(effect.condition);
+                if (monster && monster.hp > 0 && cond) {
+                    const dc = cond === "prone" ? null : (char.getSpellSaveDC ? char.getSpellSaveDC() : 13);
+                    if (this.inflictMonsterCondition(monster, cond, dc)) {
+                        this.log(`✨ The ${monster.name} is now ${cond}!${dc ? " (save ends)" : ""}`, "combat");
+                    }
                 }
                 break;
             }
@@ -16494,10 +18432,40 @@ class Game {
         this.updateUI();
     }
 
+    // Keep the Improvise buttons' tooltip in sync with AI config. When an Anthropic key
+    // is configured and AI is enabled, the action uses Claude, so we drop the "add a key
+    // in Settings" hint; otherwise we show it so players know the upgrade path. Mirrors
+    // the exact gate freeformAction() uses to decide AI-vs-offline.
+    updateImproviseTooltip() {
+        // When AI is set up (key + enabled), show NO hover tooltip at all. Only show the
+        // "add a key in Settings" hint when the offline judge is in use.
+        const aiActive = this.aiEnabled && (this.aiKey || "").trim();
+        document.querySelectorAll('[data-improvise-btn]').forEach(btn => {
+            if (aiActive) {
+                // AI configured: full-strength button, no hover hint.
+                btn.removeAttribute('title');
+                btn.classList.remove('improvise-disabled');
+            } else {
+                // AI off / no key: Improvise is gated. Grey it and explain on hover.
+                // We do NOT use the `disabled` attribute or pointer-events:none here —
+                // both suppress the tooltip; freeformAction() enforces the gate instead.
+                btn.title = "Improvise needs the AI Dungeon Master. Enable AI and add an Anthropic API key in Settings to use it.";
+                btn.classList.add('improvise-disabled');
+            }
+        });
+    }
+
     // Entry point from the UI. Prompts for an intent, adjudicates (AI or offline), the
     // ENGINE rolls the check, then applies the bounded effect. In combat it consumes the
     // action and hands off to the monster turn.
     async freeformAction() {
+        // Improvise is AI-only: gated behind an enabled AI toggle + a configured key.
+        // The button is greyed when this is false; this guard also covers the keyboard
+        // shortcut and any other call path.
+        if (!(this.aiEnabled && (this.aiKey || "").trim())) {
+            this.log("🎭 Improvise needs the AI Dungeon Master. Enable AI and add an Anthropic API key in Settings.", "dm");
+            return;
+        }
         const inCombat = !!this.dm.inCombat;
         if (inCombat && this.processingCombatAction) return;
         const intent = (typeof prompt === "function")
@@ -16508,7 +18476,7 @@ class Game {
 
         if (inCombat) this.processingCombatAction = true;
         try {
-            this.log(`🎭 You attempt: "${intent.trim()}"`, "dm");
+            this.log(`🎭 You attempt: "${this._escapeHtml(intent.trim())}"`, "dm");
             // Adjudicate: AI when enabled+keyed, else offline.
             let adj = null;
             if (this.aiEnabled && (this.aiKey || "").trim()) {
@@ -16522,7 +18490,8 @@ class Game {
             const check = await this.dm.skillCheckAnimated(adj.ability, adj.dc, false, false, skillName);
             const verdict = check.success ? "✓ Success" : "✗ Failure";
             this.log(`🎲 ${skillName || adj.ability.toUpperCase()} check: ${check.total} vs DC ${adj.dc} — ${verdict}`, check.success ? "success" : "danger");
-            this.log(check.success ? adj.successText : adj.failureText, "dm");
+            // AI/offline narrative is escaped: it is rendered via innerHTML downstream.
+            this.log(this._escapeHtml(check.success ? adj.successText : adj.failureText), "dm");
 
             if (check.success) this._applyFreeformEffect(adj.effectOnSuccess, true);
             else this._applyFreeformEffect(adj.effectOnFailure || { type: "none" }, false);
@@ -16902,15 +18871,51 @@ class Game {
         }
         
         monster.hp -= finalDamage;
-        
+
+        // Boss phase transition: the first time a boss is bloodied (drops below 50% HP), it
+        // shifts into a more dangerous second phase instead of just being a smaller HP bar.
+        if ((monster.isBoss || monster.boss) && !monster._phaseTwo && monster.hp > 0 &&
+            monster.maxHp && monster.hp <= monster.maxHp * 0.5) {
+            this.triggerBossPhaseTwo(monster);
+        }
+
         // Update enemy HP display
         const hpEl = document.getElementById("enemyHp");
         if (hpEl) {
             hpEl.textContent = Math.max(0, monster.hp);
             this.updateEnemyHpBar(Math.max(0, monster.hp), monster.maxHp);
         }
-        
+
         return { finalDamage, message };
+    }
+
+    // One-time "bloodied" escalation for a boss crossing 50% HP. Makes the back half of a boss
+    // fight categorically more dangerous (the 5e/video-game phase-two fantasy) rather than just
+    // a shrinking HP pool: the boss enrages (more attacks + bonus damage), refreshes a legendary
+    // resistance, and shakes off control conditions as it taps hidden reserves.
+    triggerBossPhaseTwo(monster) {
+        monster._phaseTwo = true;
+        // Enrage: +1 attack and a flat bonus-damage rider on its attacks.
+        monster.multiattack = Math.max(2, (monster.multiattack || 1) + 1);
+        monster.enrageBonusDamage = Math.max(2, Math.floor((monster.maxHp || 20) / 20));
+        // Second wind of defiance: regain one legendary resistance (capped at its original max).
+        if (monster.legendaryResistances != null) {
+            const cap = monster.legendaryResistancesMax || monster.legendaryResistances || 1;
+            monster.legendaryResistancesMax = cap;
+            monster.legendaryResistancesRemaining = Math.min(cap, (monster.legendaryResistancesRemaining || 0) + 1);
+        }
+        // Break free of control: a cornered boss throws off conditions as it escalates.
+        if (monster.conditions) {
+            for (const c of ["frightened", "charmed", "stunned", "prone", "restrained", "grappled"]) {
+                if (monster.conditions[c]) monster.conditions[c] = false;
+            }
+            if (monster.conditionMeta) monster.conditionMeta = {};
+        }
+        soundManager.playBossAppear?.();
+        this.log(`🔥 <strong>${monster.name} is bloodied — and ENRAGES!</strong> Wounds only make it more dangerous. It strikes harder and more often now!`, "danger");
+        if (typeof this.showToast === "function") {
+            this.showToast({ variant: "danger", header: "Phase Two", title: monster.name, subtitle: "Enraged — the fight just got harder" });
+        }
     }
     
     /**
@@ -16965,6 +18970,20 @@ class Game {
         document.getElementById("gameScreen").classList.remove("in-combat");
         const enemyCardsEl = document.getElementById("enemyCards");
         if (enemyCardsEl) { enemyCardsEl.style.display = "none"; enemyCardsEl.innerHTML = ""; }
+        // Hide the combat HUD condition chips and clear any leftover save-ends metadata.
+        const enemyCondEl = document.getElementById("enemyConditions");
+        if (enemyCondEl) { enemyCondEl.style.display = "none"; enemyCondEl.innerHTML = ""; }
+        const playerCondEl = document.getElementById("playerConditions");
+        if (playerCondEl) { playerCondEl.style.display = "none"; playerCondEl.innerHTML = ""; }
+        this.character.conditionMeta = {};
+        this.dm.combatHazard = null; // clear the battlefield hazard for next fight
+        // Clear combat-bound conditions so none linger as un-saveable flags after the fight.
+        // (These are all conditions that, in 5e, end when combat does or have a save that no
+        // longer gets rolled outside combat. Persistent afflictions like petrified/diseased
+        // are handled by their own systems, not here.)
+        for (const c of ["frightened", "charmed", "prone", "restrained", "grappled", "poisoned", "blinded", "stunned"]) {
+            this.character.removeCondition(c);
+        }
         
         // Clean up death save button and restore combat action buttons
         const deathBtn = document.getElementById("deathSaveBtn");
@@ -17010,9 +19029,41 @@ class Game {
         }
         
         this.updateUI();
-        
+
+        // Encounter pacing: after a hard-won fight, nudge the player toward a short rest
+        // while they still can. This is where the resource game lives — hit dice, Second
+        // Wind, Action Surge, Channel Divinity, Warlock slots, Superiority dice all come
+        // back on a short rest, so spending one between fights is the real 5e decision.
+        if (victory && this.character.hp > 0) {
+            this.maybeSuggestShortRest();
+        }
+
     }
-    
+
+    // Suggest a short rest after combat when the player is meaningfully spent and one is
+    // still available. Purely advisory — a log nudge, not a forced modal.
+    maybeSuggestShortRest() {
+        const char = this.character;
+        if (this.dm.shortRestsTaken >= this.dm.maxShortRests) return;
+        if (char.hitDice.current <= 0) return;
+
+        const hpFrac = char.hp / (char.maxHp || char.hp);
+        let slotsSpent = false;
+        if (char.spells && char.spells.slotsUsed) {
+            slotsSpent = Object.values(char.spells.slotsUsed).some(v => v > 0);
+        }
+        const featureSpent = char.secondWindUsed || char.actionSurgeUsed || char.channelDivinityUsed ||
+            (char.charClass === "Warlock" && char.pactSlotsUsed > 0) ||
+            (char.subclass === "BattleMaster" && char.subclassFeatures &&
+             char.subclassFeatures.superiorityDiceRemaining < (char.subclassFeatures.superiorityDice || 4));
+
+        // Only nudge when it would actually matter: bloodied, or out of slots/features.
+        if (hpFrac > 0.6 && !slotsSpent && !featureSpent) return;
+
+        const why = hpFrac <= 0.6 ? "You're wounded" : "Your resources are running low";
+        this.log(`🏕️ <strong>${why}.</strong> Consider a <strong>short rest</strong> (1 hour) before pressing on — spend a Hit Die to heal and recover short-rest abilities. (${char.hitDice.current} Hit Dice, ${this.dm.maxShortRests - this.dm.shortRestsTaken} short rest${this.dm.maxShortRests - this.dm.shortRestsTaken !== 1 ? "s" : ""} left before a long rest.)`, "dm");
+    }
+
     // ==================== SPELL SYSTEM ====================
     
     showSpellMenu() {
@@ -17445,11 +19496,24 @@ class Game {
             if (!this.dm.inCombat) return;
         }
 
+        // Action Surge: if the player armed it and just cast an action spell, grant the
+        // additional action instead of passing the turn (mirrors the weapon-attack tail).
+        // Eldritch Knights and any spell-casting Fighter rely on this.
+        if (this.dm.surgePending && this.dm.inCombat && this.character.hp > 0 && spell.level > 0 && !spell.bonus && !spell.defensive) {
+            this.dm.surgePending = false;
+            this.dm.actions.action = true;
+            this.log(`⚡ Action Surge — take your additional action!`, "success");
+            this.updateActionSurgeButton();
+            if (this.updateCombatHud) this.updateCombatHud();
+            this.updateUI();
+            return;
+        }
+
         // Monster's turn (unless spell was defensive/reaction)
         if (!spell.defensive && this.dm.inCombat) {
             this.monsterTurn();
         }
-        
+
         this.updateUI();
     }
     
@@ -17518,7 +19582,52 @@ class Game {
         }
         
         const subclassSpellBonus = evocationBonus + lightBonus + agonizingBlastBonus;
-        
+
+        // ===== Per-spell upcast scaling for projectile spells =====
+        // These don't add damage dice when upcast — they add PROJECTILES. The generic
+        // "+1 die per level" is wrong for them, so handle them explicitly and return.
+
+        // Magic Missile: 3 darts at base, +1 dart per slot level above 1st. Each dart is
+        // 1d4+1 force and auto-hits. All darts can pile onto the one target here.
+        if (spellName === "Magic Missile") {
+            const darts = 3 + upcastLevel;
+            let total = 0;
+            for (let d = 0; d < darts; d++) total += this.dm.rollDice("1d4") + 1;
+            total = (total + subclassSpellBonus) * twinnedMultiplier;
+            monster.hp -= total;
+            this.log(`🎯 ${spellName}: ${darts} dart${darts !== 1 ? 's' : ''} strike automatically for ${total} force damage!${upcastLevel ? ` (+${upcastLevel} dart${upcastLevel !== 1 ? 's' : ''} from upcast)` : ''}`, "combat");
+            return;
+        }
+
+        // Scorching Ray: 3 rays at base, +1 ray per slot level above 2nd. Each ray is a
+        // separate spell attack for 2d6 fire. (Previously multiAttack was defined but never
+        // read, so it fired as a single 2d6 — this implements the rays properly.)
+        if (spellName === "Scorching Ray" || (spell.multiAttack && spell.multiAttack > 1)) {
+            const rays = (spell.multiAttack || 3) + upcastLevel;
+            let hits = 0, total = 0;
+            for (let r = 0; r < rays; r++) {
+                const atk = await this.dm.rollAttackAnimated(spellAttack, false, false);
+                if (atk.isCrit) {
+                    const dmg = this.dm.rollDice(spell.damage) + this.dm.rollDice(spell.damage);
+                    total += dmg; hits++;
+                    this.log(`🔥 Ray ${r + 1}: CRITICAL! ${dmg} ${spell.damageType}!`, "success");
+                } else if (atk.total >= monster.ac) {
+                    const dmg = this.dm.rollDice(spell.damage);
+                    total += dmg; hits++;
+                    this.log(`🔥 Ray ${r + 1} hits (${atk.total} vs AC ${monster.ac}) for ${dmg} ${spell.damageType}.`, "combat");
+                } else {
+                    this.log(`💨 Ray ${r + 1} misses (${atk.total} vs AC ${monster.ac}).`, "combat");
+                }
+            }
+            // Apply subclass spell bonus (Empowered Evocation / Light Corona) once if any ray
+            // connected, then the twinned multiplier — mirroring the generic damage path.
+            if (hits > 0) total += subclassSpellBonus;
+            total = total * twinnedMultiplier;
+            monster.hp -= total;
+            this.log(`🔥 ${spellName}: ${hits}/${rays} ray${rays !== 1 ? 's' : ''} hit for ${total} total ${spell.damageType} damage!${upcastLevel ? ` (+${upcastLevel} ray${upcastLevel !== 1 ? 's' : ''} from upcast)` : ''}`, "combat");
+            return;
+        }
+
         if (spell.autoHit) {
             // Magic Missile - auto hit (not a cantrip, uses spell.damage directly)
             const damage = (this.dm.rollDice(spell.damage) + subclassSpellBonus + upcastBonus) * twinnedMultiplier;
@@ -17777,6 +19886,160 @@ class Game {
         this.log(`💔 Concentration on ${oldSpell} ends${reason ? ` (${reason})` : ''}!`, "danger");
     }
     
+    // ==================== SOCIAL ENCOUNTERS (PARLEY) ====================
+    // D&D's third pillar in combat: you can try to TALK your way out. A wounded, non-mindless,
+    // non-boss foe can be persuaded to stand down, intimidated into fleeing, or deceived into
+    // a standoff. Each is a CHA-based contest vs the foe's resolve, modified by reputation and
+    // how badly it's hurt. Success ends the fight (or a single foe) without bloodshed; failure
+    // wastes your action and may harden the foe.
+
+    // Whether the current target can be parleyed with right now.
+    _canParley(monster) {
+        if (!monster || monster.hp <= 0) return false;
+        if (monster.isBoss || monster.boss) return false; // bosses don't bargain
+        // Mindless foes (undead/constructs/oozes/beasts-without-reason) can't be reasoned with.
+        const text = `${monster.name || ""} ${monster.description || ""} ${monster.type || ""}`.toLowerCase();
+        if (/undead|skeleton|zombie|ghoul|wight|golem|construct|ooze|slime|swarm|automaton|elemental|mindless/.test(text)) return false;
+        // Easier to talk down a hurt foe; allow once it's below half HP, or always if it fled-checked.
+        const frac = monster.hp / (monster.maxHp || monster.hp);
+        return frac <= 0.5 || monster._fledCheckedThisFight;
+    }
+
+    // Show/hide the Parley button based on the current target's state.
+    updateParleyButton() {
+        const btn = document.getElementById("parleyBtn");
+        if (!btn) return;
+        if (this.dm.inCombat && this._canParley(this.dm.currentEnemy) && this.dm.actions.action) {
+            btn.classList.remove("hidden");
+        } else {
+            btn.classList.add("hidden");
+        }
+    }
+
+    // Open the parley choice modal for the current target.
+    openParley() {
+        if (!this.dm.inCombat) return;
+        const monster = this.dm.currentEnemy;
+        if (!this._canParley(monster)) {
+            this.log("There's no reasoning with this foe.", "warning");
+            return;
+        }
+        if (!this.dm.actions.action) {
+            this.log("⚠️ You've already used your action this turn!", "warning");
+            return;
+        }
+        const char = this.character;
+        const persMod = char.getSkillModifier("Persuasion");
+        const intMod = char.getSkillModifier("Intimidation");
+        const decMod = char.getSkillModifier("Deception");
+        const dc = this._parleyDc(monster);
+        let modal = document.getElementById("parleyModal");
+        if (!modal) {
+            modal = document.createElement("div");
+            modal.id = "parleyModal";
+            modal.className = "modal";
+            document.body.appendChild(modal);
+        }
+        const fmt = (m) => `${m >= 0 ? '+' : ''}${m}`;
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h2>🕊️ Parley with the ${monster.name}</h2>
+                <p style="margin-bottom:16px;">The ${monster.name} is wavering. Try to end this without more blood — but a failed attempt wastes your turn.</p>
+                <div class="choice-options">
+                    <button class="choice-btn skill-option" onclick="game.resolveParley('persuade')">
+                        <span>🗣️ Persuade — offer mercy / a way out</span><span class="dc-hint">(Persuasion ${fmt(persMod)} vs DC ${dc})</span>
+                    </button>
+                    <button class="choice-btn skill-option" onclick="game.resolveParley('intimidate')">
+                        <span>😠 Intimidate — make them fear you</span><span class="dc-hint">(Intimidation ${fmt(intMod)} vs DC ${dc})</span>
+                    </button>
+                    <button class="choice-btn skill-option" onclick="game.resolveParley('deceive')">
+                        <span>🎭 Deceive — bluff a hopeless position</span><span class="dc-hint">(Deception ${fmt(decMod)} vs DC ${dc})</span>
+                    </button>
+                    <button class="choice-btn" onclick="game.closeParley()">↩️ Never mind</button>
+                </div>
+            </div>`;
+        modal.classList.add("active");
+    }
+
+    closeParley() {
+        const modal = document.getElementById("parleyModal");
+        if (modal) modal.classList.remove("active");
+    }
+
+    // Parley difficulty: base on how hurt the foe is (more wounded = easier) and its power.
+    _parleyDc(monster) {
+        const frac = monster.hp / (monster.maxHp || monster.hp);
+        let dc = 12 + Math.round(frac * 8); // 12 (near death) .. 20 (half HP)
+        if (monster.isElite) dc += 2;
+        return dc;
+    }
+
+    resolveParley(approach) {
+        this.closeParley();
+        if (!this.dm.inCombat) return;
+        const monster = this.dm.currentEnemy;
+        const char = this.character;
+        if (!monster || !this._canParley(monster) || !this.dm.actions.action) return;
+
+        this.dm.useAction('action');
+
+        // Skill + reputation modifier. Commoners/military rep makes folk more (or less) willing
+        // to deal with you; a fearsome reputation aids intimidation.
+        const skillMap = { persuade: "Persuasion", intimidate: "Intimidation", deceive: "Deception" };
+        const skill = skillMap[approach];
+        let mod = char.getSkillModifier(skill);
+        const dc = this._parleyDc(monster);
+
+        // Reputation flavour: being Revered/Friendly with commoners helps persuasion; a feared
+        // (low commoner / high military) standing helps intimidation.
+        const commoners = char.reputation?.commoners || 0;
+        const military = char.reputation?.military || 0;
+        let repBonus = 0;
+        if (approach === "persuade" && commoners >= 25) repBonus = 2;
+        if (approach === "intimidate" && (military >= 25 || commoners <= -25)) repBonus = 2;
+        mod += repBonus;
+
+        const roll = Math.floor(Math.random() * 20) + 1;
+        const total = roll + mod;
+        const success = roll !== 1 && (roll === 20 || total >= dc);
+        this.log(`🎲 ${skill} ${roll}${mod >= 0 ? '+' : ''}${mod} = ${total} vs DC ${dc}${repBonus ? ` (+${repBonus} reputation)` : ''}`, "dm");
+
+        if (success) {
+            // Outcome by approach.
+            if (approach === "intimidate") {
+                this.log(`😱 The ${monster.name} breaks and flees in terror — you've won without a final blow!`, "success");
+            } else if (approach === "deceive") {
+                this.log(`🎭 Your bluff lands — convinced the fight is lost, the ${monster.name} withdraws.`, "success");
+            } else {
+                this.log(`🤝 The ${monster.name} lowers its weapon. "Enough. I'll trouble you no more." It departs in peace.`, "success");
+                // Persuading a foe to stand down earns a little goodwill.
+                char.adjustReputation("commoners", 1);
+            }
+            // Remove this foe from the fight (like a flee), ending combat if it was the last.
+            const idx = this.dm.enemies.indexOf(monster);
+            if (idx !== -1) this.dm.enemies.splice(idx, 1);
+            // Partial XP for resolving it without killing (PHB: XP is for overcoming, not killing).
+            const xp = Math.floor((monster.xp || 20) * 0.6);
+            this.grantExperience(xp);
+            this.log(`✨ +${xp} XP (resolved peacefully)`, "loot");
+            const remaining = this.dm.enemies.filter(e => e && e.hp > 0);
+            if (remaining.length > 0) {
+                this.dm.targetIndex = this.dm.enemies.indexOf(remaining[0]);
+                this.renderEnemies();
+                this.log(`The others are still hostile — ${remaining.map(e => e.name).join(", ")}.`, "combat");
+                this.updateUI();
+                this.monsterTurn();
+            } else {
+                this.endCombat(true);
+            }
+        } else {
+            // Failure: wasted action, and the foe presses harder (advantage on its next attack).
+            this.log(`❌ The ${monster.name} isn't swayed — "Nice try." It attacks with renewed fury!`, "danger");
+            this.dm.enemyAdvantageNextAttack = true;
+            this.monsterTurn();
+        }
+    }
+
     handleMonsterDeath(monster) {
         const char = this.character;
         const diffSettings = DIFFICULTY_SETTINGS[this.difficulty];
@@ -17796,6 +20059,9 @@ class Game {
         soundManager.playDeath(); // Enemy death sound
         this.log(`🎉 Victory! The ${monster.name} is defeated!`, "success");
         char.experience += xpGained;
+        // Count kill XP toward the expedition recap (this path adds XP directly rather than via
+        // grantExperience, so track it here too).
+        if (this._trackExpedition && xpGained > 0) this._trackExpedition("xp", xpGained);
         this.log(`You gain ${xpGained} XP! (Total: ${char.experience})`, "loot");
         this.showLootDrop('✨', 'xp', `+${xpGained} XP`);
         
@@ -17837,6 +20103,7 @@ class Game {
         
         // Track statistics for achievements
         this.trackStat('enemiesKilled');
+        if (this._trackExpedition) this._trackExpedition("kill", 1);
         
         // Check if this was a boss
         if (monster.isBoss) {
@@ -18908,6 +21175,7 @@ class Game {
 
     grantExperience(amount) {
         this.character.experience += amount;
+        if (this._trackExpedition && amount > 0) this._trackExpedition("xp", amount);
         if (this.character.experience >= getXpThreshold(this.character.level)) {
             this.levelUp();
         }
@@ -18973,9 +21241,15 @@ class Game {
         this.log(`${label}: HP increased by ${hpGain}! (New max: ${char.maxHp})`, "success");
         
         this._pendingHpChoice = null;
-        
+
         // Continue level-up progression
         this.applyLevelUpFeatures();
+
+        // Telegraph the NEXT level's payoff so the player has a visible carrot to grind toward.
+        if (this.character.getNextLevelPreview && this.character.level < 20) {
+            const preview = this.character.getNextLevelPreview();
+            this.log(`🔭 <strong>Next — Level ${this.character.level + 1}</strong> will unlock: ${preview.join(" · ")}.`, "dm");
+        }
     }
 
     applyLevelUpFeatures() {
@@ -19029,6 +21303,9 @@ class Game {
             }
             if (classLevelForFeatures === 17) {
                 char.actionSurgeUses = 2;
+                // A use opened up — clear the stale "fully spent" flag so it's consistent
+                // with the counter (actionSurgeUsesThisRest may still be 1).
+                char.actionSurgeUsed = (char.actionSurgeUsesThisRest || 0) >= 2;
                 this.log(`⚡ Action Surge (2 uses)! You can now use Action Surge twice per short rest.`, "success");
             }
         }
@@ -20072,7 +22349,21 @@ class Game {
             this.log("You're unconscious and need medical attention! Rest to recover.", "danger");
             return;
         }
-        
+
+        // Faction gate: if you've made an enemy of the merchants' guild (Hostile), reputable
+        // shops bar their doors. Your gold's no good here — seek the black market instead.
+        // (Traveling merchants are desperate enough to still deal with you.)
+        if (shopType !== "traveling" && this.character.getReputationLevel) {
+            const merchLevel = this.character.getReputationLevel("merchants");
+            if (merchLevel === "Hostile") {
+                this.log(`🚪 "We don't serve your kind here." The merchants' guild has blacklisted you — reputable shops are closed to you.`, "danger");
+                if ((this.character.reputation.thieves_guild || 0) > 0) {
+                    this.log(`🗝️ But the <strong>black market</strong> still welcomes your coin. (Look for the fence / Artifact Trading.)`, "dm");
+                }
+                return;
+            }
+        }
+
         // Generate shop inventory based on type and location
         let shopInventory = [];
         const prices = GAME_DATA.shopPrices;
@@ -21076,7 +23367,7 @@ class Game {
 
     saveMapCoordsForCampaign(campaignId, data) {
         const key = this.getMapCoordsKey(campaignId);
-        localStorage.setItem(key, JSON.stringify(data));
+        safeLocalStorageSet(key, JSON.stringify(data));
     }
 
     setMapCoord(campaignId, locationName, coord) {
@@ -21366,10 +23657,42 @@ class Game {
         `;
     }
 
+    // 4b: apply the current zoom by resizing ONLY the existing map canvas element,
+    // instead of rebuilding the whole map via innerHTML. Zoom changes nothing but the
+    // canvas dimensions; the previous full re-render re-created the SVG on every zoom
+    // step, and the current-location node's two repeatCount="indefinite" <animate> tags
+    // from the OLD render kept running detached — so ten zooms left ~20 animation loops
+    // spinning the GPU even after the modal closed. Mutating the style sidesteps that.
+    // Returns false if the canvas isn't present (caller can fall back to a full render).
+    applyJournalMapZoom() {
+        const canvas = document.getElementById("journalMapCanvas");
+        if (!canvas) return false;
+        const zoom = Math.max(0.6, Math.min(2.5, this.journalMapZoom || 1));
+        if (zoom <= 1.0) {
+            canvas.style.width = "100%";
+            canvas.style.aspectRatio = "1000/560";
+            canvas.style.maxWidth = "100%";
+            canvas.style.height = "";
+            canvas.style.minWidth = "";
+            canvas.style.minHeight = "";
+        } else {
+            const w = Math.round(1200 * zoom);
+            const h = Math.round(672 * zoom);
+            canvas.style.aspectRatio = "";
+            canvas.style.maxWidth = "";
+            canvas.style.width = `${w}px`;
+            canvas.style.height = `${h}px`;
+            canvas.style.minWidth = `${w}px`;
+            canvas.style.minHeight = `${h}px`;
+        }
+        return true;
+    }
+
     adjustJournalMapZoom(delta) {
         const current = this.journalMapZoom || 1;
         const next = Math.max(0.6, Math.min(2.5, +(current + delta).toFixed(2)));
         this.journalMapZoom = next;
+        if (this.applyJournalMapZoom()) return;
         const content = document.getElementById("journalContent");
         if (content) {
             content.innerHTML = this.renderJournalMap();
@@ -21378,6 +23701,7 @@ class Game {
 
     resetJournalMapZoom() {
         this.journalMapZoom = 1;
+        if (this.applyJournalMapZoom()) return;
         const content = document.getElementById("journalContent");
         if (content) {
             content.innerHTML = this.renderJournalMap();
@@ -21386,6 +23710,7 @@ class Game {
 
     fitJournalMapToView() {
         this.journalMapZoom = 1;
+        if (this.applyJournalMapZoom()) return;
         const content = document.getElementById("journalContent");
         if (content) {
             content.innerHTML = this.renderJournalMap();
@@ -23565,6 +25890,13 @@ class Game {
             }
             this.updateUI();
         } else if (item === "Potion of Giant Strength") {
+            // Guard against stacking: re-drinking while already active must not overwrite
+            // the saved pre-potion STR with the boosted value (which would make the buff
+            // un-revertable). If STR is already >= 21, the potion is wasted but harmless.
+            if (this.character.giantStrengthActive || this.character.stats.str >= 21) {
+                this.log(`💪 You already have giant's strength — the potion has no further effect.`, "dm");
+                return;
+            }
             removeItem();
             const oldStr = this.character.stats.str;
             this.character.giantStrengthActive = true;
@@ -23583,6 +25915,13 @@ class Game {
             this.log(`👢 You lace up the Boots of Speed! Travel time is halved.`, "success");
             this.updateUI();
         } else if (item === "Ring of Protection") {
+            // Guard against re-applying the +1 AC: the bonus is added directly to the
+            // base AC field, so equipping twice (or equip → reload → equip) would stack
+            // it permanently with no way to remove it.
+            if (this.character.ringOfProtection) {
+                this.log(`💍 The Ring of Protection is already attuned and active.`, "dm");
+                return;
+            }
             removeItem();
             this.character.ringOfProtection = true;
             this.character.ac = (this.character.ac || 10) + 1;
@@ -23889,6 +26228,40 @@ class Game {
         }
     }
 
+    // Expedition recap: when the player returns to a SAFE haven (town / danger-0), summarize
+    // what they accomplished since they last stood somewhere safe, and nudge the town loop
+    // (rest → downtime → shop). Gives the open-ended exploration a satisfying session rhythm.
+    maybeExpeditionRecap(newLocation) {
+        const safe = newLocation && (newLocation.type === "town" || (newLocation.danger || 0) === 0);
+        if (!safe) return;
+        const exp = this.dm._expedition;
+        // Derive net gold from the start-of-expedition snapshot (more reliable than hooking
+        // every gold transaction).
+        if (exp) exp.gold = this.character.gold - (exp.startGold || 0);
+        // Only recap if a real expedition happened (something was accomplished out there).
+        if (exp && (exp.kills > 0 || exp.xp > 0 || exp.gold !== 0 || exp.locationsCleared > 0)) {
+            const parts = [];
+            if (exp.locationsCleared > 0) parts.push(`cleared ${exp.locationsCleared} area${exp.locationsCleared > 1 ? "s" : ""}`);
+            if (exp.kills > 0) parts.push(`felled ${exp.kills} foe${exp.kills > 1 ? "s" : ""}`);
+            if (exp.xp > 0) parts.push(`earned ${exp.xp} XP`);
+            if (exp.gold > 0) parts.push(`gained ${exp.gold} gold`);
+            this.log(`🏘️ <strong>You return to ${newLocation.name}.</strong> This expedition you ${parts.join(", ")}.`, "success");
+            this.log(`💡 Safe haven — a good moment to <strong>Rest</strong>, pursue <strong>Downtime</strong> (Menu → Downtime), or visit the shops before heading out again.`, "dm");
+        }
+        // Start a fresh expedition ledger for the next time out.
+        this.dm._expedition = { kills: 0, xp: 0, gold: 0, locationsCleared: 0, startGold: this.character.gold };
+    }
+
+    // Accumulate expedition progress (called from kill/XP/clear hooks). Cheap and null-safe.
+    _trackExpedition(kind, amount = 1) {
+        if (!this.dm._expedition) this.dm._expedition = { kills: 0, xp: 0, gold: 0, locationsCleared: 0, startGold: this.character.gold };
+        const e = this.dm._expedition;
+        if (kind === "kill") e.kills += amount;
+        else if (kind === "xp") e.xp += amount;
+        else if (kind === "gold") e.gold += amount;
+        else if (kind === "cleared") e.locationsCleared += amount;
+    }
+
     openTravelModal() {
         if (this.dm.inCombat) return;
         
@@ -24125,7 +26498,10 @@ class Game {
                 this.character.daysFasting = (this.character.daysFasting || 0) + 1;
                 const conMod = this.character.getModifier("con");
                 const graceDays = Math.max(0, 1 + conMod); // can endure this many days unharmed
-                if (this.godMode) {
+                if (!this.optionalRulesActive()) {
+                    // Simple rules: hunger is flavor only, no starvation damage.
+                    this.log(`😟 You're out of rations and going hungry — but you press on. (Simple rules: no starvation damage.)`, "warning");
+                } else if (this.godMode) {
                     this.log(`😰 No food! (God Mode: no harm taken)`, "dm");
                 } else if (this.character.daysFasting <= graceDays) {
                     this.log(`😟 No food today, but you endure the hunger. (Day ${this.character.daysFasting} of fasting; you can go ${graceDays} before it harms you.)`, "warning");
@@ -24345,7 +26721,11 @@ class Game {
         if (newLocation.description) {
             this.log(`<em>${newLocation.description}</em>`, "dm");
         }
-        
+
+        // Expedition shape: returning to a safe haven punctuates the loop with a recap of what
+        // you did "out there" and a nudge toward town activities (rest / downtime / shop).
+        this.maybeExpeditionRecap(newLocation);
+
         // Travel takes time (2-4 hours base). Exhaustion Level 2+: speed halved = double travel time.
         let travelHours = 2 + Math.floor(Math.random() * 3);
 
@@ -25065,8 +27445,9 @@ class Game {
         }
         
         // Fighter: Action Surge resets on short rest
-        if (char.charClass === 'Fighter' && char.actionSurgeUses > 0 && char.actionSurgeUsed) {
+        if (char.charClass === 'Fighter' && char.actionSurgeUses > 0 && (char.actionSurgeUsed || char.actionSurgeUsesThisRest > 0)) {
             char.actionSurgeUsed = false;
+            char.actionSurgeUsesThisRest = 0;
             this.log(`⚡ Action Surge restored!`, "success");
         }
         
@@ -25180,10 +27561,18 @@ class Game {
             return;
         }
 
+        // Don't charge for a rest the player can't yet benefit from.
+        const gate = this.canLongRest();
+        if (!gate.allowed) {
+            this.log(`🛏️ You've rested too recently to gain a full long rest's benefits (about ${gate.hoursRemaining}h to go). You keep your gold.`, "warning");
+            return;
+        }
+
         char.gold -= 5;
         this.trackStat('restsCompleted');
-        this.performLongRest(false);
-        this.log("🏨 You rest at the inn. Fully restored!", "success");
+        if (this.performLongRest(false)) {
+            this.log("🏨 You rest at the inn. Fully restored!", "success");
+        }
     }
 
     longRestInnFree() {
@@ -25192,14 +27581,15 @@ class Game {
         const char = this.character;
         const bgName = GAME_DATA.backgrounds[char.background]?.feature || char.background;
         this.trackStat('restsCompleted');
-        this.performLongRest(false);
-        if (char.hasBackgroundFeature('freeInn')) {
-            this.log(`⛪ ${bgName}: The temple provides free lodging and care. Fully restored!`, "success");
-            // Acolyte: double church reputation gain
-            char.adjustReputation("church", 2);
-        } else {
-            this.log(`🎖️ ${bgName}: The garrison quarters are open to you. Fully restored!`, "success");
-            char.adjustReputation("military", 1);
+        if (this.performLongRest(false)) {
+            if (char.hasBackgroundFeature('freeInn')) {
+                this.log(`⛪ ${bgName}: The temple provides free lodging and care. Fully restored!`, "success");
+                // Acolyte: double church reputation gain
+                char.adjustReputation("church", 2);
+            } else {
+                this.log(`🎖️ ${bgName}: The garrison quarters are open to you. Fully restored!`, "success");
+                char.adjustReputation("military", 1);
+            }
         }
     }
 
@@ -25225,10 +27615,10 @@ class Game {
             const monster = { ...monsters[Math.floor(Math.random() * monsters.length)] };
             this.startCombat(monster);
         } else {
-            this.performLongRest(true);
-            this.log("🌙 You rest peacefully through the night. Fully restored!", "success");
+            const rested = this.performLongRest(true);
+            if (rested) this.log("🌙 You rest peacefully through the night. Fully restored!", "success");
             // Outlander (Wanderer): automatically find food when camping in wilderness
-            if (this.character.hasBackgroundFeature('freeForage') && this.dm.currentLocation?.type === 'wilderness') {
+            if (rested && this.character.hasBackgroundFeature('freeForage') && this.dm.currentLocation?.type === 'wilderness') {
                 const days = Math.floor(Math.random() * 2) + 1;
                 for (let i = 0; i < days; i++) this.character.inventory.push("Rations (1 day)");
                 this.log(`🌿 Wanderer: You forage ${days} day${days > 1 ? 's' : ''} of rations while camping.`, "success");
@@ -25236,8 +27626,31 @@ class Game {
         }
     }
 
+    // Returns { allowed, hoursRemaining }. A long rest only confers benefits once per
+    // 24 in-game hours (5e PHB p.186) — this is what keeps spell slots, hit dice and
+    // short-rest features scarce between rests instead of refilling on demand.
+    canLongRest() {
+        const last = this.dm.lastLongRestHour;
+        if (last == null) return { allowed: true, hoursRemaining: 0 };
+        const elapsed = this.dm.totalHours() - last;
+        if (elapsed >= 24) return { allowed: true, hoursRemaining: 0 };
+        return { allowed: false, hoursRemaining: Math.ceil(24 - elapsed) };
+    }
+
     performLongRest(showTime = true) {
         const char = this.character;
+
+        // Enforce one long-rest benefit per 24h. The act of resting still passes the time
+        // (the caller advanced the clock), but you don't regain resources a second time.
+        const gate = this.canLongRest();
+        if (!gate.allowed) {
+            this.log(`🛏️ You rest, but it's only been a few hours since your last full rest — you can't benefit from another long rest yet. (about ${gate.hoursRemaining}h to go)`, "warning");
+            // You still recover a little: regain consciousness/stabilize and shake off fatigue of the moment,
+            // but no spell slots, hit dice, or full HP.
+            this.updateUI();
+            return false;
+        }
+        this.dm.lastLongRestHour = this.dm.totalHours();
 
         // Exhaustion: Long rest reduces exhaustion by 1 level (per 5e rules)
         if (char.exhaustion > 0) {
@@ -25291,6 +27704,25 @@ class Game {
         // A long rest means you've eaten/recovered — clear the fasting counter.
         char.daysFasting = 0;
 
+        // Downtime: resting somewhere safe (a settlement) frees up time you can later spend on
+        // downtime activities (training, crafting, working, research). Banked, capped so it
+        // doesn't balloon. Out in the wild there's no such leisure.
+        if (char.downtime && this.dm.currentLocation && (this.dm.currentLocation.type === "town" || (this.dm.currentLocation.danger || 0) === 0)) {
+            // Cooldown so repeatedly resting can't refill downtime (and thus grind Working/
+            // Crafting for free gold/items): only grant if ~20+ in-game hours passed since the
+            // last grant. Combined with the 60-day cap, downtime accrues but can't be farmed.
+            const now = this.dm.totalHours ? this.dm.totalHours() : 0;
+            const last = this.dm._lastDowntimeGrantHour;
+            if (last == null || (now - last) >= 20) {
+                const before = char.downtime.daysAvailable || 0;
+                char.downtime.daysAvailable = Math.min(60, before + 3);
+                this.dm._lastDowntimeGrantHour = now;
+                if (char.downtime.daysAvailable > before) {
+                    this.log(`⏳ Resting in safety frees up time — you have ${char.downtime.daysAvailable} downtime day(s) banked. (Menu → Downtime)`, "dm");
+                }
+            }
+        }
+
         // Pay the day's lifestyle upkeep (and apply its perk or misfortune).
         this.applyLifestyleUpkeep();
 
@@ -25313,6 +27745,7 @@ class Game {
         if (char.charClass === 'Fighter') {
             char.secondWindUsed = false;
             char.actionSurgeUsed = false;
+            char.actionSurgeUsesThisRest = 0;
         }
         if (char.charClass === 'Cleric') char.channelDivinityUsed = false;
         if (char.charClass === 'Wizard') char.arcaneRecoveryUsed = false; // Arcane Recovery resets on long rest
@@ -25336,7 +27769,21 @@ class Game {
         if (char.concentrating) {
             char.concentrating = null;
         }
-        
+
+        // Expire timed magic-item effects that previously never unwound. These were
+        // applied by mutating base stats/AC directly, so they MUST be reverted by the
+        // exact inverse here (a long rest is well past their 1-hour duration).
+        if (char.giantStrengthActive) {
+            // Revert to the stored pre-potion STR. Guard against a stored value that is
+            // itself already the boosted 21 (older buggy saves) by only lowering.
+            if (char.giantStrengthOldStr && char.giantStrengthOldStr < char.stats.str) {
+                char.stats.str = char.giantStrengthOldStr;
+            }
+            char.giantStrengthActive = false;
+            char.giantStrengthOldStr = 0;
+            this.log(`💪 The Potion of Giant Strength wears off. (STR ${char.stats.str})`, "dm");
+        }
+
         // Trigger spell preparation for Wizard/Cleric/Druid/Paladin
         const prepCasters = ["Wizard", "Cleric", "Druid", "Paladin"];
         if (prepCasters.includes(char.charClass) && char.usesPreparedSpells()) {
@@ -25413,6 +27860,7 @@ class Game {
         }
 
         this.updateUI();
+        return true;
     }
 
     formatTime() {
@@ -25447,20 +27895,35 @@ class Game {
             questFlags: this.dm.questFlags,
             party: this.dm.party || [],
             hoursWithoutLongRest: this.dm.hoursWithoutLongRest || 0,
+            lastLongRestHour: this.dm.lastLongRestHour ?? null,
             visitedLocations: [...(this.dm.visitedLocations || [])],
             discoveredMonsters: [...(this.discoveredMonsters || [])],
             sideQuests: this.sideQuests || [],
             charStats: this.charStats,
             consequences: (typeof CONSEQUENCE_TRACKER !== "undefined") ? CONSEQUENCE_TRACKER.choices : {},
             discoveredBeats: this.dm.discoveredBeats || {},
-            saveTime: Date.now()
+            clearedLocations: this.dm.clearedLocations || {},
+            dangerOverrides: this.dm.dangerOverrides || {},
+            saveTime: Date.now(),
+            schemaVersion: SAVE_SCHEMA_VERSION
         };
-        localStorage.setItem(saveKey, JSON.stringify(saveData));
-        if (!silent) this.log("💾 Game saved!", "success");
+        // 1d: persist account-wide settings (Legend/Renown, achievements) FIRST, then the
+        // per-character save. The two live in separate keys with no real transaction, so
+        // ordering account-before-character minimizes split-brain: if the second write
+        // fails on quota, the durable account progression still reflects this session.
+        if (this.saveSettings) this.saveSettings();
+        const ok = safeLocalStorageSet(saveKey, JSON.stringify(saveData), () => {
+            this.log("⚠️ Save failed — browser storage is full. Delete old saves from the Save Manager to free space.", "danger");
+        });
+        if (ok && !silent) this.log("💾 Game saved!", "success");
+        return ok;
     }
     
     loadGameFromData(saveData) {
         if (saveData) {
+            // Run forward migrations for saves written by older schema versions. Saves
+            // predating versioning have no schemaVersion field and are treated as v0.
+            saveData = migrateSaveData(saveData);
             this.character = Character.fromJSON(saveData.character);
             this.selectedCampaign = saveData.campaignId || "nights_dark_terror";
             ACTIVE_CAMPAIGN = CAMPAIGNS[this.selectedCampaign];
@@ -25491,6 +27954,7 @@ class Game {
                 if (companion.huntersMarkActive === undefined) companion.huntersMarkActive = false;
             }
             this.dm.hoursWithoutLongRest = saveData.hoursWithoutLongRest || 0;
+            this.dm.lastLongRestHour = (saveData.lastLongRestHour ?? null);
             if (saveData.visitedLocations) {
                 this.dm.visitedLocations = new Set(saveData.visitedLocations);
             }
@@ -25512,6 +27976,8 @@ class Game {
 
             // Restore per-location discovery progress
             this.dm.discoveredBeats = saveData.discoveredBeats || {};
+            this.dm.clearedLocations = saveData.clearedLocations || {};
+            this.dm.dangerOverrides = saveData.dangerOverrides || {};
             
             // Switch to game screen
             document.getElementById("titleScreen").classList.add("hidden");
@@ -26126,6 +28592,10 @@ class Game {
     }
 
     gameOver() {
+        // Concentration cannot survive death. Clear it before any revive path so a
+        // resurrected character doesn't come back still "concentrating" on a spell
+        // whose effects were already torn down.
+        if (this.character) this.character.concentrating = null;
         // Check if a party companion can cast a resurrection spell on the player
         const resClasses = ["Cleric", "Paladin"];
         const partyRescuer = (this.dm.party || []).find(c => c.currentHp > 0 && resClasses.includes(c.class));
@@ -27651,19 +30121,26 @@ class Game {
             if (chapter === 0) return "💡 TRAVEL to Port Nyanzaru Market to prepare";
             if (chapter === 1) return "💡 TRAVEL into the jungle to search for clues";
             if (chapter === 2) return "💡 TRAVEL to Omu, the Forbidden City";
-            if (chapter === 3) return "💡 TRAVEL to the shrines of Omu for puzzle cubes";
-            if (chapter === 4) return "💡 TRAVEL to the Fane of the Night Serpent";
-            if (chapter === 5) return "💡 TRAVEL down through the Tomb levels";
+            if (chapter === 3) {
+                const cubes = flags.collectedCubes || 0;
+                return `💡 TRAVEL to the shrines of Omu for puzzle cubes — ${cubes}/9 collected${cubes >= 9 ? " (all found — descend to the Fane!)" : ""}`;
+            }
+            if (chapter === 4) return "💡 TRAVEL to the Fane of the Night Serpent, then defeat Ras Nsi in his Throne Room";
+            if (chapter === 5) return "💡 TRAVEL down through the Tomb levels to the Cradle of the Death God";
             if (chapter === 6) return "🎉 Congratulations! The death curse is ended!";
         }
         
         if (campaignId === "lost_mine_of_phandelver") {
             if (chapter === 0 && !flags.ambushed) return "💡 TRAVEL along the Triboar Trail to deliver supplies";
-            if (chapter === 1 && !flags.rescuedSildar) return "💡 TRAVEL to the Cragmaw Hideout to rescue Sildar";
+            // Rescuing Sildar is optional (recruits an ally); reaching Phandalin is what advances
+            // the story, so point there primarily.
+            if (chapter === 1 && !flags.rescuedSildar) return "💡 TRAVEL to Phandalin to deliver the supplies (optional: rescue Sildar at the Cragmaw Hideout for an ally)";
             if (chapter === 1 && flags.rescuedSildar) return "💡 TRAVEL to Phandalin to deliver the supplies";
             if (chapter === 2 && !flags.enteredRedbrandHideout) return "💡 TRAVEL to Tresendar Manor Ruins to confront the Redbrands";
-            if (chapter === 3 && !flags.defeatedGlassstaff) return "💡 TRAVEL to Glasstaff's Quarters to confront the Redbrand leader";
-            if (chapter === 3 && flags.defeatedGlassstaff) return "💡 TRAVEL to Cragmaw Castle to rescue Gundren";
+            // Chapter 3 clears via EITHER beating Glasstaff OR driving out enough Redbrands
+            // (both set clearedRedbrands). Once cleared, head to Cragmaw Castle.
+            if (chapter === 3 && !flags.clearedRedbrands) return "💡 TRAVEL into the Redbrand Hideout — defeat Glasstaff or drive out the Redbrands";
+            if (chapter === 3 && flags.clearedRedbrands) return "💡 TRAVEL to Cragmaw Castle to rescue Gundren";
             if (chapter === 4 && !flags.defeatedKingGrol) return "💡 TRAVEL to King Grol's Chamber to rescue Gundren";
             if (chapter === 5 && !flags.foundForgeOfSpells) return "💡 EXPLORE Wave Echo Cave and find the Forge of Spells";
             if (chapter === 5 && flags.foundForgeOfSpells) return "💡 TRAVEL to the Temple of Dumathoin to face the Black Spider";
