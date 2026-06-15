@@ -4985,12 +4985,17 @@ class Character {
     getExtraAttackCount() {
         // Fighter: 2 attacks at L5, 3 at L11, 4 at L20
         // Barbarian/Ranger: 2 attacks at L5
-        if (!this.extraAttack) return 1;
-        if (this.charClass === "Fighter") {
-            if (this.level >= 20) return 4;
-            if (this.level >= 11) return 3;
+        let count = 1;
+        if (this.extraAttack) {
+            count = 2;
+            if (this.charClass === "Fighter") {
+                if (this.level >= 20) count = 4;
+                else if (this.level >= 11) count = 3;
+            }
         }
-        return 2;
+        // Swift Quiver (5e): a bonus action grants two extra weapon attacks each turn.
+        if (this.buffs && this.buffs.swiftQuiver) count += 2;
+        return count;
     }
 
     calculateHp() {
@@ -7764,7 +7769,7 @@ class DungeonMaster {
         if (!game) return { success: false, message: "Unknown game." };
 
         if (this.character.hp <= 0) {
-            return { success: false, message: "You're unconscious and cannot play mini-games. Rest to recover first." };
+            return { success: false, message: "You're unconscious and cannot play mini-games. Use Rest to recover first." };
         }
 
         const usesBetting = game.minBet !== undefined || game.maxBet !== undefined;
@@ -10345,7 +10350,7 @@ class Game {
         {
             icon: "🗺️",
             title: "Exploration",
-            text: "Use <strong>Explore</strong> to investigate your surroundings and find treasure, encounters, or story events. <strong>Travel</strong> lets you move between locations.",
+            text: "Use <strong>Search</strong> to investigate your surroundings and find treasure, encounters, or story events. <strong>Travel</strong> lets you move between locations.",
             tip: "Higher danger areas have tougher enemies but better rewards. Rest at safe locations to recover HP!"
         },
         {
@@ -10558,24 +10563,24 @@ class Game {
         if (this.selectedCampaign === "nights_dark_terror") {
             this.log(`You begin your adventure in the frontier town of Kelven, in the Grand Duchy of Karameikos.`, "dm");
             this.log(`<em>Word in town: a horse trader named Stephan waits at Misha's Ferry seeking an escort...</em>`, "dm");
-            this.log(`💡 TRAVEL to Misha's Ferry to meet Stephan the horse trader.`, "loot");
+            this.log(`💡 Use <strong>Travel</strong> to reach Misha's Ferry and meet Stephan the horse trader.`, "loot");
         } else if (this.selectedCampaign === "curse_of_strahd") {
             this.log(`Mysterious mists have surrounded you and your companions. When they clear, you find yourselves in a dark, unfamiliar land.`, "dm");
             this.log(`<em>The iron gates of Barovia loom before you. There is no going back...</em>`, "dm");
-            this.log(`💡 Click TALK at the top to begin your dark journey.`, "loot");
+            this.log(`💡 Use <strong>Talk</strong> to begin your dark journey.`, "loot");
         } else if (this.selectedCampaign === "tomb_of_annihilation") {
             this.log(`A mysterious summons has brought you to the tower of an archmage. Something terrible is happening across Faerûn...`, "dm");
             this.log(`<em>Syndra Silvane, visibly weakened by some curse, beckons you closer...</em>`, "dm");
-            this.log(`💡 Click TALK at the top to learn of your mission.`, "loot");
+            this.log(`💡 Use <strong>Talk</strong> to learn of your mission.`, "loot");
         } else if (this.selectedCampaign === "keep_on_borderlands") {
             this.log(`You are a fledgling adventurer seeking fame and fortune on the frontier. The Keep on the Borderlands offers shelter and opportunity for those brave enough to face the wilderness beyond.`, "dm");
             this.log(`<em>The dusty road stretches before you. In the distance, you can see the walls of the Keep...</em>`, "dm");
-            this.log("💡 <strong>TIP:</strong> Click TRAVEL to go to the Keep Gates!", "loot");
+            this.log("💡 <strong>TIP:</strong> Use <strong>Travel</strong> to go to the Keep Gates!", "loot");
             this.updateChapterDisplay();
         } else if (this.selectedCampaign === "lost_mine_of_phandelver") {
             this.log(`You've been hired by a dwarf named Gundren Rockseeker to escort a wagonload of supplies to the rough-and-tumble settlement of Phandalin, a couple of days' travel southeast of the city of Neverwinter.`, "dm");
             this.log(`<em>Gundren rode ahead with his bodyguard Sildar Hallwinter, promising to meet you in Phandalin. The Triboar Trail stretches before you...</em>`, "dm");
-            this.log(`💡 Click TRAVEL to head down the Triboar Trail toward Phandalin.`, "loot");
+            this.log(`💡 Use <strong>Travel</strong> to head down the Triboar Trail toward Phandalin.`, "loot");
         }
         
         this.dm.narrateLocation();
@@ -10599,7 +10604,7 @@ class Game {
                 </p>
                 <p style="color: #888; font-size: 0.9rem; margin-bottom: 20px;">
                     ${firstObjective}<br>
-                    Use <strong>Explore</strong> to investigate and <strong>Travel</strong> to move.
+                    Use <strong>Search</strong> to investigate and <strong>Travel</strong> to move.
                 </p>
                 <div style="background: rgba(201, 162, 39, 0.15); border-left: 4px solid #c9a227; padding: 15px; text-align: left; border-radius: 0 8px 8px 0;">
                     <strong style="color: #c9a227;">💡 Quick Tips:</strong>
@@ -11252,24 +11257,24 @@ class Game {
         if (this.selectedCampaign === "nights_dark_terror") {
             this.log(`You begin your adventure in the frontier town of Kelven, in the Grand Duchy of Karameikos.`, "dm");
             this.log(`<em>Word in town: a horse trader named Stephan waits at Misha's Ferry seeking an escort...</em>`, "dm");
-            this.log(`💡 TRAVEL to Misha's Ferry to meet Stephan the horse trader.`, "loot");
+            this.log(`💡 Use <strong>Travel</strong> to reach Misha's Ferry and meet Stephan the horse trader.`, "loot");
         } else if (this.selectedCampaign === "curse_of_strahd") {
             this.log(`Mysterious mists have surrounded you and your companions. When they clear, you find yourselves in a dark, unfamiliar land.`, "dm");
             this.log(`<em>The iron gates of Barovia loom before you. There is no going back...</em>`, "dm");
-            this.log(`💡 Click TALK at the top to begin your dark journey.`, "loot");
+            this.log(`💡 Use <strong>Talk</strong> to begin your dark journey.`, "loot");
         } else if (this.selectedCampaign === "tomb_of_annihilation") {
             this.log(`A mysterious summons has brought you to the tower of an archmage. Something terrible is happening across Faerûn...`, "dm");
             this.log(`<em>Syndra Silvane, visibly weakened by some curse, beckons you closer...</em>`, "dm");
-            this.log(`💡 Click TALK at the top to learn of your mission.`, "loot");
+            this.log(`💡 Use <strong>Talk</strong> to learn of your mission.`, "loot");
         } else if (this.selectedCampaign === "keep_on_borderlands") {
             this.log(`You are a fledgling adventurer seeking fame and fortune on the frontier. The Keep on the Borderlands offers shelter and opportunity for those brave enough to face the wilderness beyond.`, "dm");
             this.log(`<em>The dusty road stretches before you. In the distance, you can see the walls of the Keep...</em>`, "dm");
-            this.log("💡 <strong>TIP:</strong> Click TRAVEL to go to the Keep Gates!", "loot");
+            this.log("💡 <strong>TIP:</strong> Use <strong>Travel</strong> to go to the Keep Gates!", "loot");
             this.updateChapterDisplay();
         } else if (this.selectedCampaign === "lost_mine_of_phandelver") {
             this.log(`You've been hired by a dwarf named Gundren Rockseeker to escort a wagonload of supplies to the rough-and-tumble settlement of Phandalin, a couple of days' travel southeast of the city of Neverwinter.`, "dm");
             this.log(`<em>Gundren rode ahead with his bodyguard Sildar Hallwinter, promising to meet you in Phandalin. The Triboar Trail stretches before you...</em>`, "dm");
-            this.log(`💡 Click TRAVEL to head down the Triboar Trail toward Phandalin.`, "loot");
+            this.log(`💡 Use <strong>Travel</strong> to head down the Triboar Trail toward Phandalin.`, "loot");
         }
     }
     
@@ -12763,7 +12768,7 @@ class Game {
 
         // Cannot explore while unconscious
         if (this.character.hp <= 0) {
-            this.log("You're unconscious and need medical attention! Rest to recover.", "danger");
+            this.log("You're unconscious and need medical attention! Use <strong>Rest</strong> to recover.", "danger");
             return;
         }
         // Don't advance while a forked-path choice is still open — resolve it first so its
@@ -12809,7 +12814,8 @@ class Game {
             if (this.dm.currentLocation.danger > 0 && Math.random() < wanderChance) {
                 this.triggerAmbushCheck();
             } else {
-                this.log(`Consider using <strong>Travel</strong> to seek out new places.`, "dm");
+                // Nothing left to find here — always point the player onward.
+                this._nudgeTravelHint(true);
             }
             return;
         }
@@ -12865,6 +12871,24 @@ class Game {
             this.findTreasure();
         } else {
             await this.randomEvent();
+        }
+
+        // Hubs/safe areas have no "clear it" arc, so they never hit the beats-exhausted
+        // reminder above. Periodically nudge the player toward Travel here too, so spamming
+        // Explore in a town (in ANY campaign) still points them onward instead of stalling.
+        this._nudgeTravelHint(false);
+    }
+
+    // Centralized "go explore somewhere new" reminder. Used by every explore() exit path so
+    // the hint is consistent across all campaigns and location types.
+    //   force=true  -> always show (place is fully explored / has nothing left to find)
+    //   force=false -> show periodically (every 3rd visit) for repeatable hubs like towns
+    _nudgeTravelHint(force = false) {
+        const loc = this.dm.currentLocation;
+        if (!loc) return;
+        loc._exploreVisits = (loc._exploreVisits || 0) + 1;
+        if (force || loc._exploreVisits % 3 === 0) {
+            this.log(`Consider using <strong>Travel</strong> to seek out new places.`, "dm");
         }
     }
     
@@ -14516,6 +14540,12 @@ class Game {
     // (so the normal attack loop is skipped). Casters fling a bolt; support heals a hurt ally.
     enemyUsesRoleAction(monster, char) {
         const role = monster.role || "skirmisher";
+        // Silence: a globe of magical silence smothers spellcasting — healers and casters
+        // can't channel their magic while it lasts.
+        if (this.dm.silenceTurns > 0 && (role === "support" || role === "caster")) {
+            this.log(`🔇 The ${monster.name} tries to invoke magic, but the Silence smothers every word — the spell fails!`, "success");
+            return false;
+        }
         if (role === "support") {
             // Heal the most-wounded living ally (could be itself) if any are hurt.
             const allies = (this.dm.enemies || []).filter(e => e && e.hp > 0);
@@ -15034,6 +15064,19 @@ class Game {
                 hasAdvantage = true;
                 advReasons.push("attacking from hiding");
                 char.buffs.hiddenStrike = false;
+            }
+
+            // Greater Invisibility: an unseen attacker has advantage on attack rolls (PHB p.194).
+            if (char.buffs.greaterInvisibility) {
+                hasAdvantage = true;
+                advReasons.push("Greater Invisibility (unseen attacker)");
+            }
+
+            // Fog Cloud / Sleet Storm: heavy obscurement — you can't see your target clearly,
+            // so your attacks have disadvantage too.
+            if (this.dm.fogTurns > 0) {
+                hasDisadvantage = true;
+                disReasons.push("heavy obscurement (fog/sleet)");
             }
 
             // Weather affects ranged attacks
@@ -16349,12 +16392,12 @@ class Game {
         if (char.deathSaves.successes >= 3) {
             char.deathSaves.stable = true;
             this.log("🛡️ You stabilize! You're unconscious but no longer dying.", "success");
-            this.log("⚕️ A companion tends to your wounds. You must rest to recover.", "dm");
+            this.log("⚕️ A companion tends to your wounds. Use <strong>Rest</strong> to recover.", "dm");
             // End combat if stabilized
             this.endCombat(false);
             // Show recovery prompt
             setTimeout(() => {
-                this.log("You need to rest to regain consciousness. Click 'Rest' to recover.", "danger");
+                this.log("You need to rest to regain consciousness. Use <strong>Rest</strong> to recover.", "danger");
             }, 500);
             return;
         }
@@ -16545,6 +16588,15 @@ class Game {
             return;
         }
 
+        // Conjured allies (Conjure Animals, Animate Dead, etc.) act before the enemies do.
+        // They may finish off the last foe — re-check for victory afterward.
+        if (this.dm.summons && this.dm.summons.length) {
+            this._summonsAct();
+            if (!this.dm.inCombat) return;
+            const stillAlive = (this.dm.enemies || []).filter(e => e && e.hp > 0);
+            if (stillAlive.length === 0) { this.endCombat(true); return; }
+        }
+
         for (const enemy of actingEnemies) {
             if (char.hp <= 0 && char.deathSaves.failures >= 3) break; // Player is dead — stop
             if (!this.dm.inCombat) break; // A player OA (or other effect) ended combat mid-round
@@ -16562,6 +16614,20 @@ class Game {
     monsterAct(monster) {
         const char = this.character;
         if (!monster || monster.hp <= 0) return;
+
+        // Asleep (Sleep spell): unconscious creatures can't act. They wake when they take
+        // damage (handled in applyDamageToMonster); otherwise they remain out of the fight.
+        if (monster.conditions?.unconscious || monster._asleep) {
+            this.log(`😴 The ${monster.name} is fast asleep and cannot act!`, "success");
+            return;
+        }
+
+        // Wall of Force: the foe is sealed behind an impenetrable barrier and can't reach you.
+        if (monster._walledTurns > 0) {
+            monster._walledTurns--;
+            this.log(`🧱 The ${monster.name} batters uselessly against the Wall of Force!`, "success");
+            return;
+        }
 
         // Check if monster is stunned or paralyzed
         if (monster.conditions?.stunned || monster.conditions?.paralyzed) {
@@ -16829,6 +16895,22 @@ class Game {
             if (e && e.hp > 0) this.tickMonsterConditionSaves(e);
         }
 
+        // Tick down timed battlefield effects created by utility spells.
+        if (this.dm.silenceTurns > 0) {
+            this.dm.silenceTurns--;
+            if (this.dm.silenceTurns === 0) this.log("🔇 The zone of Silence fades — sound returns.", "dm");
+        }
+        if (this.dm.fogTurns > 0) {
+            this.dm.fogTurns--;
+            if (this.dm.fogTurns === 0) this.log("🌫️ The fog disperses and visibility returns.", "dm");
+        }
+        for (const e of (this.dm.enemies || [])) {
+            if (e && e._walledTurns > 0) {
+                e._walledTurns--;
+                if (e._walledTurns === 0) this.log(`🧱 The Wall of Force around the ${e.name} winks out of existence.`, "dm");
+            }
+        }
+
         // Clear prone after being attacked (you can stand up)
         char.removeCondition("prone");
 
@@ -16906,6 +16988,10 @@ class Game {
         if (this.dm.defendingThisTurn) monsterDisadvantage = true;
         // Barbarian Reckless Attack: enemies have advantage while you're raging
         if (char.raging && char.charClass === "Barbarian") monsterAdvantage = true;
+        // Greater Invisibility: an attacker that can't see you has disadvantage (PHB p.194).
+        if (char.buffs.greaterInvisibility) monsterDisadvantage = true;
+        // Fog Cloud / Sleet Storm: heavy obscurement blinds attackers too.
+        if (this.dm.fogTurns > 0) monsterDisadvantage = true;
         
         if (!isExtraAttack) this.dm.enemyAdvantageNextAttack = false;
         
@@ -17166,6 +17252,14 @@ class Game {
     
     executeMonsterAbility(monster, ability, char) {
         const abilityName = ability.name || "Special Ability";
+
+        // Silence: magical abilities that rely on incantation or shriek (frighten/charm/petrify
+        // gazes, breath-borne curses) are smothered. Mundane venom/poison still works.
+        const magicalAbilityTypes = ["frighten", "charm", "petrify"];
+        if (this.dm.silenceTurns > 0 && magicalAbilityTypes.includes(ability.type)) {
+            this.log(`🔇 The ${monster.name}'s ${abilityName} is smothered by magical Silence — it fails!`, "success");
+            return;
+        }
 
         // Counterspell opportunity: player can try to counter magical monster abilities
         const magicAbilityTypes = ["breath", "frighten", "poison", "charm", "petrify"];
@@ -19163,7 +19257,14 @@ class Game {
         
         monster.hp -= finalDamage;
 
-        // Boss phase transition: the first time a boss is bloodied (drops below 50% HP), it
+        // Sleep wake-up: any damage rouses a sleeping creature (PHB p.276).
+        if (finalDamage > 0 && (monster._asleep || monster.conditions?.unconscious)) {
+            monster._asleep = false;
+            if (monster.conditions) delete monster.conditions.unconscious;
+            this.log(`⏰ The pain jolts the ${monster.name} awake!`, "combat");
+        }
+
+
         // shifts into a more dangerous second phase instead of just being a smaller HP bar.
         if ((monster.isBoss || monster.boss) && !monster._phaseTwo && monster.hp > 0 &&
             monster.maxHp && monster.hp <= monster.maxHp * 0.5) {
@@ -19268,6 +19369,12 @@ class Game {
         if (playerCondEl) { playerCondEl.style.display = "none"; playerCondEl.innerHTML = ""; }
         this.character.conditionMeta = {};
         this.dm.combatHazard = null; // clear the battlefield hazard for next fight
+        // Clear lingering utility-spell effects so nothing carries into the next fight.
+        this.dm.summons = [];
+        this.dm.silenceTurns = 0;
+        this.dm.fogTurns = 0;
+        this.character.buffs.greaterInvisibility = false;
+        this.character.buffs.swiftQuiver = false;
         // Clear combat-bound conditions so none linger as un-saveable flags after the fight.
         // (These are all conditions that, in 5e, end when combat does or have a save that no
         // longer gets rolled outside combat. Persistent afflictions like petrified/diseased
@@ -19768,7 +19875,7 @@ class Game {
         } else if (spell.buff) {
             this.handleBuffSpell(spellName, spell);
         } else {
-            this.handleUtilitySpell(spellName, spell);
+            this.handleUtilitySpell(spellName, spell, monster, upcastLevel);
         }
 
         // Update UI and proceed with combat
@@ -20261,10 +20368,23 @@ class Game {
             const now = this.character.gainTempHp(mod);
             this.character.buffs.heroism = true;
             this.log(`🦁 Heroism! You're immune to fear and gain ${mod} temporary HP (now ${now}).`, "success");
+        } else if (spellName === "Greater Invisibility") {
+            // You're invisible for the duration (concentration): you have ADVANTAGE on attack
+            // rolls and attackers have DISADVANTAGE against you (PHB — unseen attacker/target).
+            this.character.buffs.greaterInvisibility = true;
+            this.log("👻 You vanish from sight! You attack with advantage and foes strike at you with disadvantage (while concentration holds).", "success");
+        } else if (spellName === "Swift Quiver") {
+            // Concentration: each turn you may use a bonus action to make two weapon attacks
+            // from the conjured quiver. Modeled here as two extra attacks per round.
+            this.character.buffs.swiftQuiver = true;
+            this.log("🏹 Your quiver brims with conjured ammunition! You make two extra weapon attacks each turn (while concentration holds).", "success");
         }
     }
     
-    handleUtilitySpell(spellName, spell) {
+    handleUtilitySpell(spellName, spell, monster = null, upcastLevel = 0) {
+        const char = this.character;
+        if (!monster) monster = this.dm.currentEnemy;
+        const livingEnemies = () => (this.dm.enemies || []).filter(e => e && e.hp > 0);
         if (spellName === "Misty Step") {
             this.log("💨 You vanish in a puff of mist and reappear safely!", "success");
             this.character.buffs.guidingBolt = true; // Advantage from repositioning
@@ -20312,9 +20432,177 @@ class Game {
             } else {
                 this.log(`✨ You cast ${spellName}, but there is no one to revive right now.`, "dm");
             }
+        } else if (spellName === "Sleep") {
+            // 5e: roll 5d8 (+2d8 per slot level above 1st) HP. Enemies in range, from LOWEST
+            // current HP up, fall unconscious until they take damage (or the spell ends).
+            // Undead and creatures immune to being charmed are unaffected.
+            let pool = 0;
+            const dice = 5 + (upcastLevel * 2);
+            for (let i = 0; i < dice; i++) pool += Math.floor(Math.random() * 8) + 1;
+            this.log(`💤 Sleep washes out ${pool} HP worth of slumber...`, "combat");
+            const targets = livingEnemies().sort((a, b) => a.hp - b.hp);
+            let any = false;
+            for (const e of targets) {
+                if (e.hp > pool) break; // not enough magic left to drop this one
+                if (this.monsterIsImmuneToCondition(e, "unconscious") ||
+                    /undead|skeleton|zombie|ghoul|wight|vampire|lich|specter|wraith|ghost|construct|golem|elemental/i.test(`${e.name} ${e.description || ""}`)) {
+                    this.log(`🛡️ The ${e.name} can't be put to sleep — it shrugs off the enchantment.`, "dm");
+                    continue;
+                }
+                e.conditions = e.conditions || {};
+                e.conditions.unconscious = true;
+                e._asleep = true;
+                pool -= e.hp;
+                any = true;
+                this.log(`😴 The ${e.name} collapses into a magical slumber! (It wakes if it takes damage.)`, "success");
+            }
+            if (!any) this.log(`The remaining foes have too much vigor to succumb to Sleep.`, "dm");
+            this.updateCombatHud && this.updateCombatHud();
+        } else if (spellName === "Silence") {
+            // A zone of magical silence: enemies can't cast spells or use magical (verbal)
+            // abilities for the duration. (Also blocks your own verbal spells in fiction —
+            // abstracted here to gag the enemy casters, the tactically useful case.)
+            this.dm.silenceTurns = 1 + 3; // current round + 3
+            this.log("🔇 A globe of total silence falls over the battlefield! Enemy spells and magical shrieks are smothered.", "success");
+        } else if (spellName === "Dispel Magic") {
+            // End magical effects: clears magical conditions afflicting YOU (charm/fear), strips
+            // the target's magical enhancements (regeneration, enrage), and dispels lingering
+            // battlefield magic (silence/fog/spike fields).
+            let didSomething = false;
+            for (const c of ["charmed", "frightened"]) {
+                if (char.hasCondition && char.hasCondition(c)) { char.removeCondition(c); didSomething = true; this.log(`✨ Dispel Magic frees you from being ${c}!`, "success"); }
+            }
+            if (monster) {
+                if (monster.regeneration || /regenerat|troll/i.test(`${monster.name} ${monster.description || ""}`)) {
+                    monster.regenerationSuppressed = true; didSomething = true;
+                    this.log(`✨ Dispel Magic snuffs out the ${monster.name}'s regeneration!`, "success");
+                }
+                if (monster.enrageBonusDamage) { monster.enrageBonusDamage = 0; didSomething = true; this.log(`✨ The ${monster.name}'s magical fury is quelled.`, "success"); }
+            }
+            if (this.dm.fogTurns > 0) { this.dm.fogTurns = 0; didSomething = true; this.log("✨ The conjured fog is dispelled.", "dm"); }
+            if (!didSomething) this.log("✨ You cast Dispel Magic, but there is no magic here to unravel.", "dm");
+        } else if (spellName === "Telekinesis") {
+            // Contested check: your spellcasting ability vs the target's Strength. On a win you
+            // seize the creature in an invisible grip — restrained (speed 0) — and can fling it
+            // for force damage.
+            if (!monster || monster.hp <= 0) {
+                this.log("🌀 You reach out with telekinetic force, but there's no target to grip.", "dm");
+            } else {
+                const yourCheck = Math.floor(Math.random() * 20) + 1 + char.getSpellcastingMod() + char.getProficiencyBonus();
+                const monStr = monster.attackBonus || Math.floor((monster.maxHp || monster.hp) / 12) + 1;
+                const monRoll = Math.floor(Math.random() * 20) + 1 + monStr;
+                this.log(`🌀 Telekinesis — contest: you ${yourCheck} vs ${monster.name} ${monRoll}.`, "combat");
+                if (yourCheck >= monRoll) {
+                    if (this.inflictMonsterCondition(monster, "restrained", char.getSpellSaveDC(), monStr)) {
+                        this.log(`🌀 You seize the ${monster.name} in an invisible grip — it is restrained!`, "success");
+                    }
+                    const fling = this.dm.rollDice("2d6");
+                    const res = this.applyDamageToMonster(monster, fling, "force");
+                    this.log(`💥 You hurl it aside for ${res.finalDamage} force damage!`, "combat");
+                    if (res.message) this.log(res.message, "dm");
+                } else {
+                    this.log(`💪 The ${monster.name} resists your telekinetic grip!`, "danger");
+                }
+            }
+        } else if (spellName === "Spike Growth") {
+            // The ground sprouts hardened spikes — a hazard that shreds enemies that move
+            // through it. Reuses the battlefield-hazard system (2d4 piercing, +1d4 per upcast).
+            const dmg = `${2 + upcastLevel}d4`;
+            this.dm.combatHazard = { name: "Spike Growth", damage: dmg, damageType: "piercing",
+                desc: "A 20-ft patch of ground bristles with conjured spikes.",
+                tip: "Foes that move take piercing damage; shove them into it." };
+            this.log(`🌵 The ground twists into a field of spikes (${dmg} piercing to foes that move through it)!`, "success");
+        } else if (spellName === "Fog Cloud") {
+            // Heavy obscurement: nobody can see clearly, so ALL attack rolls (yours and the
+            // enemies') are made with disadvantage while the fog lingers.
+            this.dm.fogTurns = 1 + 3;
+            this.log("🌫️ A thick fog rolls in! Everyone fights half-blind — all attacks have disadvantage until it clears.", "success");
+        } else if (spellName === "Sleet Storm") {
+            // Freezing sleet turns the ground treacherous: each foe must make a DEX save or be
+            // knocked prone, and the area becomes difficult terrain (modeled as the fog penalty).
+            const dc = char.getSpellSaveDC();
+            this.dm.fogTurns = Math.max(this.dm.fogTurns || 0, 1 + 2); // obscuring + slippery
+            for (const e of livingEnemies()) {
+                const save = Math.floor(Math.random() * 20) + 1 + (e.dexMod || Math.floor((e.attackBonus || 2) / 2));
+                if (save < dc && !this.monsterIsImmuneToCondition(e, "prone")) {
+                    e.conditions = e.conditions || {};
+                    e.conditions.prone = true;
+                    this.log(`🧊 The ${e.name} slips on the sleet and falls prone! (save ${save} vs DC ${dc})`, "success");
+                } else {
+                    this.log(`🧊 The ${e.name} keeps its footing on the ice. (save ${save} vs DC ${dc})`, "dm");
+                }
+            }
+        } else if (spellName === "Wall of Force") {
+            // An invisible, impenetrable wall: the targeted foe is sealed off and cannot reach
+            // or attack you for the next couple of rounds (it may still reposition).
+            if (monster && monster.hp > 0) {
+                monster._walledTurns = 2;
+                this.log(`🧱 A shimmering Wall of Force seals off the ${monster.name} — it can't attack you for 2 rounds!`, "success");
+            } else {
+                this.log("🧱 You raise a Wall of Force.", "dm");
+            }
+        } else if (spellName === "Conjure Animals" || spellName === "Animate Dead" ||
+                   spellName === "Animate Objects" || spellName === "Summon Undead" ||
+                   spellName === "Summon Shadowspawn" || spellName === "Find Familiar") {
+            this._summonCreature(spellName, spell, upcastLevel);
         } else {
             this.log(`✨ You cast ${spellName}!`, "dm");
         }
+    }
+
+    // Add a temporary summoned ally that fights at your side. Summons act just before the
+    // enemies each round (see _summonsAct), strike the current target, and vanish when their
+    // duration runs out or combat ends.
+    _summonCreature(spellName, spell, upcastLevel = 0) {
+        this.dm.summons = this.dm.summons || [];
+        const char = this.character;
+        const profile = {
+            "Conjure Animals":   { name: "Summoned Beasts",   count: 2 + (upcastLevel >= 2 ? 1 : 0), hp: 19, atk: 5, dmg: "2d6", icon: "🐺" },
+            "Animate Dead":      { name: "Animated Skeleton", count: 1 + upcastLevel,                hp: 13, atk: 4, dmg: "1d6+2", icon: "💀" },
+            "Animate Objects":   { name: "Animated Objects",  count: 2,                              hp: 20, atk: 6, dmg: "2d6+2", icon: "🪑" },
+            "Summon Undead":     { name: "Undead Spirit",     hp: 30 + 10 * upcastLevel, atk: 6, dmg: "2d6", icon: "👻", count: 1 },
+            "Summon Shadowspawn":{ name: "Shadow Spirit",     hp: 24 + 10 * upcastLevel, atk: 6, dmg: "2d6", icon: "🌑", count: 1 },
+            "Find Familiar":     { name: "Familiar",          hp: 4,  atk: 3, dmg: "1d4", icon: "🐈", count: 1 }
+        }[spellName] || { name: "Summoned Ally", hp: 15, atk: 4, dmg: "1d6", icon: "✨", count: 1 };
+
+        const n = profile.count || 1;
+        for (let i = 0; i < n; i++) {
+            this.dm.summons.push({
+                name: n > 1 ? `${profile.name} ${i + 1}` : profile.name,
+                icon: profile.icon, hp: profile.hp, maxHp: profile.hp,
+                attackBonus: profile.atk, damage: profile.dmg, turns: 10
+            });
+        }
+        this.log(`${profile.icon} You summon ${n > 1 ? `${n} ${profile.name.toLowerCase()}` : profile.name}! ${this.dm.inCombat ? "They join the fray!" : "They stand ready at your side."}`, "success");
+    }
+
+    // Summoned allies take their turn (called at the top of the enemy phase). Each living
+    // summon strikes the current target, then its duration ticks down.
+    _summonsAct() {
+        const summons = (this.dm.summons || []).filter(s => s && s.hp > 0 && s.turns > 0);
+        if (summons.length === 0) return;
+        const monster = this.dm.currentEnemy;
+        for (const s of summons) {
+            s.turns--;
+            if (!this.dm.inCombat) continue;
+            if (!monster || monster.hp <= 0) continue;
+            const roll = Math.floor(Math.random() * 20) + 1;
+            const total = roll + s.attackBonus;
+            if (roll === 1) {
+                this.log(`${s.icon} ${s.name} misses wildly! (1)`, "dm");
+            } else if (roll === 20 || total >= monster.ac) {
+                let dmg = this.dm.rollDice(s.damage);
+                if (roll === 20) dmg += this.dm.rollDice(s.damage);
+                const res = this.applyDamageToMonster(monster, dmg, "physical");
+                this.log(`${s.icon} ${s.name} strikes the ${monster.name} for ${res.finalDamage} damage!${roll === 20 ? " (CRIT!)" : ""}`, "combat");
+                if (res.message) this.log(res.message, "dm");
+                if (monster.hp <= 0) { this.handleMonsterDeath(monster); if (!this.dm.inCombat) return; }
+            } else {
+                this.log(`${s.icon} ${s.name} attacks the ${monster.name} but misses. (${total} vs AC ${monster.ac})`, "dm");
+            }
+        }
+        // Drop expired summons.
+        this.dm.summons = (this.dm.summons || []).filter(s => s && s.hp > 0 && s.turns > 0);
     }
     
     // Drop concentration on a spell and remove its buff effects
@@ -20329,9 +20617,13 @@ class Game {
         } else if (oldSpell === "Hunter's Mark") {
             char.buffs.huntersMark = false;
         } else if (oldSpell === "Greater Invisibility") {
-            // Remove invisibility advantage
+            // You shimmer back into view — lose the unseen-attacker advantage/defense.
+            char.buffs.greaterInvisibility = false;
+            this.log("👁️ You become visible again as Greater Invisibility ends.", "dm");
         } else if (oldSpell === "Swift Quiver") {
-            // Remove swift quiver bonus attacks
+            // The conjured ammunition winks out — no more bonus volley.
+            char.buffs.swiftQuiver = false;
+            this.log("🏹 Your conjured quiver empties as Swift Quiver ends.", "dm");
         }
         
         this.log(`💔 Concentration on ${oldSpell} ends${reason ? ` (${reason})` : ''}!`, "danger");
@@ -22797,7 +23089,7 @@ class Game {
     openShop(shopType = "general") {
         // Cannot shop while unconscious
         if (this.character.hp <= 0) {
-            this.log("You're unconscious and need medical attention! Rest to recover.", "danger");
+            this.log("You're unconscious and need medical attention! Use <strong>Rest</strong> to recover.", "danger");
             return;
         }
 
@@ -26256,7 +26548,7 @@ class Game {
         
         // Cannot use items while unconscious
         if (this.character.hp <= 0) {
-            this.log("You're unconscious! You need to rest to recover.", "danger");
+            this.log("You're unconscious! Use <strong>Rest</strong> to recover.", "danger");
             return;
         }
         
@@ -26922,7 +27214,7 @@ class Game {
         
         // Pre-flight checks (same as regular travel)
         if (this.character.hp <= 0) {
-            this.log("You're unconscious and need medical attention! Rest to recover.", "danger");
+            this.log("You're unconscious and need medical attention! Use <strong>Rest</strong> to recover.", "danger");
             return;
         }
         if (this.character.exhaustion >= 5) {
@@ -27211,7 +27503,7 @@ class Game {
         
         // Cannot travel while unconscious
         if (this.character.hp <= 0) {
-            this.log("You're unconscious and need medical attention! Rest to recover.", "danger");
+            this.log("You're unconscious and need medical attention! Use <strong>Rest</strong> to recover.", "danger");
             return;
         }
         
@@ -27408,7 +27700,7 @@ class Game {
             // Prologue - Wilderness Road: warn if player hasn't met Stephan yet
             if (location.name === "The Wilderness Road" && !flags.metStephan) {
                 this.log("The wilderness road stretches ahead into dangerous, unknown territory.", "warning");
-                this.log("💡 <strong>TIP:</strong> Travel to Misha's Ferry first — you need a guide before venturing into the wilds!", "loot");
+                this.log("💡 <strong>TIP:</strong> Use <strong>Travel</strong> to reach Misha's Ferry first — you need a guide before venturing into the wilds!", "loot");
                 return;
             }
             
@@ -29665,7 +29957,7 @@ class Game {
                     
                     this.log("You accept Syndra's quest. She provides 50 gold for passage to Chult.", "success");
                     this.log("📜 <strong>QUEST STARTED:</strong> End the Death Curse", "loot");
-                    this.log("💡 <strong>TIP:</strong> Travel to Port Nyanzaru (Harbor, Market, or Colosseum) to begin your adventure!", "loot");
+                    this.log("💡 <strong>TIP:</strong> Use <strong>Travel</strong> to reach Port Nyanzaru (Harbor, Market, or Colosseum) to begin your adventure!", "loot");
                     this.updateChapterDisplay();
                     this.updateUI();
                 });
@@ -29888,7 +30180,7 @@ class Game {
                 this.dm.questFlags.arrivedAtKeep = true;
                 this.log("🚪 You approach the massive gates of the Keep on the Borderlands.", "dm");
                 this.log(`The guards eye you suspiciously but allow you to enter. <em>"Welcome, traveler. Keep your weapons sheathed and cause no trouble."</em>`, "dm");
-                this.log("📜 <strong>TIP:</strong> Travel to the Green Man Inn to find lodging!", "loot");
+                this.log("📜 <strong>TIP:</strong> Use <strong>Travel</strong> to reach the Green Man Inn to find lodging!", "loot");
                 this.updateUI();
                 break;
                 
@@ -30121,7 +30413,7 @@ class Game {
                 }
                 this.grantExperience(50);
                 this.log("You clear out the remaining goblins at the ambush site. Tracks lead north toward the Cragmaw Hideout.", "success");
-                this.log("💡 <strong>TIP:</strong> Travel to the Cragmaw Hideout to rescue Sildar!", "loot");
+                this.log("💡 <strong>TIP:</strong> Use <strong>Travel</strong> to reach the Cragmaw Hideout to rescue Sildar!", "loot");
                 this.updateChapterDisplay();
                 this.updateUI();
                 break;
@@ -30147,7 +30439,7 @@ class Game {
                     
                     // Quest already added by Goblin Ambush Site location check - no need to duplicate
                     
-                    this.log("💡 <strong>TIP:</strong> Travel to the Cragmaw Hideout to rescue Sildar!", "loot");
+                    this.log("💡 <strong>TIP:</strong> Use <strong>Travel</strong> to reach the Cragmaw Hideout to rescue Sildar!", "loot");
                     this.updateChapterDisplay();
                     this.updateUI();
                 });
@@ -30545,7 +30837,7 @@ class Game {
         html += `</div>`;
 
         html += `<div style="font-size:0.82rem;color:#888;font-style:italic;margin-bottom:10px;">`;
-        html += `Tip: Most progression happens by clicking <strong>TRAVEL</strong> (to new locations) or <strong>TALK</strong> (to NPCs at your current location). Check your Journal → Quests tab for active objectives.`;
+        html += `Tip: Most progression happens by using <strong>Travel</strong> (to reach new locations) or <strong>Talk</strong> (to NPCs at your current location). Check your Journal → Quests tab for active objectives.`;
         html += `</div>`;
 
         html += `<button class="close-modal" onclick="this.parentElement.parentElement.remove()">Got it</button>`;
