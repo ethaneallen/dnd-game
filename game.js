@@ -3079,7 +3079,7 @@ const CAMPAIGNS = {
                 { name: "Strahd's Bride", hp: 65, ac: 15, damage: "2d8", xp: 1800, attackBonus: 6, damageType: "necrotic", multiattack: 2, resistances: ["necrotic"], immunities: ["poison"], specialAbilities: [{ name: "Charm Gaze", type: "frighten", triggerChance: 0.25, dc: 15 }], description: "One of Strahd's vampire brides, beautiful and deadly, stalking Castle Ravenloft's halls.", image: "images/monsters/strahds-bride.jpg" }
             ],
             5: [
-                { name: "Strahd von Zarovich", hp: 144, ac: 16, damage: "3d8", xp: 10000, attackBonus: 9, damageType: "slashing", multiattack: 3, resistances: ["necrotic"], immunities: ["poison"], vulnerabilities: ["radiant"], saveDC: 18, specialAbilities: [{ name: "Charm", type: "frighten", triggerChance: 0.3, dc: 17 }, { name: "Children of the Night", type: "summon", triggerChance: 0.2 }], description: "The ancient vampire lord of Barovia! He regenerates and controls the very land.", boss: true, legendaryResistances: 3, image: "images/monsters/strahd-von-zarovich.jpg" },
+                { name: "Strahd von Zarovich", hp: 144, ac: 16, damage: "3d8", xp: 13000, attackBonus: 9, damageType: "slashing", multiattack: 3, resistances: ["necrotic"], immunities: ["poison"], vulnerabilities: ["radiant"], saveDC: 18, specialAbilities: [{ name: "Charm", type: "frighten", triggerChance: 0.3, dc: 17 }, { name: "Children of the Night", type: "summon", triggerChance: 0.2 }], description: "The ancient vampire lord of Barovia! He regenerates and controls the very land.", boss: true, legendaryResistances: 3, image: "images/monsters/strahd-von-zarovich.jpg" },
                 { name: "Amber Golem", hp: 95, ac: 17, damage: "3d6", xp: 2300, attackBonus: 8, damageType: "bludgeoning", multiattack: 2, immunities: ["poison", "psychic"], description: "A construct guarding the Amber Temple's darkest secrets.", image: "images/monsters/amber-golem.jpg" },
                 { name: "Death Knight", hp: 95, ac: 18, damage: "3d8", xp: 8400, attackBonus: 8, damageType: "slashing", multiattack: 3, immunities: ["poison"], resistances: ["necrotic"], specialAbilities: [{ name: "Hellfire Orb", type: "breath", triggerChance: 0.25, damage: "4d6", damageType: "fire", dc: 18 }], description: "A fallen paladin serving dark powers.", image: "images/monsters/death-knight.jpg" },
                 { name: "Beucephalus", hp: 93, ac: 13, damage: "3d6", xp: 1800, attackBonus: 6, damageType: "fire", multiattack: 2, resistances: ["fire"], description: "Strahd's nightmare steed, wreathed in hellfire. It can ride through the Ethereal Plane.", image: "images/monsters/beucephalus.jpg" },
@@ -3202,7 +3202,7 @@ const CAMPAIGNS = {
                 { name: "Eblis", hp: 13, ac: 13, damage: "1d8", xp: 200, attackBonus: 3, damageType: "piercing", description: "Crane-like creatures that bargain for information.", image: "images/monsters/eblis.jpg" },
                 { name: "Kamadan", hp: 67, ac: 13, damage: "2d6", xp: 700, attackBonus: 5, damageType: "piercing", multiattack: 2, saveDC: 12, specialAbilities: [{ name: "Sleep Breath", type: "frighten", triggerChance: 0.25, dc: 12 }], description: "A leopard with snakes growing from its shoulders. Its breath puts foes to sleep!", image: "images/monsters/kamadan.jpg" },
                 { name: "Assassin Vine", hp: 85, ac: 13, damage: "2d6", xp: 450, attackBonus: 6, damageType: "bludgeoning", description: "A predatory plant that strangles prey with its animate vines.", image: "images/monsters/assassin-vine.jpg" },
-                { name: "Triceratops", hp: 95, ac: 13, damage: "3d8", xp: 1100, attackBonus: 9, damageType: "bludgeoning", description: "A massive three-horned dinosaur that charges in a fury!", image: "images/monsters/triceratops.jpg" },
+                { name: "Triceratops", hp: 95, ac: 13, damage: "3d8", xp: 1800, attackBonus: 9, damageType: "bludgeoning", description: "A massive three-horned dinosaur that charges in a fury!", image: "images/monsters/triceratops.jpg" },
                 { name: "Ankylosaurus", hp: 68, ac: 15, damage: "3d6", xp: 700, attackBonus: 7, damageType: "bludgeoning", description: "An armored dinosaur with a devastating tail club.", image: "images/monsters/ankylosaurus.jpg" },
                 { name: "King of Feathers", hp: 136, ac: 15, damage: "3d12", xp: 5000, attackBonus: 10, damageType: "piercing", multiattack: 2, specialAbilities: [{ name: "Feather Burst", type: "breath", triggerChance: 0.25, damage: "3d8", damageType: "radiant", dc: 15 }], description: "A legendary T-Rex covered in brilliant feathers, worshipped by the Omu denizens!", boss: true, image: "images/monsters/king-of-feathers.jpg" },
                 { name: "Girallon", hp: 59, ac: 13, damage: "2d6", xp: 450, attackBonus: 5, damageType: "slashing", multiattack: 3, description: "A four-armed carnivorous ape, incredibly strong and aggressive.", image: "images/monsters/girallon.jpg" },
@@ -3219,7 +3219,7 @@ const CAMPAIGNS = {
                 { name: "Tomb Dwarf", hp: 30, ac: 16, damage: "1d8", xp: 200, attackBonus: 5, damageType: "slashing", immunities: ["poison"], description: "An undead dwarven servant of Acererak, maintaining the tomb's deadly traps for eternity.", image: "images/monsters/tomb-dwarf.jpg" }
             ],
             5: [
-                { name: "Acererak", hp: 285, ac: 21, damage: "4d8", xp: 25000, attackBonus: 12, damageType: "necrotic", multiattack: 2, immunities: ["poison", "necrotic"], resistances: ["cold"], saveDC: 23, specialAbilities: [{ name: "Sphere of Annihilation", type: "breath", triggerChance: 0.3, damage: "4d10", damageType: "necrotic", dc: 22 }], description: "The legendary archlich! He toys with adventurers before destroying them.", boss: true, legendaryResistances: 3, image: "images/monsters/acererak.jpg" },
+                { name: "Acererak", hp: 285, ac: 21, damage: "4d8", xp: 50000, attackBonus: 12, damageType: "necrotic", multiattack: 2, immunities: ["poison", "necrotic"], resistances: ["cold"], saveDC: 23, specialAbilities: [{ name: "Sphere of Annihilation", type: "breath", triggerChance: 0.3, damage: "4d10", damageType: "necrotic", dc: 22 }], description: "The legendary archlich! He toys with adventurers before destroying them.", boss: true, legendaryResistances: 3, image: "images/monsters/acererak.jpg" },
                 { name: "Atropal", hp: 225, ac: 7, damage: "4d8", xp: 13000, attackBonus: 8, damageType: "necrotic", immunities: ["poison", "necrotic"], resistances: ["cold"], saveDC: 19, specialAbilities: [{ name: "Life Drain Aura", type: "poison", triggerChance: 0.4, damage: "3d8", damageType: "necrotic", dc: 19 }], description: "An undead godling, fed by the Soulmonger. Its wail can kill instantly!", boss: true, legendaryResistances: 2, image: "images/monsters/atropal.jpg" },
                 { name: "Tomb Guardian", hp: 75, ac: 17, damage: "2d10", xp: 1800, attackBonus: 7, damageType: "bludgeoning", multiattack: 2, immunities: ["poison", "psychic"], description: "A construct defending the tomb's deepest levels.", image: "images/monsters/tomb-guardian.jpg" },
                 { name: "Soulmonger", hp: 200, ac: 15, damage: "3d10", xp: 8000, attackBonus: 8, damageType: "necrotic", immunities: ["poison", "psychic"], saveDC: 17, specialAbilities: [{ name: "Soul Drain", type: "poison", triggerChance: 0.3, damage: "3d10", damageType: "necrotic", dc: 17 }], description: "The source of the Death Curse! Destroy it to save countless souls.", boss: true, legendaryResistances: 1, image: "images/monsters/soulmonger.jpg" },
@@ -4416,6 +4416,10 @@ class Character {
         this.stats = { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
         this.hp = 0;
         this.maxHp = 0;
+        // Temporary hit points (5e): a separate buffer that absorbs damage before real HP.
+        // Doesn't stack (you keep the higher source), isn't restored by healing, and is lost
+        // on a long rest. Tracked here and drained first in takeDamage().
+        this.tempHp = 0;
         this.ac = 10;
         this.inventory = [];
         this.gold = 0;
@@ -5572,6 +5576,8 @@ class Character {
         if ((typeof window !== "undefined" && window.game && window.game.godMode) || (typeof game !== "undefined" && game && game.godMode)) {
             return true;
         }
+        // Clear any stale massive-damage flag from a previous hit before recomputing.
+        this.massiveDeath = false;
         let finalDamage = damage;
         
         // Racial damage resistances
@@ -5605,6 +5611,20 @@ class Character {
             this.racialAbilities.stonesEnduranceUsed = true;
         }
         
+        // Temporary HP (5e): absorbs damage before real HP. Drain it first; only the overflow
+        // carries through to actual hit points.
+        if (finalDamage > 0 && this.tempHp > 0) {
+            const absorbed = Math.min(this.tempHp, finalDamage);
+            this.tempHp -= absorbed;
+            finalDamage -= absorbed;
+        }
+
+        // Massive damage instant death (PHB p.197): if damage that reaches your real HP would
+        // reduce you to 0 AND the leftover equals or exceeds your HP maximum, you die outright
+        // (no death saves). Checked only when the blow actually drops you.
+        const wouldInstantlyDie = finalDamage > 0 && (this.hp - finalDamage) <= 0 &&
+            (finalDamage - this.hp) >= this.maxHp;
+
         this.hp = Math.max(0, this.hp - finalDamage);
         
         // Half-Orc Relentless Endurance: drop to 1 HP instead of 0, once per long rest
@@ -5620,6 +5640,12 @@ class Character {
             // concentration. Clearing here also prevents a dangling concentration
             // reference from surviving into a save taken while down.
             this.concentrating = null;
+            // Massive damage: mark for instant death (handled by the combat layer, which still
+            // sees hp === 0). Relentless Endurance / Half-Orc above can save you from a normal
+            // drop but NOT from massive-damage instant death, matching 5e.
+            if (wouldInstantlyDie && this.hp === 0) {
+                this.massiveDeath = true;
+            }
         }
         return this.hp > 0;
     }
@@ -5630,6 +5656,17 @@ class Character {
         if (this.hp > 0) {
             this.deathSaves = { successes: 0, failures: 0, stable: false };
         }
+    }
+
+    // Grant temporary HP (5e): temp HP does NOT stack — you keep whichever total is higher
+    // (the new grant or your current temp HP), it's not added on top. Returns the amount now
+    // in effect. Temp HP is cleared on a long rest and is never restored by healing.
+    gainTempHp(amount) {
+        const amt = Math.max(0, Math.floor(amount));
+        if (amt > (this.tempHp || 0)) {
+            this.tempHp = amt;
+        }
+        return this.tempHp;
     }
 
     // Condition management
@@ -5959,6 +5996,7 @@ class Character {
         if (!char.subclass) char.subclass = null;
         if (!char.subclassFeatures) char.subclassFeatures = {};
         if (char.concentrating === undefined) char.concentrating = null;
+        if (char.tempHp === undefined) char.tempHp = 0;
         if (!char.feats) char.feats = [];
         if (!char.featData) char.featData = {};
         if (char.secondWindUsed === undefined) char.secondWindUsed = false;
@@ -6937,7 +6975,19 @@ class DungeonMaster {
         }
         const str = this.character.stats.str;
         this.character.carryCapacity = str * 15; // Standard 5e: STR × 15 lbs
-        
+
+        // A mount carries your gear (as a steed or pack animal) whether you're riding it or
+        // leading it, so a living mount extends every encumbrance tier. The mount's
+        // carryCapacity is expressed on the same lbs scale as STR×15, so we convert it to an
+        // "equivalent STR" and add the matching amount to each threshold to keep tiers
+        // proportional (encumbered STR×5, heavy STR×10, max STR×15).
+        let mountCapacity = 0;
+        const mount = this.character.mount;
+        if (mount && (mount.currentHP == null || mount.currentHP > 0) && mount.carryCapacity) {
+            mountCapacity = mount.carryCapacity;
+        }
+        const mountEquivStr = mountCapacity / 15;
+
         let currentWeight = 0;
         // Use real item weights from the ITEM_WEIGHTS table
         for (const item of this.character.inventory) {
@@ -6956,8 +7006,10 @@ class DungeonMaster {
         // Encumbered: > STR × 5 — speed -10 ft
         // Heavily Encumbered: > STR × 10 — speed -20 ft, disadvantage on STR/DEX/CON checks, attacks & saves
         // Over capacity: > STR × 15 — speed drops to 0
-        const encThreshold = str * 5;
-        const heavyThreshold = str * 10;
+        const encThreshold = (str + mountEquivStr) * 5;
+        const heavyThreshold = (str + mountEquivStr) * 10;
+        // Effective max capacity includes the mount's full carry capacity.
+        this.character.carryCapacity = str * 15 + mountCapacity;
         const encumbered = currentWeight > encThreshold;
         const heavilyEncumbered = currentWeight > heavyThreshold;
         const overCapacity = currentWeight > this.character.carryCapacity;
@@ -6965,6 +7017,7 @@ class DungeonMaster {
         return {
             current: Math.round(currentWeight * 10) / 10, // Round to 1 decimal
             capacity: this.character.carryCapacity,
+            mountCapacity, // lbs of extra capacity provided by the active mount (0 if none)
             encThreshold,
             heavyThreshold,
             encumbered,
@@ -11353,6 +11406,17 @@ class Game {
         hpBarEl.classList.toggle("low-hp", hpPercent > 0 && hpPercent <= 30);
         document.getElementById("currentHp").textContent = this.character.hp;
         document.getElementById("maxHp").textContent = displayMaxHp;
+        // Temporary HP indicator (5e): a blue buffer shown alongside real HP when present.
+        const tempHpEl = document.getElementById("tempHpText");
+        if (tempHpEl) {
+            const thp = this.character.tempHp || 0;
+            if (thp > 0) {
+                tempHpEl.textContent = `(+${thp} temp)`;
+                tempHpEl.style.display = "";
+            } else {
+                tempHpEl.style.display = "none";
+            }
+        }
         
         // Update XP bar
         const xpNeeded = getXpThreshold(this.character.level);
@@ -11670,7 +11734,7 @@ class Game {
                 const heavyPct = Math.round((enc.heavyThreshold / enc.capacity) * 100);
                 encumPanel.innerHTML = `
                     <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;margin-bottom:4px;">
-                        <span style="color:#c9a227;">⚖️ <strong>${enc.current}</strong> / ${enc.capacity} lbs</span>
+                        <span style="color:#c9a227;">⚖️ <strong>${enc.current}</strong> / ${enc.capacity} lbs${enc.mountCapacity ? ` <span style="color:#7fd48a;font-size:0.68rem;" title="Includes +${enc.mountCapacity} lbs from your mount carrying your gear">🐴 +${enc.mountCapacity}</span>` : ''}</span>
                         ${encLabel ? `<span style="color:${labelColor};font-weight:bold;font-size:0.72rem;">${encLabel}</span>` : '<span style="color:#2ecc71;font-weight:bold;">✓ OK</span>'}
                     </div>
                     <div style="position:relative;height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:visible;margin-bottom:20px;">
@@ -14793,6 +14857,28 @@ class Game {
             char.buffs.shieldActive = false;
         }
 
+        // Drink a potion — in 5e, quaffing a potion is an Action. Lets you heal yourself or
+        // your mount in the middle of a fight.
+        if (action === "potion") {
+            if (!this.dm.actions.action) {
+                this.log(`⚠️ You've already used your action this turn!`, "warning");
+                this.processingCombatAction = false;
+                return;
+            }
+            const used = await this._combatDrinkPotion();
+            if (!used) {
+                // No potion available, or the player cancelled — don't burn the action or
+                // pass the turn to the enemies.
+                this.processingCombatAction = false;
+                return;
+            }
+            this.dm.useAction('action');
+            this.updateUI();
+            if (this.dm.inCombat) this.monsterTurn();
+            this.processingCombatAction = false;
+            return;
+        }
+
         // Action Surge (Fighter): arm a one-shot flag so that after this turn's action
         // resolves, the player is granted ANOTHER action instead of passing the turn to the
         // monsters. Once (twice at L17) per short rest. Can be pressed before OR after the
@@ -16646,12 +16732,16 @@ class Game {
                             this.log(`💥 You take ${damage} damage from the legendary action!`, "danger");
                         }
                         if (result.condition === "frightened") {
+                            if (char.buffs && char.buffs.heroism) {
+                                this.log(`🦁 The ${monster.name} tries to frighten you, but Heroism makes you immune to fear!`, "success");
+                            } else {
                             const wisSave = Math.floor(Math.random() * 20) + 1 + (char.getModifier("wis") || 0);
                             if (wisSave < 15) {
                                 char.addCondition("frightened", { saveDc: 15, saveAbility: "wis" });
                                 this.log(`😱 You are frightened by the ${monster.name}! (WIS save: ${wisSave} vs DC 15)`, "danger");
                             } else {
                                 this.log(`💪 You resist the frightening roar! (WIS save: ${wisSave} vs DC 15)`, "success");
+                            }
                             }
                         }
                     }
@@ -16991,7 +17081,21 @@ class Game {
                         return; // Mount absorbed the hit
                     }
                 }
+                // Armor of Agathys: while you have its temp HP, a creature that hits you with a
+                // melee attack takes cold damage. Captured before the hit drains temp HP.
+                const agathysActive = char.buffs.armorOfAgathys && char.tempHp > 0;
                 this.applyMonsterDamageToPlayer(char, damage, isCrit, damageType);
+                if (agathysActive && monster.hp > 0) {
+                    const cold = char.buffs.armorOfAgathys;
+                    monster.hp = Math.max(0, monster.hp - cold);
+                    this.log(`🧊 Armor of Agathys retaliates — the ${monster.name} takes ${cold} cold damage!`, "success");
+                    // The shield's cold damage persists only while you still have its temp HP.
+                    if (char.tempHp <= 0) {
+                        char.buffs.armorOfAgathys = 0;
+                        this.log(`🧊 Your Armor of Agathys shatters as its last temporary HP fades.`, "dm");
+                    }
+                    if (monster.hp <= 0) this.handleMonsterDeath(monster);
+                }
             }
         } else {
             soundManager.playMiss();
@@ -17024,6 +17128,14 @@ class Game {
             } else {
                 this.stats.damageThisCombat += damage;
                 soundManager.playDeath();
+                // Massive damage (5e PHB p.197): the leftover damage met or exceeded your HP
+                // maximum, so you die instantly with no death saves.
+                if (char.massiveDeath) {
+                    char.massiveDeath = false;
+                    this.log("💀 MASSIVE DAMAGE! The blow is so overwhelming you die instantly!", "danger");
+                    this.gameOver();
+                    return;
+                }
                 this.log("💀 You fall unconscious! Roll death saves to survive!", "danger");
                 this.showDeathSaveButton();
             }
@@ -17089,6 +17201,11 @@ class Game {
                 
             case "frighten":
                 // Frightful Presence: WIS save or become frightened
+                // Heroism (5e): the target is immune to being frightened while the spell lasts.
+                if (char.buffs && char.buffs.heroism) {
+                    this.log(`🦁 ${monster.name} tries to frighten you, but Heroism makes you immune to fear!`, "success");
+                    break;
+                }
                 let wisRoll1 = this.dm.rollDice("1d20");
                 let wisRoll2 = this.dm.rollDice("1d20");
                 // Halfling Brave: advantage on saves vs frightened
@@ -19645,7 +19762,7 @@ class Game {
                 }
             }
         } else if (spell.healing) {
-            this.handleHealingSpell(spellName, spell, spellMod, upcastLevel);
+            await this.handleHealingSpell(spellName, spell, spellMod, upcastLevel);
         } else if (spell.defensive) {
             this.handleDefensiveSpell(spellName, spell);
         } else if (spell.buff) {
@@ -19861,7 +19978,59 @@ class Game {
         }
     }
     
-    handleHealingSpell(spellName, spell, spellMod, upcastLevel = 0) {
+    // Restore HP to the active mount, capped at its max. Returns HP actually restored.
+    healMount(amount) {
+        const mount = this.character.mount;
+        if (!mount || mount.currentHP == null || mount.currentHP <= 0) return 0;
+        const before = mount.currentHP;
+        mount.currentHP = Math.min(mount.hp, mount.currentHP + amount);
+        return mount.currentHP - before;
+    }
+
+    // Prompt the player to direct healing at themselves or their mount. In 5e a healing spell
+    // (or a potion administered to another creature) can target any creature in reach, so if
+    // you have a living, injured mount you get to choose. Resolves to 'self', 'mount', or
+    // null (the player closed the prompt without choosing). If there's no injured living
+    // mount, resolves to 'self' immediately with no prompt.
+    _chooseHealTarget(actionLabel = 'the healing') {
+        const char = this.character;
+        const mount = char.mount;
+        const mountEligible = mount && mount.currentHP > 0 && mount.currentHP < mount.hp;
+        if (!mountEligible) return Promise.resolve('self');
+        return new Promise((resolve) => {
+            const html = `
+                <h2>💚 Direct ${actionLabel}</h2>
+                <p class="setting-desc">Who do you want to heal?</p>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+                    <button class="setting-btn" data-heal-target="self" style="text-align:left;">
+                        🧑 <strong>Yourself</strong> — ${char.hp}/${char.maxHp} HP
+                    </button>
+                    <button class="setting-btn" data-heal-target="mount" style="text-align:left;">
+                        ${mount.color || '🐴'} <strong>Your ${mount.name}</strong> — ${mount.currentHP}/${mount.hp} HP
+                    </button>
+                </div>`;
+            const modal = this.showModal(html, { size: 'small' });
+            let resolved = false;
+            const finish = (val) => {
+                if (resolved) return;
+                resolved = true;
+                obs.disconnect();
+                modal.remove();
+                resolve(val);
+            };
+            // Resolve null if the player dismisses the modal via ✕ / backdrop / Escape
+            // (showModal removes the element on those paths).
+            const obs = new MutationObserver(() => {
+                if (!document.body.contains(modal)) finish(null);
+            });
+            obs.observe(document.body, { childList: true });
+            modal.querySelectorAll('[data-heal-target]').forEach(btn => {
+                btn.addEventListener('click', () => finish(btn.getAttribute('data-heal-target')));
+            });
+        });
+    }
+
+    async handleHealingSpell(spellName, spell, spellMod, upcastLevel = 0) {
         const char = this.character;
         let healAmount = this.dm.rollDice(spell.healing) + spellMod;
         
@@ -19875,14 +20044,29 @@ class Game {
             this.log(`⬆️ Upcast +${upcastHeal} healing!`, "success");
         }
         
-        // Life Domain: Disciple of Life adds 2 + spell level to healing
+        // Life Domain: Disciple of Life adds 2 + spell level to healing (any creature healed)
         if (char.subclass === 'Life') {
             const spellLevel = (spell.level || 1) + upcastLevel;
             const lifeBonus = 2 + spellLevel;
             healAmount += lifeBonus;
             this.log(`💛 Disciple of Life: +${lifeBonus} bonus healing!`, "success");
         }
-        
+
+        // Choose target — yourself or your mount (5e: a healing spell can target any creature).
+        const target = await this._chooseHealTarget(spellName);
+        if (target === 'mount') {
+            const healed = this.healMount(healAmount);
+            this.trackStat('totalHealing', healed);
+            this.log(`💚 ${spellName} restores ${healed} HP to your ${char.mount.name}! (${char.mount.currentHP}/${char.mount.hp})`, "success");
+            // Life Domain (7): Blessed Healer triggers when you heal a creature other than yourself.
+            if (char.subclass === 'Life' && char.subclassFeatures['Life_7']) {
+                const selfHeal = 2 + (spell.level || 1);
+                char.heal(selfHeal);
+                this.log(`💛 Blessed Healer: You also regain ${selfHeal} HP! (${char.hp}/${char.maxHp})`, "success");
+            }
+            return;
+        }
+
         char.heal(healAmount);
         this.trackStat('totalHealing', healAmount);
         this.log(`💚 ${spellName} restores ${healAmount} HP! (Now at ${char.hp}/${char.maxHp})`, "success");
@@ -19894,7 +20078,86 @@ class Game {
             this.log(`💛 Blessed Healer: You also regain ${selfHeal} HP! (${char.hp}/${char.maxHp})`, "success");
         }
     }
-    
+
+    // Returns the healing dice expression for a drinkable healing potion, or null if the item
+    // isn't a quaffable healing item. Mirrors the amounts used by _useItemInner so combat and
+    // out-of-combat potion healing stay consistent.
+    _healingPotionDice(item) {
+        const name = typeof item === "string" ? item : item?.name;
+        if (!name) return null;
+        const campaignItems = GAME_DATA.campaignItems[this.dm.campaignId];
+        if (campaignItems && campaignItems.consumables && campaignItems.consumables[name]
+            && campaignItems.consumables[name].effect === "heal" && campaignItems.consumables[name].healAmount) {
+            return campaignItems.consumables[name].healAmount;
+        }
+        const map = {
+            "Greater Healing Potion": "4d4+4",
+            "Potion of Greater Healing": "4d4+4",
+            "Morning Lord's Blessing": "4d4+4",
+            "Spirit of Ubtao": "4d4+4",
+            "Hutaakan Healing Salve": "4d4+4",
+        };
+        if (map[name]) return map[name];
+        // Generic healing potions ("Healing Potion", "Potion of Healing", named variants).
+        if (name.includes("Healing")) return "2d4+2";
+        return null;
+    }
+
+    // Combat potion flow: pick a healing potion, choose self/mount, apply, consume one.
+    // Returns true if a potion was actually drunk (so the caller spends the action and passes
+    // the turn), or false if there was nothing to drink or the player cancelled.
+    async _combatDrinkPotion() {
+        const char = this.character;
+        // Tally drinkable healing potions currently carried.
+        const counts = {};
+        for (const it of char.inventory) {
+            const name = typeof it === "string" ? it : it?.name;
+            if (name && this._healingPotionDice(name)) counts[name] = (counts[name] || 0) + 1;
+        }
+        const names = Object.keys(counts);
+        if (names.length === 0) {
+            this.log("🧪 You have no healing potions to drink!", "warning");
+            return false;
+        }
+        // Which potion?
+        const chosen = await new Promise((resolve) => {
+            const rows = names.map(n => `
+                <button class="setting-btn" data-potion="${n.replace(/"/g, '&quot;')}" style="text-align:left;display:block;width:100%;margin-bottom:6px;">
+                    🧪 ${n}${counts[n] > 1 ? ` <span style="color:#4CAF50;">x${counts[n]}</span>` : ''} <span style="color:#aaa;font-size:0.8rem;">(${this._healingPotionDice(n)})</span>
+                </button>`).join("");
+            const html = `<h2>🧪 Drink a Potion</h2><p class="setting-desc">Drinking a potion uses your action.</p>${rows}`;
+            const modal = this.showModal(html, { size: 'small' });
+            let done = false;
+            const finish = (val) => { if (done) return; done = true; obs.disconnect(); modal.remove(); resolve(val); };
+            const obs = new MutationObserver(() => { if (!document.body.contains(modal)) finish(null); });
+            obs.observe(document.body, { childList: true });
+            modal.querySelectorAll('[data-potion]').forEach(btn =>
+                btn.addEventListener('click', () => finish(btn.getAttribute('data-potion'))));
+        });
+        if (!chosen) return false; // cancelled potion choice
+
+        // Self or mount?
+        const target = await this._chooseHealTarget(`the ${chosen}`);
+        if (target === null) return false; // cancelled target choice
+
+        const idx = char.inventory.findIndex(i => (typeof i === "string" ? i : i?.name) === chosen);
+        if (idx === -1) { this.log("🧪 That potion is no longer in your pack.", "warning"); return false; }
+        const heal = this.dm.rollDice(this._healingPotionDice(chosen));
+        char.inventory.splice(idx, 1);
+
+        if (target === 'mount') {
+            const healed = this.healMount(heal);
+            this.trackStat('totalHealing', healed);
+            this.log(`🧪 You pour the ${chosen} into your ${char.mount.name} — ${healed} HP restored! (${char.mount.currentHP}/${char.mount.hp})`, "success");
+        } else {
+            char.heal(heal);
+            this.trackStat('totalHealing', heal);
+            this.log(`🧪 You drink the ${chosen} and heal ${heal} HP! (${char.hp}/${char.maxHp})`, "success");
+        }
+        if (this.autoSaveGame) this.autoSaveGame();
+        return true;
+    }
+
     handleDefensiveSpell(spellName, spell) {
         if (spellName === "Shield") {
             this.character.buffs.shieldActive = true;
@@ -19984,6 +20247,20 @@ class Game {
         } else if (spellName === "Hunter's Mark") {
             this.character.buffs.huntersMark = true;
             this.log("🎯 You mark your quarry! +1d6 damage to weapon attacks!", "success");
+        } else if (spellName === "Armor of Agathys") {
+            // Gain temp HP (5 per spell level) and a cold-retaliation shield while it lasts.
+            const lvl = (spell.level || 1);
+            const thp = 5 * lvl;
+            const now = this.character.gainTempHp(thp);
+            this.character.buffs.armorOfAgathys = 5 * lvl; // cold damage dealt to melee attackers
+            this.log(`🧊 Armor of Agathys! You gain ${thp} temporary HP (now ${now}). Melee attackers take ${5 * lvl} cold damage.`, "success");
+        } else if (spellName === "Heroism") {
+            // Immune to frightened; temp HP equal to spellcasting modifier each turn (modeled
+            // as an immediate grant of that amount).
+            const mod = Math.max(1, this.character.getSpellcastingMod ? this.character.getSpellcastingMod() : this.character.getModifier("cha"));
+            const now = this.character.gainTempHp(mod);
+            this.character.buffs.heroism = true;
+            this.log(`🦁 Heroism! You're immune to fear and gain ${mod} temporary HP (now ${now}).`, "success");
         }
     }
     
@@ -23428,6 +23705,7 @@ class Game {
                 <div class="journal-entry" style="border-left: 3px solid ${encColor}; padding-left: 10px;">
                     <div class="journal-title">⚖️ Carrying Capacity</div>
                     <div class="journal-text">${enc.current} / ${enc.capacity} lbs — <span style="color:${encColor};">${encStatus}</span></div>
+                    ${enc.mountCapacity ? `<div class="journal-text" style="color:#7fd48a;margin-top:2px;">🐴 Your mount adds +${enc.mountCapacity} lbs of carrying capacity.</div>` : ''}
                     <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin-top:4px;">
                         <div style="height:100%;width:${pct}%;background:${encColor};border-radius:3px;transition:width 0.3s;"></div>
                     </div>
@@ -27926,6 +28204,19 @@ class Game {
             const halvedMax = Math.floor(char.maxHp / 2);
             char.hp = Math.min(char.hp, halvedMax);
             this.log(`⚠️ Exhaustion level 4: Your HP maximum is halved to ${halvedMax}!`, "danger");
+        }
+
+        // Temporary HP and its sources don't carry past a long rest (5e: temp HP is lost when
+        // you finish a long rest).
+        char.tempHp = 0;
+        if (char.buffs) { char.buffs.armorOfAgathys = 0; char.buffs.heroism = false; }
+
+        // Mount recovery: in 5e a creature regains all lost HP at the end of a long rest, so a
+        // living mount is fully healed alongside you. A mount reduced to 0 HP is dead and a
+        // mundane rest can't bring it back — that requires a new mount (or revival magic).
+        if (char.mount && char.mount.currentHP > 0 && char.mount.currentHP < char.mount.hp) {
+            char.mount.currentHP = char.mount.hp;
+            this.log(`🐴 Your ${char.mount.name} is fully rested, restored to ${char.mount.hp} HP.`, "success");
         }
 
         // Restore all hit dice

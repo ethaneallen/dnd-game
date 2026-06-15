@@ -5213,7 +5213,7 @@
             
             <div class="hp-bar">
                 <div class="hp-bar-fill" id="hpBar" style="width: 100%"></div>
-                <div class="hp-bar-text"><span id="currentHp">10</span>/<span id="maxHp">10</span> HP</div>
+                <div class="hp-bar-text"><span id="currentHp">10</span>/<span id="maxHp">10</span> HP<span id="tempHpText" style="display:none;color:#4db8ff;font-weight:bold;margin-left:6px;"></span></div>
             </div>
             
             <p style="font-size: 0.8rem; color: #888;">Experience</p>
@@ -5542,6 +5542,10 @@
                                     <button class="action-btn hidden" id="bonusActionBtn" onclick="game.showBonusActionMenu()" aria-label="Use bonus action">
                                         <span class="icon">⚡</span>
                                         Bonus <span class="shortcut-hint">[B]</span>
+                                    </button>
+                                    <button class="action-btn" onclick="game.combatAction('potion')" title="Drink a healing potion (your action). You can heal yourself or your mount.">
+                                        <span class="icon">🧪</span>
+                                        Potion
                                     </button>
                                     <button class="action-btn" onclick="game.combatAction('defend')">
                                         <span class="icon">🛡️</span>
